@@ -1,0 +1,29 @@
+project Simple is
+
+   for Source_Dirs use (".", "../../../bindings", "../../../bindings/win32", "../../../src//**", "../../../ada05_proxy");
+   for Main use ("simple.adb");
+   for Object_Dir use "..\..\..\obj\gnatdebg";
+
+   package Linker is
+      for Default_Switches ("ada") use ("-lopengl32", "../../../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../../../obj/libwin32");
+   end Linker;
+
+   package Binder is
+   end Binder;
+
+   package Compiler is
+      for Default_Switches ("ada") use ("-O2", "-gnatp", "-g", "-gnat95", "-gnat05", "-gnatVc", "-gnatVd", "-gnatVf", "-gnatVi", "-gnatVm", "-gnatVo", "-gnatVr", "-gnatVs", "-gnatVt", "-gnatecdebug.pra");
+   end Compiler;
+
+   package Builder is
+      for Default_Switches ("ada") use ("-g");
+   end Builder;
+
+   package Ide is
+      for Default_Switches ("adacontrol") use ("-FHgnat_short");
+   end Ide;
+
+   for Exec_Dir use ".";
+
+end Simple;
+

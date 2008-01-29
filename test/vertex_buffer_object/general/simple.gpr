@@ -1,0 +1,29 @@
+with "aws"; -- only for png_io
+
+project Simple is
+
+   for Source_Dirs use (".", "../../../bindings", "../../../bindings/linux", "../../../src//**", "../../../ada05_proxy", "../../../../png_io");
+   for Main use ("simple.adb");
+
+   package Linker is
+      for Default_Switches ("ada") use ("-g", "-lglut", "--LINK=g++");
+   end Linker;
+
+   package Binder is
+      for Default_Switches ("ada") use ("-E");
+   end Binder;
+
+   package Compiler is
+      for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnat95", "-gnat05", "-gnatVc", "-gnatVd", "-gnatVf", "-gnatVi", "-gnatVm", "-gnatVo", "-gnatVr", "-gnatVs", "-gnatVt", "-gnatecdebug.pra");
+   end Compiler;
+
+   package Builder is
+      for Default_Switches ("ada") use ("-g");
+   end Builder;
+
+   package Ide is
+      for Default_Switches ("adacontrol") use ("-Fxgnat_short");
+   end Ide;
+
+end Simple;
+

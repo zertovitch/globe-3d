@@ -1,0 +1,40 @@
+project Globe_3D_Gps_Linux is
+
+   for Object_Dir use "../obj/gnatdebg";
+   for Source_Dirs use (".", "../bindings", "../bindings/linux", "../src//**", "../ada05_proxy");
+   for Main use ("globe_3d_demo.adb");
+   for Exec_Dir use ".";
+
+   package Ide is
+      for Default_Switches ("adacontrol") use ("-Ftgnat_short");
+   end Ide;
+
+   package Binder is
+      for Default_Switches ("ada") use ("-E");
+   end Binder;
+
+   package Builder is
+      for Executable ("globe_3d_demo.adb") use "";
+   end Builder;
+
+   package Naming is
+      for Specification_Suffix ("c") use ".h";
+      for Implementation_Suffix ("c") use ".c";
+      for Specification_Suffix ("c++") use ".hh";
+      for Implementation_Suffix ("c++") use ".cpp";
+      for Specification_Suffix ("changelog") use "changelog";
+      for Specification_Suffix ("project file") use ".gpr";
+      for Specification_Suffix ("python") use ".py";
+   end Naming;
+
+   package Linker is
+      for Default_Switches ("ada") use ("-g", "-lGLU", "-lGL", "-lglut", "-L/usr/X11R6/lib", "-lX11", "-lXi", "-lXmu", "-lXext", "-lm", "--LINK=g++");
+   end Linker;
+
+   package Compiler is
+      for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnat95", "-gnatwk", "-gnatwm", "-gnatwp", "-gnatwz", "-gnatVc", "-gnatVf", "-gnatVi", "-gnatVm", "-gnatVo", "-gnatVr", "-gnatVs", "-gnatVt", "-gnatyh", "-gnatyi", 
+"-gnatyk", "-gnatyn", "-gnatyp");
+   end Compiler;
+
+end Globe_3D_Gps_Linux;
+

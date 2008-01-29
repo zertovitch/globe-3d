@@ -1,0 +1,3 @@
+..\obj\libwin32\opengl32.lib
+..\obj\libwin32\glu32.lib
+..\obj\libwin32\freeglut.lib

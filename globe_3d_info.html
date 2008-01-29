@@ -1,0 +1,280 @@
+<head><title>GLOBE_3D</title></head>
+<body>
+<h2>GLOBE_3D</h2>
+Welcome to GLOBE_3D, the GL Object Based Engine for 3D in Ada.
+<p>
+The Copyright statement appears in GLOBE_3D.ads.
+
+<hr>
+<ol>
+<li><a href=#demo>Navigating in 3D with the Demo</a>
+<li><a href=#build>How to build the engine</a>
+<li><a href=#prog>Programming notes around GLOBE_3D</a>
+<li><a href=#resources>Web Resources</a>
+<li><a href=#bugs>Open bugs</a>
+<li><a href=#todo>To-do list</a>
+<li><a href=#thanks>Thanks</a>
+<li><a href=#contact>Contact</a>
+</ol>
+<hr>
+
+<ol>
+<li>As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_Demo.
+    In the same directory, you need:
+  <ul>
+    <li>the executable, <b>GLOBE_3D_Demo.exe</b> (Windows), <b>globe_3d_mac_ppc</b> (Mac PowerPC)
+    <li>the resource files: <b>G3Demo_Global_Resources.zip</b> and <b>G3Demo_Level_Resources.zip</b>
+    <li>FreeGLUT for Windows: <b>freeglut.dll</b>
+    <li>FreeGLUT for Mac PowerPC: in the subdirectory
+        ./obj/libmacppc/, <b>libglut.3.8.0.dylib</b>,
+        <b>libglut.3.dylib</b>, <b>libglut.dylib</b>;
+        in the main directory, the script: <b>globe_3d_demo_mac_ppc.sh</b> that
+        you need to run to launch successfully the demo.
+  </ul>
+  If you unzip the whole globe_3d.zip archive, you get the right files
+  at the right place, that is in the ./demo directory.
+  <p>
+  Here are navigation instructions for the demo
+     (at some point of time there will be configuration files; meanwhile
+      you can change control settings in Game_Controls.adb and recompile;
+      note also that the letter keys are for a QWERT keyboard):
+ <a name=demo></a>
+ <p>
+  <table border=1>
+  <tr><td align=center><b>Action</b>
+      <td align=center><b>Keyboard</b>
+      <td align=center><b>Mouse</b>
+      <td align=center><b>Effect</b>
+  <tr><td>
+  Popup Menu
+  <tr><td><td> - <td>middle mouse button<td>    toggle to full-screen
+
+  <tr><td>
+  Modifier keys
+  <tr><td><td>    alt   <td> right button <td> slide mode
+  <tr><td><td>    shift <td> - <td> run mode
+  <tr><td><td>    ctrl  <td> - <td> object mode
+
+  <tr><td>
+  Turning the eye (rotation)
+  <tr><td><td>    W/S or vertical arrows                     <td>left button (forward)<td> go forward/backwards
+  <tr><td><td>    lateral arrows                             <td>mouse movement<td> turn the eye left/right (Y axis)
+  <tr><td><td>    page up/down                               <td>mouse movement<td> turn the eye up/down (X axis)
+  <tr><td>
+  Moving the eye (translation)
+  <tr><td><td>    Q/E                                        <td> - <td> swing turn the eye around sight axis (Z)
+  <tr><td><td>    A/D, or alt  + lateral arrows              <td>right button + mouse movement<td> move the eye on X axis (slide mode)
+  <tr><td><td>    R/F, or alt  + page up/down                <td>right button + mouse movement<td> move the eye on Y axis (slide mode)
+
+  <tr><td>
+  Turning the object
+  <tr><td><td>    ctrl + lateral arrows or page up/down      <td>ctrl + mouse movement <td>turn the object 
+
+  <tr><td>
+  Others
+  <tr><td><td>    0     <td> - <td> reset eye position and orientation
+  <tr><td><td>    1..9  <td> - <td> switch a light on / off
+  <tr><td><td>    space <td> - <td> next object (or group of objects)
+  <tr><td><td>    F11   <td> - <td> video capture (.avi) on / off
+  <tr><td><td>    F12   <td> - <td> screenshot (.bmp)
+
+  </table>
+ </p>
+ <p>
+ There are also command-line options for special purposes:
+ <ul>
+ <li> <tt>-dump</tt> : dumps all objects in the demo as <tt>.g3d</tt> files 
+ <li> <tt>-load</tt> : load both objects ("bricks") of the "space station" demo
+                       instead of creating them
+ </ul>
+ </p>
+<li> How to <b>build</b> the project on various platforms and compilers:
+ <a name=build></a>
+ <p>
+  The main demo, in directory ./demo, can serve as a prototype for your applications
+  using GLOBE_3D. That directory also contains various scripts (or so) for various systems.
+  <ul>
+   <li> <b>Windows</b>:
+    <ul>
+     <li> <b>GNAT</b> compiler:<br>
+         - [in GPS:] open the GLOBE_3D_GPS_Win32.gpr project file, then press F4.<br>
+       or<br>
+         - [in AdaGIDE:] open GLOBE_3D_Demo.adb, then press F3.<br>
+       or<br>
+         - launch Make_all.bat .<br>
+       Then you get GLOBE_3D_Demo.exe.
+
+     <li> <b>ObjectAda</b> compiler: open GLOBE_3D_ObjectAda.prj, then press F7.
+       NB: there are now too many units for the free version
+       of ObjectAda (7.2.2. SE); on that limited version, everything compiles
+       fine but adabuild, as expected, refuses to complete.
+
+     <li> another compiler: should be fine, just need GL,GLU,(Free)GLUT bindings
+    </ul>
+   <li> <b>Linux</b>:<br>
+    To force lower case on file names: unzip -L globe_3d.zip;
+    for the Ada files (*.ad*), the "-a" or "-aa" option may be useful to ensure you get
+    the correct end-of-line codes.
+    <br>
+    <ul>
+     <li> <b>GNAT</b> compiler:<br>
+         - [in GPS:] use the GLOBE_3D_GPS_Linux.gpr project file<br>
+       or<br>
+         - use the makefile.linux
+    </ul>
+    Probably you'll look for [Free]GLUT, source or precompiled, more precisely
+    the library file lib[free]glut.so. See the <a href=#resources>Web Resources</a>
+    for links.
+   <li> <b>Macintosh (Mac OS X)</b>:<br>
+    You need first to install the X11 server; then
+    you'd better to force lower case on file names: unzip -L globe_3d.zip;
+    for the Ada files (*.ad*), the "-a" or "-aa" option may be useful to ensure you get
+    the correct end-of-line codes.
+    <br>
+    <ul>
+     <li> <b>GNAT</b> compiler:<br>
+         - [in GPS:] use the GLOBE_3D_GPS_Darwin.gpr project file<br>
+       or<br>
+         - gnatmake -P globe_3d_gps_darwin.gpr
+    </ul>
+   <li> <b>Other systems</b>:<br>
+    Should be fine, just need GL,GLU,(Free)GLUT.
+    Any volunteer ?...
+  </ul>
+ </p>
+<li> Programming notes around GLOBE_3D:
+ <a name=prog></a>
+ <p>
+  <ul>
+   <li> 
+    Graphical &amp; performance considerations
+    <ul>
+     <li> Avoid using <b>textures</b> whose dimensions are not power of two, because
+          they are not supported by GL versions under 1.3 and when they are supported,
+          the display is way slower than their 2**m &times; 2**n rescaled equivalents
+          (on a certain video accelerator, &#126;30 times slower!).
+     <li> The face-by-face <b>visibility culling</b> is done by OpenGL and/or the graphics card,
+          but you can improve it by not displaying or clipping whole chunks that are obviously not
+          or only partially visible. This is done by the <b>portal</b> technique.
+          For that you have to subdivide your scene or bigger objects into several smaller objects
+          linked through invisible faces (the portals). In the demo, the first and last scenes use
+          this technique.
+          You can make the portals visible by setting GLOBE_3D.Options.show_portals to True.
+
+    </ul>
+   <li> You can use GLOBE_3D's I/O framework to load textures even for some renderings
+        without GLOBE_3D (e.g. by displaying a "2D" image with GLUT_2D.Put_Image).
+        To that purpose, call GLOBE_3D.Textures.Check_2D_texture(id), then do your
+        rendering with GL.BindTexture referring to image number id+1 (<b>caution</b>: note the +1,
+        since the user textures in GL begin with 1 and the ones in GLOBE_3D with 0,
+        as the Ada 'Pos attribute does.
+   <li> If you develop a GLOBE_3D application with GNAT, here are the relative paths
+        in case you have its directory at the same level as the GLOBE_3D one:
+        Include path (change win32 if you compile for another OS): <pre>-aI../globe_3d/src -aI../globe_3d/src/unzip -aI../globe_3d/src/models -aI../globe_3d/src/gaming  -aI../globe_3d/bindings -aI../globe_3d/bindings/win32 -aI../globe_3d/bindings/win32/gcc_fmt</pre>
+        Object path (here of debug mode): <pre>-aO../globe_3d/obj/gnatdebg</pre>
+        Library path (here of win32): <pre>-L../globe_3d/obj/libwin32</pre>
+  </ul>
+ </p>
+ <li> <b>Web resources</b> for GLOBE_3D:
+ <a name=resources></a>
+ <p>
+  <ul>
+   <li> Present site for <b>GLOBE_3D</b>: <a target=_blank href=http://www.mysunrise.ch/users/gdm/g3d.htm>here</a>.
+   
+   <li> <b>OpenGL</b> & GLUT: <a target=_blank href=http://www.opengl.org/>here</a>.
+
+   <li> <b>GNAT</b>, a free Ada compiler with which GLOBE_3D can be compiled:
+    <ul>
+     <li> GNAT Web site: <a target=_blank href=http://www.adacore.com/>here</a>.
+     <li> GNAT GPL version to be found <a target=_blank href=http://libre2.adacore.com/>here</a>.
+     <li>
+       If for some reason, you want to download the last "GNAT Public version",
+       two mirrors exist,
+         <a target=_blank href=http://rochebruneadsl.free.fr/stephane/gnat/3.15p/>here</a> and
+         <a target=_blank href=ftp://ftp.cs.kuleuven.be/pub/Ada-Belgium/mirrors/gnu-ada/3.15p/>here</a>.
+     <li>
+       For Windows, you have to install the compiler (e.g. gnat-3.15p-nt.exe)
+       <b>and</b> the Win32 bindings (e.g. gnatwin-3.15p.exe) that come separately.
+     <li> AdaGIDE: a free Development Environment for GNAT, as alternative to GNAT's GPS:
+       <a target=_blank href=http://www.martincarlisle.com/adagide.html>here</a>.
+    </ul>
+   
+   <li>The <b>ObjectAda</b> compiler, to be found
+     <a target=_blank href=http://www.aonix.com/objectada.html>here</a>.
+
+   <li> The <b>FreeGLUT</b> project site
+     <a target=_blank href=http://freeglut.sourceforge.net/>here</a>.
+
+   <li><b>GMax</b>, a free version of 3D Studio Max, <a target=_blank href=http://www.turbosquid.com/gmax>here</a>.
+   <li><b>TrueSpace</b>, free version <a target=_blank href=http://www.zdnet.de/downloads/prg/8/6/en10187286-wc.html>here</a>.
+   <li>A few models and textures sites:
+         <a target=_blank href=http://www.turbosquid.com/gmax>Turbo Squid</a>,
+         <a target=_blank href=http://scifi3d.theforce.net/>Sci-Fi 3D</a>
+  </ul>
+ </p>
+<li>
+  <a name=bugs></a>
+  <b>Open bugs</b>:
+ <p>
+  <ul>
+   <li> (Game_control/GLUT) Modifier keys are not updated independently of the others key down/up events.
+   <li> GLOBE_3D.Random_extrusions needs to split a quadrilatere into two triangles when it is not flat
+        or even when it is not a rectangle (bad display on at least one ATI card)
+   <li> d3a (doom 3 level translator): some surfaces seem to be missing (e.g. parts of pipes)
+  </ul>
+ </p>
+<li>
+  <a name=todo></a>
+  <b>To-do list</b> (some items may go beyond the scope of graphics and GLOBE_3D):
+ <p>
+  <ul>
+   <li> Collision detection e.g. (for objects seen from outside) by testing distance to a
+        bounding ellipsoid, then a rough convex polyhedron, then the least faces possible
+   <li> Move reusable parts of the demo to Game_Control or other packages (GLUT.Windows in the works)
+   <li> Game_Control: add support for configuration files
+   <li> 3D Studio / GMAX: see in the max2ada.ms file
+   <li> (demo) improve lightings, better calibrate mouse movements
+   <li> make a Doom 3 / Quake 4 level loader (direct loading, not via the d3a translator)
+   <li> addition and morphing of objects, like in 
+        <a target=_blank href=http://homepage.sunrise.ch/mysunrise/gdm/e3d_html/eng3dmor__ads.htm>Engine_3D</a>
+   <li> I/O: include the pseudo-normal vectors on vertices
+   <li> possibility to impose custom pseudo-normal vectors on vertices
+   <li> implement sub-objects or neighour-objects (linked lists)
+   <li> make a demo with <a target=_blank href=http://www.openalada.com/>OpenALAda</a>
+        (sound/music).
+   <li> Implement an
+        <a target=_blank href=http://www.web3d.org/>X3D</a> (the successor of VRML)
+        translator or reader
+   <li> VRML: support for textures
+   <li> GL.IO: JPEG support, since some photos are not too damaged by JPEG compression
+        and of course much smaller in storage;
+        probably a translation of the PasJPEG library to Ada (see
+        <a target=_blank href=http://datacompression.info/JPEG.shtml>here</a>) with P2Ada
+        would be fine
+  </ul>
+ </p>
+<li>
+  <a name=thanks></a>
+  <b>Many thanks</b> to Rod Kay, for the new evolutive object-oriented type tree around the 3D object,
+  major improvements of GLOBE_3D rendering
+  for polygon soups, GLUT.Windows, GLUT.Devices, and nice demos (terrain
+  mapping, multi-window views).<br>
+  Also thanks to:
+  <ul>
+   <li> W. M. Richards, Pascal Obry, Jerry van Dijk for the Ada bindings to GL, GLU, GLUT.
+   <li> Marc A. Criley for the Linux implementation &amp; bindings versions.
+   <li> Ali Bendriss for the Linux makefile, testing and the proper way to exit GLUT!
+   <li> St&eacute;phane Perret, for advice on user controls and the idea of the
+        Sierpinski sponge - see
+        <a target=_blank href=http://www.vive-les-maths.net/site/sam2.html>here</a> for more...
+   <li> Pascal Pignard, for the Mac OS X / PowerPC tuning &amp; testing
+  </ul>
+ </p>
+<li>
+  <a name=contact></a>Contact:
+  <ul>
+   <li>Main author and project coordinator: Gautier de Montmollin, Switzerland
+       e-mail: <a target=_blank href=http://homepage.sunrise.ch/mysunrise/gdm/email.htm>here</a>.
+  </ul>
+</ol>
+</body>

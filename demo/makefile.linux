@@ -1,0 +1,42 @@
+# Which Compiler to use
+#GNATMAKE=/usr/lib/gnat-3.15p/bin/gnatmake
+GNATMAKE=gnatmake #-gnatvy
+#
+# The list of computer software component for your project. 
+CSC_LIST=${shell find ${ROOT_DIRECTORY} -type d ! -path "*win32*" }
+#
+# Name of the main program (no extension)
+MAIN=globe_3d_demo
+#
+# If we need to build objects with -fPIC, uncomment the following line
+NEED_FPIC=-fPIC
+#
+# The directories for the system libraries
+SYS_LIB_DIR=-L/usr/lib -L/usr/X11R6/lib
+# The required libraries
+#SYS_LIB=-lGL -lglut
+SYS_LIB=-lglut
+#
+debug::clean
+	${GNATMAKE}  -i -g -gnato -gnatwa -gnatVa -gnatecdebug.pra ${MAIN} ${NEED_FPIC} ${CSC_LIST:%=-I%} ${SYS_LIB_DIR} -largs ${SYS_LIB}
+#
+${MAIN}::clean
+#	${GNATMAKE} -O3 -gnatf ${MAIN} ${NEED_FPIC} ${CSC_LIST:%=-I%} ${SYS_LIB_DIR} -largs ${SYS_LIB}
+	${GNATMAKE} -O2 -gnatpn -funroll-loops ${MAIN} ${NEED_FPIC} ${CSC_LIST:%=-I%} ${SYS_LIB_DIR} -largs ${SYS_LIB}
+#
+clean:: 
+	${RM} ${MAIN} ${MAIN}.o ${MAIN}.ali 
+#
+distclean::
+	${RM} -rf ${CSC_LIST:%=%/lib}
+	${RM} ${CSC_LIST:%=%/*.ali}
+	${RM} ${CSC_LIST:%=%/*.o}
+	${RM} ${CSC_LIST:%=%/*~}	
+	${RM} ${CSC_LIST:%=%/b~*}
+	${RM} *.o *.ali ${MAIN} 
+#
+all::clean 
+	${MAIN}
+#
+archive::distclean
+	archive.sh ${shell basename `pwd`}
