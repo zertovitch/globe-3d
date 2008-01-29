@@ -160,38 +160,41 @@ package body gl.Geometry is
 
    function  face_Count    (Self : in     Geometry'Class) return Natural
    is
+      the_Count : Natural;
    begin
-      case self.primitive_Id is
+      case primitive_Id (Self) is
          when POINTS =>
-            return Natural (self.indices_Count);
+            the_Count := Natural (indices_Count (Self));
 
          when LINES =>
-            return Natural (self.indices_Count / 2);
+            the_Count := Natural (indices_Count (Self) / 2);
 
          when LINE_LOOP =>
-            return Natural (self.indices_Count);
+            the_Count := Natural (indices_Count (Self));
 
          when LINE_STRIP =>
-            return Natural'max (Natural (self.indices_Count - 1),  0);
+            the_Count := Natural'max (Natural (indices_Count (Self) - 1),  0);
 
          when TRIANGLES =>
-            return Natural (self.indices_Count / 3);
+            the_Count := Natural (indices_Count (Self) / 3);
 
          when TRIANGLE_STRIP =>
-            return Natural'max (Natural (self.indices_Count - 2),  0);
+            the_Count := Natural'max (Natural (indices_Count (Self) - 2),  0);
 
          when TRIANGLE_FAN =>
-            return Natural'max (Natural (self.indices_Count - 2),  0);
+            the_Count := Natural'max (Natural (indices_Count (Self) - 2),  0);
 
          when QUADS =>
-            return Natural (self.indices_Count / 4);
+            the_Count := Natural (indices_Count (Self) / 4);
 
          when QUAD_STRIP =>
-            return Natural (self.indices_Count / 2  -  1);
+            the_Count := Natural (indices_Count (Self) / 2  -  1);
 
          when POLYGON =>
-            return 1;
+            the_Count := 1;
       end case;
+
+      return the_Count;
    end;
 
 
