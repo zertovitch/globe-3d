@@ -59,6 +59,56 @@ package body globe_3d.Culler.impostoring_frustum is
 
 
 
+   function vanish_point_size_Min (Self : in     Culler'Class) return Real
+   is
+   begin
+      return self.vanish_point_size_Min;
+   end;
+
+
+
+   procedure vanish_point_size_Min_is (Self : in out Culler'Class;   Now : in Real)
+   is
+   begin
+      self.vanish_point_size_Min := Now;
+   end;
+
+
+
+   function impostor_size_Min (Self : in     Culler'Class) return Real
+   is
+   begin
+      return self.impostor_size_Min;
+   end;
+
+
+
+   procedure impostor_size_Min_is (Self : in out Culler'Class;   Now : in Real)
+   is
+   begin
+      self.impostor_size_Min := Now;
+   end;
+
+
+
+
+   function frustum_culling_Enabled (Self : in     Culler'Class) return Boolean
+   is
+   begin
+      return self.frustum_culling_Enabled;
+   end;
+
+
+
+   procedure frustum_culling_Enabled_is (Self : in out Culler'Class;   Now : in Boolean)
+   is
+   begin
+      self.frustum_culling_Enabled := Now;
+   end;
+
+
+
+
    procedure evolve (Self : in out Culler;
                      By   : in     Real)
    is
@@ -103,17 +153,17 @@ package body globe_3d.Culler.impostoring_frustum is
             end;
 
          begin
-            --if apparent_Size > 0.004 then
-            if         apparent_Size > 0.0012        -- tbd: make '0.0012' user-settable
-              and then is_visible_for_plane (Left)
-              and then is_visible_for_plane (Right)
-              and then is_visible_for_plane (High)
-              and then is_visible_for_plane (Low)
+            if         apparent_Size > self.vanish_point_size_Min
+              and then (        not self.frustum_culling_Enabled
+                        or else (         is_visible_for_plane (Left)
+                                 and then is_visible_for_plane (Right)
+                                 and then is_visible_for_plane (High)
+                                 and then is_visible_for_plane (Low)))
             then
-               Last                                  := Last + 1;
-               visible_Objects (Last).Visual := the_Object;
-               visible_Objects (Last).sprite_Set     := Element (self.object_sprite_set_Map, the_Object);
-               visible_Objects (Last).apparent_Size  := apparent_Size;
+               Last                                 := Last + 1;
+               visible_Objects (Last).Visual        := the_Object;
+               visible_Objects (Last).sprite_Set    := Element (self.object_sprite_set_Map, the_Object);
+               visible_Objects (Last).apparent_Size := apparent_Size;
             end if;
 
          end;
@@ -122,7 +172,7 @@ package body globe_3d.Culler.impostoring_frustum is
       end loop;
 
 
-      -- find which level of detail sprite or imposter is used, for each physics object.
+      -- find whether visual or imposter is used, for each object.
       --
       declare
          the_Sprites                : Visual_array (1 .. Last);
@@ -140,7 +190,7 @@ package body globe_3d.Culler.impostoring_frustum is
             declare
                the_Object : visible_Object renames visible_Objects (Each);
             begin
-               if the_Object.apparent_Size < 0.0625 then   -- use impostor (tbd: make '0.0625' user-settable)
+               if the_Object.apparent_Size < self.impostor_size_Min then   -- use impostor
                   declare
                      impostor_Target   : p_Visual            renames the_Object.sprite_Set.Visual;
                      the_Impostor      : impostor.p_Impostor renames the_Object.sprite_Set.Impostor;

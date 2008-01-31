@@ -3,6 +3,7 @@ with GLOBE_3D;                              use GLOBE_3D;
 with globe_3d.Culler.impostoring_frustum;   use globe_3d.Culler.impostoring_frustum;
 
 with GLUT.Windows;                          use GLUT.Windows;
+with GLUT.Devices;                          use GLUT.Devices;
 with gl;
 
 with Box;
@@ -45,11 +46,43 @@ begin
    end loop;
 
 
-   while not Viewer.is_closed loop
-      GLUT.mainLoopEvent;
+   declare
+      default_vanish_point_size_Min : Real := Culler.vanish_point_size_Min;
+      default_impostor_size_Min     : Real := Culler.impostor_size_Min;
 
-      evolve (Culler,  by => 0.02);
-   end loop;
+   begin
+
+      while not Viewer.is_closed loop
+         GLUT.mainLoopEvent;
+
+         if strike_Once ('V', viewer.Keyboard) then
+            if Culler.vanish_point_size_Min = default_vanish_point_size_Min then
+               Culler.vanish_point_size_Min_is (0.0);
+            else
+               Culler.vanish_point_size_Min_is (default_vanish_point_size_Min);
+            end if;
+
+         elsif strike_Once ('B', viewer.Keyboard) then
+            if Culler.frustum_culling_Enabled then
+               Culler.frustum_culling_Enabled_is (False);
+            else
+               Culler.frustum_culling_Enabled_is (True);
+            end if;
+
+         elsif strike_Once ('I', viewer.Keyboard) then
+            if Culler.impostor_size_Min = default_impostor_size_Min then
+               Culler.impostor_size_Min_is (0.0);
+            else
+               Culler.impostor_size_Min_is (default_impostor_size_Min);
+            end if;
+         end if;
+
+
+         evolve (Culler,  by => 0.02);
+      end loop;
+
+   end;
+
 
    destroy (Viewer);
    put_Line ("Done.");

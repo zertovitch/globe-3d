@@ -23,6 +23,22 @@ package globe_3d.Culler.impostoring_frustum is
    procedure evolve       (Self : in out Culler;   By : in     Real);    -- tbd: rename 'freshen' ?
 
 
+   function  vanish_point_size_Min    (Self : in     Culler'Class) return Real;
+   procedure vanish_point_size_Min_is (Self : in out Culler'Class;   Now : in Real);
+   --
+   -- visuals whose apparent size falls below this minimum will not be displayed.
+
+
+   function  impostor_size_Min    (Self : in     Culler'Class) return Real;
+   procedure impostor_size_Min_is (Self : in out Culler'Class;   Now : in Real);
+   --
+   -- visuals whose apparent size falls below this minimum will be displayed as impostors.
+
+
+   function  frustum_culling_Enabled    (Self : in     Culler'Class) return Boolean;
+   procedure frustum_culling_Enabled_is (Self : in out Culler'Class;   Now : in Boolean);
+
+
 
 private
 
@@ -75,13 +91,18 @@ private
 
    type Culler is new globe_3d.culler.Culler with
       record
-         countDown             :         Natural                           := 0;
-         frame_Count           :         Natural                           := 0;
+         countDown               :         Natural                           := 0;
+         frame_Count             :         Natural                           := 0;
 
-         object_sprite_set_Map :         physics_object_sprite_set_maps.Map;
-         impostor_load_Slots   :         impostor_load_Balancer.p_Slots    := default_Slots'access;
+         vanish_point_size_Min   :         Real                              := 0.0012;
+         impostor_size_Min       :         Real                              := 0.0625;
+         frustum_culling_Enabled :         Boolean                           := True;
 
-         texture_Pool          : aliased gl.textures.Pool;
+
+         object_sprite_set_Map   :         physics_object_sprite_set_maps.Map;
+         impostor_load_Slots     :         impostor_load_Balancer.p_Slots    := default_Slots'access;
+
+         texture_Pool            : aliased gl.textures.Pool;
       end record;
 
 
