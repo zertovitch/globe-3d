@@ -1,0 +1,70 @@
+project Simple_Terrain_Win32 is
+
+   type Build_Mode_Type is
+      ("Fast", "Debug", "Small");
+   Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
+
+   case Build_Mode is
+
+      when "Small" =>
+         for Main use ("simple.adb", "simple_tb.ads");
+         for Source_Dirs use (".", "..\..\..\bindings", "..\..\..\bindings\win32", "..\..\..\src\/**", "..\..\..\ada05_proxy", "..\..\..\tools");
+         for Object_Dir use "..\..\..\obj\gnatsmal";
+         for Exec_Dir use ".";
+
+      when "Debug" =>
+         for Main use ("simple.adb", "simple_tb.ads");
+         for Source_Dirs use (".", "..\..\..\bindings", "..\..\..\bindings\win32", "..\..\..\src\/**", "..\..\..\ada05_proxy", "..\..\..\tools");
+         for Object_Dir use "..\..\..\obj\gnatdebg";
+         for Exec_Dir use ".";
+
+      when "Fast" =>
+         for Main use ("simple.adb", "simple_tb.ads");
+         for Source_Dirs use (".", "..\..\..\bindings", "..\..\..\bindings\win32", "..\..\..\src\/**", "..\..\..\ada05_proxy", "..\..\..\tools");
+         for Object_Dir use "..\..\..\obj\gnatopti";
+         for Exec_Dir use ".";
+   end case;
+
+   package Linker is
+      for Default_Switches ("ada") use ("-lopengl32", "../../../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../../../obj/libwin32");
+   end Linker;
+
+   package Binder is
+
+      case Build_Mode is
+
+         when "Small" =>
+
+         when "Debug" =>
+            for Default_Switches ("ada") use ("-E");
+
+         when "Fast" =>
+
+      end case;
+   end Binder;
+
+   package Compiler is
+
+      case Build_Mode is
+
+         when "Small" =>
+            for Default_Switches ("ada") use ("-O2", "-s", "-gnatp", "-fomit-frame-pointer", "-fno-strict-aliasing");
+
+         when "Debug" =>
+            for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnatwkmpz", "-gnatVcfimorst", "-gnatyhiknp", "-fno-strict-aliasing");
+
+         when "Fast" =>
+            for Default_Switches ("ada") use ("-O2", "-gnatn", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-gnatp", "-fno-strict-aliasing", "-fomit-frame-pointer");
+      end case;
+   end Compiler;
+
+   package Builder is
+      for Default_Switches ("ada") use ("-g");
+   end Builder;
+
+   package Ide is
+      for Default_Switches ("adacontrol") use ("-FHgnat_short");
+   end Ide;
+
+end Simple_Terrain_Win32;
+

@@ -1,23 +1,21 @@
 project Globe_3D_Gps_Win32 is
 
    type Build_Mode_Type is
-      ("Optimize", "Debug");
+      ("Fast", "Debug", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
 
    case Build_Mode is
-
       when "Debug" =>
          for Object_Dir use "..\obj\gnatdebg";
-         for Source_Dirs use (".", "..\bindings", "..\bindings\win32", "..\bindings\win32\gcc_fmt", "..\src\/**", "..\ada05_proxy");
-         for Main use ("GLOBE_3D_Demo.adb");
-         for Exec_Dir use ".";
-
-      when "Optimize" =>
+      when "Fast" =>
          for Object_Dir use "..\obj\gnatopti";
-         for Source_Dirs use (".", "..\bindings", "..\bindings\win32", "..\bindings\win32\gcc_fmt", "..\src\/**", "..\ada05_proxy");
-         for Main use ("GLOBE_3D_Demo.adb");
-         for Exec_Dir use ".";
+      when "Small" =>
+         for Object_Dir use "..\obj\gnatsmal";
    end case;
+
+   for Source_Dirs use (".", "..\bindings", "..\bindings\win32", "..\bindings\win32\gcc_fmt", "..\src\/**", "..\ada05_proxy");
+   for Main use ("GLOBE_3D_Demo.adb");
+   for Exec_Dir use ".";
 
    package Ide is
       for Default_Switches ("adacontrol") use ("-F", "gnat_short");
@@ -25,14 +23,8 @@ project Globe_3D_Gps_Win32 is
 
    package Builder is
 
-      case Build_Mode is
+      for Default_Switches ("ada") use ("-j2");
 
-         when "Debug" =>
-            for Default_Switches ("ada") use ("-j2");
-
-         when "Optimize" =>
-            for Default_Switches ("ada") use ("-j2");
-      end case;
    end Builder;
 
    package Naming is
@@ -47,14 +39,8 @@ project Globe_3D_Gps_Win32 is
 
    package Linker is
 
-      case Build_Mode is
+      for Default_Switches ("ada") use ("-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
 
-         when "Debug" =>
-            for Default_Switches ("ada") use ("-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
-
-         when "Optimize" =>
-            for Default_Switches ("ada") use ("-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
-      end case;
    end Linker;
 
    package Compiler is
@@ -62,10 +48,13 @@ project Globe_3D_Gps_Win32 is
       case Build_Mode is
 
          when "Debug" =>
-            for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnatwkmpz", "-gnatVcfimorst", "-gnatyhiknp", "-fno-strict-aliasing");
+            for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnatwkmpz", "-gnatVa", "-gnatecdebug.pra", "-gnatyhiknp", "-fno-strict-aliasing");
 
-         when "Optimize" =>
+         when "Fast" =>
             for Default_Switches ("ada") use ("-O2", "-gnatn", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-gnatp", "-fno-strict-aliasing");
+
+         when "Small" =>
+            for Default_Switches ("ada") use ("-O2", "-s", "-gnatp", "-fno-strict-aliasing");
       end case;
    end Compiler;
 
