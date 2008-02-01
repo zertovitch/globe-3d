@@ -595,6 +595,11 @@ package body GLOBE_3D is
     gl.bindBuffer    (gl.ARRAY_BUFFER, 0);             -- disable 'vertex buffer objects'
     gl.bindBuffer    (gl.ELEMENT_ARRAY_BUFFER, 0);     -- disable 'vertex buffer objects' indices
 
+--      gl.disableClientState (gl.TEXTURE_COORD_ARRAY);
+--      gl.disable    (ALPHA_TEST);
+    gl.enable (Lighting);
+
+
     GL.PushMatrix; -- 26-May-2006: instead of rotating/translating back
     GL.Translate( o.centre );
     Multiply_GL_Matrix(o.rotation);
@@ -1224,7 +1229,7 @@ package body GLOBE_3D is
       Clear    (COLOR_BUFFER_BIT or DEPTH_BUFFER_BIT);
       Enable   (DEPTH_TEST);
 
-      Enable   (LIGHTING);                               -- enable lighting for G3D.Display in 'separate Visuals'.
+      Enable   (LIGHTING);                               -- enable lighting for G3D.Display in 'separate Visuals' (obsolete).
       Enable   (CULL_FACE);
       CullFace (BACK);
 
@@ -1345,18 +1350,18 @@ package body GLOBE_3D is
                                                                   globe_3d.p_Visual,
                                                                   globe_3d.Visual_array);
       begin
-         if transparent_Count > 1 then
-            for Each in 1 .. transparent_Count loop  -- pre-calculate each visuals Centre in camera space.
-               all_Transparents (Each).Centre_camera_space :=   the_Camera.world_Rotation
-                                                              * (all_Transparents (Each).Centre - the_Camera.Clipper.eye_Position);
-            end loop;
+         for Each in 1 .. transparent_Count loop  -- pre-calculate each visuals Centre in camera space.
+            all_Transparents (Each).Centre_camera_space :=   the_Camera.world_Rotation
+                                                           * (all_Transparents (Each).Centre - the_Camera.Clipper.eye_Position);
+         end loop;
 
+         if transparent_Count > 1 then
             sort (all_Transparents (1 .. transparent_Count));
          end if;
 
          gl.depthMask (gl_False);  -- make depth buffer read-only, for correct transparency
 
-         Enable    (LIGHTING);   -- ensure lighting is enabled for G3D.Display of transparents.
+         Enable    (LIGHTING);   -- ensure lighting is enabled for G3D.Display of transparents (obsolete).
          Enable    (BLEND);
          BlendFunc (sfactor => ONE,
                     dfactor => ONE_MINUS_SRC_ALPHA);

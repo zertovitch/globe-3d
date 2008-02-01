@@ -94,7 +94,7 @@ package GLOBE_3D.Impostor is
 
 
 
-   procedure Display           (o : in out Impostor;   clip : in     Clipping_data);
+   procedure Display (o : in out Impostor;   clip : in     Clipping_data);
 
 
 
