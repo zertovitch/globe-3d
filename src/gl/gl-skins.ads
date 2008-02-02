@@ -8,7 +8,7 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with gl.Geometry, gl.Textures;
+with gl.Geometry, gl.Textures, gl.Materials;
 with gl.Buffer.texture_coords;
 with gl.Buffer.normals;
 
@@ -88,29 +88,13 @@ package gl.Skins is
 
 
 
-   type Material_type is record               -- tbd: factor out into own package.
-      ambient,
-      diffuse,
-      specular,
-      emission  : GL.Material_Float_vector;
-      shininess : GL.Float; -- 0.0 .. 128.0
-   end record;
-
-   neutral_material : constant Material_type:= (ambient =>        (0.2, 0.2, 0.2, 1.0),
-                                                diffuse =>        (0.8, 0.8, 0.8, 1.0),
-                                                specular =>       (0.0, 0.0, 0.0, 1.0),
-                                                emission =>       (0.0, 0.0, 0.0, 1.0),
-                                                shininess =>      0.0);                 -- ^ the values are GL defaults.
-
-   function  is_Transparent (Self : in     Material_type) return Boolean;
-
 
 
 
 
    type Skin_opaque_lit_mono_color is new Skin with
       record
-         Material : Material_type := neutral_material;
+         Material : gl.materials.Material_type := materials.neutral_material;
       end record;
 
    function  new_Veneer (Self : in     Skin_opaque_lit_mono_color;   for_Geometry : in gl.Geometry.Geometry'Class) return p_Veneer;

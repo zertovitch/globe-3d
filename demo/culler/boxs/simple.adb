@@ -1,5 +1,5 @@
 
-with GLOBE_3D;                              use GLOBE_3D;
+with GLOBE_3D.Sprite;                       use GLOBE_3D,  GLOBE_3D.Sprite;
 with globe_3d.Culler.impostoring_frustum;   use globe_3d.Culler.impostoring_frustum;
 
 with GLUT.Windows;                          use GLUT.Windows;
@@ -8,6 +8,7 @@ with gl;
 
 with Box;
 with X29;
+with X29_vbo;
 
 with ada.text_io;                           use ada.text_io;
 
@@ -56,16 +57,50 @@ begin
    Culler.Viewer_is (Viewer'unchecked_access);    -- tell culler where to send culled visuals.
 
 
-   for Each_x in 1 .. 30 loop
-      for Each_z in 1 .. 30 loop
-         -- Box.create (the_Object);
-         X29.Create(object => the_Object,   scale  => 1.0,
-                                            centre => (0.0,0.0,-17.0));
---           the_Object.Centre := (-10.0 + Real (Each_x) * 2.0,  1.0,  -10.0 + Real (Each_z) * 2.0);
-         the_Object.Centre := (-600.0 + Real (Each_x) * 30.0,  -20.0,  -600.0 + Real (Each_z) * 30.0);
-         add (Culler,  the_Object.all'access);
+   -- add X29_vbo's
+   --
+   declare
+      an_X29 : g3d.Sprite.p_Sprite;
+   begin
+      for Each_x in 1 .. 50 loop
+         for Each_z in 1 .. 50 loop
+            X29_vbo.Create (object => an_X29,   scale  => 1.0,
+                                                centre => (0.0,0.0,-17.0));
+            an_X29.Centre := (-600.0 + Real (Each_x) * 30.0,  -20.0,  -600.0 + Real (Each_z) * 30.0);
+
+            add (Culler,  an_X29.all'access);
+         end loop;
       end loop;
-   end loop;
+   end;
+
+
+   -- add X29
+   --
+--     declare
+--        an_X29 : g3d.Sprite.p_Sprite;
+--     begin
+--        for Each_x in 1 .. 50 loop
+--           for Each_z in 1 .. 50 loop
+--              X29.Create (object => the_Object,   scale  => 1.0,
+--                                                  centre => (0.0,0.0,-17.0));
+--              the_Object.Centre := (-600.0 + Real (Each_x) * 30.0,  -20.0,  -600.0 + Real (Each_z) * 30.0);
+--
+--              add (Culler,  the_Object.all'access);
+--           end loop;
+--        end loop;
+--     end;
+
+
+   -- add boxs
+   --
+--     for Each_x in 1 .. 30 loop
+--        for Each_z in 1 .. 30 loop
+--           Box.create (the_Object);
+--           the_Object.Centre := (-10.0 + Real (Each_x) * 2.0,  1.0,  -10.0 + Real (Each_z) * 2.0);
+--
+--           add (Culler,  the_Object.all'access);
+--        end loop;
+--     end loop;
 
 
    declare

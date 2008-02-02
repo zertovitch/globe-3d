@@ -118,6 +118,8 @@ package gl.Geometry is
    function Image  (Self : in     Vertex_array) return String;
 
 
+   function Bounds (Vertices : in     Vertex_array;   Indices : in   vertex_Id_array) return gl.geometry.Bounds_record;
+
 
 
    -- lighting normals

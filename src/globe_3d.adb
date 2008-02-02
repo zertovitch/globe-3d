@@ -1207,7 +1207,7 @@ package body GLOBE_3D is
       type visual_Geometrys is array (Positive range <>) of visual_Geometry;
       pragma Convention (C, visual_Geometrys);  -- using convention pragma to disable default initialization (for performance)
 
-   all_Geometrys     : visual_geometrys (1 .. 10_000);   pragma Convention (C, all_Geometrys);  -- tbd: this is slow !
+   all_Geometrys     : visual_geometrys (1 .. 80_000);   pragma Convention (C, all_Geometrys);  -- tbd: this is slow !
    --
    --------------------------------------
 
@@ -1216,7 +1216,7 @@ package body GLOBE_3D is
    is
       use GL, REF, G3DM;
 
-      all_Transparents  : globe_3d.Visual_array (1 .. 5_000);
+      all_Transparents  : globe_3d.Visual_array (1 .. 10_000);
       transparent_Count : Natural                           := 0;
 
       geometry_Count    : Natural                       := 0;   -- for 'all_Geometrys' array.

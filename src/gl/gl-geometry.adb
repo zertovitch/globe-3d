@@ -128,13 +128,9 @@ package body gl.Geometry is
    function Bounds (Self : in     vertex_Array) return gl.geometry.Bounds_record
    is
       use REF;
-      the_Bounds     : Bounds_record;
-      max_Distance_2 : gl.Double    := 0.0;      -- current maximum distance squared.
+      the_Bounds     : Bounds_record := null_Bounds;
+      max_Distance_2 : gl.Double     := 0.0;      -- current maximum distance squared.
    begin
-      the_Bounds.box.X_Extent.Min := gl.Double'Last;   the_Bounds.box.X_Extent.Max := gl.Double'First;
-      the_Bounds.box.Y_Extent.Min := gl.Double'Last;   the_Bounds.box.Y_Extent.Max := gl.Double'First;
-      the_Bounds.box.Z_Extent.Min := gl.Double'Last;   the_Bounds.box.Z_Extent.Max := gl.Double'First;
-
       for p in Self'Range loop
          max_Distance_2 := gl.Double'max (  Self (p)(0) * Self (p)(0)
                                           + Self (p)(1) * Self (p)(1)
@@ -147,6 +143,36 @@ package body gl.Geometry is
          the_Bounds.box.Y_Extent.Max   := gl.Double'Max (the_Bounds.box.Y_Extent.Max,  Self (p)(1));
          the_Bounds.box.Z_Extent.Min   := gl.Double'Min (the_Bounds.box.Z_Extent.Min,  Self (p)(2));
          the_Bounds.box.Z_Extent.Max   := gl.Double'Max (the_Bounds.box.Z_Extent.Max,  Self (p)(2));
+      end loop;
+
+      the_Bounds.sphere_Radius := sqRt (max_Distance_2);
+
+      return the_Bounds;
+   end;
+
+
+
+   function Bounds (Vertices : in     Vertex_array;   Indices : in   vertex_Id_array) return gl.geometry.Bounds_record
+   is
+      use REF;
+      the_Bounds     : Bounds_record := null_Bounds;
+      max_Distance_2 : gl.Double     := 0.0;      -- current maximum distance squared.
+   begin
+      for Each in Indices'range loop
+         declare
+            the_Point : Vertex renames Vertices (Indices (Each));
+         begin
+            max_Distance_2 := gl.Double'max (  the_Point (0) * the_Point (0)
+                                             + the_Point (1) * the_Point (1)
+                                             + the_Point (2) * the_Point (2),   max_Distance_2);
+
+            the_Bounds.box.X_Extent.Min := gl.Double'Min (the_Bounds.box.X_Extent.Min,  the_Point (0));
+            the_Bounds.box.X_Extent.Max := gl.Double'Max (the_Bounds.box.X_Extent.Max,  the_Point (0));
+            the_Bounds.box.Y_Extent.Min := gl.Double'Min (the_Bounds.box.Y_Extent.Min,  the_Point (1));
+            the_Bounds.box.Y_Extent.Max := gl.Double'Max (the_Bounds.box.Y_Extent.Max,  the_Point (1));
+            the_Bounds.box.Z_Extent.Min := gl.Double'Min (the_Bounds.box.Z_Extent.Min,  the_Point (2));
+            the_Bounds.box.Z_Extent.Max := gl.Double'Max (the_Bounds.box.Z_Extent.Max,  the_Point (2));
+         end;
       end loop;
 
       the_Bounds.sphere_Radius := sqRt (max_Distance_2);
@@ -306,7 +332,7 @@ package body gl.Geometry is
                         if not Almost_zero(length) then
                            the_Normals (p) := (1.0 / length) * the_Normals (p);
                         else
-                           raise Constraint_Error;  -- tbd: proper exception as usual.
+                           null; --raise Constraint_Error;  -- tbd: proper exception as usual.
                         end if;
                      end loop;
 

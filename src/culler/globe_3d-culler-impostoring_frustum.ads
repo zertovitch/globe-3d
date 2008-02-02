@@ -71,7 +71,7 @@ private
             max_Faces     : Positive;
             max_Updates   : Positive;
 
-            Impostors       : Impostor.p_Impostor_array (1 .. 3000);
+            Impostors       : Impostor.p_Impostor_array (1 .. 10_000);
             impostors_Count : Natural                              := 0;
          end record;
 

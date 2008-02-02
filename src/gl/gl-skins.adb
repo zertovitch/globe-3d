@@ -26,21 +26,6 @@ package body gl.Skins is
 
 
 
-   -- materials
-   --
-
-
-   function  is_Transparent (Self : in     Material_type) return Boolean
-   is
-   begin
-      return Self.diffuse (3) < 1.0;
-   end;
-
-
-
-
-
-
    -- veneers
    --
 
@@ -84,7 +69,7 @@ package body gl.Skins is
 
 
 
-   procedure Set_Material (m: Material_type) is
+   procedure Set_Material (m: materials.Material_type) is
       use GL;
    begin
       Material (FRONT_AND_BACK, AMBIENT,   m.ambient);
@@ -113,6 +98,10 @@ package body gl.Skins is
    begin
       gl.Disable (LIGHTING);
       gl.disable (ALPHA_TEST);
+      gl.disable            (TEXTURE_2D);
+      gl.disable            (COLOR_MATERIAL);
+      gl.disableClientState (TEXTURE_COORD_ARRAY);
+
 
       Enable (BLEND); -- See 4.1.7 Blending
       BlendFunc (sfactor => SRC_ALPHA,
@@ -176,6 +165,7 @@ package body gl.Skins is
 
    function  is_Transparent (Self : in     Skin_opaque_lit_mono_color) return Boolean
    is
+      use gl.Materials;
    begin
       return is_Transparent (self.Material);
    end;
