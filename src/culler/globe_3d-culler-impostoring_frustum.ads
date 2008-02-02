@@ -26,13 +26,13 @@ package globe_3d.Culler.impostoring_frustum is
    function  vanish_point_size_Min    (Self : in     Culler'Class) return Real;
    procedure vanish_point_size_Min_is (Self : in out Culler'Class;   Now : in Real);
    --
-   -- visuals whose apparent size falls below this minimum will not be displayed.
+   -- visuals whose projected size falls below this minimum will not be displayed.
 
 
    function  impostor_size_Min    (Self : in     Culler'Class) return Real;
    procedure impostor_size_Min_is (Self : in out Culler'Class;   Now : in Real);
    --
-   -- visuals whose apparent size falls below this minimum will be displayed as impostors.
+   -- visuals whose projected size falls below this minimum will be displayed as impostors.
 
 
    function  frustum_culling_Enabled    (Self : in     Culler'Class) return Boolean;
@@ -71,7 +71,7 @@ private
             max_Faces     : Positive;
             max_Updates   : Positive;
 
-            Impostors       : Impostor.p_Impostor_array (1 .. 3000);          -- rename 'Impostors'
+            Impostors       : Impostor.p_Impostor_array (1 .. 3000);
             impostors_Count : Natural                              := 0;
          end record;
 
@@ -97,7 +97,6 @@ private
          vanish_point_size_Min   :         Real                              := 0.0012;
          impostor_size_Min       :         Real                              := 0.0625;
          frustum_culling_Enabled :         Boolean                           := True;
-
 
          object_sprite_set_Map   :         physics_object_sprite_set_maps.Map;
          impostor_load_Slots     :         impostor_load_Balancer.p_Slots    := default_Slots'access;

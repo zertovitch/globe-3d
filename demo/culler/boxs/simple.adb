@@ -56,17 +56,11 @@ begin
    Culler.Viewer_is (Viewer'unchecked_access);    -- tell culler where to send culled visuals.
 
 
-   --box.create (the_Object);
-   --add (Culler,  the_Object.all'access);
-
-
-   for Each_x in 1 .. 40 loop
-      for Each_z in 1 .. 40 loop
+   for Each_x in 1 .. 30 loop
+      for Each_z in 1 .. 30 loop
          -- Box.create (the_Object);
          X29.Create(object => the_Object,   scale  => 1.0,
                                             centre => (0.0,0.0,-17.0));
-         pre_calculate (the_Object.all);
-
 --           the_Object.Centre := (-10.0 + Real (Each_x) * 2.0,  1.0,  -10.0 + Real (Each_z) * 2.0);
          the_Object.Centre := (-600.0 + Real (Each_x) * 30.0,  -20.0,  -600.0 + Real (Each_z) * 30.0);
          add (Culler,  the_Object.all'access);

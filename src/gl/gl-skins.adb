@@ -150,7 +150,7 @@ package body gl.Skins is
    function  new_Veneer (Self : in     Skin_opaque_lit_mono_color;   for_Geometry : in gl.Geometry.Geometry'Class) return p_Veneer
    is
       the_Veneer : constant p_Veneer := new Veneer_opaque_lit_mono_color' (max_normals => vertex_Count (for_Geometry),
-                                                                  normals     => vertex_Normals (for_Geometry));
+                                                                           normals     => vertex_Normals (for_Geometry));
    begin
       return the_Veneer;
    end;

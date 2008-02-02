@@ -15,7 +15,7 @@ with GL,  gl.Geometry,  gl.Skins,  gl.skinned_Geometry;
 
 package GLOBE_3D.Sprite is
 
-   -- a 'Visual' which uses gl.skinned_Geometrys   (*experimental*)
+   -- a 'Visual' which consists of multiple gl.skinned_Geometrys
 
 
    type Sprite (max_Geometrys : Positive) is new Visual with

@@ -388,7 +388,7 @@ package body GLOBE_3D.tri_Mesh is
 
 
       free (vco_Vertices);        -- clean up
-   end;
+   end vertex_cache_optimise;
 
 
 end GLOBE_3D.tri_Mesh;
