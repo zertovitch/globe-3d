@@ -23,6 +23,11 @@ is
    Culler :         globe_3d.culler.impostoring_frustum.Culler;
 
    the_Object : g3d.p_Object_3D;
+
+   use_VBO: Boolean:= False;
+   max_grid_x: constant:= 20;
+   max_grid_z: constant:= 40;
+
 begin
 
    declare
@@ -56,52 +61,50 @@ begin
    define (Viewer);
    Culler.Viewer_is (Viewer'unchecked_access);    -- tell culler where to send culled visuals.
 
+   if use_VBO then
+     -- add X29_vbo's
+     --
+     declare
+        an_X29 : g3d.Sprite.p_Sprite;
+     begin
+        for Each_x in 1 .. max_grid_x loop
+           for Each_z in 1 .. max_grid_z loop
+              X29_vbo.Create (object => an_X29,   scale  => 1.0,
+                                                  centre => (0.0,0.0,-17.0));
+              an_X29.Centre := (-600.0 + Real (Each_x) * 30.0,  -20.0,  -600.0 + Real (Each_z) * 30.0);
 
-   -- add X29_vbo's
-   --
-   declare
-      an_X29 : g3d.Sprite.p_Sprite;
-   begin
-      for Each_x in 1 .. 50 loop
-         for Each_z in 1 .. 50 loop
-            X29_vbo.Create (object => an_X29,   scale  => 1.0,
-                                                centre => (0.0,0.0,-17.0));
-            an_X29.Centre := (-600.0 + Real (Each_x) * 30.0,  -20.0,  -600.0 + Real (Each_z) * 30.0);
+              add (Culler,  an_X29.all'access);
+           end loop;
+        end loop;
+     end;
 
-            add (Culler,  an_X29.all'access);
-         end loop;
-      end loop;
-   end;
+   else
+     -- add X29
+     --
+     begin
+        for Each_x in 1 .. max_grid_x loop
+           for Each_z in 1 .. max_grid_z loop
+              X29.Create (object => the_Object,   scale  => 1.0,
+                                                  centre => (0.0,0.0,-17.0));
+              the_Object.Centre := (-600.0 + Real (Each_x) * 30.0,  -20.0,  -600.0 + Real (Each_z) * 30.0);
 
+              add (Culler,  the_Object.all'access);
+           end loop;
+        end loop;
+     end;
 
-   -- add X29
-   --
---     declare
---        an_X29 : g3d.Sprite.p_Sprite;
---     begin
---        for Each_x in 1 .. 50 loop
---           for Each_z in 1 .. 50 loop
---              X29.Create (object => the_Object,   scale  => 1.0,
---                                                  centre => (0.0,0.0,-17.0));
---              the_Object.Centre := (-600.0 + Real (Each_x) * 30.0,  -20.0,  -600.0 + Real (Each_z) * 30.0);
---
---              add (Culler,  the_Object.all'access);
---           end loop;
---        end loop;
---     end;
+    -- -- add boxs
 
+    -- for Each_x in 1 .. max_grid loop
+    --    for Each_z in 1 .. max_grid loop
+    --       Box.create (the_Object);
+    --       the_Object.Centre := (-10.0 + Real (Each_x) * 2.0,  1.0,  -10.0 + Real (Each_z) * 2.0);
 
-   -- add boxs
-   --
---     for Each_x in 1 .. 30 loop
---        for Each_z in 1 .. 30 loop
---           Box.create (the_Object);
---           the_Object.Centre := (-10.0 + Real (Each_x) * 2.0,  1.0,  -10.0 + Real (Each_z) * 2.0);
---
---           add (Culler,  the_Object.all'access);
---        end loop;
---     end loop;
+    --       add (Culler,  the_Object.all'access);
+    --    end loop;
+    -- end loop;
 
+   end if;
 
    declare
       default_vanish_point_size_Min : Real := Culler.vanish_point_size_Min;

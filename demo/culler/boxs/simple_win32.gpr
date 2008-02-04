@@ -1,8 +1,20 @@
-project Simple is
+project Simple_win32 is
+
+   type Build_Mode_Type is
+      ("Fast", "Debug", "Small");
+   Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
 
    for Source_Dirs use (".", "../../../bindings", "../../../bindings/win32", "../../../src//**", "../../../ada05_proxy");
    for Main use ("simple.adb");
-   for Object_Dir use "..\..\..\obj\gnatdebg";
+
+   case Build_Mode is
+      when "Debug" =>
+         for Object_Dir use "..\..\..\obj\gnatdebg";
+      when "Fast" =>
+         for Object_Dir use "..\..\..\obj\gnatopti";
+      when "Small" =>
+         for Object_Dir use "..\..\..\obj\gnatsmal";
+   end case;
 
    package Linker is
       for Default_Switches ("ada") use ("-lopengl32", "../../../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../../../obj/libwin32");
@@ -12,7 +24,18 @@ project Simple is
    end Binder;
 
    package Compiler is
-      for Default_Switches ("ada") use ("-O2", "-gnatp", "-g", "-gnat95", "-gnat05", "-gnatVc", "-gnatVd", "-gnatVf", "-gnatVi", "-gnatVm", "-gnatVo", "-gnatVr", "-gnatVs", "-gnatVt", "-gnatecdebug.pra");
+
+      case Build_Mode is
+
+         when "Debug" =>
+            for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnatwkmpz", "-gnatVa", "-gnatecdebug.pra", "-gnatyhiknp", "-fno-strict-aliasing");
+
+         when "Fast" =>
+            for Default_Switches ("ada") use ("-O2", "-gnatn", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-gnatp", "-fno-strict-aliasing");
+
+         when "Small" =>
+            for Default_Switches ("ada") use ("-O2", "-s", "-gnatp", "-fno-strict-aliasing");
+      end case;
    end Compiler;
 
    package Builder is
@@ -25,5 +48,5 @@ project Simple is
 
    for Exec_Dir use ".";
 
-end Simple;
+end Simple_win32;
 
