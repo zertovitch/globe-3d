@@ -27,7 +27,7 @@ package GLOBE_3D.tri_Mesh.vertex_array is
    type tri_Mesh is new globe_3d.tri_mesh.tri_Mesh with
       record
          skinned_Geometry : gl.skinned_geometry.skinned_Geometry
-                          := (geometry  => new gl.geometry.primitive_geometrys.primitive_Geometry'
+                          := (geometry  => new gl.geometry.primal.primal_Geometry'
                                                  (gl.geometry.Geometry with
                                                   primitive  => new gl.geometry.primitives.Triangles),
                               skin      => null,

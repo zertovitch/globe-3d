@@ -87,10 +87,10 @@ package body GLOBE_3D.tri_Mesh.vertex_array is
 
    procedure set_Vertices (Self : in out tri_Mesh;   To : access gl.geometry.vertex_Array)
    is
-      use gl.Geometry, gl.Geometry.primitive_Geometrys;
+      use gl.Geometry, gl.Geometry.primal;
 
-      the_Geometry : gl.geometry.primitive_Geometrys.primitive_Geometry
-                       renames gl.geometry.primitive_Geometrys.primitive_Geometry (self.skinned_geometry.Geometry.all);
+      the_Geometry : gl.geometry.primal.primal_Geometry
+                       renames gl.geometry.primal.primal_Geometry (self.skinned_geometry.Geometry.all);
    begin
       the_Geometry.set_Vertices (to => To);
    end;
@@ -100,9 +100,9 @@ package body GLOBE_3D.tri_Mesh.vertex_array is
 
    procedure set_Indices  (Self : in out tri_Mesh;   To : access gl.geometry.vertex_Id_array)
    is
-      use gl.Geometry, gl.Geometry.primitive_Geometrys;
-      the_Geometry : gl.geometry.primitive_Geometrys.primitive_Geometry
-                       renames gl.geometry.primitive_Geometrys.primitive_Geometry (self.skinned_geometry.Geometry.all);
+      use gl.Geometry, gl.Geometry.primal;
+      the_Geometry : gl.geometry.primal.primal_Geometry
+                       renames gl.geometry.primal.primal_Geometry (self.skinned_geometry.Geometry.all);
    begin
       the_Geometry.set_Indices (to => To);
    end;
@@ -124,8 +124,8 @@ package body GLOBE_3D.tri_Mesh.vertex_array is
    function face_Count (o : in tri_Mesh) return Natural
    is
       use GL;
-      the_Geometry : gl.geometry.primitive_Geometrys.primitive_Geometry
-                       renames gl.geometry.primitive_Geometrys.primitive_Geometry (o.skinned_geometry.Geometry.all);
+      the_Geometry : gl.geometry.primal.primal_Geometry
+                       renames gl.geometry.primal.primal_Geometry (o.skinned_geometry.Geometry.all);
    begin
       return Natural (the_Geometry.primitive.indices'Length / 3);
    end;

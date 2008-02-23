@@ -94,7 +94,7 @@ package body GLOBE_3D.tri_Mesh.vbo is
 
       the_Geometry : gl.geometry.vbo.vbo_Geometry renames gl.geometry.vbo.vbo_Geometry (self.skinned_geometry.Geometry.all);
    begin
-      the_Geometry.Vertices     := to_Buffer (To);
+      the_Geometry.Vertices     := to_Buffer (To, usage => gl.static_draw);  -- tbd: check usage
       the_Geometry.vertex_Count := gl.SizeI  (To'Length);
 
       the_Geometry.Bounds := Bounds (To.all);
@@ -109,7 +109,7 @@ package body GLOBE_3D.tri_Mesh.vbo is
       the_Geometry : gl.geometry.vbo.vbo_Geometry renames gl.geometry.vbo.vbo_Geometry (self.skinned_geometry.Geometry.all);
    begin
       the_Geometry.indices_Count := gl.SizeI (To'Length);
-      the_Geometry.Indices       := to_Buffer (To);
+      the_Geometry.Indices       := to_Buffer (To, usage => gl.static_draw);
    end;
 
 

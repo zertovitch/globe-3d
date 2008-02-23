@@ -134,7 +134,7 @@ package body GLOBE_3D.Impostor is
 
 
    function general_Update_required (o : access Impostor;   the_Camera       : in p_Camera;
-                                                    the_pixel_Region : pixel_Region) return Boolean
+                                                            the_pixel_Region : in pixel_Region) return Boolean
    is
       use GL, Globe_3D.Math;
       Camera_has_moved : Boolean  :=  the_Camera.clipper.eye_Position /= o.prior_camera_Position;

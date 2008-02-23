@@ -40,7 +40,7 @@ package body GLOBE_3D.Impostor.Simple is
 
 
 
-   function update_Required (o : access Impostor;      the_Camera           : in     globe_3d.p_Camera) return Boolean
+   function update_Required (o : access Impostor;   the_Camera : in globe_3d.p_Camera) return Boolean
    is
       use GL, GLOBE_3D.Math;
       world_Rotation_original : Globe_3D.Matrix_33 := the_Camera.world_Rotation;

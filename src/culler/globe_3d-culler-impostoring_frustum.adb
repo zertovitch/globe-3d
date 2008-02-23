@@ -222,7 +222,7 @@ package body globe_3d.Culler.impostoring_frustum is
 
                                     the_Slot : impostor_load_Balancer.Slot renames self.impostor_load_Slots (Slot_Id);
                                  begin
-                                    the_Slot.impostors_Count                     := the_Slot.impostors_Count + 1;
+                                    the_Slot.impostors_Count                      := the_Slot.impostors_Count + 1;
                                     the_Slot.Impostors (the_Slot.impostors_Count) := the_Impostor;
                                  end;
                               end if;
