@@ -61,8 +61,8 @@ package GLU is
      Width, Height:  aliased GL.int;
   end record;
 
-  type floatMatrix      is array ( 0..3, 0..3 ) of GL.float;
-  type doubleMatrix     is array ( 0..3, 0..3 ) of GL.double;
+  type floatMatrix      is array ( 0..3, 0..3 ) of aliased GL.float;
+  type doubleMatrix     is array ( 0..3, 0..3 ) of aliased GL.double;
 
   type viewPortRecPtr   is access all viewPortRec;
   type floatMatrixPtr   is access all floatMatrix;

@@ -152,14 +152,14 @@ package body GLUT.Devices is
   procedure Initialize is
     use GLUT;
   begin
-    IgnoreKeyRepeat(1);
-    KeyboardFunc(      Key'Address                   );
-    KeyboardUpFunc(    Key_up'Address                );
-    SpecialFunc(       Special_key'Address           );
-    SpecialUpFunc(     Special_key_up'Address        );
-    MouseFunc(         Mouse_Event'Address           );
-    MotionFunc(        Motion'Address                );
-    PassiveMotionFunc( Passive_Motion'Address        );
+    IgnoreKeyRepeat   (1);
+    KeyboardFunc      (Key'access           );
+    KeyboardUpFunc    (Key_up'access        );
+    SpecialFunc       (Special_key'access   );
+    SpecialUpFunc     (Special_key_up'access);
+    MouseFunc         (Mouse_Event'access   );
+    MotionFunc        (Motion'access        );
+    PassiveMotionFunc (Passive_Motion'access);
   end Initialize;
 
 

@@ -20,7 +20,7 @@ package body GLUT_2D is
   is
   begin
     for i in s'Range loop
-      GLUT.BitmapCharacter(GLUT_char(font), Character'Pos(s(i)));
+      null; -- tbd: GLUT.BitmapCharacter(GLUT_char(font), Character'Pos(s(i)));
     end loop;
   end Text_output;
 

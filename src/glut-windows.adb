@@ -4,6 +4,7 @@
 --  Copyright (c) Gautier de Montmollin/Rod Kay 2006..2007
 ------------------------------------------------------------------------------
 
+with opengl.glx;
 
 with GL, GL.IO, GL.frustums,  GL.Skins, GL.Textures, GLU,  GLUT;
 
@@ -690,14 +691,14 @@ package body GLUT.Windows is
 
       glut.devices.Initialize;
 
-      if CreateMenu (Menu'access) = 0 then
-         raise GLUT_Problem;
-      end if;
+--        if CreateMenu (Menu'access) = 0 then         -- tdb: deferred
+--           raise GLUT_Problem;
+--        end if;
 
-      AttachMenu( MIDDLE_BUTTON );
+--      AttachMenu( MIDDLE_BUTTON );
 
-      AddMenuEntry(" * Full Screen", 1);
-      AddMenuEntry("--> Exit (Esc)", 2);
+--      AddMenuEntry(" * Full Screen", 1);
+--      AddMenuEntry("--> Exit (Esc)", 2);
 
    end Start_GLUTs;
 
@@ -738,7 +739,7 @@ package body GLUT.Windows is
    is
    begin
       glut.Init;
-      glut.setOption (GLUT_RENDERING_CONTEXT, GLUT_USE_CURRENT_CONTEXT);
+      glut.setOption (GLUT.RENDERING_CONTEXT, GLUT.USE_CURRENT_CONTEXT);
       glut.setOption (ACTION_ON_WINDOW_CLOSE, ACTION_CONTINUE_EXECUTION);
 
       Texture_association;
@@ -776,6 +777,8 @@ package body GLUT.Windows is
    is
    begin
       GLUT.setWindow  (Self.glut_Window);
+--      opengl.glx.glXMakeCurrent;
+
    end;
 
 

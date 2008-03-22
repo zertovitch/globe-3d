@@ -1,0 +1,461 @@
+-------------------------------------------------------------------------------
+--                                                                           --
+--  Ada Interface to the X Window System and Motif(tm)/Lesstif               --
+--  Copyright (c) 1996-2000 Hans-Frieder Vogt                                --
+--                                                                           --
+--  Adabindx is free software; you can redistribute it and/or modify it      --
+--  under the terms of the GNU General Public License as published by the    --
+--  Free Software Foundation; either version 2 of the License, or (at your   --
+--  option) any later version.                                               --
+--                                                                           --
+--  This program is distributed in the hope that it will be useful, but      --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of               --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                     --
+--  See the GNU General Public License for more details.                     --
+--                                                                           --
+--  You should have received a copy of the GNU General Public License        --
+--  along with this program; if not, write to the                            --
+--  Free Software Foundation, Inc.,                                          --
+--  59 Temple Place - Suite 330,                                             --
+--  Boston, MA 02111-1307, USA.                                              --
+--                                                                           --
+--  As a special exception, if other files instantiate generics from this    --
+--  unit, or you link this unit with other files to produce an executable,   --
+--  this unit does not by itself cause the resulting executable to be        --
+--  covered by the GNU General Public License. This exception does not       --
+--  however invalidate any other reasons why the executable file might be    --
+--  covered by the GNU General Public License.                               --
+--                                                                           --
+--  X Window System is copyrighted by the X Consortium                       --
+--  Motif(tm)       is copyrighted by the Open Software Foundation, Inc.     --
+--                  and by The Open Group                                    --
+--                                                                           --
+--                                                                           --
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+--
+-- HISTORY:
+--          June 20, 1998 begin of history
+--
+-------------------------------------------------------------------------------
+
+package Xm_Widgets.Primitive.CS_Text is
+ 
+-- UseMotif2.0
+--! 
+--!    -- -------------------------------------------------------------------------
+--!    --
+--!    --  constant representing widget/gadget class
+--!    --
+--! 
+--!    Xm_CS_Text_Widget_Class             : constant Widget_Class;
+--! 
+--! 
+--!    Xm_Error_CS_Text              : exception;
+--!    Xm_Error_CS_Text_Not_Found    : exception;
+--! 
+--! 
+--!    type Xm_CS_Text_Verify_Callback_Struct is record
+--!       Reason       : Callback_Reason;
+--!       Event        : X_Lib.X_Event_Pointer;
+--!       Doit         : Boolean;
+--!       Curr_Insert,
+--!       New_Insert   : Xm_Text_Position;
+--!       Start_Pos,
+--!       End_Pos      : Xm_Text_Position;
+--!       Text         : Xm_String;
+--!    end record;
+--!    pragma Convention (C, Xm_CS_Text_Verify_Callback_Struct);
+--! 
+--!    type Xm_CS_Text_Verify_Callback_Struct_Access is
+--!       access all Xm_CS_Text_Verify_Callback_Struct;
+--! 
+--!    function To_Callback_Struct (Pointer : in Xt_Pointer)
+--!       return Xm_CS_Text_Verify_Callback_Struct_Access;
+--! 
+--! 
+--!    type Xm_CS_Text_Source is private;
+--! 
+--! 
+--!    function Xm_Is_CS_Text (W : in Widget) return Boolean;
+--! 
+--! 
+--!    function Xm_Create_CS_Text
+--!      (Parent   : in  Widget;
+--!       Name     : in  String;
+--!       Arglist  : in  Arg_List := Null_Arg_List)
+--!       return Widget;
+--! 
+--!    function Xm_Create_Scrolled_CS_Text
+--!      (Parent   : in  Widget;
+--!       Name     : in  String;
+--!       Arglist  : in  Arg_List := Null_Arg_List)
+--!       return Widget;                                  
+--! 
+--! 
+--!    function Xm_CS_Text_Get_String (W : in Widget) return Xm_String;
+--! 
+--!    procedure Xm_CS_Text_Set_String
+--!      (W     : in Widget;
+--!       Value : in Xm_String);
+--! 
+--!    procedure Xm_CS_Text_Replace
+--!      (W         : in Widget;
+--!       From_Pos  : in Xm_Text_Position;
+--!       To_Pos    : in Xm_Text_Position;
+--!       Value     : in Xm_String);
+--! 
+--! 
+--!    procedure Xm_CS_Text_Read
+--!      (W         : in     Widget;
+--!       From_Pos  : in     Xm_Text_Position;
+--!       To_Pos    : in     Xm_Text_Position;
+--!       Value     :    out Xm_String);
+--! 
+--!    procedure Xm_CS_Text_Insert
+--!      (W         : in Widget;
+--!       Position  : in Xm_Text_Position;
+--!       Value     : in Xm_String);
+--! 
+--!    function Xm_CS_Text_Get_Editable (W : in Widget) return Boolean;
+--! 
+--!    procedure Xm_CS_Text_Set_Editable
+--!      (W        : in Widget;
+--!       Editable : in Boolean);
+--! 
+--! 
+--!    function Xm_CS_Text_Get_Max_Length (W : in Widget)
+--!       return Integer;
+--! 
+--!    procedure Xm_CS_Text_Set_Max_Length
+--!      (W          : in Widget;
+--!       Max_Length : in Integer);
+--! 
+--!    function Xm_CS_Text_Get_Text_Path (W : in Widget)
+--!       return Xm_String_Direction;
+--! 
+--! 
+--!    procedure Xm_CS_Text_Set_Text_Path
+--!      (W          : in Widget;
+--!       Path       : in Xm_String_Direction);
+--! 
+--!    function Xm_CS_Text_Get_Selection (W : in Widget)
+--!       return Xm_String;
+--! 
+--!    procedure Xm_CS_Text_Get_Selection_Position
+--!      (W      : in     Widget;
+--!       Left   :    out Xm_Text_Position;
+--!       Right  :    out Xm_Text_Position);
+--! 
+--!    procedure Xm_CS_Text_Set_Selection
+--!      (W      : in Widget;
+--!       First  : in Xm_Text_Position;
+--!       Last   : in Xm_Text_Position;
+--!       Time   : in X_Lib.Server_Time);
+--! 
+--!    procedure Xm_CS_Text_Clear_Selection
+--!      (W      : in Widget;
+--!       Time   : in X_Lib.Server_Time);
+--! 
+--!    procedure Xm_CS_Text_Copy
+--!      (W      : in Widget;
+--!       Time   : in X_Lib.Server_Time);
+--! 
+--!    procedure Xm_CS_Text_Cut
+--!      (W      : in Widget;
+--!       Time   : in X_Lib.Server_Time);
+--! 
+--!    procedure Xm_CS_Text_Paste (W : in Widget);
+--! 
+--!    procedure Xm_CS_Text_Remove (W : in Widget);
+--! 
+--!    procedure Xm_CS_Text_Show_Position
+--!      (W        : in Widget;
+--!       Position : in Xm_Text_Position);
+--! 
+--!    procedure Xm_CS_Text_Scroll
+--!      (W        : in Widget;
+--!       Lines    : in Integer);
+--! 
+--!    procedure Xm_CS_Text_Disable_Redisplay (W      : in Widget);
+--!    procedure Xm_CS_Text_Enable_Redisplay  (W      : in Widget);
+--! 
+--! 
+--!    procedure Xm_CS_Text_Mark_Redraw
+--!      (W      : in Widget;
+--!       Left   : in Xm_Text_Position;
+--!       Right  : in Xm_Text_Position);
+--! 
+--!    procedure Xm_CS_Text_Set_Highlight
+--!      (W      : in Widget;
+--!       Left   : in Xm_Text_Position;
+--!       Right  : in Xm_Text_Position;
+--!       Mode   : in Xm_Highlight_Mode);
+--! 
+--!    function Xm_CS_Text_Get_Top_Character (W : in Widget)
+--!       return Xm_Text_Position;
+--! 
+--! 
+--!    procedure Xm_CS_Text_Set_Top_Character
+--!      (W            : in Widget;
+--!       Top_Position : in Xm_Text_Position);
+--! 
+--!    function Xm_CS_Text_Get_Last_Position (W : in Widget)
+--!       return Xm_Text_Position;
+--! 
+--!    function Xm_CS_Text_Get_Cursor_Position (W : in Widget)
+--!       return Xm_Text_Position;
+--! 
+--!    function Xm_CS_Text_Get_Insert_Position (W : in Widget)
+--!       return Xm_Text_Position;
+--! 
+--!    procedure Xm_CS_Text_Set_Insert_Position
+--!      (W        : in Widget;
+--!       Position : in Xm_Text_Position);
+--! 
+--!    function Xm_CS_Text_XY_To_Pos
+--!      (W        : in Widget;
+--!       X, Y     : in X_Lib.Position)
+--!       return Xm_Text_Position;
+--! 
+--!    procedure Xm_CS_Text_Pos_To_XY
+--!      (W        : in     Widget;
+--!       Pos      : in     Xm_Text_Position;
+--!       X, Y     :    out X_Lib.Position);
+--! 
+--!    function Xm_CS_Text_Get_String_Wrapped
+--!      (W         : in Widget;
+--!       Start_Pos : in Xm_Text_Position;
+--!       End_Pos   : in Xm_Text_Position)
+--!       return Xm_String;
+--! 
+--!    procedure Xm_CS_String_Find_String
+--!      (W         : in     Widget;
+--!       Start     : in     Xm_Text_Position;
+--!       Str       : in     String;
+--!       Direction : in     Xm_String_Direction;
+--!       Position  :    out Xm_Text_Position);
+--! 
+--!    procedure Xm_CS_Text_Set_Add_Mode
+--!      (W         : in Widget;
+--!       State     : in Boolean);
+--! 
+--! 
+--! 
+--!    procedure Xm_CS_Text_Set_Source
+--!      (W               : in Widget;
+--!       Source          : in Xm_CS_Text_Source;
+--!       Top_Character   : in Xm_Text_Position;
+--!       Cursor_Position : in Xm_Text_Position);
+--! 
+--!    function Xm_CS_Text_Get_Source (W : in Widget) return Xm_CS_Text_Source;
+--! 
+--!    function Xm_CS_Text_Get_Baseline (W : in Widget) return Integer;
+--! 
+--!    function Xm_CS_Text_Paste_Link (W : in Widget) return Boolean;
+--! 
+--!    function Xm_CS_Text_Copy_Link
+--!      (W    : in Widget;
+--!       Time : in X_Lib.Server_Time) return Boolean;
+--! 
+--! 
+--!    -- -------------------------------------------------------------------------
+--!    --
+--!    -- new resource strings
+--!    --
+--!    Xm_N_Activate_Callback          : constant Xt_N_Resource_String;
+--!    Xm_N_Auto_Show_Cursor_Position  : constant Xt_N_Resource_String;
+--!    Xm_N_CS_Text_Value              : constant Xt_N_Resource_String;
+--!    Xm_N_Cursor_Position            : constant Xt_N_Resource_String;
+--!    Xm_N_Destination_Callback       : constant Xt_N_Resource_String;
+--!    Xm_N_Editable                   : constant Xt_N_Resource_String;
+--!    Xm_N_Edit_Mode                  : constant Xt_N_Resource_String;
+--!    Xm_N_Focus_Callback             : constant Xt_N_Resource_String;
+--!    Xm_N_Gain_Primary_Callback      : constant Xt_N_Resource_String;
+--!    Xm_N_Lose_Primary_Callback      : constant Xt_N_Resource_String;
+--!    Xm_N_Losing_Focus_Callback      : constant Xt_N_Resource_String;
+--!    Xm_N_Margin_Height              : constant Xt_N_Resource_String;
+--!    Xm_N_Margin_Width               : constant Xt_N_Resource_String;
+--!    Xm_N_Max_Length                 : constant Xt_N_Resource_String;
+--!    Xm_N_Modify_Verify_Callback     : constant Xt_N_Resource_String;
+--!    Xm_N_Motion_Verify_Callback     : constant Xt_N_Resource_String;
+--!    Xm_N_Source                     : constant Xt_N_Resource_String;
+--!    Xm_N_Top_Character              : constant Xt_N_Resource_String;
+--!    Xm_N_Value_Changed_Callback     : constant Xt_N_Resource_String;
+--!    Xm_N_Verify_Bell                : constant Xt_N_Resource_String;
+--! 
+--!    --
+--!    -- new resource strings for text input
+--!    --
+--!    Xm_N_Pending_Delete             : constant Xt_N_Resource_String;
+--!    Xm_N_Selection_Array            : constant Xt_N_Resource_String;
+--!    Xm_N_Selection_Array_Count      : constant Xt_N_Resource_String;
+--!    Xm_N_Select_Threshold           : constant Xt_N_Resource_String;
+--! 
+--!    --
+--!    -- new resource strings for text output
+--!    --
+--!    Xm_N_Blink_Rate                 : constant Xt_N_Resource_String;
+--!    Xm_N_Columns                    : constant Xt_N_Resource_String;
+--!    Xm_N_Cursor_Position_Visible    : constant Xt_N_Resource_String;
+--!    Xm_N_Font_List                  : constant Xt_N_Resource_String;
+--!    Xm_N_Render_Table               : constant Xt_N_Resource_String;
+--!    Xm_N_Resize_Height              : constant Xt_N_Resource_String;
+--!    Xm_N_Resize_Width               : constant Xt_N_Resource_String;
+--!    Xm_N_Rows                       : constant Xt_N_Resource_String;
+--!    Xm_N_Select_Color               : constant Xt_N_Resource_String;
+--!    Xm_N_Word_Wrap                  : constant Xt_N_Resource_String;
+--! 
+--!    --
+--!    -- resource strings for scrolled CS_Text
+--!    --
+--!    Xm_N_Scroll_Horizontal          : constant Xt_N_Resource_String;
+--!    Xm_N_Scroll_Left_Side           : constant Xt_N_Resource_String;
+--!    Xm_N_Scroll_Top_Side            : constant Xt_N_Resource_String;
+--!    Xm_N_Scroll_Vertical            : constant Xt_N_Resource_String;
+--! 
+--! 
+--!    --
+--!    -- Text widget resource values
+--!    --
+--!    type Edit_Mode is (Multi_Line_Edit, Single_Line_Edit);
+--! 
+--!    procedure Append_Set (List  : in out Arg_List;
+--!                          Name  : in     Xt_N_Resource_String;
+--!                          Value : in     Edit_Mode);
+--! 
+--!    procedure Append_Get (List  : in out Arg_List;
+--!                          Name  : in     Xt_N_Resource_String;
+--!                          Value :    out Edit_Mode);
+--!    pragma Convention (C, Append_Get);
+--! 
+--! 
+--! 
+--! private
+--! 
+--!    type Xm_CS_Text_Source is new System.Address;
+--! 
+--!    for Edit_Mode use (Multi_Line_Edit => 0, Single_Line_Edit => 1);
+--!    for Edit_Mode'Size use Short_Short_Unsigned'Size;
+--! 
+--!    pragma Import (C, Xm_CS_Text_Get_String, "XmCSTextGetString");
+--!    pragma Import (C, Xm_CS_Text_Set_String, "XmCSTextSetString");
+--!    pragma Import (C, Xm_CS_Text_Replace, "XmCSTextReplace");
+--!    pragma Import (C, Xm_CS_Text_Insert, "XmCSTextInsert");
+--!    pragma Import (C, Xm_CS_Text_Get_Max_Length, "XmCSTextGetMaxLength");
+--!    pragma Import (C, Xm_CS_Text_Set_Max_Length, "XmCSTextSetMaxLength");
+--!    pragma Import (C, Xm_CS_Text_Get_Text_Path, "XmCSTextGetTextPath");
+--!    pragma Import (C, Xm_CS_Text_Set_Text_Path, "XmCSTextSetTextPath");
+--!    pragma Import (C, Xm_CS_Text_Get_Selection, "XmCSTextGetSelection");
+--!    pragma Import (C, Xm_CS_Text_Set_Selection, "XmCSTextSetSelection");
+--!    pragma Import (C, Xm_CS_Text_Clear_Selection, "XmCSTextClearSelection");
+--!    pragma Import (C, Xm_CS_Text_Show_Position, "XmCSTextShowPosition");
+--!    pragma Import (C, Xm_CS_Text_Scroll, "XmCSTextScroll");
+--!    pragma Import (C, Xm_CS_Text_Disable_Redisplay, "XmCSTextDisableRedisplay");
+--!    pragma Import (C, Xm_CS_Text_Enable_Redisplay, "XmCSTextEnableRedisplay");
+--!    pragma Import (C, Xm_CS_Text_Mark_Redraw, "XmCSTextMarkRedraw");
+--!    pragma Import (C, Xm_CS_Text_Set_Highlight, "XmCSTextSetHighlight");
+--!    pragma Import (C, Xm_CS_Text_Get_Top_Character, "XmCSTextGetTopCharacter");
+--!    pragma Import (C, Xm_CS_Text_Set_Top_Character, "XmCSTextSetTopCharacter");
+--!    pragma Import (C, Xm_CS_Text_Get_Last_Position, "XmCSTextGetLastPosition");
+--!    pragma Import (C, Xm_CS_Text_Get_Cursor_Position, "XmCSTextGetCursorPosition");
+--!    pragma Import (C, Xm_CS_Text_Get_Insert_Position, "XmCSTextGetInsertPosition");
+--!    pragma Import (C, Xm_CS_Text_Set_Insert_Position, "XmCSTextSetInsertPosition");
+--!    pragma Import (C, Xm_CS_Text_XY_To_Pos, "XmCSTextXYToPos");
+--!    pragma Import (C, Xm_CS_Text_Get_String_Wrapped, "XmCSTextGetStringWrapped");
+--!    pragma Import (C, Xm_CS_Text_Set_Source, "XmCSTextSetSource");
+--!    pragma Import (C, Xm_CS_Text_Get_Source, "XmCSTextGetSource");
+--!    pragma Import (C, Xm_CS_Text_Get_Baseline, "XmCSTextGetBaseline");
+--! 
+--! 
+--!    c_const_Xm_CS_Text_Widget_Class           : Widget_Class;
+--! 
+--!    pragma Import (C, c_const_Xm_CS_Text_Widget_Class, "xmCSTextWidgetClass");
+--! 
+--!    Xm_CS_Text_Widget_Class           : constant Widget_Class :=
+--!     c_const_Xm_CS_Text_Widget_Class;
+--! 
+--!    --
+--!    -- Text widget resource strings
+--!    --
+--!    Xm_N_Activate_Callback       : constant Xt_N_Resource_String
+--!       := Xm_Widgets.Primitive.Xm_N_Activate_Callback;
+--!    Xm_N_Auto_Show_Cursor_Position : constant Xt_N_Resource_String
+--!       := To_Resource_String ("autoShowCursorPosition");
+--!    Xm_N_Blink_Rate              : constant Xt_N_Resource_String
+--!       := To_Resource_String ("blinkRate");
+--!    Xm_N_Columns                 : constant Xt_N_Resource_String
+--!       := To_Resource_String ("columns");
+--!    Xm_N_CS_Text_Value           : constant Xt_N_Resource_String
+--!       := To_Resource_String ("cstextValue");
+--!    Xm_N_Cursor_Position         : constant Xt_N_Resource_String
+--!       := To_Resource_String ("cursorPosition");
+--!    Xm_N_Cursor_Position_Visible : constant Xt_N_Resource_String
+--!       := To_Resource_String ("cursorPositionVisible");
+--!    Xm_N_Destination_Callback    : constant Xt_N_Resource_String :=
+--!       Xm_Widgets.Xm_N_Destination_Callback;
+--!    Xm_N_Editable                : constant Xt_N_Resource_String
+--!       := To_Resource_String ("editable");
+--!    Xm_N_Edit_Mode               : constant Xt_N_Resource_String
+--!       := To_Resource_String ("editMode");
+--!    Xm_N_Focus_Callback          : constant Xt_N_Resource_String
+--!       := To_Resource_String ("focusCallback");
+--!    Xm_N_Font_List               : constant Xt_N_Resource_String
+--!       := Xm_Widgets.Xm_N_Font_List;
+--!    Xm_N_Gain_Primary_Callback   : constant Xt_N_Resource_String
+--!       := To_Resource_String ("gainPrimaryCallback");
+--!    Xm_N_Lose_Primary_Callback   : constant Xt_N_Resource_String
+--!       := To_Resource_String ("losePrimaryCallback");
+--!    Xm_N_Losing_Focus_Callback   : constant Xt_N_Resource_String
+--!       := To_Resource_String ("losingFocusCallback");
+--!    Xm_N_Margin_Height           : constant Xt_N_Resource_String
+--!       := Xm_Widgets.Xm_N_Margin_Height;
+--!    Xm_N_Margin_Width            : constant Xt_N_Resource_String
+--!       := Xm_Widgets.Xm_N_Margin_Width;
+--!    Xm_N_Max_Length              : constant Xt_N_Resource_String
+--!       := To_Resource_String ("maxLength");
+--!    Xm_N_Modify_Verify_Callback  : constant Xt_N_Resource_String
+--!       := Xm_Widgets.Xm_N_Modify_Verify_Callback;
+--!    Xm_N_Motion_Verify_Callback  : constant Xt_N_Resource_String
+--!       := To_Resource_String ("motionVerifyCallback");
+--!    Xm_N_Pending_Delete          : constant Xt_N_Resource_String
+--!       := To_Resource_String ("pendingDelete");
+--!    Xm_N_Render_Table            : constant Xt_N_Resource_String
+--!       := Xm_Widgets.Xm_N_Render_Table;
+--!    Xm_N_Resize_Height           : constant Xt_N_Resource_String
+--!       := To_Resource_String ("resizeHeight");
+--!    Xm_N_Resize_Width            : constant Xt_N_Resource_String
+--!       := To_Resource_String ("resizeWidth");
+--!    Xm_N_Rows                    : constant Xt_N_Resource_String
+--!       := To_Resource_String ("rows");
+--!    Xm_N_Scroll_Horizontal       : constant Xt_N_Resource_String
+--!       := To_Resource_String ("scrollHorizontal");
+--!    Xm_N_Scroll_Left_Side        : constant Xt_N_Resource_String
+--!       := To_Resource_String ("scrollLeftSide");
+--!    Xm_N_Scroll_Top_Side         : constant Xt_N_Resource_String
+--!       := To_Resource_String ("scrollTopSide");
+--!    Xm_N_Scroll_Vertical         : constant Xt_N_Resource_String
+--!       := To_Resource_String ("scrollVertical");
+--!    Xm_N_Selection_Array         : constant Xt_N_Resource_String
+--!       := X_Toolkit.Xt_N_Selection_Array;
+--!    Xm_N_Selection_Array_Count   : constant Xt_N_Resource_String
+--!       := To_Resource_String ("selectionArrayCount");
+--!    Xm_N_Select_Color            : constant Xt_N_Resource_String
+--!       := Xm_Widgets.Xm_N_Select_Color;
+--!    Xm_N_Select_Threshold        : constant Xt_N_Resource_String
+--!       := To_Resource_String ("selectThreshold");
+--!    Xm_N_Source                  : constant Xt_N_Resource_String
+--!       := To_Resource_String ("source");
+--!    Xm_N_Top_Character           : constant Xt_N_Resource_String
+--!       := To_Resource_String ("topCharacter");
+--!    Xm_N_Value_Changed_Callback  : constant Xt_N_Resource_String
+--!       := Xm_Widgets.Xm_N_Value_Changed_Callback;
+--!    Xm_N_Verify_Bell             : constant Xt_N_Resource_String
+--!       := To_Resource_String ("verifyBell");
+--!    Xm_N_Word_Wrap               : constant Xt_N_Resource_String
+--!       := To_Resource_String ("wordWrap");
+--! 
+-- EndMotif2.0
+
+end Xm_Widgets.Primitive.CS_Text;
