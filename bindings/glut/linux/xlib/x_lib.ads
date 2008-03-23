@@ -60,6 +60,10 @@ with Interfaces.C,
      String_List,
      Generic_List_Types;
 
+with interfaces.C.strings;
+
+
+
 package X_Lib is
 
    use type Interfaces.C.short;
@@ -67,6 +71,22 @@ package X_Lib is
    Null_Address : System.Address renames System.Null_Address;
 
    type Long_Array  is array (Natural range <>) of Interfaces.C.long;
+
+
+
+   -- Key masks. Used as modifiers to GrabButton and GrabKey, results of QueryPointer,
+   -- state in various key-, mouse-, and button-related events. ... (from X.h)
+   --
+   ShiftMask   : constant := 2**0;
+   LockMask    : constant := 2**1;
+   ControlMask : constant := 2**2;
+   Mod1Mask    : constant := 2**3;
+   Mod2Mask    : constant := 2**4;
+   Mod3Mask    : constant := 2**5;
+   Mod4Mask    : constant := 2**6;
+   Mod5Mask    : constant := 2**7;
+
+
 
 -- ----------------------------------------------------------------------------
 --
@@ -2164,6 +2184,23 @@ package X_Lib is
    All_Events  : constant Event_Mask := (others => True);
 
 
+
+   -- Keymap
+   --
+
+   function X_Query_Keymap (Display : Display_Pointer;
+                            keys_return : interfaces.C.strings.chars_ptr) return interfaces.C.Int;
+
+   pragma import (C, X_Query_Keymap, "XQueryKeymap");
+
+--  extern int XQueryKeymap(
+--      Display*		/* display */,
+--      char [32]		/* keys_return */
+--  );
+
+
+
+
    -- -------------------------------------------------------------------------
    --
    --   Window Attributes
@@ -2889,6 +2926,8 @@ package X_Lib is
    end record;
 
 
+
+
    type X_Unmap_Event is record
       Serial          : Interfaces.C.unsigned_long;
       Send_Event      : Boolean;
@@ -3107,6 +3146,30 @@ package X_Lib is
    end record;
 
    type X_Event_Pointer is access all X_Event;
+
+
+
+   function X_Refresh_Keyboard_Mapping (map_Event : access X_Event) return interfaces.C.Int;
+   pragma import (C, X_Refresh_Keyboard_Mapping, "XRefreshKeyboardMapping");
+
+--  extern int XRefreshKeyboardMapping(
+--      XMappingEvent*	/* event_map */
+--  );
+
+
+
+
+   function X_Get_Pointer_Mapping (Display    : in Display_Pointer;
+                                   Map_return : in interfaces.C.strings.chars_ptr;
+                                   nMap       : in interfaces.C.Int) return interfaces.C.Int;
+   pragma import (C, X_Get_Pointer_Mapping, "XGetPointerMapping");
+
+--  extern int XGetPointerMapping(
+--      Display*		/* display */,
+--      unsigned char*	/* map_return */,
+--      int			/* nmap */
+--  );
+
 
 
    function X_Event_Mask_Of_Screen (Screen : in Screen_Pointer)

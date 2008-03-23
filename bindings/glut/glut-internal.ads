@@ -30,45 +30,6 @@ private package glut.Internal is
 
 
 
-   -- Menus
-   --
-
-   type SFG_Menu is
-      record
-         ID : Integer;              -- The global menu ID
-      end record;
-
---  struct tagSFG_Menu
---  {
---      SFG_Node            Node;
---      void               *UserData;     /* User data passed back at callback   */
---      SFG_List            Entries;      /* The menu entries list               */
---      FGCBMenu            Callback;     /* The menu callback                   */
---      FGCBDestroy         Destroy;      /* Destruction callback                */
---      GLboolean           IsActive;     /* Is the menu selected?               */
---      int                 Width;        /* Menu box width in pixels            */
---      int                 Height;       /* Menu box height in pixels           */
---      int                 X, Y;         /* Menu box raster position            */
---
---      SFG_MenuEntry      *ActiveEntry;  /* Currently active entry in the menu  */
---      SFG_Window         *Window;       /* Window for menu                     */
---      SFG_Window         *ParentWindow; /* Window in which the menu is invoked */
---  };
---
---  /* This is a menu entry */
---  struct tagSFG_MenuEntry
---  {
---      SFG_Node            Node;
---      int                 ID;                     /* The menu entry ID (local) */
---      int                 Ordinal;                /* The menu's ordinal number */
---      char*               Text;                   /* The text to be displayed  */
---      SFG_Menu*           SubMenu;                /* Optional sub-menu tree    */
---      GLboolean           IsActive;               /* Is the entry highlighted? */
---      int                 Width;                  /* Label's width in pixels   */
---  };
---
-
-
 
 
    --    An enumeration containing the state of the GLUT execution:
@@ -110,8 +71,8 @@ private package glut.Internal is
          GLDebugSwitch : Boolean;        -- OpenGL state debugging switch
          XSyncSwitch   : Boolean;        -- X11 sync protocol switch
 
-         KeyRepeat : Integer;            -- Global key repeat mode.
-         Modifiers : Integer;            -- Current ALT/SHIFT/CTRL state
+         KeyRepeat : Integer;                  -- Global key repeat mode.
+         Modifiers : interfaces.c.Unsigned;    -- Current ALT/SHIFT/CTRL state
 
          Time : ada.calendar.Time;                 -- Time that glutInit was called
          --      SFG_List         Timers;               /* The freeglut timer hooks       */
@@ -207,6 +168,12 @@ private package glut.Internal is
 --                            CB_TabletButton);
 
 
+--     type FGCBKeyboard is access procedure (arg1 : Character;   arg2, arg3 : Integer);
+--     type FGCBSpecial  is access procedure (arg1, arg2, arg3 : Integer);
+
+
+
+
    --  A generic function pointer.  We should really use the GLUTproc type
    --  defined in freeglut_ext.h, but if we include that header in this file
    --  a bunch of other stuff (font-related) blows up!
@@ -222,10 +189,10 @@ private package glut.Internal is
          CB_Special      : Glut_Proc_13;
          CB_SpecialUp    : Glut_SpecialUp;
          CB_Mouse        : Glut_Proc_5;
-         CB_MouseWheel   : SFG_Proc;
+         CB_MouseWheel   : Glut_Proc_5;
          CB_Motion       : Glut_Proc_6;
          CB_Passive      : Glut_Proc_7;
-         CB_Entry        : SFG_Proc;
+         CB_Entry        : Glut_Proc_8;
          CB_Visibility   : SFG_Proc;
          CB_WindowStatus : Glut_Proc_23;
          CB_Joystick     : SFG_Proc;
@@ -288,6 +255,12 @@ private package glut.Internal is
 
          IgnoreKeyRepeat : Boolean;    -- Whether to ignore key repeat.
          KeyRepeating    : Boolean;    -- Currently in repeat mode
+
+         MouseX,
+         MouseY          : Integer;    -- The most recent mouse position
+
+         JoystickPollRate : Integer;        -- The joystick polling rate
+         JoystickLastPoll : long_Integer;   -- When the last poll happened
       end record;
 
 
@@ -297,12 +270,10 @@ private package glut.Internal is
 --
 --
 --
---      long            JoystickPollRate;   /* The joystick polling rate         */
---      long            JoystickLastPoll;   /* When the last poll happened       */
 --
---      int             MouseX, MouseY;     /* The most recent mouse position    */
 --  };
 
+   type SFG_Menu;
 
    type SFG_Window;
    type SFG_Window_view is access all SFG_Window;
@@ -352,6 +323,49 @@ private package glut.Internal is
 --  };
 
 
+
+
+   -- Menus
+   --
+
+   type SFG_Menu is
+      record
+         ID : Integer;              -- The global menu ID
+
+         IsActive : Boolean;        -- Is the menu selected?
+
+         X, Y     : Integer;        -- Menu box raster position
+
+
+         ParentWindow : SFG_Window_view;     -- Window in which the menu is invoked
+         Window       : SFG_Window_view;     -- Window for menu
+      end record;
+
+--  struct tagSFG_Menu
+--  {
+--      SFG_Node            Node;
+--      void               *UserData;     /* User data passed back at callback   */
+--      SFG_List            Entries;      /* The menu entries list               */
+--      FGCBMenu            Callback;     /* The menu callback                   */
+--      FGCBDestroy         Destroy;      /* Destruction callback                */
+--      int                 Width;        /* Menu box width in pixels            */
+--      int                 Height;       /* Menu box height in pixels           */
+--
+--      SFG_MenuEntry      *ActiveEntry;  /* Currently active entry in the menu  */
+--  };
+--
+--  /* This is a menu entry */
+--  struct tagSFG_MenuEntry
+--  {
+--      SFG_Node            Node;
+--      int                 ID;                     /* The menu entry ID (local) */
+--      int                 Ordinal;                /* The menu's ordinal number */
+--      char*               Text;                   /* The text to be displayed  */
+--      SFG_Menu*           SubMenu;                /* Optional sub-menu tree    */
+--      GLboolean           IsActive;               /* Is the entry highlighted? */
+--      int                 Width;                  /* Label's width in pixels   */
+--  };
+--
 
 
 

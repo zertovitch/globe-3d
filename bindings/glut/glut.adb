@@ -646,6 +646,124 @@ package body GLUT is
 
 
 
+   -- Returns various device information.
+   --
+   function DeviceGet (Type_Id : GL.enum) return Integer
+   is
+   begin
+      verify_Initialised;
+
+      --XXX WARNING: we are mostly lying in this function.
+
+      case Type_Id is
+         when GLUT.HAS_KEYBOARD =>
+            -- Win32 is assumed a keyboard, and this cannot be queried, except for WindowsCE.
+            --
+            -- X11 has a core keyboard by definition, although it can be present as a virtual/dummy
+            -- keyboard. For now, there is no reliable way to tell if a real keyboard is present.
+            --
+            return platform.DeviceGet_has_Keyboard;
+
+
+
+         when GLUT.HAS_MOUSE =>   -- X11 has a mouse by definition
+            return platform.DeviceGet_has_Mouse;
+
+
+         when GLUT.NUM_MOUSE_BUTTONS =>   -- X11 has a mouse by definition
+            return platform.DeviceGet_num_mouse_Buttons;
+
+
+         when GLUT.HAS_JOYSTICK =>
+            return 0;    --          return fgJoystickDetect ();   -- tbd: deferred
+
+
+         when GLUT.OWNS_JOYSTICK =>
+            return boolean'Pos (fgState.JoysticksInitialised);
+
+
+         when GLUT.JOYSTICK_POLL_RATE =>
+            if fgStructure.CurrentWindow /= null then
+               return fgStructure.CurrentWindow.State.JoystickPollRate;
+            else
+               return 0;
+            end if;
+
+
+            -- tbd: deferred
+            --
+            --      /* XXX The following two are only for Joystick 0 but this is an improvement */
+            --      case GLUT_JOYSTICK_BUTTONS:
+            --          return glutJoystickGetNumButtons ( 0 );
+            --
+            --      case GLUT_JOYSTICK_AXES:
+            --          return glutJoystickGetNumAxes ( 0 );
+            --
+            --      case GLUT_HAS_DIAL_AND_BUTTON_BOX:
+            --          return fgInputDeviceDetect ();
+
+
+         when GLUT.NUM_DIALS =>
+            if fgState.InputDevsInitialised then
+               return 8;
+            else
+               return 0;
+            end if;
+
+
+         when GLUT.NUM_BUTTON_BOX_BUTTONS =>
+            return 0;
+
+
+         when GLUT.HAS_SPACEBALL
+            | GLUT.HAS_TABLET =>
+            return 0;
+
+
+         when  GLUT.NUM_SPACEBALL_BUTTONS
+            | GLUT.NUM_TABLET_BUTTONS =>
+            return 0;
+
+
+         when GLUT.DEVICE_IGNORE_KEY_REPEAT =>
+            if fgStructure.CurrentWindow /= null then
+               return boolean'Pos (fgStructure.CurrentWindow.State.IgnoreKeyRepeat);
+            else
+               return 0;
+            end if;
+
+
+         when GLUT.DEVICE_KEY_REPEAT =>
+            return fgState.KeyRepeat;
+
+
+         when others =>
+            raise program_Error with "glutDeviceGet(): missing enum handle:" & gl.enum'Image (Type_Id);
+      end case;
+
+   end;
+
+
+
+
+
+   -- This should return the current state of ALT, SHIFT and CTRL keys.
+   --
+   function GetModifiers return Integer
+   is
+   begin
+      verify_Initialised;
+
+      if fgState.Modifiers = INVALID_MODIFIERS then
+         raise constraint_Error with "glutGetModifiers() called outside an input callback";
+      end if;
+
+      return Integer (fgState.Modifiers);
+   end;
+
+
+
+
 
    -- General settings assignment method
    --

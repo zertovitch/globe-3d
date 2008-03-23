@@ -259,6 +259,13 @@ package GLUT is
    NUM_BUTTON_BOX_BUTTONS    : constant := 607;
    NUM_DIALS                 : constant := 608;
    NUM_TABLET_BUTTONS        : constant := 609;
+   DEVICE_IGNORE_KEY_REPEAT  : constant := 16#0262#;
+   DEVICE_KEY_REPEAT         : constant := 16#0263#;
+   HAS_JOYSTICK              : constant := 16#0264#;
+   OWNS_JOYSTICK             : constant := 16#0265#;
+   JOYSTICK_BUTTONS          : constant := 16#0266#;
+   JOYSTICK_AXES             : constant := 16#0267#;
+   JOYSTICK_POLL_RATE        : constant := 16#0268#;
 
    --  glutLayerGet parameters.
 
@@ -755,7 +762,7 @@ package GLUT is
    pragma Import (StdCall, Get, "glutGet");
 
    function DeviceGet (Type_Id : GL.enum) return Integer;
-   pragma Import (StdCall, DeviceGet, "glutDeviceGet");
+   --pragma Import (StdCall, DeviceGet, "glutDeviceGet");
 
    --  GLUT extension support sub-API
 
@@ -767,7 +774,7 @@ package GLUT is
    function ExtensionSupported (Name : String) return Integer;
 
    function GetModifiers return Integer;
-   pragma Import (StdCall, GetModifiers, "glutGetModifiers");
+   --pragma Import (StdCall, GetModifiers, "glutGetModifiers");
 
    function LayerGet (Type_Id : GL.enum) return Integer;
    pragma Import (StdCall, LayerGet, "glutLayerGet");

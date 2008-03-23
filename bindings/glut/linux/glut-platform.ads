@@ -135,6 +135,11 @@ private package glut.Platform is
    procedure DeInit_post;
 
 
+   function DeviceGet_has_Keyboard      return Integer;
+   function DeviceGet_has_Mouse         return Integer;
+   function DeviceGet_num_mouse_Buttons return Integer;
+
+
 end glut.Platform;
 
 

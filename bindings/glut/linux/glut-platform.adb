@@ -3,7 +3,9 @@ with glut.Internal;   use glut.Internal;
 with opengl.glx;      use opengl.glx;
 
 with x_lib.Property;
-with X_Lib.Predefined_Atoms;   use X_Lib.Predefined_Atoms;
+with x_lib.Predefined_Atoms;   use x_lib.Predefined_Atoms;
+with x_lib.Util;               use x_lib.Util;
+with x_lib.key_Syms;
 
 with ada.containers.doubly_linked_Lists;
 with ada.Strings.unbounded;
@@ -17,7 +19,7 @@ package body glut.Platform is
 
 
    package C renames interfaces.C;
-   use interfaces.C;
+   use interfaces.C, interfaces.C.Strings;
 
    use X_Lib;
 
@@ -952,6 +954,31 @@ package body glut.Platform is
 
 
 
+   -- Returns GLUT modifier mask for the state field of an X11 event.
+   --
+   function fghGetXModifiers (state : in Modifier_And_Button_Mask) return c.Unsigned
+   is
+      ret : c.Unsigned := 0;
+   begin
+      if state.Shift or state.Lock then
+         ret := ret or GLUT.ACTIVE_SHIFT;
+      end if;
+
+      if state.Control then
+         ret := ret or GLUT.ACTIVE_CTRL;
+      end if;
+
+      if state.Mod1 then
+         ret := ret or GLUT.ACTIVE_ALT;
+      end if;
+
+      return ret;
+   end;
+
+
+
+
+
 
 
 --      /* This code was repeated constantly, so here it goes into a definition: */
@@ -967,8 +994,8 @@ package body glut.Platform is
 
    procedure MainLoopEvent
    is
-      Window : SFG_Window_view;
-      Event  : X_Event;
+      Window :         SFG_Window_view;
+      Event  : aliased X_Event;
 
 
       procedure resize_Window (Width, Height : in Integer)
@@ -988,7 +1015,7 @@ package body glut.Platform is
                window.callbacks.CB_Reshape (width, height);
             else
                fgSetWindow (window);
-               gl.Viewport (0, 0, gl.Sizei (width), gl.Sizei (height));
+               gl.Viewport (0,  0,  gl.Sizei (width),  gl.Sizei (height));
             end if;
 
             glut.PostRedisplay;
@@ -998,7 +1025,8 @@ package body glut.Platform is
             end if;
          end if;
 
-      end;
+      end resize_Window;
+
 
    begin
       while X_Pending (fgDisplay.platform.Display) /= 0 loop
@@ -1053,385 +1081,468 @@ package body glut.Platform is
                                  Integer (configure_Event.X_Configure.height));
                end;
 
+            when Destroy_Notify =>         -- This is sent to confirm the XDestroyWindow call.
+               -- fgAddToWindowDestroyList ( window ); */     -- * XXX WHY is this commented out?  Should we re-enable it?
+               null;
+
+            when Expose =>
+               --  We are too dumb to process partial exposes...
+               --
+               --  Well, we could do it.  However, it seems to only be potentially useful for single-buffered (since
+               --  double-buffered does not respect viewport when we do a buffer-swap).
+               --
+               declare
+                  expose_Event : x_lib.X_Event (Expose) := event;
+               begin
+                  if expose_Event.X_Expose.count = 0 then
+                     window                 := fgWindowByHandle (fgStructure.Windows,
+                                                                 expose_Event.X_Expose.window);  --GETWINDOW( xexpose );
+                     window.State.Redisplay := True;
+                  end if;
+               end;
+
+
+            when Map_Notify =>
+               null;
+
+
+            when Unmap_Notify =>           -- We get this when iconifying a window.
+               declare
+                  unmap_Event : x_lib.X_Event (Unmap_Notify) := event;
+               begin
+                  window               := fgWindowByHandle (fgStructure.Windows,
+                                                            unmap_Event.X_Unmap.window);    --  GETWINDOW( xunmap );
+                  window.Callbacks.CB_WindowStatus (GLUT.HIDDEN);
+                  window.State.Visible := False;
+               end;
+
+
+            when Mapping_Notify =>      -- Have the client's keyboard knowledge updated (xlib.ps, page 206, says that's
+               declare                  -- a good thing to do).
+                  unused : c.Int;
+               begin
+                  unused := X_Refresh_Keyboard_Mapping (event'access);
+               end;
+
+
+            when Visibility_Notify =>
+               -- Sending this event, the X server can notify us that the window
+               -- has just acquired one of the three possible visibility states:
+               -- VisibilityUnobscured, VisibilityPartiallyObscured or
+               -- VisibilityFullyObscured. Note that we DO NOT receive a
+               -- VisibilityNotify event when iconifying a window, we only get an UnmapNotify then.
+               --
+               declare
+                  visibility_Event : x_lib.X_Event (Visibility_Notify) := event;
+               begin
+                  window := fgWindowByHandle (fgStructure.Windows,
+                                              visibility_Event.X_Visibility.window);   -- GETWINDOW( xvisibility );
+
+                  case visibility_Event.X_Visibility.state is
+                     when Visibility_Unobscured =>
+                        window.Callbacks.CB_WindowStatus (GLUT.FULLY_RETAINED);
+                        window.State.Visible := True;
+
+                     when Visibility_Partially_Obscured =>
+                        window.Callbacks.CB_WindowStatus (GLUT.PARTIALLY_RETAINED);
+                        window.State.Visible := True;
+
+                     when Visibility_Fully_Obscured =>
+                        window.Callbacks.CB_WindowStatus (GLUT.FULLY_COVERED);
+                        window.State.Visible := False;
+                  end case;
+               end;
+
+
+            when Enter_Notify =>
+               declare
+                  enter_Event : x_lib.X_Event (Enter_Notify) := event;
+               begin
+                  window := fgWindowByHandle (fgStructure.Windows,
+                                              enter_Event.X_Crossing.window);   -- GETWINDOW( xcrossing );
+                  window.State.MouseX := Integer (enter_Event.X_Crossing.x);
+                  window.State.MouseY := Integer (enter_Event.X_Crossing.y);     -- GETMOUSE( xcrossing );
+
+                  if window.callbacks.CB_Entry /= null then
+                     window.callbacks.CB_Entry (GLUT.ENTERED);
+                  end if;
+               end;
+
+
+            when Leave_Notify =>
+               declare
+                  leave_Event : x_lib.X_Event (Leave_Notify) := event;
+               begin
+                  window := fgWindowByHandle (fgStructure.Windows,
+                                              leave_Event.X_Crossing.window);   -- GETWINDOW( xcrossing );
+                  window.State.MouseX := Integer (leave_Event.X_Crossing.x);
+                  window.State.MouseY := Integer (leave_Event.X_Crossing.y);              -- GETMOUSE( xcrossing );
+
+                  if         window.IsMenu
+                    and then window.ActiveMenu /= null
+                    and then window.ActiveMenu.IsActive
+                  then
+                     null; -- tbd: deferred ... fgUpdateMenuHighlight (window.ActiveMenu);
+                  end if;
+
+                  if window.callbacks.CB_Entry /= null then
+                     window.callbacks.CB_Entry (GLUT.LEFT);
+                  end if;
+               end;
+
+
+            when Motion_Notify =>
+               declare
+                  motion_Event : x_lib.X_Event (Motion_Notify) := event;
+               begin
+                  window := fgWindowByHandle (fgStructure.Windows,
+                                              motion_Event.X_Motion.window);   --  GETWINDOW( xmotion );
+                  window.State.MouseX := Integer (motion_Event.X_Motion.x);
+                  window.State.MouseY := Integer (motion_Event.X_Motion.y);              -- GETMOUSE( xmotion );
+
+                  if window.ActiveMenu /= null then
+
+                     if window = window.ActiveMenu.ParentWindow then
+                        window.ActiveMenu.Window.State.MouseX := Integer (motion_Event.X_Motion.x_root) - window.ActiveMenu.X;
+                        window.ActiveMenu.Window.State.MouseY := Integer (motion_Event.X_Motion.y_root) - window.ActiveMenu.Y;
+                     end if;
+
+                     -- tbd: deferred ... fgUpdateMenuHighlight (window.ActiveMenu);
+
+                  else
+                     -- For more than 5 buttons, just check {event.xmotion.state}, rather than a host of bit-masks ?
+                     -- Or maybe we need to track ButtonPress/ButtonRelease events in our own bit-mask ?
+                     --
+                     fgState.Modifiers := fghGetXModifiers (motion_Event.X_Motion.state);
+
+                     if   motion_Event.X_Motion.state.Button1
+                       or motion_Event.X_Motion.state.Button2
+                       or motion_Event.X_Motion.state.Button3
+                       or motion_Event.X_Motion.state.Button4
+                       or motion_Event.X_Motion.state.Button5
+                     then
+                        window.callbacks.CB_Motion (Integer (motion_Event.X_Motion.x),
+                                                    Integer (motion_Event.X_Motion.y));
+                     else
+                        window.callbacks.CB_Passive (Integer (motion_Event.X_Motion.x),
+                                                     Integer (motion_Event.X_Motion.y));
+                     end if;
+
+                     fgState.Modifiers := INVALID_MODIFIERS;
+                  end if;
+               end;
+
+
+            when   Button_Press
+                 | Button_Release =>
+               declare
+                  pressed     : Boolean;
+
+                  button      : Integer;
+                  State       : Modifier_And_Button_Mask;
+                  X, Y        : Integer;
+                  X_root,
+                  Y_root      : Integer;
+                  Window_Id   : x_lib.Drawable_ID;
+                  Up_or_Down  : Integer;
+               begin
+                  -- An X button (at least in XFree86) is numbered from 1.
+                  -- A GLUT button is numbered from 0.
+                  -- Old GLUT passed through buttons other than just the first three, though it only gave
+                  -- symbolic names and official support to the first three.
+                  --
+                  if event.ev_type = Button_Press then
+                     declare
+                        press_Event : x_lib.X_Event (Button_Press) := event;
+                     begin
+                        button     := Button_type'Pos (press_Event.X_Button.button) - 1;
+                        X          := Integer (press_Event.X_Button.x);
+                        Y          := Integer (press_Event.X_Button.y);
+                        X_root     := Integer (press_Event.X_Button.x_root);
+                        Y_root     := Integer (press_Event.X_Button.y_root);
+                        State      := press_Event.X_Button.state;
+                        Window_Id  := press_Event.X_Button.window;
+                        Up_or_Down := GLUT.DOWN;
+                        pressed    := True;
+                     end;
+                  else
+                     declare
+                        release_Event : x_lib.X_Event (Button_Release) := event;
+                     begin
+                        button     := Button_type'Pos (release_Event.X_Button.button) - 1;
+                        X          := Integer (release_Event.X_Button.x);
+                        Y          := Integer (release_Event.X_Button.y);
+                        X_root     := Integer (release_Event.X_Button.x_root);
+                        Y_root     := Integer (release_Event.X_Button.y_root);
+                        State      := release_Event.X_Button.state;
+                        Window_Id  := release_Event.X_Button.window;
+                        Up_or_Down := GLUT.UP;
+                        pressed    := False;
+                     end;
+                  end if;
+
+
+                  -- A mouse button has been pressed or released. Traditionally,
+                  -- break if the window was found within the freeglut structures.
+                  --
+                  window              := fgWindowByHandle (fgStructure.Windows, Window_Id);     --  GETWINDOW( xbutton );
+                  window.State.MouseX := Integer (X);
+                  window.State.MouseY := Integer (Y);              -- GETMOUSE( xbutton );
+
+
+                  -- Do not execute the application's mouse callback if a menu is hooked to this button.  In that
+                  -- case an appropriate private call should be generated.
+                  --
+                  if true --tbd: deferred ...    not fgCheckActiveMenu (window,  button,  pressed,
+                          --                  X_root,
+                          --                  Y_root)
+                  then
+                     -- Check if there is a mouse or mouse wheel callback hooked to the window.
+                     --
+                     if   window.callbacks.CB_Mouse      /= null
+                       or window.callbacks.CB_MouseWheel /= null
+                     then
+                        fgState.Modifiers := fghGetXModifiers (State);
+
+                        -- Finally execute the mouse or mouse wheel callback
+                        --
+                        if   button < glut.DeviceGet (GLUT.NUM_MOUSE_BUTTONS)
+                          or window.callbacks.CB_MouseWheel = null
+                        then
+                           window.callbacks.CB_Mouse (button,  Up_or_Down,  Integer (X), Integer (Y));
+                        else
+                           -- Map 4 and 5 to wheel zero; EVEN to +1, ODD to -1
+                           --  "  6 and 7 "    "   one; ...
+                           --
+                           -- This *should* be behind some variables/macros, since the order and numbering isn't certain
+                           -- See XFree86 configuration docs (even back in the 3.x days, and especially with 4.x).
+                           --
+                           -- Note that {button} has already been decremeted in mapping from X button numbering to GLUT.
+                           --
+                           declare
+                              wheel_number : Integer := (button - glut.DeviceGet (GLUT.NUM_MOUSE_BUTTONS)) / 2;
+                              direction    : Integer := -1;
+                           begin
+                              if button mod 2 /= 0 then
+                                 direction := 1;
+                              end if;
+
+                              if pressed then
+                                 window.callbacks.CB_MouseWheel (wheel_number,  direction,  Integer (X), Integer (Y));
+                              end if;
+                           end;
+                        end if;
+
+                        fgState.Modifiers := INVALID_MODIFIERS;
+                     end if;
+                  end if;
+              end;
+
+
+            when   Key_Press
+                 | Key_Release =>
+               declare
+                  keyboard_cb : Glut_Proc_4;
+                  special_cb  : Glut_Proc_13;
+--                    pressed     : Boolean;
+--
+                    keycode    : c.Size_t;
+                    State       : Modifier_And_Button_Mask;
+                   X, Y        : Integer;
+--                    X_root,
+--                    Y_root      : Integer;
+                   Window_Id   : x_lib.Drawable_ID;
+--                    Up_or_Down  : Integer;
+               begin
+                  -- An X button (at least in XFree86) is numbered from 1.
+                  -- A GLUT button is numbered from 0.
+                  -- Old GLUT passed through buttons other than just the first three, though it only gave
+                  -- symbolic names and official support to the first three.
+                  --
+                  if event.ev_type = key_Press then
+                     declare
+                        press_Event : x_lib.X_Event (key_Press) := event;
+                     begin
+                        null;
+--                          button     := Button_type'Pos (press_Event.X_Button.button) - 1;
+                        X          := Integer (press_Event.X_Key.x);
+                        Y          := Integer (press_Event.X_Key.y);
+--                          X_root     := Integer (press_Event.X_Button.x_root);
+--                          Y_root     := Integer (press_Event.X_Button.y_root);
+                          State      := press_Event.X_Key.state;
+                         Window_Id  := press_Event.X_Key.window;
+--                          Up_or_Down := GLUT.DOWN;
+--                          pressed    := True;
+                        keycode :=  c.Size_t (press_Event.X_Key.Key_Code);
+                     end;
+                  else
+                     declare
+                        release_Event : x_lib.X_Event (key_Release) := event;
+                     begin
+                        null;
+--                          button     := Button_type'Pos (release_Event.X_Button.button) - 1;
+                        X          := Integer (release_Event.X_Key.x);
+                        Y          := Integer (release_Event.X_Key.y);
+--                          X_root     := Integer (release_Event.X_Button.x_root);
+--                          Y_root     := Integer (release_Event.X_Button.y_root);
+                          State      := release_Event.X_Key.state;
+                         Window_Id  := release_Event.X_Key.window;
+--                          Up_or_Down := GLUT.UP;
+--                          pressed    := False;
+                        keycode := c.Size_t (release_Event.X_Key.Key_Code);
+                     end;
+                  end if;
+
+                  window              := fgWindowByHandle (fgStructure.Windows, Window_Id);     --  GETWINDOW( xkey );
+                  window.State.MouseX := Integer (X);
+                  window.State.MouseY := Integer (Y);              -- GETMOUSE( xbutton );
+
+
+                  -- Detect auto repeated keys, if configured globally or per-window
+                  --
+                  if   fgState.KeyRepeat            = GLUT.KEY_REPEAT_OFF
+                    or window.State.IgnoreKeyRepeat = True
+                  then
+                     if event.ev_type = Key_Release then                        -- Look at X11 keystate to detect repeat mode.
+                        declare                                                 -- While X11 says the key is actually held down,
+                           use c.Strings;                                       -- we'll ignore KeyRelease/KeyPress pairs.
+                           keys   : aliased c.char_array := (1 .. 32 => <>);
+                           unused : c.Int;
+                        begin
+                           unused := X_Query_Keymap (fgDisplay.platform.Display, to_chars_ptr (keys'unchecked_access));         -- Look at X11 keystate to detect repeat mode
+
+                           if  keycode < 256 then                -- XQueryKeymap is limited to 256 keycodes
+                              if (    c.Char'Pos (keys (keycode / 2**3))
+                                  and c.unsigned_Char (2 ** Integer (keycode mod 8)))  /=  0
+                              then
+                                 window.State.KeyRepeating := True;
+                              else
+                                 window.State.KeyRepeating := False;
+                              end if;
+                           end if;
+                        end;
+                     end if;
+
+                  else
+                     window.State.KeyRepeating := False;
+                  end if;
+
+
+                  -- Cease processing this event if it is auto repeated
+
+                  if window.State.KeyRepeating then
+
+                     if event.ev_type = Key_Press then
+                        window.State.KeyRepeating := False;
+                     end if;
+
+                  else
+
+                     if event.ev_type = Key_Press then
+                        keyboard_cb := window.callbacks.CB_Keyboard;
+                        special_cb  := window.callbacks.CB_Special;
+                     else
+                        keyboard_cb := glut_proc_4 (window.callbacks.CB_KeyboardUp);   -- tbd: tidy up callback duplicates
+                        special_cb  := glut_proc_13 (window.callbacks.CB_SpecialUp);
+                     end if;
+
+
+                     -- Is there a keyboard/special callback hooked for this window?
+
+                     if keyboard_cb /= null  or  special_cb /= null then
+                        declare
+                           --composeStatus : X_Compose_Status;
+                           asciiCode     : aliased c.char_array := (1 .. 32 => <>);
+                           keySym        : aliased Key_Sym_Id;
+                           len           : Integer;
+                        begin
+                           -- Check for the ASCII/KeySym codes associated with the event:
+                           --
+                           len := X_Lookup_String (event'access, to_Chars_ptr (asciiCode'unchecked_access), asciiCode'Length,
+                                                   keySym'access); --, composeStatus);
+--                             len := X_Lookup_String (&event.xkey, asciiCode, sizeof(asciiCode),
+--                                                     &keySym, &composeStatus);
+
+                           if len > 0 then                    -- GLUT API tells us to have two separate callbacks ...
+
+                              if keyboard_cb /= null then    -- ... one for the ASCII translateable keypresses ...
+                                 fgSetWindow (window);
+                                 fgState.Modifiers := fghGetXModifiers (event.X_Key.state);
+                                 keyboard_cb (c.Char'Pos (asciiCode (1)),  x, y);
+                                 fgState.Modifiers := INVALID_MODIFIERS;
+                              end if;
+
+                           else                  -- ... and one for all the others, which need to be translated to GLUT_KEY_Xs...
+                              declare
+                                 use x_lib.key_Syms;
+                                 special : Integer := -1;
+                              begin
+                                 case keySym is
+                                    when XK_F1 =>     special := GLUT.KEY_F1;
+                                    when XK_F2 =>     special := GLUT.KEY_F2;
+                                    when XK_F3 =>     special := GLUT.KEY_F3;
+                                    when XK_F4 =>     special := GLUT.KEY_F4;
+                                    when XK_F5 =>     special := GLUT.KEY_F5;
+                                    when XK_F6 =>     special := GLUT.KEY_F6;
+                                    when XK_F7 =>     special := GLUT.KEY_F7;
+                                    when XK_F8 =>     special := GLUT.KEY_F8;
+                                    when XK_F9 =>     special := GLUT.KEY_F9;
+                                    when XK_F10 =>    special := GLUT.KEY_F10;
+                                    when XK_F11 =>    special := GLUT.KEY_F11;
+                                    when XK_F12 =>    special := GLUT.KEY_F12;
+
+                                    when XK_Left =>   special := GLUT.KEY_LEFT;
+                                    when XK_Right =>  special := GLUT.KEY_RIGHT;
+                                    when XK_Up =>     special := GLUT.KEY_UP;
+                                    when XK_Down =>   special := GLUT.KEY_DOWN;
+
+                                    when XK_KP_Prior
+                                       | XK_Prior =>  special := GLUT.KEY_PAGE_UP;
+                                    when XK_KP_Next
+                                       | XK_Next =>   special := GLUT.KEY_PAGE_DOWN;
+                                    when XK_KP_Home
+                                       | XK_Home =>   special := GLUT.KEY_HOME;
+                                    when XK_KP_End
+                                       | XK_End =>    special := GLUT.KEY_END;
+                                    when XK_KP_Insert
+                                       | XK_Insert => special := GLUT.KEY_INSERT;
+
+                                    when others =>
+                                       null;   -- tbd: warning message ?
+                                 end case;
+
+                                 -- Execute the callback (if one has been specified), given that the special code seems to be valid...
+                                 --
+                                 if special_cb /= null  and   special /= -1 then
+                                    fgSetWindow (window);
+                                    fgState.Modifiers := fghGetXModifiers (event.X_Key.state);
+                                    special_cb (special, x, y);
+                                    fgState.Modifiers := INVALID_MODIFIERS;
+                                 end if;
+                              end;
+                           end if;
+
+                        end;
+                     end if;
+
+                  end if;
+               end;
+
+
+            when Reparent_Notify =>
+               null;                            -- XXX Should disable this event
+
+
+            when Gravity_Notify =>                   -- Not handled
+               null;
 
 
             when others =>
-               null;
+               raise program_Error with "Unknown X event type:" & event_type'Image (event.ev_type);
          end case;
 
       end loop;
    end;
-
---  {
---      while( XPending( fgDisplay.Display ) )
---      {
---          switch( event.type )
---          {
---
---          case DestroyNotify:
---              /*
---               * This is sent to confirm the XDestroyWindow call.
---               *
---               * XXX WHY is this commented out?  Should we re-enable it?
---               */
---              /* fgAddToWindowDestroyList ( window ); */
---              break;
---
---          case Expose:
---              /*
---               * We are too dumb to process partial exposes...
---               *
---               * XXX Well, we could do it.  However, it seems to only
---               * XXX be potentially useful for single-buffered (since
---               * XXX double-buffered does not respect viewport when we
---               * XXX do a buffer-swap).
---               *
---               */
---              if( event.xexpose.count == 0 )
---              {
---                  GETWINDOW( xexpose );
---                  window->State.Redisplay = GL_TRUE;
---              }
---              break;
---
---          case MapNotify:
---              break;
---
---          case UnmapNotify:
---              /* We get this when iconifying a window. */
---              GETWINDOW( xunmap );
---              INVOKE_WCB( *window, WindowStatus, ( GLUT_HIDDEN ) );
---              window->State.Visible = GL_FALSE;
---              break;
---
---          case MappingNotify:
---              /*
---               * Have the client's keyboard knowledge updated (xlib.ps,
---               * page 206, says that's a good thing to do)
---               */
---              XRefreshKeyboardMapping( (XMappingEvent *) &event );
---              break;
---
---          case VisibilityNotify:
---          {
---              /*
---               * Sending this event, the X server can notify us that the window
---               * has just acquired one of the three possible visibility states:
---               * VisibilityUnobscured, VisibilityPartiallyObscured or
---               * VisibilityFullyObscured. Note that we DO NOT receive a
---               * VisibilityNotify event when iconifying a window, we only get an
---               * UnmapNotify then.
---               */
---              GETWINDOW( xvisibility );
---              switch( event.xvisibility.state )
---              {
---              case VisibilityUnobscured:
---                  INVOKE_WCB( *window, WindowStatus, ( GLUT_FULLY_RETAINED ) );
---                  window->State.Visible = GL_TRUE;
---                  break;
---
---              case VisibilityPartiallyObscured:
---                  INVOKE_WCB( *window, WindowStatus,
---                              ( GLUT_PARTIALLY_RETAINED ) );
---                  window->State.Visible = GL_TRUE;
---                  break;
---
---              case VisibilityFullyObscured:
---                  INVOKE_WCB( *window, WindowStatus, ( GLUT_FULLY_COVERED ) );
---                  window->State.Visible = GL_FALSE;
---                  break;
---
---              default:
---                  fgWarning( "Unknown X visibility state: %d",
---                             event.xvisibility.state );
---                  break;
---              }
---          }
---          break;
---
---          case EnterNotify:
---          case LeaveNotify:
---              GETWINDOW( xcrossing );
---              GETMOUSE( xcrossing );
---              if( ( event.type == LeaveNotify ) && window->IsMenu &&
---                  window->ActiveMenu && window->ActiveMenu->IsActive )
---                  fgUpdateMenuHighlight( window->ActiveMenu );
---
---              INVOKE_WCB( *window, Entry, ( ( EnterNotify == event.type ) ?
---                                            GLUT_ENTERED :
---                                            GLUT_LEFT ) );
---              break;
---
---          case MotionNotify:
---          {
---              GETWINDOW( xmotion );
---              GETMOUSE( xmotion );
---
---              if( window->ActiveMenu )
---              {
---                  if( window == window->ActiveMenu->ParentWindow )
---                  {
---                      window->ActiveMenu->Window->State.MouseX =
---                          event.xmotion.x_root - window->ActiveMenu->X;
---                      window->ActiveMenu->Window->State.MouseY =
---                          event.xmotion.y_root - window->ActiveMenu->Y;
---                  }
---
---                  fgUpdateMenuHighlight( window->ActiveMenu );
---
---                  break;
---              }
---
---              /*
---               * XXX For more than 5 buttons, just check {event.xmotion.state},
---               * XXX rather than a host of bit-masks?  Or maybe we need to
---               * XXX track ButtonPress/ButtonRelease events in our own
---               * XXX bit-mask?
---               */
---  	    fgState.Modifiers = fghGetXModifiers( event.xmotion.state );
---              if ( event.xmotion.state & ( Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask ) ) {
---                  INVOKE_WCB( *window, Motion, ( event.xmotion.x,
---                                                 event.xmotion.y ) );
---              } else {
---                  INVOKE_WCB( *window, Passive, ( event.xmotion.x,
---                                                  event.xmotion.y ) );
---  	    }
---  	    fgState.Modifiers = INVALID_MODIFIERS;
---          }
---          break;
---
---          case ButtonRelease:
---          case ButtonPress:
---          {
---              GLboolean pressed = GL_TRUE;
---              int button;
---
---              if( event.type == ButtonRelease )
---                  pressed = GL_FALSE ;
---
---              /*
---               * A mouse button has been pressed or released. Traditionally,
---               * break if the window was found within the freeglut structures.
---               */
---              GETWINDOW( xbutton );
---              GETMOUSE( xbutton );
---
---              /*
---               * An X button (at least in XFree86) is numbered from 1.
---               * A GLUT button is numbered from 0.
---               * Old GLUT passed through buttons other than just the first
---               * three, though it only gave symbolic names and official
---               * support to the first three.
---               */
---              button = event.xbutton.button - 1;
---
---              /*
---               * Do not execute the application's mouse callback if a menu
---               * is hooked to this button.  In that case an appropriate
---               * private call should be generated.
---               */
---              if( fgCheckActiveMenu( window, button, pressed,
---                                     event.xbutton.x_root, event.xbutton.y_root ) )
---                  break;
---
---              /*
---               * Check if there is a mouse or mouse wheel callback hooked to the
---               * window
---               */
---              if( ! FETCH_WCB( *window, Mouse ) &&
---                  ! FETCH_WCB( *window, MouseWheel ) )
---                  break;
---
---              fgState.Modifiers = fghGetXModifiers( event.xbutton.state );
---
---              /* Finally execute the mouse or mouse wheel callback */
---              if( ( button < glutDeviceGet ( GLUT_NUM_MOUSE_BUTTONS ) ) || ( ! FETCH_WCB( *window, MouseWheel ) ) )
---                  INVOKE_WCB( *window, Mouse, ( button,
---                                                pressed ? GLUT_DOWN : GLUT_UP,
---                                                event.xbutton.x,
---                                                event.xbutton.y )
---                  );
---              else
---              {
---                  /*
---                   * Map 4 and 5 to wheel zero; EVEN to +1, ODD to -1
---                   *  "  6 and 7 "    "   one; ...
---                   *
---                   * XXX This *should* be behind some variables/macros,
---                   * XXX since the order and numbering isn't certain
---                   * XXX See XFree86 configuration docs (even back in the
---                   * XXX 3.x days, and especially with 4.x).
---                   *
---                   * XXX Note that {button} has already been decremeted
---                   * XXX in mapping from X button numbering to GLUT.
---                   */
---                  int wheel_number = (button - glutDeviceGet ( GLUT_NUM_MOUSE_BUTTONS )) / 2;
---                  int direction = -1;
---                  if( button % 2 )
---                      direction = 1;
---
---                  if( pressed )
---                      INVOKE_WCB( *window, MouseWheel, ( wheel_number,
---                                                         direction,
---                                                         event.xbutton.x,
---                                                         event.xbutton.y )
---                      );
---              }
---              fgState.Modifiers = INVALID_MODIFIERS;
---          }
---          break;
---
---          case KeyRelease:
---          case KeyPress:
---          {
---              FGCBKeyboard keyboard_cb;
---              FGCBSpecial special_cb;
---
---              GETWINDOW( xkey );
---              GETMOUSE( xkey );
---
---              /* Detect auto repeated keys, if configured globally or per-window */
---
---              if ( fgState.KeyRepeat==GLUT_KEY_REPEAT_OFF || window->State.IgnoreKeyRepeat==GL_TRUE )
---              {
---                  if (event.type==KeyRelease)
---                  {
---                      /*
---                       * Look at X11 keystate to detect repeat mode.
---                       * While X11 says the key is actually held down, we'll ignore KeyRelease/KeyPress pairs.
---                       */
---
---                      char keys[32];
---                      XQueryKeymap( fgDisplay.Display, keys ); /* Look at X11 keystate to detect repeat mode */
---
---                      if ( event.xkey.keycode<256 )            /* XQueryKeymap is limited to 256 keycodes    */
---                      {
---                          if ( keys[event.xkey.keycode>>3] & (1<<(event.xkey.keycode%8)) )
---                              window->State.KeyRepeating = GL_TRUE;
---                          else
---                              window->State.KeyRepeating = GL_FALSE;
---                      }
---                  }
---              }
---              else
---                  window->State.KeyRepeating = GL_FALSE;
---
---              /* Cease processing this event if it is auto repeated */
---
---              if (window->State.KeyRepeating)
---              {
---                  if (event.type == KeyPress) window->State.KeyRepeating = GL_FALSE;
---                  break;
---              }
---
---              if( event.type == KeyPress )
---              {
---                  keyboard_cb = (FGCBKeyboard)( FETCH_WCB( *window, Keyboard ));
---                  special_cb  = (FGCBSpecial) ( FETCH_WCB( *window, Special  ));
---              }
---              else
---              {
---                  keyboard_cb = (FGCBKeyboard)( FETCH_WCB( *window, KeyboardUp ));
---                  special_cb  = (FGCBSpecial) ( FETCH_WCB( *window, SpecialUp  ));
---              }
---
---              /* Is there a keyboard/special callback hooked for this window? */
---              if( keyboard_cb || special_cb )
---              {
---                  XComposeStatus composeStatus;
---                  char asciiCode[ 32 ];
---                  KeySym keySym;
---                  int len;
---
---                  /* Check for the ASCII/KeySym codes associated with the event: */
---                  len = XLookupString( &event.xkey, asciiCode, sizeof(asciiCode),
---                                       &keySym, &composeStatus
---                  );
---
---                  /* GLUT API tells us to have two separate callbacks... */
---                  if( len > 0 )
---                  {
---                      /* ...one for the ASCII translateable keypresses... */
---                      if( keyboard_cb )
---                      {
---                          fgSetWindow( window );
---                          fgState.Modifiers = fghGetXModifiers( event.xkey.state );
---                          keyboard_cb( asciiCode[ 0 ],
---                                       event.xkey.x, event.xkey.y
---                          );
---                          fgState.Modifiers = INVALID_MODIFIERS;
---                      }
---                  }
---                  else
---                  {
---                      int special = -1;
---
---                      /*
---                       * ...and one for all the others, which need to be
---                       * translated to GLUT_KEY_Xs...
---                       */
---                      switch( keySym )
---                      {
---                      case XK_F1:     special = GLUT_KEY_F1;     break;
---                      case XK_F2:     special = GLUT_KEY_F2;     break;
---                      case XK_F3:     special = GLUT_KEY_F3;     break;
---                      case XK_F4:     special = GLUT_KEY_F4;     break;
---                      case XK_F5:     special = GLUT_KEY_F5;     break;
---                      case XK_F6:     special = GLUT_KEY_F6;     break;
---                      case XK_F7:     special = GLUT_KEY_F7;     break;
---                      case XK_F8:     special = GLUT_KEY_F8;     break;
---                      case XK_F9:     special = GLUT_KEY_F9;     break;
---                      case XK_F10:    special = GLUT_KEY_F10;    break;
---                      case XK_F11:    special = GLUT_KEY_F11;    break;
---                      case XK_F12:    special = GLUT_KEY_F12;    break;
---
---                      case XK_Left:   special = GLUT_KEY_LEFT;   break;
---                      case XK_Right:  special = GLUT_KEY_RIGHT;  break;
---                      case XK_Up:     special = GLUT_KEY_UP;     break;
---                      case XK_Down:   special = GLUT_KEY_DOWN;   break;
---
---                      case XK_KP_Prior:
---                      case XK_Prior:  special = GLUT_KEY_PAGE_UP; break;
---                      case XK_KP_Next:
---                      case XK_Next:   special = GLUT_KEY_PAGE_DOWN; break;
---                      case XK_KP_Home:
---                      case XK_Home:   special = GLUT_KEY_HOME;   break;
---                      case XK_KP_End:
---                      case XK_End:    special = GLUT_KEY_END;    break;
---                      case XK_KP_Insert:
---                      case XK_Insert: special = GLUT_KEY_INSERT; break;
---                      }
---
---                      /*
---                       * Execute the callback (if one has been specified),
---                       * given that the special code seems to be valid...
---                       */
---                      if( special_cb && (special != -1) )
---                      {
---                          fgSetWindow( window );
---                          fgState.Modifiers = fghGetXModifiers( event.xkey.state );
---                          special_cb( special, event.xkey.x, event.xkey.y );
---                          fgState.Modifiers = INVALID_MODIFIERS;
---                      }
---                  }
---              }
---          }
---          break;
---
---          case ReparentNotify:
---              break; /* XXX Should disable this event */
---
---          /* Not handled */
---          case GravityNotify:
---              break;
---
---          default:
---              fgWarning ("Unknown X event type: %d\n", event.type);
---              break;
---          }
---      }
-
-
 
 
 
@@ -1461,6 +1572,67 @@ package body glut.Platform is
 --      }
 --  #endif
 
+
+
+
+
+   function DeviceGet_has_Keyboard return Integer
+   is
+   begin
+      return 1;
+   end;
+
+--  #if defined(_WIN32_CE)
+--          return ( GetKeyboardStatus() & KBDI_KEYBOARD_PRESENT ) ? 1 : 0;
+--  #   if FREEGLUT_LIB_PRAGMAS
+--  #       pragma comment (lib,"Kbdui.lib")
+--  #   endif
+
+
+
+
+   function DeviceGet_has_Mouse return Integer
+   is
+   begin
+      return 1;   -- X11 has a mouse by definition
+   end;
+
+--          /*
+--           * MS Windows can be booted without a mouse.
+--           */
+--          return GetSystemMetrics( SM_MOUSEPRESENT );
+
+
+
+
+
+   function DeviceGet_num_mouse_Buttons return Integer
+   is
+      use c.Strings;
+      Map      : aliased c.Char_array := (1 => <>);
+      nbuttons : c.Int := X_Get_Pointer_Mapping (fgDisplay.platform.Display, to_Chars_Ptr (Map'unchecked_access), 0);
+   begin
+      -- We should be able to pass NULL when the last argument is zero,
+      -- but at least one X server has a bug where this causes a segfault.
+      --
+      -- In XFree86/Xorg servers, a mouse wheel is seen as two buttons
+      -- rather than an Axis; "freeglut_main.c" expects this when
+      -- checking for a wheel event.
+      --
+      return Integer (nbuttons);
+   end;
+
+
+--  #elif TARGET_HOST_MS_WINDOWS
+--
+--      case GLUT_NUM_MOUSE_BUTTONS:
+--  #  if defined(_WIN32_WCE)
+--          return 1;
+--  #  else
+--          return GetSystemMetrics( SM_CMOUSEBUTTONS );
+--  #  endif
+--
+--  #endif
 
 
 
