@@ -73,6 +73,9 @@ package X_Lib is
    type Long_Array  is array (Natural range <>) of Interfaces.C.long;
 
 
+   type Bool   is new interfaces.C.Int;
+   type Status is new interfaces.C.Int;
+
 
    -- Key masks. Used as modifiers to GrabButton and GrabKey, results of QueryPointer,
    -- state in various key-, mouse-, and button-related events. ... (from X.h)
@@ -2200,6 +2203,31 @@ package X_Lib is
 
 
 
+   function X_Translate_Coordinates (display       : Display_Pointer;
+                                     src_w         : Window_Id;
+                                     dest_w        : Window_Id;
+                                     src_x         : interfaces.c.Int;
+                                     src_y         : interfaces.c.Int;
+                                     dest_x_return : access interfaces.c.Int;
+                                     dest_y_return : access interfaces.c.Int;
+                                     child_return  : access Window_Id) return Boolean;
+
+   pragma import (C, X_Translate_Coordinates, "XTranslateCoordinates");
+
+--  extern Bool XTranslateCoordinates(
+--      Display*		/* display */,
+--      Window		/* src_w */,
+--      Window		/* dest_w */,
+--      int			/* src_x */,
+--      int			/* src_y */,
+--      int*		/* dest_x_return */,
+--      int*		/* dest_y_return */,
+--      Window*		/* child_return */
+--  );
+
+
+
+
 
    -- -------------------------------------------------------------------------
    --
@@ -2318,6 +2346,49 @@ package X_Lib is
       W          : in Window_ID;
       Valuemask  : in Set_Window_Attributes_Mask;
       Attributes : in Set_Window_Attributes_Type);
+
+
+
+
+   type X_Window_Attributes is
+      record
+         x, y  : interfaces.c.Int;	-- location of window
+         width, height  : interfaces.c.Int;		-- width and height of window
+         border_width  : interfaces.c.Int;		-- border width of window
+         depth  : interfaces.c.Int;          	-- depth of window
+         visual : access x_lib.Visual;		-- the associated visual structure
+         root : Window_Id;        	-- root of screen containing window
+         class  : interfaces.c.Int;			-- InputOutput, InputOnly
+         bit_gravity  : interfaces.c.Int;		-- one of bit gravity values
+         win_gravity  : interfaces.c.Int;		-- one of the window gravity values
+         backing_store  : interfaces.c.Int;		-- NotUseful, WhenMapped, Always
+         backing_planes  : interfaces.c.unsigned_Long;-- planes to be preserved if possible
+         backing_pixel : interfaces.c.unsigned_Long;-- value to be used when restoring planes
+         save_under : x_lib.Bool;		-- boolean, should bits under be saved?
+         colormap : x_lib.Colormap_Id ;		-- color map to be associated with window
+         map_installed : x_lib.Bool;		-- boolean, is color map currently installed
+         map_state  : interfaces.c.Int;		-- IsUnmapped, IsUnviewable, IsViewable
+         all_event_masks  : interfaces.c.Long;	-- set of events all people have interest in
+         your_event_mask  : interfaces.c.Long;	-- my event mask
+         do_not_propagate_mask   : interfaces.c.Long; -- set of events that should not propagate
+         override_redirect : x_Lib.Bool;	-- boolean value for override-redirect
+         screen : Screen_Pointer;		-- back pointer to correct screen
+      end record;
+
+
+
+   function X_Get_Window_Attributes (display                  : Display_Pointer;
+                                     w                        : Window_Id;
+                                     window_attributes_return : access X_Window_Attributes) return Status;
+
+   pragma import (C, X_Get_Window_Attributes, "XGetWindowAttributes");
+--  extern Status XGetWindowAttributes(
+--      Display*		/* display */,
+--      Window		/* w */,
+--      XWindowAttributes*	/* window_attributes_return */
+--  );
+
+
 
    function X_Create_Window
      (Display       : in Display_Pointer;

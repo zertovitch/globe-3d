@@ -5,17 +5,23 @@ with glut.Internal;   use glut.Internal;
 with glut.Platform;
 
 with ada.Strings.unbounded;      use ada.Strings.unbounded;
+with ada.Strings.fixed;
+with ada.Strings.Maps;           use ada.Strings.Maps;
+with ada.characters.latin_1;
 with Ada.Unchecked_Conversion;
 with Ada.Command_Line;
 with Ada.Finalization;
 with ada.Calendar;
 with Ada.Environment_Variables;
 
+with interfaces.C.Strings;   use interfaces.C.Strings;
+
 
 
 package body GLUT is
 
 
+   package C renames interfaces.C;
    use interfaces.C;
 
 
@@ -583,6 +589,37 @@ package body GLUT is
 
 
 
+
+   --This function returns the ID number of the current window, 0 if none exists
+   --
+   function GetWindow return Integer
+   is
+      Win : SFG_Window_view := fgStructure.CurrentWindow;
+   begin
+      -- Since GLUT did not throw an error if this function was called without a prior call to
+      -- "glutInit", this function shouldn't do so here.  Instead let us return a zero.
+      -- See Feature Request "[ 1307049 ] glutInit check".
+      --
+      if not fgState.Initialised then
+         return 0;
+      end if;
+
+
+      while win /= null  and then  win.IsMenu loop
+        win := win.Parent;
+      end loop;
+
+
+      if win /= null then
+         return win.ID;
+      else
+         return 0;
+      end if;
+   end;
+
+
+
+
    function GetWindowData return system.Address
    is
    begin
@@ -642,6 +679,170 @@ package body GLUT is
 
       fgAddToWindowDestroyList (window);
    end;
+
+
+
+
+
+   -- Marks the current window to have the redisplay performed when possible...
+   --
+   procedure PostRedisplay
+   is
+   begin
+      verify_Initialised;
+
+      fgStructure.CurrentWindow.State.Redisplay := True;
+   end;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   -- General settings query method
+   --
+
+   function Get (Type_Id : GL.enum) return Integer
+   is
+      nsamples : Integer := 0;
+   begin
+
+      case Type_Id is
+         when GLUT.INIT_STATE =>
+            return boolean'Pos (fgState.Initialised);
+
+         when GLUT.ELAPSED_TIME =>
+            return Integer (fgElapsedTime);
+
+
+         when GLUT.SCREEN_WIDTH =>
+            return fgDisplay.ScreenWidth;
+
+         when GLUT.SCREEN_HEIGHT =>
+            return fgDisplay.ScreenHeight;
+
+         when GLUT.SCREEN_WIDTH_MM =>
+            return fgDisplay.ScreenWidthMM;
+
+         when GLUT.SCREEN_HEIGHT_MM =>
+            return fgDisplay.ScreenHeightMM;
+
+         when GLUT.INIT_WINDOW_X =>
+            if fgState.Position.Used then
+               return fgState.Position.X;
+            else
+               return -1;
+            end if;
+
+         when GLUT.INIT_WINDOW_Y =>
+            if fgState.Position.Used then
+               return fgState.Position.Y;
+            else
+               return -1;
+            end if;
+
+         when GLUT.INIT_WINDOW_WIDTH =>
+            if fgState.Size.Used then
+               return fgState.Size.X;
+            else
+               return  -1;
+            end if;
+
+         when GLUT.INIT_WINDOW_HEIGHT =>
+            if fgState.Size.Used then
+               return fgState.Size.Y;
+            else
+               return -1;
+            end if;
+
+         when GLUT.INIT_DISPLAY_MODE =>
+            return Integer (fgState.DisplayMode);
+
+
+        when GLUT.WINDOW_PARENT =>
+            if fgStructure.CurrentWindow = null then
+               return 0;
+            end if;
+
+            if fgStructure.CurrentWindow.Parent = null then
+               return 0;
+            end if;
+
+            return fgStructure.CurrentWindow.Parent.ID;
+
+
+         when GLUT.WINDOW_NUM_CHILDREN =>
+            if fgStructure.CurrentWindow = null then
+               return 0;
+            end if;
+
+            return Integer (fgStructure.CurrentWindow.Children.length);
+
+
+         when GLUT.WINDOW_CURSOR =>
+            if fgStructure.CurrentWindow = null then
+               return 0;
+            end if;
+
+            return fgStructure.CurrentWindow.State.Cursor;
+
+
+         when GLUT.MENU_NUM_ITEMS =>
+            if fgStructure.CurrentMenu = NULL then
+               return 0;
+            end if;
+
+            return 0; -- tbd: deferred ...    fgStructure.CurrentMenu.Entries.Length;
+
+
+         when GLUT.ACTION_ON_WINDOW_CLOSE =>
+            return fgState.ActionOnWindowClose;
+
+
+--           when GLUT.VERSION  =>   -- tbd: deferred
+--              return VERSION_MAJOR * 10000 + VERSION_MINOR * 100 + VERSION_PATCH;
+
+
+         when GLUT.RENDERING_CONTEXT =>
+            if fgState.UseCurrentContext then
+               return GLUT.USE_CURRENT_CONTEXT;
+            else
+               return GLUT.CREATE_NEW_CONTEXT;
+            end if;
+
+
+         when GLUT.DIRECT_RENDERING =>
+            return fgState.DirectContext;
+
+
+--           when GLUT.FULL_SCREEN =>     -- tbd: deferred
+--              return fghCheckFullScreen;
+
+
+         when others =>
+            return platform.Get (Type_Id);
+      end case;
+
+
+      return -1;
+   end;
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1122,37 +1323,318 @@ package body GLUT is
 
 
 
-   procedure InitDisplayString (Name : String) is
-      C_Name : Interfaces.C.Strings.Chars_Ptr
-        := Interfaces.C.Strings.New_String (Name);
+   Tokens : array (Positive range <>) of unbounded_String
+     := (to_unbounded_String ("alpha"),
+         to_unbounded_String ("acca"),
+         to_unbounded_String ("acc"),
+         to_unbounded_String ("blue"),
+         to_unbounded_String ("buffer"),
+         to_unbounded_String ("conformant"),
+         to_unbounded_String ("depth"),
+         to_unbounded_String ("double"),
+         to_unbounded_String ("green"),
+         to_unbounded_String ("index"),
+         to_unbounded_String ("num"),
+         to_unbounded_String ("red"),
+         to_unbounded_String ("rgba"),
+         to_unbounded_String ("rgb"),
+         to_unbounded_String ("luminance"),
+         to_unbounded_String ("stencil"),
+         to_unbounded_String ("single"),
+         to_unbounded_String ("stereo"),
+         to_unbounded_String ("samples"),
+         to_unbounded_String ("slow"),
+         to_unbounded_String ("win32pdf"),
+         to_unbounded_String ("win32pfd"),
+         to_unbounded_String ("xvisual"),
+         to_unbounded_String ("xstaticgray"),
+         to_unbounded_String ("xgrayscale"),
+         to_unbounded_String ("xstaticcolor"),
+         to_unbounded_String ("xpseudocolor"),
+         to_unbounded_String ("xtruecolor"),
+         to_unbounded_String ("xdirectcolor"),
+         to_unbounded_String ("xstaticgrey"),
+         to_unbounded_String ("xgreyscale"),
+         to_unbounded_String ("xstaticcolour"),
+         to_unbounded_String ("xpseudocolour"),
+         to_unbounded_String ("xtruecolour"),
+         to_unbounded_String ("xdirectcolour"),
+         to_unbounded_String ("borderless"),
+         to_unbounded_String ("aux"));
+
+
+
+
+   procedure InitDisplayString (Name : String)
+   is
+      use ada.Strings.fixed,  ada.Strings.unbounded;
+      glut_state_flag : c.Unsigned := 0;
+      the_Token       : unbounded_String;
+      Start           : Natural := Name'First;
+      Last            : Natural;
    begin
-      InitDisplayString (C_Name);
-      Interfaces.C.Strings.Free (C_Name);
+      --       * Unpack a lot of options from a character string.  The options are
+      --       * delimited by blanks or tabs.
+      --
+      Last := ada.strings.fixed.Index (Name, String'(" " & ada.characters.latin_1.HT),  from => Start);
+
+      the_Token := to_unbounded_String (Name (Start .. Last - 2));
+
+      loop
+         declare
+            use ada.Strings, ada.Strings.unbounded;
+            First, Last : Natural;
+         begin
+            find_Token (the_Token, to_Set ("=<>~!"), outside,  First, Last);
+
+            declare
+               token_Index : Natural := 0;
+               clean_Token : String  := Slice (the_Token, First, Last);
+            begin
+               for Each in Tokens'range loop                 -- find this tokens index
+                  if clean_Token = Tokens (Each) then
+                     token_Index := Each;
+                     exit;
+                  end if;
+               end loop;
+
+
+               case token_Index is
+                  when 1 =>               -- "alpha":  Alpha color buffer precision in bits
+                     glut_state_flag := glut_state_flag or GLUT.ALPHA;    --  /* Somebody fix this for me!
+
+                  when 2 => --  /* "acca":  Red, green, blue, and alpha accumulation buffer  precision in bits */
+                     null;
+
+                  when 3 => --  /* "acc":  Red, green, and blue accumulation buffer precision in bits with zero bits alpha */
+                     glut_state_flag := glut_state_flag or GLUT.ACCUM;     -- /* Somebody fix this for me!
+
+                  when 4 => --  /* "blue":  Blue color buffer precision in bits */
+                     null;
+
+                  when 5 => --  /* "buffer":  Number of bits in the color index color buffer */
+                     null;
+
+                  when 6 => --  /* "conformant":  Boolean indicating if the frame buffer configuration is conformant or not */
+                     null;
+
+                  when 7 => -- /* "depth":  Number of bits of precsion in the depth buffer */
+                     glut_state_flag := glut_state_flag or GLUT.DEPTH ;       -- /* Somebody fix this for me! */
+
+                  when 8 => --  /* "double":  Boolean indicating if the color buffer is double buffered */
+                     glut_state_flag := glut_state_flag or GLUT.DOUBLE ;
+
+                  when 9 => --  /* "green":  Green color buffer precision in bits */
+                     null;
+
+                  when 10 => --  /* "index":  Boolean if the color model is color index or not */
+                     glut_state_flag := glut_state_flag or GLUT.INDEX ;
+
+                  when 11 => --  /* "num":  A special capability  name indicating where the value represents the Nth frame buffer
+                     null;        -- configuration matching the description string */
+
+                  when 12 => -- /* "red":  Red color buffer precision in bits */
+                     null;
+
+                  when 13 => --  /* "rgba":  Number of bits of red, green, blue, and alpha in  the RGBA color buffer */
+                     glut_state_flag := glut_state_flag or GLUT.RGBA ;    -- /* Somebody fix this for me! */
+
+                  when 14 => --/* "rgb":  Number of bits of red, green, and blue in the  RGBA color buffer with zero bits alpha */
+                     glut_state_flag := glut_state_flag or GLUT.RGB;   --  /* Somebody fix this for me! */
+
+                  when 15 => --  /* "luminance":  Number of bits of red in the RGBA and zero bits of green, blue (alpha not specified)
+                     -- of color buffer precision */
+                     glut_state_flag := glut_state_flag or GLUT.LUMINANCE;    -- /* Somebody fix this for me! */
+
+                  when 16 => --  /* "stencil":  Number of bits in the stencil buffer */
+                     glut_state_flag := glut_state_flag or GLUT.STENCIL;      -- /* Somebody fix this for me! */
+
+                  when 17 => --  /* "single":  Boolean indicate the color buffer is single  buffered */
+                     glut_state_flag := glut_state_flag or GLUT.SINGLE ;
+
+                  when 18 => --  /* "stereo":  Boolean indicating the color buffer supports  OpenGL-style stereo */
+                     glut_state_flag := glut_state_flag or GLUT.STEREO ;
+
+                  when 19 => -- /* "samples":  Indicates the number of multisamples to use based on GLX's SGIS_multisample
+                     -- extension (for antialiasing) */
+                     glut_state_flag := glut_state_flag or GLUT.MULTISAMPLE;    -- /*Somebody fix this for me!*/
+
+                  when 20 => --  /* "slow":  Boolean indicating if the frame buffer configuration is slow or not */
+                     null;
+
+                  when 21     --  /* "win32pdf": (incorrect spelling but was there before */
+                     | 22 => --  /* "win32pfd":  matches the Win32 Pixel Format Descriptor by number */
+                     null;
+
+                  when 23 => --  /* "xvisual":  matches the X visual ID by number */
+                     null;
+
+                  when 24   -- /* "xstaticgray": */
+                     | 30 => --  /* "xstaticgrey":  boolean indicating if the frame buffer configuration's X visual is of type StaticGray */
+                     null ;
+
+                  when 25  -- /* "xgrayscale": */
+                     | 31 =>    --/* "xgreyscale":  boolean indicating if the frame buffer configuration's X visual is of type GrayScale */
+                     null ;
+
+                  when 26   --/* "xstaticcolor": */
+                     | 32 => --  /* "xstaticcolour":  boolean indicating if the frame buffer configuration's X visual is of type StaticColor */
+                     null ;
+
+                  when 27   --/* "xpseudocolor": */
+                     | 33 => --  /* "xpseudocolour":  boolean indicating if the frame buffer configuration's X visual is of type PseudoColor */
+                     null ;
+
+                  when 28    --  /* "xtruecolor": */
+                     | 34 => --  /* "xtruecolour":  boolean indicating if the frame buffer configuration's X visual is of type TrueColor */
+                     null ;
+
+                  when 29 --  /* "xdirectcolor": */
+                     | 35 => --  /* "xdirectcolour":  boolean indicating if the frame buffer configuration's X visual is of type DirectColor */
+                     null ;
+
+                  when 36 => --  /* "borderless":  windows should not have borders */
+                     null ;
+
+                  when 37 => --  /* "aux":  some number of aux buffers */
+                     glut_state_flag := glut_state_flag or GLUT.AUX;
+
+                  when others =>
+                     raise program_Error with "Display string token not recognized: " & clean_Token;
+
+               end case;
+
+            end;
+         end;
+
+         Start     := Last + 1;
+         exit when Start > Name'Last;
+
+         Last      := ada.strings.fixed.Index (Name, String'(" " & ada.characters.latin_1.HT),  from => Start);
+         the_Token := to_unbounded_String     (Name (Start .. Last));
+      end loop;
+
+
+      fgState.DisplayMode := glut_state_flag;   -- We will make use of this value when creating a new OpenGL context.
    end InitDisplayString;
 
-   procedure SetWindowTitle (Title : String) is
-      C_Title : Interfaces.C.Strings.Chars_Ptr
-        := Interfaces.C.Strings.New_String (Title);
+
+
+
+
+
+
+
+
+   -- Set the current window's title
+   --
+   procedure SetWindowTitle (Title : String)
+   is
    begin
-      SetWindowTitle (C_Title);
-      Interfaces.C.Strings.Free (C_Title);
+      verify_Initialised;
+
+      if fgStructure.CurrentWindow.Parent = null then
+         platform.SetWindowTitle (Title);
+      end if;
+
    end SetWindowTitle;
 
-   procedure SetIconTitle (Title : String) is
-      C_Title : Interfaces.C.Strings.Chars_Ptr
-        := Interfaces.C.Strings.New_String (Title);
+
+
+
+
+
+   -- Set the current window's iconified title
+   --
+   procedure SetIconTitle (Title : String)
+   is
    begin
-      SetIconTitle (C_Title);
-      Interfaces.C.Strings.Free (C_Title);
+      verify_Initialised;
+
+      if fgStructure.CurrentWindow.Parent = null then
+         platform.SetIconTitle (Title);
+      end if;
    end SetIconTitle;
 
-   procedure AddMenuEntry (Label : String; Value : Integer) is
-      C_Label : Interfaces.C.Strings.Chars_Ptr
-        := Interfaces.C.Strings.New_String (Label);
+
+
+
+
+   --  Recalculates current menu's box size
+   --
+   procedure fghCalculateMenuBoxSize
+   is
+      menuEntry : internal.SFG_MenuEntry_view;
+      Width     : Integer := 0;
+      Height    : Integer := 0;
    begin
-      AddMenuEntry (C_Label, Value);
-      Interfaces.C.Strings.Free (C_Label);
+      if fgStructure.CurrentMenu = null then               --  Make sure there is a current menu set
+         return;
+      end if;
+
+
+   end;
+
+--  void fghCalculateMenuBoxSize( void )
+--  {
+--      /* The menu's box size depends on the menu entries: */
+--      for( menuEntry = ( SFG_MenuEntry * )fgStructure.CurrentMenu->Entries.First;
+--           menuEntry;
+--           menuEntry = ( SFG_MenuEntry * )menuEntry->Node.Next )
+--      {
+--          /* Update the menu entry's width value */
+--          menuEntry->Width = glutBitmapLength(
+--              FREEGLUT_MENU_FONT,
+--              (unsigned char *)menuEntry->Text
+--          );
+--
+--          /*
+--           * If the entry is a submenu, then it needs to be wider to
+--           * accomodate the arrow. JCJ 31 July 2003
+--           */
+--          if (menuEntry->SubMenu )
+--              menuEntry->Width += glutBitmapLength(
+--                  FREEGLUT_MENU_FONT,
+--                  (unsigned char *)"_"
+--              );
+--
+--          /* Check if it's the biggest we've found */
+--          if( menuEntry->Width > width )
+--              width = menuEntry->Width;
+--
+--          height += FREEGLUT_MENU_HEIGHT;
+--      }
+--
+--      /* Store the menu's box size now: */
+--      fgStructure.CurrentMenu->Height = height + 2 * FREEGLUT_MENU_BORDER;
+--      fgStructure.CurrentMenu->Width  = width  + 4 * FREEGLUT_MENU_BORDER;
+--  }
+
+
+
+
+   -- Adds a menu entry to the bottom of the current menu
+   --
+   procedure AddMenuEntry (Label : String;   Value : Integer)
+   is
+     menuEntry : internal.SFG_MenuEntry_view := new SFG_MenuEntry;
+   begin
+      verify_Initialised;
+
+      if fgStructure.CurrentMenu = null then
+         return;
+      end if;
+
+      menuEntry.Text := to_unbounded_String (Label);
+      menuEntry.ID  := value;
+
+      fgStructure.CurrentMenu.Entries.append (menuEntry);      -- Have the new menu entry attached to the current menu
+      fghCalculateMenuBoxSize;
    end AddMenuEntry;
+
+
+
+
 
    procedure AddSubMenu (Label : String; Submenu : Integer) is
       C_Label : Interfaces.C.Strings.Chars_Ptr
@@ -1186,15 +1668,369 @@ package body GLUT is
       Interfaces.C.Strings.Free (C_Label);
    end ChangeToSubMenu;
 
-   function ExtensionSupported (Name : String) return Integer is
-      Result : Integer;
-      C_Name : Interfaces.C.Strings.Chars_Ptr
-        := Interfaces.C.Strings.New_String (Name);
+
+
+
+
+
+
+
+
+   -- _glfwStringInExtensionString() - Check if a string can be found in an
+   -- OpenGL extension string
+
+   function String_In_Extension_String (Test_Extension : in String;
+                                        Extensions     : in String) return Boolean
+   is
+      use ada.Strings.fixed;
+      Where          : Natural;
+      Start          : Positive := 1;
+      Terminator     : Natural;
    begin
-      Result := ExtensionSupported (C_Name);
-      Interfaces.C.Strings.Free (C_Name);
-      return Result;
+      -- It takes a bit of care to be fool-proof about parsing the
+      -- OpenGL extensions string. Don't be fooled by sub-strings, etc.
+
+      loop
+         Where := ada.strings.fixed.Index (Extensions, Test_Extension, Start);
+
+         if Where = 0 then
+            return False;
+         end if;
+
+         Terminator := Where + Test_Extension'Length;
+
+         if        Where = Start
+           or else Extensions (Where - 1) = ' '
+         then
+            exit when         Extensions (Terminator) = ' '
+                      or else Terminator = Extensions'Last;          -- tbd: check this !!
+         end if;
+
+         Start := Terminator;
+      end loop;
+
+
+      return True;
+   end;
+
+
+
+
+
+   -- This functions checks if an OpenGL extension is supported or not
+   --
+--     function ExtensionSupported (Name : String) return Integer
+--     is
+--        Result : Integer;
+--        C_Name : Interfaces.C.Strings.Chars_Ptr := Interfaces.C.Strings.New_String (Name);
+--     begin
+--        Result := ExtensionSupported (C_Name);
+--        Interfaces.C.Strings.Free (C_Name);
+--        return Result;
+--     end ExtensionSupported;
+
+
+   function ExtensionSupported (Name : String) return Boolean
+   is
+      use ada.Strings.fixed;
+   begin
+      verify_Initialised;               -- Make sure there is a current window, and thus a current context available
+
+      if ada.strings.fixed.Index (Name, " ") /= 0 then
+         return False;
+      else
+         return String_In_Extension_String (Name, gl.GetString (GL.EXTENSIONS));
+      end if;
+
    end ExtensionSupported;
+
+
+--  int FGAPIENTRY glutExtensionSupported( const char* extension )
+--  {
+--    start = extensions = (const char *) glGetString(GL_EXTENSIONS);
+--
+--    /* XXX consider printing a warning to stderr that there's no current
+--     * rendering context.
+--     */
+--    freeglut_return_val_if_fail( extensions != NULL, 0 );
+--
+--    while (1) {
+--       const char *p = strstr(extensions, extension);
+--       if (!p)
+--          return 0;  /* not found */
+--       /* check that the match isn't a super string */
+--       if ((p == start || p[-1] == ' ') && (p[len] == ' ' || p[len] == 0))
+--          return 1;
+--       /* skip the false match and continue */
+--       extensions = p + len;
+--    }
+--
+--    return 0 ;
+--  }
+
+
+
+
+
+   -- Moves the mouse pointer to given window coordinates
+   --
+   procedure WarpPointer (X : Integer; Y : Integer)
+   is
+   begin
+      verify_Initialised;
+
+      platform.WarpPointer (X, Y);
+   end;
+
+
+
+
+
+
+
+
+   -- Set the cursor image to be used for the current window
+   --
+   procedure fgSetCursor (window : SFG_Window_view; cursorID : Integer)
+   is
+   begin
+      platform.fgSetCursor (window, cursorID);
+   end;
+
+
+--  void fgSetCursor ( SFG_Window *window, int cursorID )
+--  {
+--  #if TARGET_HOST_POSIX_X11
+--      {
+--          Cursor cursor;
+--          /*
+--           * XXX FULL_CROSSHAIR demotes to plain CROSSHAIR. Old GLUT allows
+--           * for this, but if there is a system that easily supports a full-
+--           * window (or full-screen) crosshair, we might consider it.
+--           */
+--          int cursorIDToUse =
+--              ( cursorID == GLUT_CURSOR_FULL_CROSSHAIR ) ? GLUT_CURSOR_CROSSHAIR : cursorID;
+--
+--          if( ( cursorIDToUse >= 0 ) &&
+--              ( cursorIDToUse < sizeof( cursorCache ) / sizeof( cursorCache[0] ) ) ) {
+--              cursorCacheEntry *entry = &cursorCache[ cursorIDToUse ];
+--              if( entry->cachedCursor == None ) {
+--                  entry->cachedCursor =
+--                      XCreateFontCursor( fgDisplay.Display, entry->cursorShape );
+--              }
+--              cursor = entry->cachedCursor;
+--          } else {
+--              switch( cursorIDToUse )
+--              {
+--              case GLUT_CURSOR_NONE:
+--                  cursor = getEmptyCursor( );
+--                  break;
+--
+--              case GLUT_CURSOR_INHERIT:
+--                  cursor = None;
+--                  break;
+--
+--              default:
+--                  fgError( "Unknown cursor type: %d", cursorIDToUse );
+--                  return;
+--              }
+--          }
+--
+--          if ( cursorIDToUse == GLUT_CURSOR_INHERIT ) {
+--              XUndefineCursor( fgDisplay.Display, window->Window.Handle );
+--          } else if ( cursor != None ) {
+--              XDefineCursor( fgDisplay.Display, window->Window.Handle, cursor );
+--          } else if ( cursorIDToUse != GLUT_CURSOR_NONE ) {
+--              fgError( "Failed to create cursor" );
+--          }
+--      }
+--
+--  #elif TARGET_HOST_MS_WINDOWS
+--
+--      /*
+--       * Joe Krahn is re-writing the following code.
+--       */
+--      /* Set the cursor AND change it for this window class. */
+--  #if _MSC_VER <= 1200
+--  #       define MAP_CURSOR(a,b)                                   \
+--          case a:                                                  \
+--              SetCursor( LoadCursor( NULL, b ) );                  \
+--              SetClassLong( window->Window.Handle,                 \
+--                            GCL_HCURSOR,                           \
+--                            ( LONG )LoadCursor( NULL, b ) );       \
+--          break;
+--      /* Nuke the cursor AND change it for this window class. */
+--  #       define ZAP_CURSOR(a,b)                                   \
+--          case a:                                                  \
+--              SetCursor( NULL );                                   \
+--              SetClassLong( window->Window.Handle,                 \
+--                            GCL_HCURSOR, ( LONG )NULL );           \
+--          break;
+--  #else
+--  #       define MAP_CURSOR(a,b)                                   \
+--          case a:                                                  \
+--              SetCursor( LoadCursor( NULL, b ) );                  \
+--              SetClassLongPtr( window->Window.Handle,              \
+--                            GCLP_HCURSOR,                          \
+--                            ( LONG )( LONG_PTR )LoadCursor( NULL, b ) );       \
+--          break;
+--      /* Nuke the cursor AND change it for this window class. */
+--  #       define ZAP_CURSOR(a,b)                                   \
+--          case a:                                                  \
+--              SetCursor( NULL );                                   \
+--              SetClassLongPtr( window->Window.Handle,              \
+--                            GCLP_HCURSOR, ( LONG )( LONG_PTR )NULL );          \
+--          break;
+--  #endif
+--
+--      switch( cursorID )
+--      {
+--          MAP_CURSOR( GLUT_CURSOR_RIGHT_ARROW,         IDC_ARROW     );
+--          MAP_CURSOR( GLUT_CURSOR_LEFT_ARROW,          IDC_ARROW     );
+--          MAP_CURSOR( GLUT_CURSOR_INFO,                IDC_HELP      );
+--          MAP_CURSOR( GLUT_CURSOR_DESTROY,             IDC_CROSS     );
+--          MAP_CURSOR( GLUT_CURSOR_HELP,                IDC_HELP      );
+--          MAP_CURSOR( GLUT_CURSOR_CYCLE,               IDC_SIZEALL   );
+--          MAP_CURSOR( GLUT_CURSOR_SPRAY,               IDC_CROSS     );
+--          MAP_CURSOR( GLUT_CURSOR_WAIT,                IDC_WAIT      );
+--          MAP_CURSOR( GLUT_CURSOR_TEXT,                IDC_IBEAM     );
+--          MAP_CURSOR( GLUT_CURSOR_CROSSHAIR,           IDC_CROSS     );
+--          MAP_CURSOR( GLUT_CURSOR_UP_DOWN,             IDC_SIZENS    );
+--          MAP_CURSOR( GLUT_CURSOR_LEFT_RIGHT,          IDC_SIZEWE    );
+--          MAP_CURSOR( GLUT_CURSOR_TOP_SIDE,            IDC_ARROW     ); /* XXX ToDo */
+--          MAP_CURSOR( GLUT_CURSOR_BOTTOM_SIDE,         IDC_ARROW     ); /* XXX ToDo */
+--          MAP_CURSOR( GLUT_CURSOR_LEFT_SIDE,           IDC_ARROW     ); /* XXX ToDo */
+--          MAP_CURSOR( GLUT_CURSOR_RIGHT_SIDE,          IDC_ARROW     ); /* XXX ToDo */
+--          MAP_CURSOR( GLUT_CURSOR_TOP_LEFT_CORNER,     IDC_SIZENWSE  );
+--          MAP_CURSOR( GLUT_CURSOR_TOP_RIGHT_CORNER,    IDC_SIZENESW  );
+--          MAP_CURSOR( GLUT_CURSOR_BOTTOM_RIGHT_CORNER, IDC_SIZENWSE  );
+--          MAP_CURSOR( GLUT_CURSOR_BOTTOM_LEFT_CORNER,  IDC_SIZENESW  );
+--          MAP_CURSOR( GLUT_CURSOR_INHERIT,             IDC_ARROW     ); /* XXX ToDo */
+--          ZAP_CURSOR( GLUT_CURSOR_NONE,                NULL          );
+--          MAP_CURSOR( GLUT_CURSOR_FULL_CROSSHAIR,      IDC_CROSS     ); /* XXX ToDo */
+--
+--      default:
+--          fgError( "Unknown cursor type: %d", cursorID );
+--          break;
+--      }
+--  #endif
+--
+--      window->State.Cursor = cursorID;
+--  }
+
+
+
+
+   -- Set the cursor image to be used for the current window
+   --
+   procedure SetCursor (Cursor : in Integer)
+   is
+   begin
+      verify_Initialised;
+
+      fgSetCursor (fgStructure.CurrentWindow, Cursor);
+   end;
+
+
+
+
+
+
+
+
+
+   -- Resize the current window so that it fits the whole screen
+   --
+   procedure FullScreen
+   is
+   begin
+      verify_Initialised;
+
+      if glut.Get (GLUT.FULL_SCREEN) /= 0 then
+         platform.FullScreenToggle;     -- Leave full screen state before resizing.
+      end if;
+
+   end;
+
+
+--  void FGAPIENTRY glutFullScreen( void )
+--  {
+--      if (glutGet(GLUT_FULL_SCREEN))
+--      {
+--        /*  Leave full screen state before resizing. */
+--        glutFullScreenToggle();
+--      }
+--
+--      {
+--  #if TARGET_HOST_POSIX_X11
+--
+--          Status status;  /* Returned by XGetWindowAttributes(), not checked. */
+--          XWindowAttributes attributes;
+--
+--          status = XGetWindowAttributes(fgDisplay.Display,
+--                                        fgStructure.CurrentWindow->Window.Handle,
+--                                        &attributes);
+--          /*
+--           * The "x" and "y" members of "attributes" are the window's coordinates
+--           * relative to its parent, i.e. to the decoration window.
+--           */
+--          XMoveResizeWindow(fgDisplay.Display,
+--                            fgStructure.CurrentWindow->Window.Handle,
+--                            -attributes.x,
+--                            -attributes.y,
+--                            fgDisplay.ScreenWidth,
+--                            fgDisplay.ScreenHeight);
+--
+--  #elif TARGET_HOST_MS_WINDOWS && !defined(_WIN32_WCE) /* FIXME: what about WinCE */
+--          RECT rect;
+--
+--          /* For fullscreen mode, force the top-left corner to 0,0
+--           * and adjust the window rectangle so that the client area
+--           * covers the whole screen.
+--           */
+--
+--          rect.left   = 0;
+--          rect.top    = 0;
+--          rect.right  = fgDisplay.ScreenWidth;
+--          rect.bottom = fgDisplay.ScreenHeight;
+--
+--          AdjustWindowRect ( &rect, WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS |
+--                                    WS_CLIPCHILDREN, FALSE );
+--
+--          /*
+--           * SWP_NOACTIVATE     Do not activate the window
+--           * SWP_NOOWNERZORDER  Do not change position in z-order
+--           * SWP_NOSENDCHANGING Supress WM_WINDOWPOSCHANGING message
+--           * SWP_NOZORDER       Retains the current Z order (ignore 2nd param)
+--           */
+--
+--          SetWindowPos( fgStructure.CurrentWindow->Window.Handle,
+--                        HWND_TOP,
+--                        rect.left,
+--                        rect.top,
+--                        rect.right  - rect.left,
+--                        rect.bottom - rect.top,
+--                        SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSENDCHANGING |
+--                        SWP_NOZORDER
+--                      );
+--  #endif
+--      }
+--  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
    -----------------------------------------------------
    -- GdM 2005: callbacks with the 'Address attribute --
@@ -1209,11 +2045,26 @@ package body GLUT is
      return CreateMenu( Cvt(P1) );
    end CreateMenu;
 
-   procedure DisplayFunc (P1 : System.Address) is
-     function Cvt is new Ada.Unchecked_Conversion(System.Address,Glut_Proc_2);
+
+
+
+
+
+   -- Sets the Display callback for the current window
+   --
+   procedure DisplayFunc (P1 : Glut_Proc_2) is
    begin
-     DisplayFunc( Cvt(P1) );
+      if P1 = null then
+         raise program_Error with "Fatal error in program.  NULL display callback not permitted in GLUT 3.0+ or freeglut 2.0.1+";
+      end if;
+
+      fgStructure.CurrentWindow.Callbacks.CB_Display := SFG_Proc (P1);
    end DisplayFunc;
+
+
+
+
+
 
    procedure ReshapeFunc (P1 : System.Address) is
      function Cvt is new Ada.Unchecked_Conversion(System.Address,Glut_Proc_3);
@@ -1251,11 +2102,11 @@ package body GLUT is
      PassiveMotionFunc( Cvt(P1) );
    end PassiveMotionFunc;
 
-   procedure IdleFunc (P1 : System.Address) is
-     function Cvt is new Ada.Unchecked_Conversion(System.Address,Glut_Proc_10);
-   begin
-     IdleFunc( Cvt(P1) );
-   end IdleFunc;
+--     procedure IdleFunc (P1 : System.Address) is
+--       function Cvt is new Ada.Unchecked_Conversion(System.Address,Glut_Proc_10);
+--     begin
+--       IdleFunc( Cvt(P1) );
+--     end IdleFunc;
 
    procedure SpecialFunc (P1 : System.Address) is
      function Cvt is new Ada.Unchecked_Conversion(System.Address,Glut_Proc_13);

@@ -273,7 +273,7 @@ package body GLUT.Windows is
          when 1 => -- GLUT.GameModeString (Full_Screen_Mode);
             GLUT.FullScreen;
             -- res := GLUT.EnterGameMode;
-            GLUT.SetCursor(GLUT.CURSOR_NONE);
+            GLUT.SetCursor (GLUT.CURSOR_NONE);
             current_Window.forget_mouse := 10;
             current_Window.full_screen  := True;
          when 2 => null; --GLUT_exit;

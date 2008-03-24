@@ -260,5 +260,18 @@ package body glut.Internal is
 
 
 
+
+   -- Elapsed Time
+   --
+   function fgElapsedTime return Duration
+   is
+      use ada.Calendar;
+   begin
+      return ada.calendar.Clock - fgState.Time;
+   end;
+
+
+
+
 end glut.Internal;
 

@@ -626,8 +626,13 @@ package GL is
      MULTISAMPLE_ARB,
      SAMPLE_ALPHA_TO_COVERAGE_ARB,
      SAMPLE_ALPHA_TO_ONE_ARB,
-     SAMPLE_COVERAGE_ARB
-  );
+     SAMPLE_COVERAGE_ARB,
+     SAMPLE_BUFFERS_ARB,
+     SAMPLES_ARB,
+     SAMPLE_COVERAGE_VALUE_ARB,
+     SAMPLE_COVERAGE_INVERT_ARB,
+     MULTISAMPLE_BIT_ARB
+);
   for ServerCapabilityEnm use
   (
      POINT_SMOOTH                            => 16#0B10#,
@@ -691,11 +696,16 @@ package GL is
      LIGHT7                                  => 16#4007#,
      POLYGON_OFFSET_FILL                     => 16#8037#,
      TEXTURE_3D_EXT                          => 16#806F#,
+
      MULTISAMPLE_ARB                         => 16#809D#,
      SAMPLE_ALPHA_TO_COVERAGE_ARB            => 16#809E#,
      SAMPLE_ALPHA_TO_ONE_ARB                 => 16#809F#,
-     SAMPLE_COVERAGE_ARB                     => 16#80A0#
-
+     SAMPLE_COVERAGE_ARB                     => 16#80A0#,
+     SAMPLE_BUFFERS_ARB                      => 16#80A8#,
+     SAMPLES_ARB                             => 16#80A9#,
+     SAMPLE_COVERAGE_VALUE_ARB               => 16#80AA#,
+     SAMPLE_COVERAGE_INVERT_ARB              => 16#80AB#,
+     MULTISAMPLE_BIT_ARB                     => 16#20000000#
   );
   for ServerCapabilityEnm'Size use GL.enum'Size;
 
@@ -956,7 +966,8 @@ package GL is
      TEXTURE_COORD_ARRAY_SIZE,
      TEXTURE_COORD_ARRAY_TYPE,
      TEXTURE_COORD_ARRAY_STRIDE,
-     EDGE_FLAG_ARRAY_STRIDE
+     EDGE_FLAG_ARRAY_STRIDE,
+     SAMPLES
   );
   for ParameterNameEnm use
   (
@@ -1180,7 +1191,8 @@ package GL is
      TEXTURE_COORD_ARRAY_SIZE                => 16#8088#,
      TEXTURE_COORD_ARRAY_TYPE                => 16#8089#,
      TEXTURE_COORD_ARRAY_STRIDE              => 16#808A#,
-     EDGE_FLAG_ARRAY_STRIDE                  => 16#808C#
+     EDGE_FLAG_ARRAY_STRIDE                  => 16#808C#,
+     SAMPLES                                 => 16#80A9#
   );
   for ParameterNameEnm'Size use GL.enum'Size;
 

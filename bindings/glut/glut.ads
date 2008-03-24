@@ -246,6 +246,7 @@ package GLUT is
    INIT_WINDOW_HEIGHT        : constant := 503;
    INIT_DISPLAY_MODE         : constant := 504;
    ELAPSED_TIME              : constant := 700;
+   WINDOW_FORMAT_ID          : constant := 16#007B#;
 
    --  glutDeviceGet parameters.
 
@@ -371,12 +372,16 @@ package GLUT is
    ACTION_GLUTMAINLOOP_RETURNS : constant := 1;
    ACTION_CONTINUE_EXECUTION   : constant := 2;
 
+   INIT_STATE                  : constant := 16#007C#;    --
    ACTION_ON_WINDOW_CLOSE      : constant := 16#01F9#;    -- for 'Get' and 'SetOption' parameter.
+   WINDOW_BORDER_WIDTH         : constant := 16#01FA#;
+   WINDOW_HEADER_HEIGHT        : constant := 16#01FB#;
 
 
 
    RENDERING_CONTEXT   : constant := 16#01FD#;
    DIRECT_RENDERING    : constant := 16#01FE#;
+   FULL_SCREEN         : constant := 16#01FF#;
 
    CREATE_NEW_CONTEXT  : constant := 0;
    USE_CURRENT_CONTEXT : constant := 1;
@@ -429,7 +434,7 @@ package GLUT is
    --pragma Import (StdCall, DestroyWindow, "glutDestroyWindow");
 
    procedure PostRedisplay;
-   pragma Import (StdCall, PostRedisplay, "glutPostRedisplay");
+   --pragma Import (StdCall, PostRedisplay, "glutPostRedisplay");
 
    procedure PostWindowRedisplay (Win : Integer);
    pragma Import (StdCall, PostWindowRedisplay, "glutPostWindowRedisplay");
@@ -438,7 +443,7 @@ package GLUT is
    --pragma Import (StdCall, SwapBuffers, "glutSwapBuffers");
 
    function GetWindow return Integer;
-   pragma Import (StdCall, GetWindow, "glutGetWindow");
+--   pragma Import (StdCall, GetWindow, "glutGetWindow");
 
    function GetWindowData return system.Address; -- FreeGLUT
 --   pragma Import (StdCall, GetWindowData, "glutGetWindowData");
@@ -449,8 +454,8 @@ package GLUT is
    procedure SetWindowData (Data : system.Address); -- FreeGLUT
    --pragma Import (StdCall, SetWindowData, "glutSetWindowData");
 
-   procedure SetWindowTitle (Title : Interfaces.C.Strings.Chars_Ptr);
-   pragma Import (StdCall, SetWindowTitle, "glutSetWindowTitle");
+--     procedure SetWindowTitle (Title : Interfaces.C.Strings.Chars_Ptr);
+--     pragma Import (StdCall, SetWindowTitle, "glutSetWindowTitle");
 
    procedure SetWindowTitle (Title : String);
 
@@ -481,13 +486,13 @@ package GLUT is
    pragma Import (StdCall, HideWindow, "glutHideWindow");
 
    procedure FullScreen;
-   pragma Import (StdCall, FullScreen, "glutFullScreen");
+   --pragma Import (StdCall, FullScreen, "glutFullScreen");
 
    procedure SetCursor (Cursor : Integer);
-   pragma Import (StdCall, SetCursor, "glutSetCursor");
+   --pragma Import (StdCall, SetCursor, "glutSetCursor");
 
    procedure WarpPointer (X : Integer; Y : Integer);
-   pragma Import (StdCall, WarpPointer, "glutWarpPointer");
+   --pragma Import (StdCall, WarpPointer, "glutWarpPointer");
 
    type Glut_SpecialUp is access procedure
      (Key : Integer;
@@ -549,25 +554,25 @@ package GLUT is
    procedure SetMenu (Menu : Integer);
    pragma Import (StdCall, SetMenu, "glutSetMenu");
 
-   procedure AddMenuEntry
-     (Label : Interfaces.C.Strings.Chars_Ptr;
-      Value : Integer);
-   pragma Import (StdCall, AddMenuEntry, "glutAddMenuEntry");
+--     procedure AddMenuEntry
+--       (Label : Interfaces.C.Strings.Chars_Ptr;
+--        Value : Integer);
+   --pragma Import (StdCall, AddMenuEntry, "glutAddMenuEntry");
 
    procedure AddMenuEntry (Label : String; Value : Integer);
 
-   procedure AddSubMenu
-     (Label   : Interfaces.C.Strings.Chars_Ptr;
-      Submenu : Integer);
-   pragma Import (StdCall, AddSubMenu, "glutAddSubMenu");
+--     procedure AddSubMenu
+--       (Label   : Interfaces.C.Strings.Chars_Ptr;
+--        Submenu : Integer);
+   --pragma Import (StdCall, AddSubMenu, "glutAddSubMenu");
 
    procedure AddSubMenu (Label : String; Submenu : Integer);
 
-   procedure ChangeToMenuEntry
-     (Item  : Integer;
-      Label : Interfaces.C.Strings.Chars_Ptr;
-      Value : Integer);
-   pragma Import (StdCall, ChangeToMenuEntry, "glutChangeToMenuEntry");
+--     procedure ChangeToMenuEntry
+--       (Item  : Integer;
+--        Label : Interfaces.C.Strings.Chars_Ptr;
+--        Value : Integer);
+   --pragma Import (StdCall, ChangeToMenuEntry, "glutChangeToMenuEntry");
 
    procedure ChangeToMenuEntry
      (Item  : Integer;
@@ -602,8 +607,8 @@ package GLUT is
    --pragma Import (StdCall, CloseFunc, "glutCloseFunc");
 
    procedure DisplayFunc (P1 : Glut_Proc_2);
-   pragma Import (StdCall, DisplayFunc, "glutDisplayFunc");
-   procedure DisplayFunc (P1 : System.Address);
+--     pragma Import (StdCall, DisplayFunc, "glutDisplayFunc");
+--     procedure DisplayFunc (P1 : System.Address);
 
    type Glut_Proc_3 is access procedure (Width : Integer; Height : Integer);
 
@@ -660,17 +665,17 @@ package GLUT is
 
    type Glut_Proc_10 is access procedure;
 
-   procedure IdleFunc (P1 : Glut_Proc_10);
-   pragma Import (StdCall, IdleFunc, "glutIdleFunc");
-   procedure IdleFunc (P1 : System.Address);
-
-   type Glut_Proc_11 is access procedure (Value : Integer);
-
-   procedure TimerFunc
-     (Millis : Unsigned;
-      P2     : Glut_Proc_11;
-      Value  : Integer);
-   pragma Import (StdCall, TimerFunc, "glutTimerFunc");
+--     procedure IdleFunc (P1 : Glut_Proc_10);
+--     pragma Import (StdCall, IdleFunc, "glutIdleFunc");
+--     procedure IdleFunc (P1 : System.Address);
+--
+--     type Glut_Proc_11 is access procedure (Value : Integer);
+--
+--     procedure TimerFunc
+--       (Millis : Unsigned;
+--        P2     : Glut_Proc_11;
+--        Value  : Integer);
+--     pragma Import (StdCall, TimerFunc, "glutTimerFunc");
 
    type Glut_Proc_12 is access procedure (State : Integer);
 
@@ -759,19 +764,19 @@ package GLUT is
    --  GLUT state retrieval sub-API.
 
    function Get (Type_Id : GL.enum) return Integer;
-   pragma Import (StdCall, Get, "glutGet");
+   -- pragma Import (StdCall, Get, "glutGet");
 
    function DeviceGet (Type_Id : GL.enum) return Integer;
    --pragma Import (StdCall, DeviceGet, "glutDeviceGet");
 
    --  GLUT extension support sub-API
 
-   function ExtensionSupported
-     (Name : Interfaces.C.Strings.Chars_Ptr)
-      return Integer;
-   pragma Import (StdCall, ExtensionSupported, "glutExtensionSupported");
+--     function ExtensionSupported
+--       (Name : Interfaces.C.Strings.Chars_Ptr)
+--        return Integer;
+   --pragma Import (StdCall, ExtensionSupported, "glutExtensionSupported");
 
-   function ExtensionSupported (Name : String) return Integer;
+   function ExtensionSupported (Name : String) return Boolean;
 
    function GetModifiers return Integer;
    --pragma Import (StdCall, GetModifiers, "glutGetModifiers");

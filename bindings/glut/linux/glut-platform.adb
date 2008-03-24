@@ -6,10 +6,12 @@ with x_lib.Property;
 with x_lib.Predefined_Atoms;   use x_lib.Predefined_Atoms;
 with x_lib.Util;               use x_lib.Util;
 with x_lib.key_Syms;
+with x_lib.Cursor;
 
 with ada.containers.doubly_linked_Lists;
 with ada.Strings.unbounded;
 with ada.Calendar;
+with ada.characters.latin_1;
 
 with interfaces.c.Pointers;
 
@@ -1110,9 +1112,12 @@ package body glut.Platform is
                declare
                   unmap_Event : x_lib.X_Event (Unmap_Notify) := event;
                begin
-                  window               := fgWindowByHandle (fgStructure.Windows,
-                                                            unmap_Event.X_Unmap.window);    --  GETWINDOW( xunmap );
-                  window.Callbacks.CB_WindowStatus (GLUT.HIDDEN);
+                  window := fgWindowByHandle (fgStructure.Windows,  unmap_Event.X_Unmap.window);    --  GETWINDOW( xunmap );
+
+                  if window.Callbacks.CB_WindowStatus /= null then
+                     window.Callbacks.CB_WindowStatus (GLUT.HIDDEN);
+                  end if;
+
                   window.State.Visible := False;
                end;
 
@@ -1633,6 +1638,800 @@ package body glut.Platform is
 --  #  endif
 --
 --  #endif
+
+
+
+
+
+   -- Queries the GL context about some attributes
+   --
+   function fghGetConfig (attribute : in Integer) return Integer
+   is
+      returnValue : aliased Integer := 0;
+      result      : Integer;                   -- Not checked
+   begin
+      if fgStructure.CurrentWindow /= null then
+         result := glXGetFBConfigAttrib (fgDisplay.platform.Display,
+                                         fgStructure.CurrentWindow.Window.platform.FBConfig.all,
+                                         attribute,
+                                         returnValue'unchecked_access);
+      end if;
+
+      return returnValue;
+   end;
+
+
+
+
+
+   procedure WarpPointer (X : Integer; Y : Integer)
+   is
+      unused : c.Int;
+   begin
+      unused := X_Warp_Pointer (fgDisplay.platform.Display,
+                                Drawable_Id (null_XID),
+                                fgStructure.CurrentWindow.Window.Handle,
+                                0, 0, 0, 0,
+                                c.Int (x),  c.Int (y));
+
+      X_Flush (fgDisplay.platform.Display);        -- Make the warp visible immediately.
+   end;
+
+
+--  #elif TARGET_HOST_MS_WINDOWS
+--
+--      {
+--          POINT coords;
+--          coords.x = x;
+--          coords.y = y;
+--
+--          /* ClientToScreen() translates {coords} for us. */
+--          ClientToScreen( fgStructure.CurrentWindow->Window.Handle, &coords );
+--          SetCursorPos( coords.x, coords.y );
+--      }
+--
+--  #endif
+
+
+
+
+
+
+   procedure SetWindowTitle (Title : String)
+   is
+      text    : x_lib.property.Text_Property_type (format => Bits_8, length => Title'length);
+      Value_8 : Bits_8_Array_Type (1 .. Title'Length);
+   begin
+      for Each in text.value_8'range loop
+         text.value_8 (Each) := Character'Pos (Title (Each));
+      end loop;
+
+      text.encoding := XA_STRING;
+
+      x_lib.property.X_Set_WM_Name (fgDisplay.platform.Display,
+                                    fgStructure.CurrentWindow.Window.Handle,
+                                    text);
+
+      X_Flush (fgDisplay.platform.Display);     -- /* XXX Shouldn't need this */
+   end;
+
+
+--  #elif TARGET_HOST_MS_WINDOWS
+--  #    ifdef _WIN32_WCE
+--          {
+--              wchar_t* wstr = fghWstrFromStr(title);
+--              SetWindowText( fgStructure.CurrentWindow->Window.Handle, wstr );
+--              free(wstr);
+--          }
+--  #    else
+--          SetWindowText( fgStructure.CurrentWindow->Window.Handle, title );
+--  #    endif
+--
+--  #endif
+
+
+
+
+   procedure SetIconTitle (Title : String)
+   is
+      text    : x_lib.property.Text_Property_type (format => Bits_8, length => Title'length);
+      Value_8 : Bits_8_Array_Type (1 .. Title'Length);
+   begin
+      for Each in text.value_8'range loop
+         text.value_8 (Each) := Character'Pos (Title (Each));
+      end loop;
+
+      text.encoding := XA_STRING;
+
+      x_lib.property.X_Set_WM_Icon_Name (fgDisplay.platform.Display,
+                                         fgStructure.CurrentWindow.Window.Handle,
+                                         text);
+
+      X_Flush (fgDisplay.platform.Display);     -- /* XXX Shouldn't need this */
+
+   end SetIconTitle;
+
+
+--  #elif TARGET_HOST_MS_WINDOWS
+--  #    ifdef _WIN32_WCE
+--          {
+--              wchar_t* wstr = fghWstrFromStr(title);
+--              SetWindowText( fgStructure.CurrentWindow->Window.Handle, wstr );
+--              free(wstr);
+--          }
+--  #    else
+--          SetWindowText( fgStructure.CurrentWindow->Window.Handle, title );
+--  #    endif
+--
+--  #endif
+
+
+
+
+   -- A factory method for an empty cursor
+   --
+   function getEmptyCursor return Cursor_Id
+   is
+      cursorNone : Cursor_Id := Null_Cursor_ID;
+   begin
+      if cursorNone = Null_Cursor_ID then
+         declare
+            cursorNoneBits   : Bitmap_Type (1..4, 1..4) := (others => (others => 0));
+            dontCare         : X_Color := (Pix   => 0,
+                                           Red   => 0,
+                                           Green => 0,
+                                           Blue  => 0,
+                                           Flags => (others => False),
+                                           Pad   => 0);
+            cursorNonePixmap : Pixmap_Id;
+         begin
+            cursorNonePixmap := X_Create_Bitmap_From_Data (fgDisplay.platform.Display,
+                                                           fgDisplay.platform.root_Window,
+                                                           cursorNoneBits);
+            if cursorNonePixmap /= Null_pixmap_ID then
+               cursorNone := x_lib.cursor.X_Create_Pixmap_Cursor (fgDisplay.platform.Display,
+                                                     cursorNonePixmap, cursorNonePixmap,
+                                                     dontCare, dontCare, 0, 0 );
+               X_Free_Pixmap (fgDisplay.platform.Display, cursorNonePixmap);
+            end if;
+         end;
+      end if;
+
+      return cursorNone;
+   end;
+
+
+
+
+
+
+   type cursorCacheEntry is
+      record
+         cursorShape : x_lib.cursor.Font_Cursor_Shape;         -- an XC_foo value
+         cachedCursor : Cursor_Id;      -- one if the corresponding cursor has not been created yet
+      end record;
+
+   type cursorCacheEntry_array is array (Cursor_Id range <>) of aliased cursorCacheEntry;
+
+   --   * Note: The arrangement of the table below depends on the fact that
+   --   * the "normal" GLUT_CURSOR_* values start a 0 and are consecutive.
+   --   */
+
+   -- tbd: not task safe !!
+   cursorCache : cursorCacheEntry_array := ( 1 => (x_lib.Cursor.XC_arrow,               Null_Cursor_ID),   -- GLUT_CURSOR_RIGHT_ARROW
+                                             2 => (x_lib.Cursor.XC_top_left_arrow,      Null_Cursor_ID),   -- GLUT_CURSOR_LEFT_ARROW
+                                             3 => (x_lib.Cursor.XC_hand1,               Null_Cursor_ID),   -- GLUT_CURSOR_INFO
+                                             4 => (x_lib.Cursor.XC_pirate,              Null_Cursor_ID),   -- GLUT_CURSOR_DESTROY
+                                             5 => (x_lib.Cursor.XC_question_arrow,      Null_Cursor_ID),   -- GLUT_CURSOR_HELP
+                                             6 => (x_lib.Cursor.XC_exchange,            Null_Cursor_ID),   -- GLUT_CURSOR_CYCLE
+                                             7 => (x_lib.Cursor.XC_spraycan,            Null_Cursor_ID),   -- GLUT_CURSOR_SPRAY
+                                             8 => (x_lib.Cursor.XC_watch,               Null_Cursor_ID),   -- GLUT_CURSOR_WAIT
+                                             9 => (x_lib.Cursor.XC_xterm,               Null_Cursor_ID),   -- GLUT_CURSOR_TEXT
+                                            10 => (x_lib.Cursor.XC_crosshair,           Null_Cursor_ID),   -- GLUT_CURSOR_CROSSHAIR
+                                            11 => (x_lib.Cursor.XC_sb_v_double_arrow  , Null_Cursor_ID),   -- GLUT_CURSOR_UP_DOWN
+                                            12 => (x_lib.Cursor.XC_sb_h_double_arrow,   Null_Cursor_ID),   -- GLUT_CURSOR_LEFT_RIGHT
+                                            13 => (x_lib.Cursor.XC_top_side,            Null_Cursor_ID),   -- GLUT_CURSOR_TOP_SIDE
+                                            14 => (x_lib.Cursor.XC_bottom_side,         Null_Cursor_ID),   -- GLUT_CURSOR_BOTTOM_SIDE
+                                            15 => (x_lib.Cursor.XC_left_side,           Null_Cursor_ID),   -- GLUT_CURSOR_LEFT_SIDE
+                                            16 => (x_lib.Cursor.XC_right_side,          Null_Cursor_ID),   -- GLUT_CURSOR_RIGHT_SIDE
+                                            17 => (x_lib.Cursor.XC_top_left_corner,     Null_Cursor_ID),   -- GLUT_CURSOR_TOP_LEFT_CORNER
+                                            18 => (x_lib.Cursor.XC_top_right_corner,    Null_Cursor_ID),   -- GLUT_CURSOR_TOP_RIGHT_CORNER
+                                            19 => (x_lib.Cursor.XC_bottom_right_corner, Null_Cursor_ID),   -- GLUT_CURSOR_BOTTOM_RIGHT_CORNER
+                                            20 => (x_lib.Cursor.XC_bottom_left_corner,  Null_Cursor_ID));   -- GLUT_CURSOR_BOTTOM_LEFT_CORNER
+
+
+
+
+   procedure fgSetCursor (window : access internal.SFG_Window;   cursorID : Integer)
+   is
+       cursor        : Cursor_Id;
+       cursorIDToUse : Cursor_Id;
+   begin
+      --           * XXX FULL_CROSSHAIR demotes to plain CROSSHAIR. Old GLUT allows
+      --           * for this, but if there is a system that easily supports a full-
+      --           * window (or full-screen) crosshair, we might consider it.
+      --
+      if cursorID = GLUT.CURSOR_FULL_CROSSHAIR then
+         cursorIDToUse := GLUT.CURSOR_CROSSHAIR;
+      else
+         cursorIDToUse := Cursor_Id (cursorID);
+      end if;
+
+
+      if    cursorIDToUse >= 0
+        and cursorIDToUse <= cursorCache'Last
+      then
+         declare
+            the_Entry : access cursorCacheEntry := cursorCache (cursorIDToUse)'access;
+         begin
+            if the_entry.cachedCursor = Null_Cursor_ID then
+               the_entry.cachedCursor := x_lib.cursor.X_Create_Font_Cursor (fgDisplay.platform.Display, the_entry.cursorShape);
+            end if;
+            cursor := the_entry.cachedCursor;
+         end;
+
+      else
+         case cursorIDToUse is
+            when GLUT.CURSOR_NONE =>
+               cursor := getEmptyCursor;
+
+            when GLUT.CURSOR_INHERIT =>
+               cursor := Null_Cursor_ID;
+
+            when others =>
+               raise constraint_Error with "Unknown cursor type: " & cursor_Id'image (cursorIDToUse);
+         end case;
+      end if;
+
+   end;
+
+--      {
+--
+--          if( ( cursorIDToUse >= 0 ) &&
+--              ( cursorIDToUse < sizeof( cursorCache ) / sizeof( cursorCache[0] ) ) ) {
+--              cursorCacheEntry *entry = &cursorCache[ cursorIDToUse ];
+--              if( entry->cachedCursor == None ) {
+--                  entry->cachedCursor =
+--                      XCreateFontCursor( fgDisplay.Display, entry->cursorShape );
+--              }
+--              cursor = entry->cachedCursor;
+--          } else {
+--              switch( cursorIDToUse )
+--              {
+--              case GLUT_CURSOR_NONE:
+--                  cursor = getEmptyCursor( );
+--                  break;
+--
+--              case GLUT_CURSOR_INHERIT:
+--                  cursor = None;
+--                  break;
+--
+--              default:
+--                  fgError( "Unknown cursor type: %d", cursorIDToUse );
+--                  return;
+--              }
+--          }
+
+
+--          if ( cursorIDToUse == GLUT_CURSOR_INHERIT ) {
+--              XUndefineCursor( fgDisplay.Display, window->Window.Handle );
+--          } else if ( cursor != None ) {
+--              XDefineCursor( fgDisplay.Display, window->Window.Handle, cursor );
+--          } else if ( cursorIDToUse != GLUT_CURSOR_NONE ) {
+--              fgError( "Failed to create cursor" );
+--          }
+--      }
+
+
+
+
+--  #elif TARGET_HOST_MS_WINDOWS
+--
+--      /*
+--       * Joe Krahn is re-writing the following code.
+--       */
+--      /* Set the cursor AND change it for this window class. */
+--  #if _MSC_VER <= 1200
+--  #       define MAP_CURSOR(a,b)                                   \
+--          case a:                                                  \
+--              SetCursor( LoadCursor( NULL, b ) );                  \
+--              SetClassLong( window->Window.Handle,                 \
+--                            GCL_HCURSOR,                           \
+--                            ( LONG )LoadCursor( NULL, b ) );       \
+--          break;
+--      /* Nuke the cursor AND change it for this window class. */
+--  #       define ZAP_CURSOR(a,b)                                   \
+--          case a:                                                  \
+--              SetCursor( NULL );                                   \
+--              SetClassLong( window->Window.Handle,                 \
+--                            GCL_HCURSOR, ( LONG )NULL );           \
+--          break;
+--  #else
+--  #       define MAP_CURSOR(a,b)                                   \
+--          case a:                                                  \
+--              SetCursor( LoadCursor( NULL, b ) );                  \
+--              SetClassLongPtr( window->Window.Handle,              \
+--                            GCLP_HCURSOR,                          \
+--                            ( LONG )( LONG_PTR )LoadCursor( NULL, b ) );       \
+--          break;
+--      /* Nuke the cursor AND change it for this window class. */
+--  #       define ZAP_CURSOR(a,b)                                   \
+--          case a:                                                  \
+--              SetCursor( NULL );                                   \
+--              SetClassLongPtr( window->Window.Handle,              \
+--                            GCLP_HCURSOR, ( LONG )( LONG_PTR )NULL );          \
+--          break;
+--  #endif
+--
+--      switch( cursorID )
+--      {
+--          MAP_CURSOR( GLUT_CURSOR_RIGHT_ARROW,         IDC_ARROW     );
+--          MAP_CURSOR( GLUT_CURSOR_LEFT_ARROW,          IDC_ARROW     );
+--          MAP_CURSOR( GLUT_CURSOR_INFO,                IDC_HELP      );
+--          MAP_CURSOR( GLUT_CURSOR_DESTROY,             IDC_CROSS     );
+--          MAP_CURSOR( GLUT_CURSOR_HELP,                IDC_HELP      );
+--          MAP_CURSOR( GLUT_CURSOR_CYCLE,               IDC_SIZEALL   );
+--          MAP_CURSOR( GLUT_CURSOR_SPRAY,               IDC_CROSS     );
+--          MAP_CURSOR( GLUT_CURSOR_WAIT,                IDC_WAIT      );
+--          MAP_CURSOR( GLUT_CURSOR_TEXT,                IDC_IBEAM     );
+--          MAP_CURSOR( GLUT_CURSOR_CROSSHAIR,           IDC_CROSS     );
+--          MAP_CURSOR( GLUT_CURSOR_UP_DOWN,             IDC_SIZENS    );
+--          MAP_CURSOR( GLUT_CURSOR_LEFT_RIGHT,          IDC_SIZEWE    );
+--          MAP_CURSOR( GLUT_CURSOR_TOP_SIDE,            IDC_ARROW     ); /* XXX ToDo */
+--          MAP_CURSOR( GLUT_CURSOR_BOTTOM_SIDE,         IDC_ARROW     ); /* XXX ToDo */
+--          MAP_CURSOR( GLUT_CURSOR_LEFT_SIDE,           IDC_ARROW     ); /* XXX ToDo */
+--          MAP_CURSOR( GLUT_CURSOR_RIGHT_SIDE,          IDC_ARROW     ); /* XXX ToDo */
+--          MAP_CURSOR( GLUT_CURSOR_TOP_LEFT_CORNER,     IDC_SIZENWSE  );
+--          MAP_CURSOR( GLUT_CURSOR_TOP_RIGHT_CORNER,    IDC_SIZENESW  );
+--          MAP_CURSOR( GLUT_CURSOR_BOTTOM_RIGHT_CORNER, IDC_SIZENWSE  );
+--          MAP_CURSOR( GLUT_CURSOR_BOTTOM_LEFT_CORNER,  IDC_SIZENESW  );
+--          MAP_CURSOR( GLUT_CURSOR_INHERIT,             IDC_ARROW     ); /* XXX ToDo */
+--          ZAP_CURSOR( GLUT_CURSOR_NONE,                NULL          );
+--          MAP_CURSOR( GLUT_CURSOR_FULL_CROSSHAIR,      IDC_CROSS     ); /* XXX ToDo */
+--
+--      default:
+--          fgError( "Unknown cursor type: %d", cursorID );
+--          break;
+--      }
+--  #endif
+
+
+
+
+
+
+
+   -- Toggle the window's full screen state.
+   --
+   procedure FullScreenToggle
+   is
+   begin
+
+      if fgDisplay.platform.State_fullScreen /= null_Atom then
+         declare
+            xevent     : X_Event (Client_Message);
+         begin
+            xevent.X_Client.serial := 0;       -- tbd: use an aggregate
+            xevent.X_Client.send_event := True;
+            xevent.X_Client.display := fgDisplay.platform.Display;
+            xevent.X_Client.window := fgStructure.CurrentWindow.Window.Handle;
+            xevent.X_Client.message_type := fgDisplay.platform.State;
+            xevent.X_Client.format := long_Format;
+            xevent.X_Client.data (1) := 2;  -- _NET_WM_STATE_TOGGLE
+            xevent.X_Client.data (2) := c.Long (fgDisplay.Platform.State_fullScreen);
+            xevent.X_Client.data (3) := 0;
+            xevent.X_Client.data (4) := 0;
+            xevent.X_Client.data (5) := 0;
+
+            X_Send_Event (fgDisplay.platform.Display,
+                          fgDisplay.platform.root_Window,
+                          False,
+                          (Substructure_Redirect => True,  -- /*** Don't really understand how event masks work... ***/
+                           Substructure_Notify   => True,
+                           others                => False),   --event_mask,
+                          xevent);
+         end;
+      else
+         glut.FullScreen; --    * If the window manager is not Net WM compliant, fall back to legacy behaviour.
+      end if;
+
+   end;
+
+
+--  void FGAPIENTRY glutFullScreenToggle( void )
+--  {
+--      {
+--  #if TARGET_HOST_POSIX_X11
+--
+--        if (fgDisplay.StateFullScreen != None)
+--        {
+--          XEvent xevent;
+--          long event_mask;
+--          int status;
+--
+--          xevent.type = ClientMessage;
+--          xevent.xclient.type = ClientMessage;
+--          xevent.xclient.serial = 0;
+--          xevent.xclient.send_event = True;
+--          xevent.xclient.display = fgDisplay.Display;
+--          xevent.xclient.window = fgStructure.CurrentWindow->Window.Handle;
+--          xevent.xclient.message_type = fgDisplay.State;
+--          xevent.xclient.format = 32;
+--          xevent.xclient.data.l[0] = 2;  /* _NET_WM_STATE_TOGGLE */
+--          xevent.xclient.data.l[1] = fgDisplay.StateFullScreen;
+--          xevent.xclient.data.l[2] = 0;
+--          xevent.xclient.data.l[3] = 0;
+--          xevent.xclient.data.l[4] = 0;
+--
+--          /*** Don't really understand how event masks work... ***/
+--          event_mask = SubstructureRedirectMask | SubstructureNotifyMask;
+--
+--          status = XSendEvent(fgDisplay.Display,
+--            fgDisplay.RootWindow,
+--            False,
+--            event_mask,
+--            &xevent);
+--          FREEGLUT_INTERNAL_ERROR_EXIT(status != 0,
+--            "XSendEvent failed",
+--            "glutFullScreenToggle");
+--        }
+--        else
+--  #endif
+--        {
+--          /*
+--           * If the window manager is not Net WM compliant, fall back to legacy
+--           * behaviour.
+--           */
+--          glutFullScreen();
+--        }
+--      }
+--  }
+
+
+
+
+
+
+
+
+
+
+   function Get (Type_Id : GL.enum) return Integer
+   is
+      nsamples : aliased gl.Int := 0;
+   begin
+      -- The window/context specific queries are handled mostly by fghGetConfig().
+      --
+      case Type_Id is
+
+         when GLUT.WINDOW_NUM_SAMPLES =>
+            if GLX_VERSION_1_3 /= 0 then
+               gl.GetIntegerv (GL.SAMPLES, nsamples'unchecked_access);
+            end if;
+
+            return Integer (nsamples);
+
+
+         when GLUT.WINDOW_RGBA =>
+            return fghGetConfig (GLX_RGBA);
+
+         when GLUT.WINDOW_DOUBLEBUFFER =>
+            return fghGetConfig (GLX_DOUBLEBUFFER);
+
+         when GLUT.WINDOW_BUFFER_SIZE =>
+            return fghGetConfig (GLX_BUFFER_SIZE);
+
+         when GLUT.WINDOW_STENCIL_SIZE =>
+            return fghGetConfig (GLX_STENCIL_SIZE);
+
+         when GLUT.WINDOW_DEPTH_SIZE =>
+            return fghGetConfig (GLX_DEPTH_SIZE);
+
+         when GLUT.WINDOW_RED_SIZE =>
+            return fghGetConfig (GLX_RED_SIZE);
+
+         when GLUT.WINDOW_GREEN_SIZE =>
+            return fghGetConfig (GLX_GREEN_SIZE);
+
+         when GLUT.WINDOW_BLUE_SIZE =>
+            return fghGetConfig (GLX_BLUE_SIZE);
+
+         when GLUT.WINDOW_ALPHA_SIZE =>
+            return fghGetConfig (GLX_ALPHA_SIZE);
+
+         when GLUT.WINDOW_ACCUM_RED_SIZE =>
+            return fghGetConfig (GLX_ACCUM_RED_SIZE);
+
+         when GLUT.WINDOW_ACCUM_GREEN_SIZE =>
+            return fghGetConfig (GLX_ACCUM_GREEN_SIZE);
+
+         when GLUT.WINDOW_ACCUM_BLUE_SIZE =>
+            return fghGetConfig (GLX_ACCUM_BLUE_SIZE);
+
+         when GLUT.WINDOW_ACCUM_ALPHA_SIZE =>
+            return fghGetConfig (GLX_ACCUM_ALPHA_SIZE);
+
+         when GLUT.WINDOW_STEREO =>
+            return fghGetConfig (GLX_STEREO);
+
+
+         when GLUT.WINDOW_COLORMAP_SIZE =>        -- Colormap size is handled in a bit different way than all the rest
+            if   fghGetConfig (GLX_RGBA)  /= 0
+              or fgStructure.CurrentWindow = null
+            then                                       -- We've got a RGBA visual, so there is no colormap at all.
+               return 0;                               -- The other possibility is that we have no current window set.
+            else
+               declare
+                  fbconfig   : access GLXFBConfig   := fgStructure.CurrentWindow.Window.platform.FBConfig;
+                  visualInfo : access X_Visual_Info := glXGetVisualFromFBConfig (fgDisplay.platform.Display, fbconfig.all);
+                  result     : constant Integer     := Integer (visualInfo.visual.map_entries);
+               begin
+                  XFree (visualInfo.all'address);
+                  return result;
+               end;
+            end if;
+
+
+         when GLUT.WINDOW_X             -- Those calls are somewhat similiar, as they use XGetWindowAttributes function
+            | GLUT.WINDOW_Y
+            | GLUT.WINDOW_BORDER_WIDTH
+            | GLUT.WINDOW_HEADER_HEIGHT =>
+            declare
+               use type gl.Enum;
+               x, y   : aliased c.Int;
+               w      : aliased x_lib.Window_Id;
+               unused :         Boolean;
+            begin
+               if fgStructure.CurrentWindow = null then
+                  return 0;
+               end if;
+
+               unused := X_Translate_Coordinates (fgDisplay.platform.Display,
+                                                  fgStructure.CurrentWindow.Window.Handle,
+                                                  fgDisplay.platform.root_Window,
+                                                  0, 0, x'access, y'access, w'access);
+
+               if    Type_Id = GLUT.WINDOW_X then   return Integer (x);
+               elsif Type_Id = GLUT.WINDOW_Y then   return Integer (y);
+               end if;
+
+               if w = 0 then
+                  return 0;
+               end if;
+
+               unused := X_Translate_Coordinates (fgDisplay.platform.Display,
+                                                  fgStructure.CurrentWindow.Window.Handle,
+                                                  w, 0, 0, x'access, y'access, w'access);
+
+               if    Type_Id = GLUT.WINDOW_BORDER_WIDTH  then   return Integer (x);
+               elsif Type_Id = GLUT.WINDOW_HEADER_HEIGHT then   return Integer (y);
+               else                                             raise  program_Error;
+               end if;
+            end;
+
+
+         when GLUT.WINDOW_WIDTH
+            | GLUT.WINDOW_HEIGHT =>
+            declare
+               use type gl.Enum;
+               winAttributes : aliased X_Window_Attributes;
+               unused        : x_lib.Status;
+            begin
+               if fgStructure.CurrentWindow = null then
+                  return 0;
+               end if;
+
+               unused := X_Get_Window_Attributes (fgDisplay.platform.Display,
+                                                  fgStructure.CurrentWindow.Window.Handle,
+                                                  winAttributes'access);
+
+               if Type_Id  =  GLUT.WINDOW_WIDTH then
+                  return Integer (winAttributes.width);
+               else
+                  return Integer (winAttributes.height);
+               end if;
+            end;
+
+
+
+         when GLUT.DISPLAY_MODE_POSSIBLE =>       -- I don't know yet if there will be a fgChooseVisual() function for Win32
+            declare
+               fbconfig   : access GLXFBConfig;
+               isPossible :        Integer;
+            begin
+               fbconfig := fgChooseFBConfig;       -- We should not have to call fgChooseFBConfig again here.
+
+               if fbconfig = null then
+                  isPossible := 0;
+               else
+                  isPossible := 1;
+                  XFree (fbconfig.all'address);
+               end if;
+
+               return isPossible;
+            end;
+
+
+         when GLUT.WINDOW_FORMAT_ID =>                    -- This is system-dependant
+            if fgStructure.CurrentWindow = null then
+               return 0;
+            end if;
+
+            return fghGetConfig (GLX_VISUAL_ID);
+
+
+         when others =>
+            raise program_Error with "glutGet(): missing enum handle " & gl.enum'Image (Type_Id);
+
+      end case;
+
+
+--      return 0;
+   end;
+
+
+
+
+--  #elif TARGET_HOST_MS_WINDOWS
+--      int returnValue ;
+--      GLboolean boolValue ;
+--
+--      case GLUT_WINDOW_NUM_SAMPLES:
+--        glGetIntegerv(WGL_SAMPLES_ARB, &nsamples);
+--        return nsamples;
+--
+--      /* Handle the OpenGL inquiries */
+--      case GLUT_WINDOW_RGBA:
+--        glGetBooleanv ( GL_RGBA_MODE, &boolValue );
+--        returnValue = boolValue ? 1 : 0;
+--        return returnValue;
+--      case GLUT_WINDOW_DOUBLEBUFFER:
+--        glGetBooleanv ( GL_DOUBLEBUFFER, &boolValue );
+--        returnValue = boolValue ? 1 : 0;
+--        return returnValue;
+--      case GLUT_WINDOW_STEREO:
+--        glGetBooleanv ( GL_STEREO, &boolValue );
+--        returnValue = boolValue ? 1 : 0;
+--        return returnValue;
+--
+--      case GLUT_WINDOW_RED_SIZE:
+--        glGetIntegerv ( GL_RED_BITS, &returnValue );
+--        return returnValue;
+--      case GLUT_WINDOW_GREEN_SIZE:
+--        glGetIntegerv ( GL_GREEN_BITS, &returnValue );
+--        return returnValue;
+--      case GLUT_WINDOW_BLUE_SIZE:
+--        glGetIntegerv ( GL_BLUE_BITS, &returnValue );
+--        return returnValue;
+--      case GLUT_WINDOW_ALPHA_SIZE:
+--        glGetIntegerv ( GL_ALPHA_BITS, &returnValue );
+--        return returnValue;
+--      case GLUT_WINDOW_ACCUM_RED_SIZE:
+--        glGetIntegerv ( GL_ACCUM_RED_BITS, &returnValue );
+--        return returnValue;
+--      case GLUT_WINDOW_ACCUM_GREEN_SIZE:
+--        glGetIntegerv ( GL_ACCUM_GREEN_BITS, &returnValue );
+--        return returnValue;
+--      case GLUT_WINDOW_ACCUM_BLUE_SIZE:
+--        glGetIntegerv ( GL_ACCUM_BLUE_BITS, &returnValue );
+--        return returnValue;
+--      case GLUT_WINDOW_ACCUM_ALPHA_SIZE:
+--        glGetIntegerv ( GL_ACCUM_ALPHA_BITS, &returnValue );
+--        return returnValue;
+--      case GLUT_WINDOW_DEPTH_SIZE:
+--        glGetIntegerv ( GL_DEPTH_BITS, &returnValue );
+--        return returnValue;
+--
+--      case GLUT_WINDOW_BUFFER_SIZE:
+--        returnValue = 1 ;                                      /* ????? */
+--        return returnValue;
+--      case GLUT_WINDOW_STENCIL_SIZE:
+--        returnValue = 0 ;                                      /* ????? */
+--        return returnValue;
+--
+--      case GLUT_WINDOW_X:
+--      case GLUT_WINDOW_Y:
+--      case GLUT_WINDOW_WIDTH:
+--      case GLUT_WINDOW_HEIGHT:
+--      {
+--          /*
+--           *  There is considerable confusion about the "right thing to
+--           *  do" concerning window  size and position.  GLUT itself is
+--           *  not consistent between Windows and UNIX/X11; since
+--           *  platform independence is a virtue for "freeglut", we
+--           *  decided to break with GLUT's behaviour.
+--           *
+--           *  Under UNIX/X11, it is apparently not possible to get the
+--           *  window border sizes in order to subtract them off the
+--           *  window's initial position until some time after the window
+--           *  has been created.  Therefore we decided on the following
+--           *  behaviour, both under Windows and under UNIX/X11:
+--           *  - When you create a window with position (x,y) and size
+--           *    (w,h), the upper left hand corner of the outside of the
+--           *    window is at (x,y) and the size of the drawable area  is
+--           *    (w,h).
+--           *  - When you query the size and position of the window--as
+--           *    is happening here for Windows--"freeglut" will return
+--           *    the size of the drawable area--the (w,h) that you
+--           *    specified when you created the window--and the coordinates
+--           *    of the upper left hand corner of the drawable
+--           *    area--which is NOT the (x,y) you specified.
+--           */
+--
+--          RECT winRect;
+--
+--          freeglut_return_val_if_fail( fgStructure.CurrentWindow != NULL, 0 );
+--
+--          /*
+--           * We need to call GetWindowRect() first...
+--           *  (this returns the pixel coordinates of the outside of the window)
+--           */
+--          GetWindowRect( fgStructure.CurrentWindow->Window.Handle, &winRect );
+--
+--          /* ...then we've got to correct the results we've just received... */
+--
+--  #if !defined(_WIN32_WCE)
+--          if ( ( fgStructure.GameModeWindow != fgStructure.CurrentWindow ) && ( fgStructure.CurrentWindow->Parent == NULL ) &&
+--               ( ! fgStructure.CurrentWindow->IsMenu ) )
+--          {
+--            winRect.left   += GetSystemMetrics( SM_CXSIZEFRAME );
+--            winRect.right  -= GetSystemMetrics( SM_CXSIZEFRAME );
+--            winRect.top    += GetSystemMetrics( SM_CYSIZEFRAME ) + GetSystemMetrics( SM_CYCAPTION );
+--            winRect.bottom -= GetSystemMetrics( SM_CYSIZEFRAME );
+--          }
+--  #endif /* !defined(_WIN32_WCE) */
+--
+--          switch( eWhat )
+--          {
+--          case GLUT_WINDOW_X:      return winRect.left                ;
+--          case GLUT_WINDOW_Y:      return winRect.top                 ;
+--          case GLUT_WINDOW_WIDTH:  return winRect.right - winRect.left;
+--          case GLUT_WINDOW_HEIGHT: return winRect.bottom - winRect.top;
+--          }
+--      }
+--      break;
+--
+--      case GLUT_WINDOW_BORDER_WIDTH :
+--  #if defined(_WIN32_WCE)
+--          return 0;
+--  #else
+--          return GetSystemMetrics( SM_CXSIZEFRAME );
+--  #endif /* !defined(_WIN32_WCE) */
+--
+--      case GLUT_WINDOW_HEADER_HEIGHT :
+--  #if defined(_WIN32_WCE)
+--          return 0;
+--  #else
+--          return GetSystemMetrics( SM_CYCAPTION );
+--  #endif /* defined(_WIN32_WCE) */
+--
+--      case GLUT_DISPLAY_MODE_POSSIBLE:
+--  #if defined(_WIN32_WCE)
+--          return 0;
+--  #else
+--          return fgSetupPixelFormat( fgStructure.CurrentWindow, GL_TRUE,
+--                                      PFD_MAIN_PLANE );
+--  #endif /* defined(_WIN32_WCE) */
+--
+--
+--      case GLUT_WINDOW_FORMAT_ID:
+--  #if !defined(_WIN32_WCE)
+--          if( fgStructure.CurrentWindow != NULL )
+--              return GetPixelFormat( fgStructure.CurrentWindow->Window.Device );
+--  #endif /* defined(_WIN32_WCE) */
+--          return 0;
+--
+--  #endif (WINDOWS)
+--
+
+
+
+
+
+
+
+
+
 
 
 

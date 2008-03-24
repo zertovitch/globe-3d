@@ -274,6 +274,7 @@ private package glut.Internal is
 --  };
 
    type SFG_Menu;
+   type SFG_Menu_view is access all SFG_Menu;
 
    type SFG_Window;
    type SFG_Window_view is access all SFG_Window;
@@ -328,6 +329,26 @@ private package glut.Internal is
    -- Menus
    --
 
+
+
+   type SFG_MenuEntry is
+      record
+         ID       : Integer;                                  -- The menu entry ID (local)
+         Ordinal  : Integer;                                  -- The menu's ordinal number
+         Text     : ada.strings.unbounded.unbounded_String;   -- The text to be displayed
+         SubMenu  : SFG_Menu_view;                            -- Optional sub-menu tree
+         IsActive : Boolean;                                  -- Is the entry highlighted ?
+         Width    : Integer;                                  -- Label's width in pixels
+      end record;
+
+   type SFG_MenuEntry_view is access all SFG_MenuEntry;
+
+
+   package menu_Entry_Lists is new ada.containers.doubly_linked_Lists (SFG_MenuEntry_view);
+   subtype menu_Entry_List  is menu_Entry_Lists.List;
+
+
+
    type SFG_Menu is
       record
          ID : Integer;              -- The global menu ID
@@ -336,6 +357,8 @@ private package glut.Internal is
 
          X, Y     : Integer;        -- Menu box raster position
 
+         Entries : menu_Entry_List;
+--      SFG_List            Entries;      /* The menu entries list               */
 
          ParentWindow : SFG_Window_view;     -- Window in which the menu is invoked
          Window       : SFG_Window_view;     -- Window for menu
@@ -345,7 +368,6 @@ private package glut.Internal is
 --  {
 --      SFG_Node            Node;
 --      void               *UserData;     /* User data passed back at callback   */
---      SFG_List            Entries;      /* The menu entries list               */
 --      FGCBMenu            Callback;     /* The menu callback                   */
 --      FGCBDestroy         Destroy;      /* Destruction callback                */
 --      int                 Width;        /* Menu box width in pixels            */
@@ -353,19 +375,9 @@ private package glut.Internal is
 --
 --      SFG_MenuEntry      *ActiveEntry;  /* Currently active entry in the menu  */
 --  };
---
---  /* This is a menu entry */
---  struct tagSFG_MenuEntry
---  {
---      SFG_Node            Node;
---      int                 ID;                     /* The menu entry ID (local) */
---      int                 Ordinal;                /* The menu's ordinal number */
---      char*               Text;                   /* The text to be displayed  */
---      SFG_Menu*           SubMenu;                /* Optional sub-menu tree    */
---      GLboolean           IsActive;               /* Is the entry highlighted? */
---      int                 Width;                  /* Label's width in pixels   */
---  };
---
+
+
+
 
 
 
@@ -396,6 +408,7 @@ private package glut.Internal is
          WindowID      : Integer := 0;      -- The new current window ID
 
          MenuContext   : SFG_MenuContext_view;    -- OpenGL rendering context for menus
+         CurrentMenu   : SFG_Menu_view;           -- Same, but menu...
 
       end record;
 
@@ -406,7 +419,6 @@ private package glut.Internal is
 --  {
 --      SFG_List        Menus;           /* The global menus list              */
 --
---      SFG_Menu*       CurrentMenu;     /* Same, but menu...                 */
 --
 --
 --      SFG_Window*      GameModeWindow; /* The game mode window               */
@@ -462,6 +474,10 @@ private package glut.Internal is
 
 
    procedure fgInputDeviceClose;    -- probably useless !
+
+
+   function fgElapsedTime return Duration;
+
 
 end glut.Internal;
 

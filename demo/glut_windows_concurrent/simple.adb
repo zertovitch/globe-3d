@@ -16,7 +16,7 @@ is
    package g3d renames GLOBE_3D;
 
    Viewer_1   : GLUT.windows.Window;
-   --Viewer_3   : GLUT.windows.Window;
+   Viewer_3   : GLUT.windows.Window;
 
    the_Object : g3d.p_Object_3D;
 
@@ -40,7 +40,7 @@ is
 --        add (Viewer_2,  the_Object.all'access);
 --
 --        loop
---           GLUT.mainLoopEvent;
+--           --GLUT.mainLoopEvent;
 --
 --           exit when Viewer_2.is_Closed;
 --
@@ -67,14 +67,14 @@ begin
    GLUT.Windows.initialize;
 
    define (Viewer_1);
-   --define (Viewer_3);
+   define (Viewer_3);
 
    box.create (the_Object);
 
    the_Object.Centre := (0.0, 2.0, -5.0);
 
    add (Viewer_1,  the_Object.all'access);
-   --add (Viewer_3,  the_Object.all'access);
+   add (Viewer_3,  the_Object.all'access);
 
    --V2.start;
 
@@ -85,17 +85,23 @@ begin
       exit when     Viewer_1.is_Closed;
 
       freshen (Viewer_1,  time_step => 0.02);
-      --freshen (Viewer_3,  time_step => 0.02);
+      freshen (Viewer_3,  time_step => 0.02);
 
    end loop;
 
    destroy (Viewer_1);
+   destroy (Viewer_3);
 
    put_Line ("Done");
 
 exception
    when storage_Error =>
       put_Line ("freeglut bug detected ... please use patched freeglut, if possible");
+
+   when E: others =>
+      put_Line ("V1 unhandled exception ...");
+      put_Line (ada.exceptions.Exception_Information (E));
+      put_Line ("V1 has terminated !");
 end Simple;
 
 

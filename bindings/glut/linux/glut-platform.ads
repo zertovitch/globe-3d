@@ -139,6 +139,20 @@ private package glut.Platform is
    function DeviceGet_has_Mouse         return Integer;
    function DeviceGet_num_mouse_Buttons return Integer;
 
+   function Get (Type_Id : GL.enum) return Integer;
+
+
+
+   procedure WarpPointer (X : Integer; Y : Integer);
+
+
+   procedure FullScreenToggle;
+
+   procedure fgSetCursor (window : access internal.SFG_Window;   cursorID : Integer);
+
+
+   procedure SetWindowTitle (Title : String);
+   procedure SetIconTitle   (Title : String);
 
 end glut.Platform;
 
