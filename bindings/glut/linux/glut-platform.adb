@@ -439,13 +439,17 @@ package body glut.Platform is
 
    procedure fgSetWindow (window : access SFG_Window)
    is
-      unused : Integer;
+      Status : Integer;
    begin
       if Window /= null then
-         unused := glXMakeContextCurrent (fgDisplay.platform.Display,
+         Status := glXMakeContextCurrent (fgDisplay.platform.Display,
                                           glxDrawable (window.Window.Handle),
                                           glxDrawable (window.Window.Handle),
                                           window.Window.Context);
+
+         if Status /= 1 then
+            raise Constraint_Error with "unable to set GL context with 'glXMakeContextCurrent'";
+         end if;
       end if;
    end;
 
@@ -1016,14 +1020,14 @@ package body glut.Platform is
             if window.callbacks.CB_Reshape /= null then
                window.callbacks.CB_Reshape (width, height);
             else
-               fgSetWindow (window);
+               internal.fgSetWindow (window);
                gl.Viewport (0,  0,  gl.Sizei (width),  gl.Sizei (height));
             end if;
 
             glut.PostRedisplay;
 
             if window.IsMenu then
-               fgSetWindow (current_window);
+               internal.fgSetWindow (current_window);
             end if;
          end if;
 
@@ -1035,13 +1039,13 @@ package body glut.Platform is
          X_Next_Event (fgDisplay.platform.Display, event);
 
          case event.ev_type is
+
            when Client_Message =>       -- Destroy the window when the WM_DELETE_WINDOW message arrives
                declare
                   closed_Event : x_lib.X_Event (Client_Message) := event;
                begin
                   if x_lib.Atom (closed_Event.X_Client.data (1)) = fgDisplay.platform.Delete_Window then
-                     window := fgWindowByHandle (fgStructure.Windows,
-                                                 closed_Event.X_Client.window);
+                     window := fgWindowByHandle (fgStructure.Windows,  closed_Event.X_Client.window);
 
                      fgDestroyWindow (window);
 
@@ -1066,26 +1070,65 @@ package body glut.Platform is
                --               * GLUT presumably does this because it generally tries to treat
                --               * sub-windows the same as windows.
                --               */
-            when Create_Notify =>
+            when Create_Notify
+               | Configure_Notify =>
                declare
-                  create_Event : x_lib.X_Event (Create_Notify) := event;
+                  Width,
+                  Height : Integer;
                begin
-                  resize_Window (Integer (create_Event.x_create_window.width),
-                                 Integer (create_Event.x_create_window.height));
-               end;
+
+                  if event.ev_type = Create_Notify then
+                     declare
+                        create_Event : x_lib.X_Event (Create_Notify) := event;
+                     begin
+                        window := fgWindowByHandle (fgStructure.Windows, create_Event.x_create_window.window);
+                        Width  := Integer (event.x_create_window.Width);
+                        Height := Integer (event.x_create_window.Height);
+                     end;
+                  else
+                     declare
+                        configure_Event : x_lib.X_Event (Configure_Notify) := event;
+                     begin
+                        window := fgWindowByHandle (fgStructure.Windows, configure_Event.X_Configure.window);
+                        Width  := Integer (event.X_Configure.Width);
+                        Height := Integer (event.X_Configure.Height);
+                     end;
+                  end if;
 
 
-            when Configure_Notify =>
-               declare
-                  configure_Event : x_lib.X_Event (Configure_Notify) := event;
-               begin
-                  resize_Window (Integer (configure_Event.X_Configure.width),
-                                 Integer (configure_Event.X_Configure.height));
+                  if   width  /= window.State.OldWidth
+                    or height /= window.State.OldHeight
+                  then
+                     declare
+                        current_window : SFG_Window_view := fgStructure.CurrentWindow;
+                     begin
+                        window.State.OldWidth  := width;
+                        window.State.OldHeight := height;
+
+                        if window.callbacks.CB_Reshape /= null then
+                           internal.fgSetWindow (window);
+                           window.callbacks.CB_Reshape (width, height);
+                        else
+                           fgSetWindow (window);
+                           gl.Viewport (0, 0, gl.Sizei (width), gl.Sizei (height));
+                        end if;
+
+                        glut.PostRedisplay;
+
+                        if window.IsMenu then
+                           internal.fgSetWindow (current_window);
+                        end if;
+                     end;
+                  end if;
+--                          resize_Window (Integer (create_Event.x_create_window.width),
+--                                         Integer (create_Event.x_create_window.height));
                end;
+
 
             when Destroy_Notify =>         -- This is sent to confirm the XDestroyWindow call.
                -- fgAddToWindowDestroyList ( window ); */     -- * XXX WHY is this commented out?  Should we re-enable it?
                null;
+
 
             when Expose =>
                --  We are too dumb to process partial exposes...
@@ -1113,6 +1156,8 @@ package body glut.Platform is
                   unmap_Event : x_lib.X_Event (Unmap_Notify) := event;
                begin
                   window := fgWindowByHandle (fgStructure.Windows,  unmap_Event.X_Unmap.window);    --  GETWINDOW( xunmap );
+
+                  internal.fgSetWindow (window);
 
                   if window.Callbacks.CB_WindowStatus /= null then
                      window.Callbacks.CB_WindowStatus (GLUT.HIDDEN);
@@ -1143,6 +1188,8 @@ package body glut.Platform is
                   window := fgWindowByHandle (fgStructure.Windows,
                                               visibility_Event.X_Visibility.window);   -- GETWINDOW( xvisibility );
 
+                  internal.fgSetWindow (window);
+
                   case visibility_Event.X_Visibility.state is
                      when Visibility_Unobscured =>
                         window.Callbacks.CB_WindowStatus (GLUT.FULLY_RETAINED);
@@ -1168,6 +1215,8 @@ package body glut.Platform is
                   window.State.MouseX := Integer (enter_Event.X_Crossing.x);
                   window.State.MouseY := Integer (enter_Event.X_Crossing.y);     -- GETMOUSE( xcrossing );
 
+                  internal.fgSetWindow (window);
+
                   if window.callbacks.CB_Entry /= null then
                      window.callbacks.CB_Entry (GLUT.ENTERED);
                   end if;
@@ -1189,6 +1238,8 @@ package body glut.Platform is
                   then
                      null; -- tbd: deferred ... fgUpdateMenuHighlight (window.ActiveMenu);
                   end if;
+
+                  internal.fgSetWindow (window);
 
                   if window.callbacks.CB_Entry /= null then
                      window.callbacks.CB_Entry (GLUT.LEFT);
@@ -1219,6 +1270,8 @@ package body glut.Platform is
                      -- Or maybe we need to track ButtonPress/ButtonRelease events in our own bit-mask ?
                      --
                      fgState.Modifiers := fghGetXModifiers (motion_Event.X_Motion.state);
+
+                     internal.fgSetWindow (window);
 
                      if   motion_Event.X_Motion.state.Button1
                        or motion_Event.X_Motion.state.Button2
@@ -1314,6 +1367,7 @@ package body glut.Platform is
                         if   button < glut.DeviceGet (GLUT.NUM_MOUSE_BUTTONS)
                           or window.callbacks.CB_MouseWheel = null
                         then
+                           internal.fgSetWindow (window);
                            window.callbacks.CB_Mouse (button,  Up_or_Down,  Integer (X), Integer (Y));
                         else
                            -- Map 4 and 5 to wheel zero; EVEN to +1, ODD to -1
@@ -1333,6 +1387,7 @@ package body glut.Platform is
                               end if;
 
                               if pressed then
+                                 internal.fgSetWindow (window);
                                  window.callbacks.CB_MouseWheel (wheel_number,  direction,  Integer (X), Integer (Y));
                               end if;
                            end;
@@ -1368,7 +1423,6 @@ package body glut.Platform is
                      declare
                         press_Event : x_lib.X_Event (key_Press) := event;
                      begin
-                        null;
 --                          button     := Button_type'Pos (press_Event.X_Button.button) - 1;
                         X          := Integer (press_Event.X_Key.x);
                         Y          := Integer (press_Event.X_Key.y);
@@ -1471,7 +1525,7 @@ package body glut.Platform is
                            if len > 0 then                    -- GLUT API tells us to have two separate callbacks ...
 
                               if keyboard_cb /= null then    -- ... one for the ASCII translateable keypresses ...
-                                 fgSetWindow (window);
+                                 internal.fgSetWindow (window);
                                  fgState.Modifiers := fghGetXModifiers (event.X_Key.state);
                                  keyboard_cb (c.Char'Pos (asciiCode (1)),  x, y);
                                  fgState.Modifiers := INVALID_MODIFIERS;
@@ -1519,7 +1573,7 @@ package body glut.Platform is
                                  -- Execute the callback (if one has been specified), given that the special code seems to be valid...
                                  --
                                  if special_cb /= null  and   special /= -1 then
-                                    fgSetWindow (window);
+                                    internal.fgSetWindow (window);
                                     fgState.Modifiers := fghGetXModifiers (event.X_Key.state);
                                     special_cb (special, x, y);
                                     fgState.Modifiers := INVALID_MODIFIERS;

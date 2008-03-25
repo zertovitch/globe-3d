@@ -126,8 +126,15 @@ package body glut.Internal is
          window.Children.delete_First;
       end loop;
 
-      Window.Callbacks.CB_Destroy.all;
-      fgSetWindow (fgStructure.CurrentWindow);
+
+      declare
+         active_Window : SFG_Window_view := fgStructure.CurrentWindow;
+      begin
+         fgSetWindow (Window);
+         Window.Callbacks.CB_Destroy.all;
+         fgSetWindow (active_Window);
+      end;
+
 
       if window.ActiveMenu /= null then
          null;  -- fgDeactivateMenu (window);    -- tbd: deferred
@@ -267,7 +274,7 @@ package body glut.Internal is
    is
       use ada.Calendar;
    begin
-      return ada.calendar.Clock - fgState.Time;
+      return (ada.calendar.Clock - fgState.Time) * 1000.0;
    end;
 
 

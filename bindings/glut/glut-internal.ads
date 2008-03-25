@@ -58,8 +58,6 @@ private package glut.Internal is
          UseCurrentContext : Boolean;          -- New windows share with current
 
 
-
-
          ExecState : fgExecutionState;        -- Used for GLUT termination
 
          ProgramName : ada.strings.unbounded.unbounded_String;         -- Name of the invoking program
@@ -90,9 +88,9 @@ private package glut.Internal is
          GameModeRefresh : Integer;    -- The refresh rate for game mode
 
 
-               FPSInterval : gl.uInt;          -- Interval between FPS printfs   tbd: porbably useless
-               SwapCount   : gl.uInt;          -- Count of glutSwapBuffer calls
-               SwapTime    : gl.uInt;          -- Time of last SwapBuffers
+         FPSInterval : gl.uInt;          -- Interval between FPS printfs   tbd: porbably useless
+         SwapCount   : gl.uInt;          -- Count of glutSwapBuffer calls
+         SwapTime    : gl.uInt;          -- Time of last SwapBuffers
 
       end record;
 
@@ -102,20 +100,11 @@ private package glut.Internal is
 --  typedef struct tagSFG_State SFG_State;
 --  struct tagSFG_State
 --  {
---
---
---
---
---
 --      FGCBIdle         IdleCallback;         /* The global idle callback       */
 --
 --      int              ActiveMenus;          /* Num. of currently active menus */
 --      FGCBMenuState    MenuStateCallback;    /* Menu callbacks are global      */
 --      FGCBMenuStatus   MenuStatusCallback;
---
---
---
---
 --  };
 
 
@@ -193,7 +182,7 @@ private package glut.Internal is
          CB_Motion       : Glut_Proc_6;
          CB_Passive      : Glut_Proc_7;
          CB_Entry        : Glut_Proc_8;
-         CB_Visibility   : SFG_Proc;
+         CB_Visibility   : Glut_Proc_9;
          CB_WindowStatus : Glut_Proc_23;
          CB_Joystick     : SFG_Proc;
          CB_Destroy      : SFG_Proc;
@@ -453,7 +442,50 @@ private package glut.Internal is
    --
    fgDisplay   : SFG_Display;               -- Freeglut display related stuff (initialized once per session)
    fgStructure : SFG_Structure;             -- Freeglut internal structure
-   fgState     : SFG_State;                 -- The current freeglut settings
+
+
+   -- The current freeglut settings
+   --
+   fgState : SFG_State := (Position    =>  (-1, -1, False),              -- The default windows' position
+                           Size        => (300, 300, True),              -- The default windows' size
+                           DisplayMode => (GLUT.RGBA or GLUT.SINGLE or GLUT.DEPTH),          -- Display mode for new windows
+
+                           Initialised =>  False,                -- freeglut has been initialised
+                           ForceIconic =>  False,                -- New top windows are iconified
+
+                           DirectContext => GLUT.TRY_DIRECT_CONTEXT,              -- Direct rendering state
+
+                           UseCurrentContext => False,          -- New windows share with current
+
+                           ExecState => EXEC_STATE_INIT,        -- Used for GLUT termination
+
+                           ProgramName =>  ada.strings.unbounded.null_unbounded_String,         -- Name of the invoking program
+
+                           JoysticksInitialised => False,        -- Only initialize if application calls for them
+                           InputDevsInitialised => False,        -- Only initialize if application calls for them
+
+                           GLDebugSwitch => False,        -- OpenGL state debugging switch
+                           XSyncSwitch   => False,        -- X11 sync protocol switch
+
+                           KeyRepeat => GLUT.KEY_REPEAT_ON,                  -- Global key repeat mode.
+                           Modifiers => INVALID_MODIFIERS,    -- Current ALT/SHIFT/CTRL state
+
+                           Time => ada.calendar.Clock,                 -- Time that glutInit was called
+
+                           ActionOnWindowClose => GLUT.ACTION_EXIT,        -- Action when user closes window
+
+                           AuxiliaryBufferNumber => 0,      -- Number of auxiliary buffers
+                           SampleNumber          => 0,      -- Number of samples per pixel
+
+                           GameModeSize =>  (640, 480, True),     -- Game mode screen's dimensions
+                           GameModeDepth => 16,      -- The pixel depth for game mode
+                           GameModeRefresh => 72,    -- The refresh rate for game mode
+
+                           FPSInterval => 0,          -- Interval between FPS printfs   tbd: porbably useless
+                           SwapCount   => 0,          -- Count of glutSwapBuffer calls
+                           SwapTime    => 0);          -- Time of last SwapBuffers
+
+
 
 
 

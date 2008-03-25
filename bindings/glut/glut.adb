@@ -502,10 +502,11 @@ package body GLUT is
       -- to keep in lockstep with POSIX_X11 code.
       --
       if window.callbacks.CB_Reshape /= null then
+         fgSetWindow (window);
          window.callbacks.CB_Reshape (width, height);
       else
-         fgSetWindow (window );
-         gl.Viewport (0, 0,   gl.Sizei (width), gl.Sizei (height));
+         fgSetWindow (window);
+         gl.Viewport (0, 0,   gl.Sizei (width),  gl.Sizei (height));
       end if;
 
       --      Force a window redraw.  In Windows at least this is only a partial
@@ -554,6 +555,7 @@ package body GLUT is
          window.State.NeedToResize := False;
       end if;
 
+      fgSetWindow (window);
       window.callbacks.CB_Display.all;
 
       fgSetWindow (current_window);
@@ -1237,6 +1239,55 @@ package body GLUT is
 
 
 
+   procedure EntryFunc (Callback : Glut_Proc_8)
+   is
+   begin
+      fgStructure.CurrentWindow.Callbacks.CB_Entry := Callback;
+   end;
+
+
+
+
+   --   * Sets the Visibility callback for the current window.
+   --   */
+   procedure fghVisibility (Status : in Integer)
+   is
+      glut_status : Integer := GLUT.VISIBLE;
+   begin
+      if   GLUT.HIDDEN        = status
+        or GLUT.FULLY_COVERED = status
+      then
+         glut_status := GLUT.NOT_VISIBLE;
+      end if;
+
+      fgSetWindow (fgStructure.CurrentWindow);
+      fgStructure.CurrentWindow.callbacks.CB_Visibility (glut_Status);
+--      INVOKE_WCB( *( fgStructure.CurrentWindow ), Visibility, ( glut_status ) );
+   end;
+
+--  static void fghVisibility( int status )
+--  {
+--      if( ( GLUT_HIDDEN == status )  || ( GLUT_FULLY_COVERED == status ) )
+--          glut_status = GLUT_NOT_VISIBLE;
+--      INVOKE_WCB( *( fgStructure.CurrentWindow ), Visibility, ( glut_status ) );
+--  }
+
+
+
+
+   procedure VisibilityFunc (Callback : Glut_Proc_9)
+   is
+   begin
+      fgStructure.CurrentWindow.Callbacks.CB_Visibility := Callback;
+
+      if callback /= null then
+         glut.WindowStatusFunc (fghVisibility'access);
+      else
+         glut.WindowStatusFunc (null);
+      end if;
+
+   end;
+
 
 
 
@@ -1572,7 +1623,7 @@ package body GLUT is
          return;
       end if;
 
-
+         raise Program_Error; -- tbd
    end;
 
 --  void fghCalculateMenuBoxSize( void )
@@ -1636,36 +1687,32 @@ package body GLUT is
 
 
 
-   procedure AddSubMenu (Label : String; Submenu : Integer) is
-      C_Label : Interfaces.C.Strings.Chars_Ptr
-        := Interfaces.C.Strings.New_String (Label);
+   procedure AddSubMenu (Label : String; Submenu : Integer)
+   is
    begin
-      AddSubMenu (C_Label, Submenu);
-      Interfaces.C.Strings.Free (C_Label);
+      raise program_Error;
    end AddSubMenu;
+
+
 
    procedure ChangeToMenuEntry
      (Item  : Integer;
       Label : String;
       Value : Integer)
    is
-      C_Label : Interfaces.C.Strings.Chars_Ptr
-        := Interfaces.C.Strings.New_String (Label);
    begin
-      ChangeToMenuEntry (Item, C_Label, Value);
-      Interfaces.C.Strings.Free (C_Label);
+      raise program_Error;
    end ChangeToMenuEntry;
+
+
 
    procedure ChangeToSubMenu
      (Item    : Integer;
       Label   : String;
       Submenu : Integer)
    is
-      C_Label : Interfaces.C.Strings.Chars_Ptr
-        := Interfaces.C.Strings.New_String (Label);
    begin
-      ChangeToSubMenu (Item, C_Label, Submenu);
-      Interfaces.C.Strings.Free (C_Label);
+      raise program_Error;
    end ChangeToSubMenu;
 
 

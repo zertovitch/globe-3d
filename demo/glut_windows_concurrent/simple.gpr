@@ -4,7 +4,7 @@ project Simple is
    for Main use ("simple.adb");
 
    package Linker is
-      for Default_Switches ("ada") use ("-g", "-lGL", "-lGLU", "--LINK=g++");
+      for Default_Switches ("ada") use ("-g", "-lGL", "-lGLU", "-lglut", "--LINK=g++");
    end Linker;
 
    package Binder is

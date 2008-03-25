@@ -655,13 +655,13 @@ package GLUT is
 
    type Glut_Proc_8 is access procedure (State : Integer);
 
-   procedure EntryFunc (P1 : Glut_Proc_8);
-   pragma Import (StdCall, EntryFunc, "glutEntryFunc");
+   procedure EntryFunc (Callback : Glut_Proc_8);
+   --pragma Import (StdCall, EntryFunc, "glutEntryFunc");
 
    type Glut_Proc_9 is access procedure (State : Integer);
 
-   procedure VisibilityFunc (P1 : Glut_Proc_9);
-   pragma Import (StdCall, VisibilityFunc, "glutVisibilityFunc");
+   procedure VisibilityFunc (Callback : Glut_Proc_9);
+--   pragma Import (StdCall, VisibilityFunc, "glutVisibilityFunc");
 
    type Glut_Proc_10 is access procedure;
 

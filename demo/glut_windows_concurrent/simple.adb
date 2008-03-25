@@ -94,14 +94,11 @@ begin
 
    put_Line ("Done");
 
-exception
-   when storage_Error =>
-      put_Line ("freeglut bug detected ... please use patched freeglut, if possible");
-
-   when E: others =>
-      put_Line ("V1 unhandled exception ...");
-      put_Line (ada.exceptions.Exception_Information (E));
-      put_Line ("V1 has terminated !");
+--  exception
+--     when E: others =>
+--        put_Line ("V1 unhandled exception ...");
+--        put_Line (ada.exceptions.Exception_Information (E));
+--        put_Line ("V1 has terminated !");
 end Simple;
 
 
