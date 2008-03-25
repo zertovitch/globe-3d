@@ -638,13 +638,13 @@ package body glut.Platform is
                                                           renderType,
                                                           NULL,
                                                           boolean'Pos (fgState.DirectContext /= GLUT.FORCE_INDIRECT_CONTEXT));
-         else
-            window.Window.Context := glXCreateNewContext (fgDisplay.platform.Display,
-                                                          window.Window.platform.FBConfig.all,
-                                                          renderType,
-                                                          NULL,
-                                                          boolean'Pos (fgState.DirectContext /= GLUT.FORCE_INDIRECT_CONTEXT));
          end if;
+      else
+         window.Window.Context := glXCreateNewContext (fgDisplay.platform.Display,
+                                                       window.Window.platform.FBConfig.all,
+                                                       renderType,
+                                                       NULL,
+                                                       boolean'Pos (fgState.DirectContext /= GLUT.FORCE_INDIRECT_CONTEXT));
 
       end if;
 
