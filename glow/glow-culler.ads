@@ -1,4 +1,9 @@
 
+
+limited with glow.Window;
+
+
+
 package glow.Culler is
 
 
@@ -9,7 +14,7 @@ package glow.Culler is
    end Item;
 
 
-   type View is access all Item'Class;
+   type View is access all Item;
 
 
    procedure add (Self : in out Culler;   the_Visual : in ogl.Visual.view) is abstract;

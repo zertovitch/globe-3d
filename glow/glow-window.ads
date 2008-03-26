@@ -32,36 +32,35 @@ package glow.Window is
 
 
 
-   type Window is tagged limited private;             -- new GLOBE_3D.Window with private;
-   --type Window is new GLOBE_3D.Window with private;
-   type Window_view is access all Window'Class;
+   type Item is tagged limited private;             -- new GLOBE_3D.Window with private;
+   type View is access all Item'Class;
 
 
 
-   procedure define  (Self : in out Window);
-   procedure destroy (Self : in out Window);
+   procedure define  (Self : in out Item);
+   procedure destroy (Self : in out Item);
 
 
-   procedure Name_is (Self : in out Window;   Now : in String);
-   function  Name    (Self : in     Window) return String;
+   procedure Name_is (Self : in out Item;   Now : in String);
+   function  Name    (Self : in     Item) return String;
 
 
-   procedure enable (Self : in out Window);
+   procedure enable (Self : in out Item);
 
-   procedure freshen (Self      : in out Window;
+   procedure freshen (Self      : in out Item;
                       time_Step : in     globe_3d.Real;
                       Extras    : in     globe_3d.Visual_array := globe_3d.null_Visuals);
 
-   function is_Closed (Self : in Window) return Boolean;
+   function is_Closed (Self : in Item) return Boolean;
 
 
    -- objects
    --
 
-   procedure add (Self : in out Window;   the_Object : in globe_3d.p_Visual);
-   procedure rid (Self : in out Window;   the_Object : in globe_3d.p_Visual);
+   procedure add (Self : in out Item;   the_Object : in globe_3d.p_Visual);
+   procedure rid (Self : in out Item;   the_Object : in globe_3d.p_Visual);
 
-   function  object_Count (Self : in Window) return Natural;
+   function  object_Count (Self : in Item) return Natural;
 
    no_such_Object : exception;   -- raised when trying to 'rid' an object which has not been added to the Window.
 
@@ -75,8 +74,8 @@ package glow.Window is
 
    type Smoothing_method is ( none, software, hardware );
 
-   function  Smoothing    (Self : in     Window)                             return Smoothing_method;
-   procedure Smoothing_is (Self : in out Window;   Now : in Smoothing_method);
+   function  Smoothing    (Self : in     Item)                             return Smoothing_method;
+   procedure Smoothing_is (Self : in out Item;   Now : in Smoothing_method);
 
 
 
@@ -105,16 +104,16 @@ package glow.Window is
    -- Status display
    --
 
-   function  show_Status (Self : in     Window) return Boolean;
-   procedure show_Status (Self : in out Window;
+   function  show_Status (Self : in     Item) return Boolean;
+   procedure show_Status (Self : in out Item;
                           Show : in     Boolean := True);
 
 
-   procedure Display_status (Self : in out Window;
+   procedure Display_status (Self : in out Item;
                              sec  :        globe_3d.Real);
 
 
-   function Frames_per_second (Self : in Window) return Float;
+   function Frames_per_second (Self : in Item) return Float;
 
 
 
@@ -122,8 +121,8 @@ package glow.Window is
    -- Devices
    --
 
-   function Keyboard (Self : access Window'Class) return devices.p_Keyboard;
-   function Mouse    (Self : access Window'Class) return devices.p_Mouse;
+   function Keyboard (Self : access Item'Class) return devices.p_Keyboard;
+   function Mouse    (Self : access Item'Class) return devices.p_Mouse;
 
 
 
@@ -152,7 +151,7 @@ private
 
 
 
-   type Window is tagged limited    ---new GLOBE_3D.Window with
+   type Item is tagged limited    ---new GLOBE_3D.Window with
       record
          Name         : ada.strings.unbounded.unbounded_String := ada.strings.unbounded.to_unbounded_String ("globe3d glut window");
          glut_Window  : Integer;
@@ -194,7 +193,7 @@ private
          is_capturing_Video : Boolean := False;
 
 
-         culler : glow.Culler.item (Window'access);
+         culler : glow.Culler.item (Item'access);
       end record;
 
 

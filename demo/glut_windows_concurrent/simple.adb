@@ -15,8 +15,8 @@ is
    use GL;
    package g3d renames GLOBE_3D;
 
-   Viewer_1   : glow.window.Window;
-   Viewer_3   : glow.window.Window;
+   Viewer_1   : glow.Window.item;
+   Viewer_3   : glow.Window.item;
 
    the_Object : g3d.p_Object_3D;
 
