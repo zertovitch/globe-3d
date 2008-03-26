@@ -48,20 +48,22 @@ package UnZip.Streams is
    -- then gives access to the opened stream.
 
    procedure Open
-     (File         : in out Zipped_File_Type; -- File-in-archive handle
-      Archive_Name : in String;               -- Name of archive file
-      Name         : in String;               -- Name of zipped entry
-      Password     : in String := ""          -- Decryption password
+     (File           : in out Zipped_File_Type; -- File-in-archive handle
+      Archive_Name   : in String;               -- Name of archive file
+      Name           : in String;               -- Name of zipped entry
+      Password       : in String := "";         -- Decryption password
+      Case_sensitive : in Boolean:= False
      );
 
-   -- Same as before, but uses a the pre-loaded contents of the archive's
+   -- Same as above, but uses a the pre-loaded contents of the archive's
    -- Central Directory; hence Archive_Info is passed instead of Archive_Name
 
    procedure Open
-     (File         : in out Zipped_File_Type; -- File-in-archive handle
-      Archive_Info : in Zip.Zip_info;         -- Archive's Zip_info
-      Name         : in String;               -- Name of zipped entry
-      Password     : in String := ""          -- Decryption password
+     (File           : in out Zipped_File_Type; -- File-in-archive handle
+      Archive_Info   : in Zip.Zip_info;         -- Archive's Zip_info
+      Name           : in String;               -- Name of zipped entry
+      Password       : in String := "";         -- Decryption password
+      Case_sensitive : in Boolean:= False
      );
 
    procedure Close (File : in out Zipped_File_Type);

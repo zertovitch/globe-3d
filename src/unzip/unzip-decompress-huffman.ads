@@ -43,7 +43,7 @@ private package UnZip.Decompress.Huffman is
   procedure HufT_Build ( b    : Length_array;
                          s    : Integer;
                          d, e : Length_array;
-                         tl   : in out p_Table_list;
+                         tl   :    out p_Table_list;
                          m    : in out Integer;
               huft_incomplete :    out Boolean);
 

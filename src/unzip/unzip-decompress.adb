@@ -1863,6 +1863,12 @@ package body UnZip.Decompress is
     end case;
 
     UnZ_Glob.compsize  := hint.compressed_size;
+    -- 2008: from TT's version:
+    -- Avoid wraparound in read_buffer, when File_size_type'Last is given
+    -- as hint.compressed_size (unknown size)
+    if UnZ_Glob.compsize > File_size_type'Last - 2 then
+      UnZ_Glob.compsize:= File_size_type'Last - 2;
+    end if;
     UnZ_Glob.uncompsize:= hint.uncompressed_size;
     UnZ_IO.Init_Buffers;
     UnZ_IO.Decryption.Set_mode( encrypted );

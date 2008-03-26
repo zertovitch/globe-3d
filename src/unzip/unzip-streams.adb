@@ -124,12 +124,14 @@ package body UnZip.Streams is
 
   use Ada.Streams.Stream_IO;
 
-  procedure S_Extract( from     : Zip.Zip_info;
-                       what     : String;
-                       mem_ptr  : out p_Stream_Element_Array;
-                       Password : in String
-                 ) is
-
+  procedure S_Extract(
+    from           : Zip.Zip_info;
+    what           : String;
+    mem_ptr        : out p_Stream_Element_Array;
+    Password       : in String;
+    Case_sensitive : in Boolean
+  )
+  is
     zip_file     : File_Type;
     header_index : Positive_Count;
     comp_size    : File_size_type;
@@ -138,7 +140,8 @@ package body UnZip.Streams is
       Ada.Strings.Unbounded.To_Unbounded_String(password);
   begin
     Zip.Find_offset(
-      from, what, False,
+      from, what,
+      Case_sensitive,
       header_index,
       comp_size,
       uncomp_size
@@ -186,11 +189,12 @@ package body UnZip.Streams is
   end End_Of_File;
 
   procedure Open
-    (File         : in out Zipped_File_Type; -- File-in-archive handle
-     Archive_Info : in Zip.Zip_info;             -- loaded by Load_zip_info
-     Name         : in String;               -- Name of zipped entry
-     Password     : in String := ""          -- Decryption password
-    )
+     (File           : in out Zipped_File_Type; -- File-in-archive handle
+      Archive_Info   : in Zip.Zip_info;         -- Archive's Zip_info
+      Name           : in String;               -- Name of zipped entry
+      Password       : in String := "";         -- Decryption password
+      Case_sensitive : in Boolean:= False
+     )
   is
     use Ada.Streams;
   begin
@@ -201,11 +205,12 @@ package body UnZip.Streams is
     end if;
     File.archive_info:= Archive_Info;
     File.file_name:= new String' (Name);
-    S_Extract( from    =>   File.archive_info,
-               what    =>   Name,
-               mem_ptr =>   File.uncompressed,
-               Password=>   Password );
-
+    S_Extract( from           =>   File.archive_info,
+               what           =>   Name,
+               mem_ptr        =>   File.uncompressed,
+               Password       =>   Password,
+               Case_sensitive =>   Case_sensitive
+    );
     File.index:= File.uncompressed'First;
     File.state:= data_uncompressed;
     -- Bug fix for data of size 0 - 29-Nov-2002
@@ -217,17 +222,18 @@ package body UnZip.Streams is
   end Open;
 
   procedure Open
-    (File         : in out Zipped_File_Type; -- File-in-archive handle
-     Archive_Name : in String;               -- Name of archive file
-     Name         : in String;               -- Name of zipped entry
-     Password     : in String := ""          -- Decryption password
-    )
+     (File           : in out Zipped_File_Type; -- File-in-archive handle
+      Archive_Name   : in String;               -- Name of archive file
+      Name           : in String;               -- Name of zipped entry
+      Password       : in String := "";         -- Decryption password
+      Case_sensitive : in Boolean:= False
+     )
   is
     temp_info: Zip.Zip_info;
     -- this local record (but not the full tree) is copied by Open(..)
   begin
-    Zip.Load( temp_info, Archive_Name );
-    Open( File, temp_info, Name, Password );
+    Zip.Load( temp_info, Archive_Name, Case_sensitive );
+    Open( File, temp_info, Name, Password, Case_sensitive );
     File.delete_info_on_closing:= True; -- Close will delete temp. dir tree
   end Open;
 
@@ -241,17 +247,36 @@ package body UnZip.Streams is
     if Stream.state = uninitialized then
       raise Use_Error;
     end if;
-    for i in Item'Range loop
-      if Stream.state = end_of_zip then
+    if Stream.state = end_of_zip then
+      raise End_Error;
+    end if;
+    if Item'Length <= 0 then
+      -- Nothing to read actually
+      Last := Item'Last;
+      return;
+    end if;
+    -- From now on, we can assume Item'Length > 0.
+
+    if Stream.index + Item'Length <= Stream.uncompressed'Last then
+      -- * Normal case: even after reading, the index will be in the range
+      Last := Item'Last;
+      Item:=
+        Stream.uncompressed(Stream.index .. Stream.index + Item'Length - 1);
+      Stream.index:= Stream.index + Item'Length;
+      -- Now: Stream.index <= Stream.uncompressed'Last,
+      -- then at least one element is left to be read, end_of_zip not possible
+    else
+      -- * Special case: we exhaust the buffer
+      Last:= Item'First + (Stream.uncompressed'Last - Stream.index);
+      Item(Item'First .. Last):=
+        Stream.uncompressed(Stream.index..Stream.uncompressed'Last);
+      Stream.state:= end_of_zip;
+      if Last < Item'Last then
+        -- Hum, reading tried to go beyond the buffer.
+        -- Strict behaviour (GNAT, OA):
         raise End_Error;
       end if;
-      Item(i):= Stream.uncompressed(Stream.index);
-      Last:= i;
-      Stream.index:= Stream.index + 1;
-      if Stream.index > Stream.uncompressed'Last then
-        Stream.state:= end_of_zip;
-      end if;
-    end loop;
+    end if;
   end Read;
 
 
