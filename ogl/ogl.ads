@@ -12,4 +12,7 @@ package oGL is
    use GL;
 
 
+   subtype Vector_3 is gl.Double_vector_3D;
+
+
 end oGL;

@@ -37,7 +37,7 @@ with System.Storage_Elements;
 
 
 
-package body glow.Windows is
+package body glow.Window is
 
 
    package G3D  renames GLOBE_3D;
@@ -61,7 +61,7 @@ package body glow.Windows is
       use GL;
       function to_Window is new ada.unchecked_Conversion (system.Address, globe_3d.p_Window);
    begin
-      return glow.windows.Window_view (to_Window (getWindowData));
+      return glow.Window.Window_view (to_Window (getWindowData));
    end;
 
 
@@ -253,7 +253,7 @@ package body glow.Windows is
 
    procedure Window_Resize (width, height : Integer)
    is
-      the_Window : constant glow.Windows.Window_view := current_Window;
+      the_Window : constant glow.Window.Window_view := current_Window;
    begin
       the_Window.forget_mouse := 5;
       set_Size     (the_Window.all,  width, height);
@@ -937,4 +937,4 @@ package body glow.Windows is
     end;
   end Image;
 
-end glow.Windows;
+end glow.Window;

@@ -1,6 +1,6 @@
 
 with GLOBE_3D;     use GLOBE_3D;
-with glow.Windows; use glow.Windows;
+with glow.Window; use glow.Window;
 with gl;
 
 with Box;
@@ -15,8 +15,8 @@ is
    use GL;
    package g3d renames GLOBE_3D;
 
-   Viewer_1   : glow.windows.Window;
-   Viewer_3   : glow.windows.Window;
+   Viewer_1   : glow.window.Window;
+   Viewer_3   : glow.window.Window;
 
    the_Object : g3d.p_Object_3D;
 
@@ -64,7 +64,7 @@ begin
    g3d.Set_level_data_name  ("../G3Demo_Global_Resources.zip");
    g3d.Set_global_data_name ("../G3Demo_Level_Resources.zip");
 
-   glow.Windows.initialize;
+   glow.Window.initialize;
 
    define (Viewer_1);
    define (Viewer_3);

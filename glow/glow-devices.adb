@@ -3,7 +3,7 @@
 -----------------------------------------------------------------------------
 
 with Interfaces;
-with glow.Windows;              use glow.Windows;
+with glow.Window;              use glow.Window;
 with Ada.Characters.Handling;   use Ada.Characters.Handling;
 with System;
 with ada.unchecked_Conversion;
@@ -15,9 +15,9 @@ package body glow.Devices is
    --                  - used by GLUT callbacks to determine the Window to which a callback event relates.
    --
 
-   function current_Window return windows.Window_view
+   function current_Window return Window.Window_view
    is
-      function to_Window is new ada.unchecked_Conversion (system.Address, windows.Window_view);
+      function to_Window is new ada.unchecked_Conversion (system.Address, Window.Window_view);
    begin
       return to_Window (glow.getWindowData);
    end;
@@ -30,12 +30,12 @@ package body glow.Devices is
    function current_Keyboard return p_Keyboard
    is
       use globe_3d;
-      the_current_Window : constant windows.Window_view := current_Window;
+      the_current_Window : constant Window.Window_view := current_Window;
    begin
       if the_current_Window = null then
          return default_Keyboard'access;
       else
-         return glow.windows.Keyboard (the_current_Window);
+         return glow.Window.Keyboard (the_current_Window);
       end if;
    end;
 
@@ -105,12 +105,12 @@ package body glow.Devices is
   function current_Mouse return p_Mouse
   is
      use globe_3d;
-     the_current_Window : constant windows.Window_view := current_Window;
+     the_current_Window : constant Window.Window_view := current_Window;
   begin
      if the_current_Window = null then
         return default_Mouse'access;
      else
-        return glow.windows.Mouse (the_current_Window);
+        return glow.Window.Mouse (the_current_Window);
      end if;
   end;
 

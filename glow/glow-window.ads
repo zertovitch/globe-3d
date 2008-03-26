@@ -11,25 +11,29 @@
 --      - find way to fix visibilty when window is iconised (may be platform dependant).
 
 
+with ogl.Visual;
 with ogl.Geometry;
 with ogl.skinned_Geometry;
 
 with GLOBE_3D.Textures;
 with Game_Control;
+
 with glow.Devices;
+with glow.Culler;
 
 with ada.strings.unbounded;
 
 
 
-package glow.Windows is
+package glow.Window is
 
 
    procedure initialize;   -- called before any other operation
 
 
 
-   type Window is new GLOBE_3D.Window with private;
+   type Window is tagged limited private;             -- new GLOBE_3D.Window with private;
+   --type Window is new GLOBE_3D.Window with private;
    type Window_view is access all Window'Class;
 
 
@@ -132,7 +136,23 @@ private
 
 
 
-   type Window is new GLOBE_3D.Window with
+   protected
+   type safe_Visuals is
+
+      procedure add (the_Visual : in ogl.Visual.p_Visual);
+      procedure rid (the_Visual : in ogl.Visual.p_Visual);
+
+      function Elements return globe_3d.Visual_array;
+
+   private
+
+      the_Visuals : globe_3d.Visual_array (1 .. 5_000);
+      Count       : Natural;
+   end safe_Visuals;
+
+
+
+   type Window is tagged limited    ---new GLOBE_3D.Window with
       record
          Name         : ada.strings.unbounded.unbounded_String := ada.strings.unbounded.to_unbounded_String ("globe3d glut window");
          glut_Window  : Integer;
@@ -173,9 +193,11 @@ private
 
          is_capturing_Video : Boolean := False;
 
+
+         culler : glow.Culler.item (Window'access);
       end record;
 
 
 
   --pragma Linker_options("-mwindows"); -- Suppress console window
-end glow.Windows;
+end glow.Window;

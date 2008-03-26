@@ -1,5 +1,5 @@
 
-with glow.Windows;    use glow.Windows;       -- tbd: clean this up re textures !
+with glow.Window;    use glow.Window;       -- tbd: clean this up re textures !
 with GL;
 with GLOBE_3D.Math;
 with Ada.Numerics;    use Ada.Numerics;
@@ -20,7 +20,7 @@ package body Box is
       use GLOBE_3D, GL, GLOBE_3D.REF, GLOBE_3D.Math;
 
       function Basic_face (P      : G3D.Index_array;
-                           texture: glow.windows.Texture_id;
+                           texture: glow.window.Texture_id;
                            colour : GL.RGB_Color;
                            repeat : Positive)       return Face_type
       is
