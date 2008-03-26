@@ -1,5 +1,5 @@
 
-with glut.Internal;   use glut.Internal;
+with glow.Internal;   use glow.Internal;
 with opengl.glx;      use opengl.glx;
 
 with x_lib.Property;
@@ -17,7 +17,7 @@ with interfaces.c.Pointers;
 
 
 
-package body glut.Platform is
+package body glow.Platform is
 
 
    package C renames interfaces.C;
@@ -259,7 +259,7 @@ package body glut.Platform is
       -- First we have to process the display mode settings
       --
 
-      if (fgState.DisplayMode and GLUT.INDEX) /= 0 then
+      if (fgState.DisplayMode and glow.INDEX) /= 0 then
          ATTRIB_VAL (GLX_BUFFER_SIZE, 8);          --  Buffer size is selected later.
          ATTRIB_VAL (GLX_RENDER_TYPE, GLX_COLOR_INDEX_BIT );
 
@@ -269,52 +269,52 @@ package body glut.Platform is
          ATTRIB_VAL (GLX_GREEN_SIZE, 1);
          ATTRIB_VAL (GLX_BLUE_SIZE,  1);
 
-         if (fgState.DisplayMode and GLUT.ALPHA) /= 0 then
+         if (fgState.DisplayMode and glow.ALPHA) /= 0 then
             ATTRIB_VAL (GLX_ALPHA_SIZE, 1);
          end if;
 
       end if;
 
 
-      if (fgState.DisplayMode and GLUT.DOUBLE) /= 0 then
+      if (fgState.DisplayMode and glow.DOUBLE) /= 0 then
          ATTRIB_VAL (GLX_DOUBLEBUFFER, 1);
       end if;
 
-      if (fgState.DisplayMode and GLUT.STEREO) /= 0 then
+      if (fgState.DisplayMode and glow.STEREO) /= 0 then
          ATTRIB_VAL (GLX_STEREO, 1);   -- 1 => True
       end if;
 
-      if (fgState.DisplayMode and GLUT.DEPTH) /= 0 then
+      if (fgState.DisplayMode and glow.DEPTH) /= 0 then
          ATTRIB_VAL (GLX_DEPTH_SIZE, 1);
       end if;
 
-      if (fgState.DisplayMode and GLUT.STENCIL) /= 0 then
+      if (fgState.DisplayMode and glow.STENCIL) /= 0 then
          ATTRIB_VAL (GLX_STENCIL_SIZE, 1);
       end if;
 
 
-      if (fgState.DisplayMode and GLUT.ACCUM) /= 0 then
+      if (fgState.DisplayMode and glow.ACCUM) /= 0 then
          ATTRIB_VAL (GLX_ACCUM_RED_SIZE,   1);
          ATTRIB_VAL (GLX_ACCUM_GREEN_SIZE, 1);
          ATTRIB_VAL (GLX_ACCUM_BLUE_SIZE,  1);
 
-         if (fgState.DisplayMode and GLUT.ALPHA) /= 0 then
+         if (fgState.DisplayMode and glow.ALPHA) /= 0 then
             ATTRIB_VAL (GLX_ACCUM_ALPHA_SIZE, 1);
          end if;
       end if;
 
 
-      if   (fgState.DisplayMode and GLUT.AUX)  /= 0
-        or (fgState.DisplayMode and GLUT.AUX1) /= 0
-        or (fgState.DisplayMode and GLUT.AUX2) /= 0
-        or (fgState.DisplayMode and GLUT.AUX3) /= 0
-        or (fgState.DisplayMode and GLUT.AUX4) /= 0
+      if   (fgState.DisplayMode and glow.AUX)  /= 0
+        or (fgState.DisplayMode and glow.AUX1) /= 0
+        or (fgState.DisplayMode and glow.AUX2) /= 0
+        or (fgState.DisplayMode and glow.AUX3) /= 0
+        or (fgState.DisplayMode and glow.AUX4) /= 0
       then
          ATTRIB_VAL (GLX_AUX_BUFFERS, fgState.AuxiliaryBufferNumber);
       end if;
 
 
-      if (fgState.DisplayMode and GLUT.MULTISAMPLE) /= 0 then
+      if (fgState.DisplayMode and glow.MULTISAMPLE) /= 0 then
          ATTRIB_VAL (GLX_SAMPLE_BUFFERS, 1);
          ATTRIB_VAL (GLX_SAMPLES,        fgState.SampleNumber);
       end if;
@@ -480,11 +480,11 @@ package body glut.Platform is
       wmHints             : aliased WM_Hints_type;
       mask                : Set_Window_Attributes_Mask;
       renderType          : Integer;                     -- GLX_RGBA_TYPE or GLX_COLOR_INDEX_TYPE
-      current_DisplayMode : glut.unSigned := fgState.DisplayMode;
+      current_DisplayMode : glow.unSigned := fgState.DisplayMode;
 
    begin
       if window.IsMenu and (fgStructure.MenuContext = null) then
-         fgState.DisplayMode := GLUT.DOUBLE or GLUT.RGB ;           -- Save the display mode, if we are creating a menu window
+         fgState.DisplayMode := glow.DOUBLE or glow.RGB ;           -- Save the display mode, if we are creating a menu window
       end if;
 
       window.Window.platform.FBConfig := fgChooseFBConfig;
@@ -499,16 +499,16 @@ package body glut.Platform is
          --          context is not available.
          --          Try a couple of variations to see if they will work.
          --
-         if (fgState.DisplayMode and GLUT.DOUBLE) = 0 then
-            fgState.DisplayMode    := fgState.DisplayMode or GLUT.DOUBLE ;
+         if (fgState.DisplayMode and glow.DOUBLE) = 0 then
+            fgState.DisplayMode    := fgState.DisplayMode or glow.DOUBLE ;
             window.Window.platform.FBConfig := fgChooseFBConfig;
-            fgState.DisplayMode    := fgState.DisplayMode and not GLUT.DOUBLE;
+            fgState.DisplayMode    := fgState.DisplayMode and not glow.DOUBLE;
          end if;
 
-         if (fgState.DisplayMode and GLUT.MULTISAMPLE) /= 0 then
-            fgState.DisplayMode             := fgState.DisplayMode and not GLUT.MULTISAMPLE ;
+         if (fgState.DisplayMode and glow.MULTISAMPLE) /= 0 then
+            fgState.DisplayMode             := fgState.DisplayMode and not glow.MULTISAMPLE ;
             window.Window.platform.FBConfig := fgChooseFBConfig;
-            fgState.DisplayMode             := fgState.DisplayMode or GLUT.MULTISAMPLE;
+            fgState.DisplayMode             := fgState.DisplayMode or glow.MULTISAMPLE;
          end if;
       end if;
 
@@ -600,7 +600,7 @@ package body glut.Platform is
       if window.IsMenu and (fgStructure.MenuContext = null) then       --     Set renderType.
          renderType := GLX_RGBA_TYPE;              -- Display mode has been set to GLUT_RGB.
 
-      elsif (fgState.DisplayMode and GLUT.INDEX) /= 0 then
+      elsif (fgState.DisplayMode and glow.INDEX) /= 0 then
          renderType := GLX_COLOR_INDEX_TYPE;
       else
          renderType := GLX_RGBA_TYPE;
@@ -618,7 +618,7 @@ package body glut.Platform is
                                                                      window.Window.platform.FBConfig.all,
                                                                      renderType,
                                                                      NULL,
-                                                                     boolean'Pos (fgState.DirectContext /= GLUT.FORCE_INDIRECT_CONTEXT));
+                                                                     boolean'Pos (fgState.DirectContext /= glow.FORCE_INDIRECT_CONTEXT));
          end if;
 
          -- /* window->Window.Context = fgStructure.MenuContext->MContext; */
@@ -626,7 +626,7 @@ package body glut.Platform is
                                                        window.Window.platform.FBConfig.all,
                                                        renderType,
                                                        NULL,
-                                                       boolean'Pos (fgState.DirectContext /= GLUT.FORCE_INDIRECT_CONTEXT));
+                                                       boolean'Pos (fgState.DirectContext /= glow.FORCE_INDIRECT_CONTEXT));
 
       elsif fgState.UseCurrentContext then
 
@@ -637,14 +637,14 @@ package body glut.Platform is
                                                           window.Window.platform.FBConfig.all,
                                                           renderType,
                                                           NULL,
-                                                          boolean'Pos (fgState.DirectContext /= GLUT.FORCE_INDIRECT_CONTEXT));
+                                                          boolean'Pos (fgState.DirectContext /= glow.FORCE_INDIRECT_CONTEXT));
          end if;
       else
          window.Window.Context := glXCreateNewContext (fgDisplay.platform.Display,
                                                        window.Window.platform.FBConfig.all,
                                                        renderType,
                                                        NULL,
-                                                       boolean'Pos (fgState.DirectContext /= GLUT.FORCE_INDIRECT_CONTEXT));
+                                                       boolean'Pos (fgState.DirectContext /= glow.FORCE_INDIRECT_CONTEXT));
 
       end if;
 
@@ -654,10 +654,10 @@ package body glut.Platform is
 
          if glXIsDirect (fgDisplay.platform.Display,  window.Window.Context) = 0 then
 
-            if fgState.DirectContext = GLUT.FORCE_DIRECT_CONTEXT then
+            if fgState.DirectContext = glow.FORCE_DIRECT_CONTEXT then
                raise constraint_Error with "Unable to force direct context rendering for window " & title;
 
-            elsif  fgState.DirectContext = GLUT.TRY_DIRECT_CONTEXT then
+            elsif  fgState.DirectContext = glow.TRY_DIRECT_CONTEXT then
                raise constraint_Error with   "Unable to create direct context rendering for window" & title
                                            & " ... this may hurt performance.";
             end if;
@@ -967,15 +967,15 @@ package body glut.Platform is
       ret : c.Unsigned := 0;
    begin
       if state.Shift or state.Lock then
-         ret := ret or GLUT.ACTIVE_SHIFT;
+         ret := ret or glow.ACTIVE_SHIFT;
       end if;
 
       if state.Control then
-         ret := ret or GLUT.ACTIVE_CTRL;
+         ret := ret or glow.ACTIVE_CTRL;
       end if;
 
       if state.Mod1 then
-         ret := ret or GLUT.ACTIVE_ALT;
+         ret := ret or glow.ACTIVE_ALT;
       end if;
 
       return ret;
@@ -1024,7 +1024,7 @@ package body glut.Platform is
                gl.Viewport (0,  0,  gl.Sizei (width),  gl.Sizei (height));
             end if;
 
-            glut.PostRedisplay;
+            glow.PostRedisplay;
 
             if window.IsMenu then
                internal.fgSetWindow (current_window);
@@ -1049,11 +1049,11 @@ package body glut.Platform is
 
                      fgDestroyWindow (window);
 
-                     if fgState.ActionOnWindowClose = GLUT.ACTION_EXIT then
+                     if fgState.ActionOnWindowClose = glow.ACTION_EXIT then
                         fgDeinitialize;
                         raise constraint_Error; --tbd: what to do here ? ... -- exit( 0 );
 
-                     elsif fgState.ActionOnWindowClose = GLUT.ACTION_GLUTMAINLOOP_RETURNS then
+                     elsif fgState.ActionOnWindowClose = glow.ACTION_GLUTMAINLOOP_RETURNS then
                         fgState.ExecState := EXEC_STATE_STOP;
                      end if;
 
@@ -1113,7 +1113,7 @@ package body glut.Platform is
                            gl.Viewport (0, 0, gl.Sizei (width), gl.Sizei (height));
                         end if;
 
-                        glut.PostRedisplay;
+                        glow.PostRedisplay;
 
                         if window.IsMenu then
                            internal.fgSetWindow (current_window);
@@ -1160,7 +1160,7 @@ package body glut.Platform is
                   internal.fgSetWindow (window);
 
                   if window.Callbacks.CB_WindowStatus /= null then
-                     window.Callbacks.CB_WindowStatus (GLUT.HIDDEN);
+                     window.Callbacks.CB_WindowStatus (glow.HIDDEN);
                   end if;
 
                   window.State.Visible := False;
@@ -1192,15 +1192,15 @@ package body glut.Platform is
 
                   case visibility_Event.X_Visibility.state is
                      when Visibility_Unobscured =>
-                        window.Callbacks.CB_WindowStatus (GLUT.FULLY_RETAINED);
+                        window.Callbacks.CB_WindowStatus (glow.FULLY_RETAINED);
                         window.State.Visible := True;
 
                      when Visibility_Partially_Obscured =>
-                        window.Callbacks.CB_WindowStatus (GLUT.PARTIALLY_RETAINED);
+                        window.Callbacks.CB_WindowStatus (glow.PARTIALLY_RETAINED);
                         window.State.Visible := True;
 
                      when Visibility_Fully_Obscured =>
-                        window.Callbacks.CB_WindowStatus (GLUT.FULLY_COVERED);
+                        window.Callbacks.CB_WindowStatus (glow.FULLY_COVERED);
                         window.State.Visible := False;
                   end case;
                end;
@@ -1218,7 +1218,7 @@ package body glut.Platform is
                   internal.fgSetWindow (window);
 
                   if window.callbacks.CB_Entry /= null then
-                     window.callbacks.CB_Entry (GLUT.ENTERED);
+                     window.callbacks.CB_Entry (glow.ENTERED);
                   end if;
                end;
 
@@ -1242,7 +1242,7 @@ package body glut.Platform is
                   internal.fgSetWindow (window);
 
                   if window.callbacks.CB_Entry /= null then
-                     window.callbacks.CB_Entry (GLUT.LEFT);
+                     window.callbacks.CB_Entry (glow.LEFT);
                   end if;
                end;
 
@@ -1320,7 +1320,7 @@ package body glut.Platform is
                         Y_root     := Integer (press_Event.X_Button.y_root);
                         State      := press_Event.X_Button.state;
                         Window_Id  := press_Event.X_Button.window;
-                        Up_or_Down := GLUT.DOWN;
+                        Up_or_Down := glow.DOWN;
                         pressed    := True;
                      end;
                   else
@@ -1334,7 +1334,7 @@ package body glut.Platform is
                         Y_root     := Integer (release_Event.X_Button.y_root);
                         State      := release_Event.X_Button.state;
                         Window_Id  := release_Event.X_Button.window;
-                        Up_or_Down := GLUT.UP;
+                        Up_or_Down := glow.UP;
                         pressed    := False;
                      end;
                   end if;
@@ -1364,7 +1364,7 @@ package body glut.Platform is
 
                         -- Finally execute the mouse or mouse wheel callback
                         --
-                        if   button < glut.DeviceGet (GLUT.NUM_MOUSE_BUTTONS)
+                        if   button < glow.DeviceGet (glow.NUM_MOUSE_BUTTONS)
                           or window.callbacks.CB_MouseWheel = null
                         then
                            internal.fgSetWindow (window);
@@ -1379,7 +1379,7 @@ package body glut.Platform is
                            -- Note that {button} has already been decremeted in mapping from X button numbering to GLUT.
                            --
                            declare
-                              wheel_number : Integer := (button - glut.DeviceGet (GLUT.NUM_MOUSE_BUTTONS)) / 2;
+                              wheel_number : Integer := (button - glow.DeviceGet (glow.NUM_MOUSE_BUTTONS)) / 2;
                               direction    : Integer := -1;
                            begin
                               if button mod 2 /= 0 then
@@ -1459,7 +1459,7 @@ package body glut.Platform is
 
                   -- Detect auto repeated keys, if configured globally or per-window
                   --
-                  if   fgState.KeyRepeat            = GLUT.KEY_REPEAT_OFF
+                  if   fgState.KeyRepeat            = glow.KEY_REPEAT_OFF
                     or window.State.IgnoreKeyRepeat = True
                   then
                      if event.ev_type = Key_Release then                        -- Look at X11 keystate to detect repeat mode.
@@ -1537,34 +1537,34 @@ package body glut.Platform is
                                  special : Integer := -1;
                               begin
                                  case keySym is
-                                    when XK_F1 =>     special := GLUT.KEY_F1;
-                                    when XK_F2 =>     special := GLUT.KEY_F2;
-                                    when XK_F3 =>     special := GLUT.KEY_F3;
-                                    when XK_F4 =>     special := GLUT.KEY_F4;
-                                    when XK_F5 =>     special := GLUT.KEY_F5;
-                                    when XK_F6 =>     special := GLUT.KEY_F6;
-                                    when XK_F7 =>     special := GLUT.KEY_F7;
-                                    when XK_F8 =>     special := GLUT.KEY_F8;
-                                    when XK_F9 =>     special := GLUT.KEY_F9;
-                                    when XK_F10 =>    special := GLUT.KEY_F10;
-                                    when XK_F11 =>    special := GLUT.KEY_F11;
-                                    when XK_F12 =>    special := GLUT.KEY_F12;
+                                    when XK_F1 =>     special := glow.KEY_F1;
+                                    when XK_F2 =>     special := glow.KEY_F2;
+                                    when XK_F3 =>     special := glow.KEY_F3;
+                                    when XK_F4 =>     special := glow.KEY_F4;
+                                    when XK_F5 =>     special := glow.KEY_F5;
+                                    when XK_F6 =>     special := glow.KEY_F6;
+                                    when XK_F7 =>     special := glow.KEY_F7;
+                                    when XK_F8 =>     special := glow.KEY_F8;
+                                    when XK_F9 =>     special := glow.KEY_F9;
+                                    when XK_F10 =>    special := glow.KEY_F10;
+                                    when XK_F11 =>    special := glow.KEY_F11;
+                                    when XK_F12 =>    special := glow.KEY_F12;
 
-                                    when XK_Left =>   special := GLUT.KEY_LEFT;
-                                    when XK_Right =>  special := GLUT.KEY_RIGHT;
-                                    when XK_Up =>     special := GLUT.KEY_UP;
-                                    when XK_Down =>   special := GLUT.KEY_DOWN;
+                                    when XK_Left =>   special := glow.KEY_LEFT;
+                                    when XK_Right =>  special := glow.KEY_RIGHT;
+                                    when XK_Up =>     special := glow.KEY_UP;
+                                    when XK_Down =>   special := glow.KEY_DOWN;
 
                                     when XK_KP_Prior
-                                       | XK_Prior =>  special := GLUT.KEY_PAGE_UP;
+                                       | XK_Prior =>  special := glow.KEY_PAGE_UP;
                                     when XK_KP_Next
-                                       | XK_Next =>   special := GLUT.KEY_PAGE_DOWN;
+                                       | XK_Next =>   special := glow.KEY_PAGE_DOWN;
                                     when XK_KP_Home
-                                       | XK_Home =>   special := GLUT.KEY_HOME;
+                                       | XK_Home =>   special := glow.KEY_HOME;
                                     when XK_KP_End
-                                       | XK_End =>    special := GLUT.KEY_END;
+                                       | XK_End =>    special := glow.KEY_END;
                                     when XK_KP_Insert
-                                       | XK_Insert => special := GLUT.KEY_INSERT;
+                                       | XK_Insert => special := glow.KEY_INSERT;
 
                                     when others =>
                                        null;   -- tbd: warning message ?
@@ -1905,8 +1905,8 @@ package body glut.Platform is
       --           * for this, but if there is a system that easily supports a full-
       --           * window (or full-screen) crosshair, we might consider it.
       --
-      if cursorID = GLUT.CURSOR_FULL_CROSSHAIR then
-         cursorIDToUse := GLUT.CURSOR_CROSSHAIR;
+      if cursorID = glow.CURSOR_FULL_CROSSHAIR then
+         cursorIDToUse := glow.CURSOR_CROSSHAIR;
       else
          cursorIDToUse := Cursor_Id (cursorID);
       end if;
@@ -1926,10 +1926,10 @@ package body glut.Platform is
 
       else
          case cursorIDToUse is
-            when GLUT.CURSOR_NONE =>
+            when glow.CURSOR_NONE =>
                cursor := getEmptyCursor;
 
-            when GLUT.CURSOR_INHERIT =>
+            when glow.CURSOR_INHERIT =>
                cursor := Null_Cursor_ID;
 
             when others =>
@@ -2086,7 +2086,7 @@ package body glut.Platform is
                           xevent);
          end;
       else
-         glut.FullScreen; --    * If the window manager is not Net WM compliant, fall back to legacy behaviour.
+         glow.FullScreen; --    * If the window manager is not Net WM compliant, fall back to legacy behaviour.
       end if;
 
    end;
@@ -2158,7 +2158,7 @@ package body glut.Platform is
       --
       case Type_Id is
 
-         when GLUT.WINDOW_NUM_SAMPLES =>
+         when glow.WINDOW_NUM_SAMPLES =>
             if GLX_VERSION_1_3 /= 0 then
                gl.GetIntegerv (GL.SAMPLES, nsamples'unchecked_access);
             end if;
@@ -2166,50 +2166,50 @@ package body glut.Platform is
             return Integer (nsamples);
 
 
-         when GLUT.WINDOW_RGBA =>
+         when glow.WINDOW_RGBA =>
             return fghGetConfig (GLX_RGBA);
 
-         when GLUT.WINDOW_DOUBLEBUFFER =>
+         when glow.WINDOW_DOUBLEBUFFER =>
             return fghGetConfig (GLX_DOUBLEBUFFER);
 
-         when GLUT.WINDOW_BUFFER_SIZE =>
+         when glow.WINDOW_BUFFER_SIZE =>
             return fghGetConfig (GLX_BUFFER_SIZE);
 
-         when GLUT.WINDOW_STENCIL_SIZE =>
+         when glow.WINDOW_STENCIL_SIZE =>
             return fghGetConfig (GLX_STENCIL_SIZE);
 
-         when GLUT.WINDOW_DEPTH_SIZE =>
+         when glow.WINDOW_DEPTH_SIZE =>
             return fghGetConfig (GLX_DEPTH_SIZE);
 
-         when GLUT.WINDOW_RED_SIZE =>
+         when glow.WINDOW_RED_SIZE =>
             return fghGetConfig (GLX_RED_SIZE);
 
-         when GLUT.WINDOW_GREEN_SIZE =>
+         when glow.WINDOW_GREEN_SIZE =>
             return fghGetConfig (GLX_GREEN_SIZE);
 
-         when GLUT.WINDOW_BLUE_SIZE =>
+         when glow.WINDOW_BLUE_SIZE =>
             return fghGetConfig (GLX_BLUE_SIZE);
 
-         when GLUT.WINDOW_ALPHA_SIZE =>
+         when glow.WINDOW_ALPHA_SIZE =>
             return fghGetConfig (GLX_ALPHA_SIZE);
 
-         when GLUT.WINDOW_ACCUM_RED_SIZE =>
+         when glow.WINDOW_ACCUM_RED_SIZE =>
             return fghGetConfig (GLX_ACCUM_RED_SIZE);
 
-         when GLUT.WINDOW_ACCUM_GREEN_SIZE =>
+         when glow.WINDOW_ACCUM_GREEN_SIZE =>
             return fghGetConfig (GLX_ACCUM_GREEN_SIZE);
 
-         when GLUT.WINDOW_ACCUM_BLUE_SIZE =>
+         when glow.WINDOW_ACCUM_BLUE_SIZE =>
             return fghGetConfig (GLX_ACCUM_BLUE_SIZE);
 
-         when GLUT.WINDOW_ACCUM_ALPHA_SIZE =>
+         when glow.WINDOW_ACCUM_ALPHA_SIZE =>
             return fghGetConfig (GLX_ACCUM_ALPHA_SIZE);
 
-         when GLUT.WINDOW_STEREO =>
+         when glow.WINDOW_STEREO =>
             return fghGetConfig (GLX_STEREO);
 
 
-         when GLUT.WINDOW_COLORMAP_SIZE =>        -- Colormap size is handled in a bit different way than all the rest
+         when glow.WINDOW_COLORMAP_SIZE =>        -- Colormap size is handled in a bit different way than all the rest
             if   fghGetConfig (GLX_RGBA)  /= 0
               or fgStructure.CurrentWindow = null
             then                                       -- We've got a RGBA visual, so there is no colormap at all.
@@ -2226,10 +2226,10 @@ package body glut.Platform is
             end if;
 
 
-         when GLUT.WINDOW_X             -- Those calls are somewhat similiar, as they use XGetWindowAttributes function
-            | GLUT.WINDOW_Y
-            | GLUT.WINDOW_BORDER_WIDTH
-            | GLUT.WINDOW_HEADER_HEIGHT =>
+         when glow.WINDOW_X             -- Those calls are somewhat similiar, as they use XGetWindowAttributes function
+            | glow.WINDOW_Y
+            | glow.WINDOW_BORDER_WIDTH
+            | glow.WINDOW_HEADER_HEIGHT =>
             declare
                use type gl.Enum;
                x, y   : aliased c.Int;
@@ -2245,8 +2245,8 @@ package body glut.Platform is
                                                   fgDisplay.platform.root_Window,
                                                   0, 0, x'access, y'access, w'access);
 
-               if    Type_Id = GLUT.WINDOW_X then   return Integer (x);
-               elsif Type_Id = GLUT.WINDOW_Y then   return Integer (y);
+               if    Type_Id = glow.WINDOW_X then   return Integer (x);
+               elsif Type_Id = glow.WINDOW_Y then   return Integer (y);
                end if;
 
                if w = 0 then
@@ -2257,15 +2257,15 @@ package body glut.Platform is
                                                   fgStructure.CurrentWindow.Window.Handle,
                                                   w, 0, 0, x'access, y'access, w'access);
 
-               if    Type_Id = GLUT.WINDOW_BORDER_WIDTH  then   return Integer (x);
-               elsif Type_Id = GLUT.WINDOW_HEADER_HEIGHT then   return Integer (y);
+               if    Type_Id = glow.WINDOW_BORDER_WIDTH  then   return Integer (x);
+               elsif Type_Id = glow.WINDOW_HEADER_HEIGHT then   return Integer (y);
                else                                             raise  program_Error;
                end if;
             end;
 
 
-         when GLUT.WINDOW_WIDTH
-            | GLUT.WINDOW_HEIGHT =>
+         when glow.WINDOW_WIDTH
+            | glow.WINDOW_HEIGHT =>
             declare
                use type gl.Enum;
                winAttributes : aliased X_Window_Attributes;
@@ -2279,7 +2279,7 @@ package body glut.Platform is
                                                   fgStructure.CurrentWindow.Window.Handle,
                                                   winAttributes'access);
 
-               if Type_Id  =  GLUT.WINDOW_WIDTH then
+               if Type_Id  =  glow.WINDOW_WIDTH then
                   return Integer (winAttributes.width);
                else
                   return Integer (winAttributes.height);
@@ -2288,7 +2288,7 @@ package body glut.Platform is
 
 
 
-         when GLUT.DISPLAY_MODE_POSSIBLE =>       -- I don't know yet if there will be a fgChooseVisual() function for Win32
+         when glow.DISPLAY_MODE_POSSIBLE =>       -- I don't know yet if there will be a fgChooseVisual() function for Win32
             declare
                fbconfig   : access GLXFBConfig;
                isPossible :        Integer;
@@ -2306,7 +2306,7 @@ package body glut.Platform is
             end;
 
 
-         when GLUT.WINDOW_FORMAT_ID =>                    -- This is system-dependant
+         when glow.WINDOW_FORMAT_ID =>                    -- This is system-dependant
             if fgStructure.CurrentWindow = null then
                return 0;
             end if;
@@ -2489,6 +2489,6 @@ package body glut.Platform is
 
 
 
-end glut.Platform;
+end glow.Platform;
 
 

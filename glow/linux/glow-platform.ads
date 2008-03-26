@@ -1,5 +1,5 @@
 
-limited with glut.Internal;
+limited with glow.Internal;
 
 with X_Lib;
 with opengl.glx;
@@ -10,7 +10,7 @@ with ada.Calendar;
 
 
 
-private package glut.Platform is
+private package glow.Platform is
 
 
 
@@ -54,7 +54,7 @@ private package glut.Platform is
    -- The structure used by display initialization in freeglut_init.c
    --
 
-   type SFG_Display (Outer : access glut.Internal.SFG_Display) is
+   type SFG_Display (Outer : access glow.Internal.SFG_Display) is
       record
          Display     : x_lib.Display_Pointer;                -- The display we are being run in.
          Screen      : x_lib.Screen_Number;                  -- The screen we are about to use.
@@ -154,7 +154,7 @@ private package glut.Platform is
    procedure SetWindowTitle (Title : String);
    procedure SetIconTitle   (Title : String);
 
-end glut.Platform;
+end glow.Platform;
 
 
 
