@@ -6,7 +6,7 @@
 
 with opengl.glx;
 
-with GL, GL.IO, GL.frustums,  GL.Skins, GL.Textures, GLU,  glow;
+with GL, oGL.IO, oGL.frustums,  oGL.Skins, oGL.Textures, GLU,  glow;
 
 with GLOBE_3D,
      GLOBE_3D.IO,
@@ -600,7 +600,7 @@ package body glow.Windows is
       Set_GL_Matrix (self.Camera.world_rotation);
       Translate     (-self.Camera.Clipper.eye_Position(0),  -self.Camera.Clipper.eye_Position(1),  -self.Camera.Clipper.eye_Position(2));
 
-      self.camera.frustum_Planes := gl.frustums.current_Planes;  -- tbd: getting frustum planes from camera, might be quicker,
+      self.camera.frustum_Planes := ogl.frustums.current_Planes;  -- tbd: getting frustum planes from camera, might be quicker,
       --set_frustum_Planes (Self.Camera);                        --      but 'set_frustum_Planes' seems buggy :/.
 
 
@@ -608,24 +608,24 @@ package body glow.Windows is
       --
       if self.game_command (video) then
          if self.is_capturing_Video then
-            gl.io.stop_Capture;
+            ogl.io.stop_Capture;
             self.is_capturing_Video := False;
          else
-            gl.io.start_Capture (avi_name   => to_String (self.Name) & "." & Image (ada.calendar.Clock) & ".avi",
+            ogl.io.start_Capture (avi_name   => to_String (self.Name) & "." & Image (ada.calendar.Clock) & ".avi",
                                  frame_rate => 8); --Integer (self.Frames_per_second));
             self.is_capturing_Video := True;
          end if;
       end if;
 
       if self.is_capturing_Video then
-         gl.io.capture_Frame;
+         ogl.io.capture_Frame;
       end if;
 
 
       -- photo management
       --
       if self.game_command (photo) then
-         gl.io.screenshot (name => to_String (self.Name) & "." & Image (ada.calendar.Clock) & ".bmp");
+         ogl.io.screenshot (name => to_String (self.Name) & "." & Image (ada.calendar.Clock) & ".bmp");
       end if;
 
    end Main_Operations;

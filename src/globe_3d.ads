@@ -29,7 +29,7 @@
 
 -------------------------------------------------------------------------
 
-with GL,  GL.Geometry,  GL.Frustums,  GL.Skins,  GL.skinned_Geometry,  Zip;
+with GL,  oGL.Geometry,  oGL.Frustums,  oGL.Skins,  oGL.skinned_Geometry,  Zip;
 
 with Ada.Text_IO;
 with Ada.Numerics.Generic_Elementary_functions;
@@ -135,7 +135,7 @@ package GLOBE_3D is
 
          Projection_Matrix   :         Globe_3D.Matrix_44;
 
-         frustum_Planes      :         gl.frustums.plane_Array;
+         frustum_Planes      :         ogl.frustums.plane_Array;
       end record;
 
    type p_Camera is access all Camera'Class;
@@ -178,9 +178,9 @@ package GLOBE_3D is
 
 
    function face_Count (o : in Visual) return Natural                   is abstract;
-   function Bounds     (o : in Visual) return gl.geometry.Bounds_record is abstract;
+   function Bounds     (o : in Visual) return ogl.geometry.Bounds_record is abstract;
 
-   function skinned_Geometrys (o : in Visual) return gl.skinned_geometry.skinned_Geometrys;
+   function skinned_Geometrys (o : in Visual) return ogl.skinned_geometry.skinned_Geometrys;
 
    procedure Display (o    : in out Visual;
                       clip : in     Clipping_data) is abstract;
@@ -366,7 +366,7 @@ package GLOBE_3D is
     pre_calculated : Boolean:= False;
     -- private:
     face_invariant : Face_invariant_array(1..Max_faces);
-    bounds         : gl.geometry.Bounds_record;
+    bounds         : ogl.geometry.Bounds_record;
   end record; -- Object_3D
 
 
@@ -374,7 +374,7 @@ package GLOBE_3D is
   procedure set_Alpha      (o : in out Object_3D;   Alpha : in gl.Double);
   function  is_Transparent (o : in Object_3D) return Boolean;
   function  face_Count     (o : in Object_3D) return Natural;
-  function  Bounds         (o : in Object_3D) return gl.geometry.Bounds_record;
+  function  Bounds         (o : in Object_3D) return ogl.geometry.Bounds_record;
 
 
   procedure Check_object(o: Object_3D);

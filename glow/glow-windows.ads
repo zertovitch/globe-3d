@@ -11,8 +11,8 @@
 --      - find way to fix visibilty when window is iconised (may be platform dependant).
 
 
-with gl.Geometry;
-with gl.skinned_Geometry;
+with ogl.Geometry;
+with ogl.skinned_Geometry;
 
 with GLOBE_3D.Textures;
 with Game_Control;
