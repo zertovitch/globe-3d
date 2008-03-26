@@ -1,16 +1,16 @@
-with GLUT, System;
+with glow, System;
 
 package body GLUT_2D is
 
   GLUT_char: constant array(Font_type) of System.Address:=
   (
-    Screen_9_BY_15 => GLUT.BITMAP_9_BY_15,
-    Screen_8_BY_13 => GLUT.BITMAP_8_BY_13,
-    TIMES_ROMAN_10 => GLUT.BITMAP_TIMES_ROMAN_10,
-    TIMES_ROMAN_24 => GLUT.BITMAP_TIMES_ROMAN_24,
-    HELVETICA_10   => GLUT.BITMAP_HELVETICA_10,
-    HELVETICA_12   => GLUT.BITMAP_HELVETICA_12,
-    HELVETICA_18   => GLUT.BITMAP_HELVETICA_18
+    Screen_9_BY_15 => glow.BITMAP_9_BY_15,
+    Screen_8_BY_13 => glow.BITMAP_8_BY_13,
+    TIMES_ROMAN_10 => glow.BITMAP_TIMES_ROMAN_10,
+    TIMES_ROMAN_24 => glow.BITMAP_TIMES_ROMAN_24,
+    HELVETICA_10   => glow.BITMAP_HELVETICA_10,
+    HELVETICA_12   => glow.BITMAP_HELVETICA_12,
+    HELVETICA_18   => glow.BITMAP_HELVETICA_18
   );
 
   procedure Text_output(

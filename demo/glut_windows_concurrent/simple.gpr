@@ -1,6 +1,6 @@
 project Simple is
 
-   for Source_Dirs use (".", "../../bindings", "../../src//**", "../../ada05_proxy", "../../bindings/glut", "../../bindings/glut/linux", "../../bindings/glut/linux/adaopengl", "../../bindings/glut/linux/xlib");
+   for Source_Dirs use (".", "../../bindings", "../../src//**", "../../ada05_proxy", "../../glow", "../../glow/linux", "../../glow/linux/adaopengl", "../../glow/linux/xlib");
    for Main use ("simple.adb");
 
    package Linker is

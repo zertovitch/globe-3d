@@ -8,7 +8,7 @@ with GLOBE_3D;
 with GL;
 --with Game_control;
 
-package GLUT.Devices is
+package glow.Devices is
 
 
    procedure Initialize;
@@ -21,7 +21,7 @@ package GLUT.Devices is
    --
 
    type Key_set         is array (Character ) of Boolean;
-   type Modifier_set    is array (GLUT.Active_shift .. GLUT.Active_alt) of Boolean;
+   type Modifier_set    is array (glow.Active_shift .. glow.Active_alt) of Boolean;
    type Special_set     is array (1 .. 200) of Boolean;
    type Special_key_set is array (1 .. 128) of Boolean;
 
@@ -52,7 +52,7 @@ package GLUT.Devices is
    -- Mouse
    --
 
-   type mouse_button_Set is array( GLUT.LEFT_BUTTON .. GLUT.RIGHT_BUTTON ) of Boolean;
+   type mouse_button_Set is array( glow.LEFT_BUTTON .. glow.RIGHT_BUTTON ) of Boolean;
 
    type Mouse is
       record
@@ -66,4 +66,4 @@ package GLUT.Devices is
    default_Mouse : aliased Mouse;
 
 
-end GLUT.Devices;
+end glow.Devices;
