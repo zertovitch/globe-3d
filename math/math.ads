@@ -6,8 +6,25 @@ with Ada.Numerics.Generic_Elementary_Functions;
 with Ada.Numerics.Generic_Real_Arrays;
 
 
+generic
+   type Integer_Type is range  <>;
+   type Float_Type   is digits <>;
 
-package Math is
+   type Index_Type   is range <>;
+   vector_Base : Index_type;           -- specifiy '0' or '1' based indexing
+
+   type Vector_Type is array (Index_Type range <>) of aliased Float_Type'Base;
+
+   --  Vector_Type may need to be of convention Fortran:     -- tbd:
+   --     pragma Convention (Fortran, Vector_Type);
+
+   type Matrix_Type is array (Index_Type range <>, Index_Type range <>) of aliased Float_Type'Base;
+
+   --  Matrix_Type MUST be of convention Fortran (column-major order):    -- tbd:
+   --     pragma Convention (Fortran, Matrix_Type);
+
+
+package Math is           -- tbd: rename to 'Adam' (for Ada Math) ?
    --
    -- provides math.
 
@@ -16,7 +33,7 @@ package Math is
    pragma optimize (Time);
 
 
-   subtype Integer  is interfaces.c.Int;
+   subtype Integer  is Integer_type;
    subtype Natural  is Integer range 0 .. Integer'Last;
    subtype Positive is Integer range 1 .. Integer'Last;
 
@@ -24,7 +41,7 @@ package Math is
    procedure decrement (Self : in out Integer;   By : in Integer := 1);
 
 
-   subtype Real         is interfaces.c.Double;
+   subtype Real         is Float_type;
    subtype natural_Real is Real range 0.0 .. Real'last;
 
 
@@ -32,29 +49,10 @@ package Math is
                                        High : in Real) return Real;
 
 
-   type    Reals      is array (math.Positive range <>) of aliased Real;
-
-   subtype Reals_1   is Reals (1 .. 1);
-   subtype Reals_2   is Reals (1 .. 2);
-   subtype Reals_3   is Reals (1 .. 3);
-   subtype Reals_4   is Reals (1 .. 4);
-   subtype Reals_5   is Reals (1 .. 5);
-   subtype Reals_6   is Reals (1 .. 6);
-
-   function Image (Self : in Reals) return String;
 
 
-
-   type real_Block is array (Positive range <>, Positive range <>) of aliased Real;   -- tbd: better name ?
-
-   subtype real_Block_3x3   is real_Block (1 .. 3,  1 .. 3);
-   subtype real_Block_4x3   is real_Block (1 .. 4,  1 .. 3);
-   subtype real_Block_6x3   is real_Block (1 .. 6,  1 .. 3);
-
-
-   function to_Numbers (Self : in real_Block) return Reals;
-   function Min        (Self : in real_Block) return Real;
-   function Max        (Self : in real_Block) return Real;
+   package Functions is new Ada.Numerics.Generic_Elementary_Functions (Real);
+   use Functions;
 
 
 
@@ -64,57 +62,63 @@ package Math is
 
    Infinity : constant Real := Real'last;
    Pi       : constant Real := ada.numerics.Pi;
-   Phi      : constant Real := 1.618033988749895; -- tbd: more accurate
-
-
-   package Functions is new Ada.Numerics.Generic_Elementary_Functions (Real);
+   Phi      : constant Real := (sqrt (5.0) + 1.0) / 2.0;    -- the 'Golden' ratio
 
 
 
 
-   function to_Radians (Degrees : in math.Real) return math.Real;
+   -- angles
+   --
+
+   function to_Radians (Degrees : in math.Real) return math.Real;   -- tbd: define an Angle (sub)type ?
    function to_Degrees (Radians : in math.Real) return math.Real;
 
 
 
-   -- vector and matrix
+
+
+   -- vector and matrix   (see 'math.Algebra.linear' for subprograms)
    --
 
-   type Vector is array (Integer range <>)                   of aliased Real;
+   subtype Vector is Vector_type;
 
-   type Vector_2 is new Vector (1 .. 2);
-   subtype Vector_3 is Vector (1 .. 3);
-   subtype Vector_4 is Vector (1 .. 4);
+   type    Vector_2 is new Vector (vector_Base .. vector_Base + 1);      -- tbd: resolve type/subtype inconsistency
+   subtype Vector_3 is     Vector (vector_Base .. vector_Base + 2);
+   subtype Vector_4 is     Vector (vector_Base .. vector_Base + 3);
 
-   type vector_2_Array is array (math.Integer range <>) of aliased Vector_2;
-   type vector_3_Array is array (math.Integer range <>) of Vector_3;
-
-
+   type vector_2_Array is array (Index_type range <>) of aliased Vector_2;
+   type vector_3_Array is array (Index_type range <>) of aliased Vector_3;
 
 
 
-   type Matrix is array (Integer range <>, Integer range <>) of aliased Real;
+   type Matrix is array (Index_type range <>, Index_type range <>) of aliased Real;
 
-   type Matrix_2x2 is new Matrix (1 .. 2, 1 .. 2);
-   subtype Matrix_3x3 is Matrix (1 .. 3, 1 .. 3);
-   subtype Matrix_4x4 is Matrix (1 .. 4, 1 .. 4);
+   type    Matrix_2x2 is new Matrix (vector_Base .. vector_Base + 1,   vector_Base .. vector_Base + 1);
+   subtype Matrix_3x3 is     Matrix (vector_Base .. vector_Base + 2,   vector_Base .. vector_Base + 2);
+   subtype Matrix_4x4 is     Matrix (vector_Base .. vector_Base + 3,   vector_Base .. vector_Base + 3);
+
 
    Identity_2x2 : aliased constant Matrix_2x2;
-   Identity_3x3 : constant Matrix_3x3;
+   Identity_3x3 :         constant Matrix_3x3;
 
 
 
-   type Quaternion is new Vector_4;
+   -- Quaternion
+   --
+
+   type Quaternion is new Vector_4;       -- tbd: use better abstraction (separate 'vector' component out).
 
 
+
+   -- Transforms (Position + Rotation)
+   --
 
    type Transform_2d is
       record
          Position : aliased         Vector_2;
-         Rotation : access constant Matrix_2x2;
+         Rotation : access constant Matrix_2x2;       -- tbd: do performance test to see if 'access' is actually faster.
          --Rotation : aliased Matrix_2x2;
       end record;
-
 
 
 
@@ -128,9 +132,9 @@ private
    Identity_2x2 : aliased constant Matrix_2x2 := ((1.0, 0.0),
                                                   (0.0, 1.0));
 
-   Identity_3x3 : constant Matrix_3x3 := ((1.0, 0.0, 0.0),
-                                          (0.0, 1.0, 0.0),
-                                          (0.0, 0.0, 1.0));
+   Identity_3x3 :         constant Matrix_3x3 := ((1.0, 0.0, 0.0),
+                                                  (0.0, 1.0, 0.0),
+                                                  (0.0, 0.0, 1.0));
 
 
 
