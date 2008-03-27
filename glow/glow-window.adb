@@ -6,7 +6,10 @@
 
 with opengl.glx;
 
-with GL, oGL.IO, oGL.frustums,  oGL.Skins, oGL.Textures, GLU,  glow;
+with GL;
+with oGL.Window, oGL.IO, oGL.frustums,  oGL.Skins, oGL.Textures;
+with GLU;
+with GLOW;
 
 with GLOBE_3D,
      GLOBE_3D.IO,
@@ -56,12 +59,12 @@ package body glow.Window is
    -- current_Window : - for accessing the current GLUT window
    --                  - used by GLUT callbacks to determine the Window to which a callback event relates.
    --
-   function current_Window return Window_view
+   function current_Window return Window.view
    is
       use GL;
-      function to_Window is new ada.unchecked_Conversion (system.Address, globe_3d.p_Window);
+      function to_Window is new ada.unchecked_Conversion (system.Address, ogl.Window.view);
    begin
-      return glow.Window.Window_view (to_Window (getWindowData));
+      return glow.Window.view (to_Window (getWindowData));
    end;
 
 
@@ -69,14 +72,14 @@ package body glow.Window is
 
 
 
-   procedure Name_is (Self : in out Window;   Now : in String)
+   procedure Name_is (Self : in out Window.item;   Now : in String)
    is
    begin
       self.Name := to_unbounded_String (Now);
    end;
 
 
-   function  Name    (Self : in     Window) return String
+   function  Name    (Self : in     Window.item) return String
    is
    begin
       return to_String (self.Name);
@@ -84,7 +87,7 @@ package body glow.Window is
 
 
 
-   function is_Closed (Self : in Window) return Boolean
+   function is_Closed (Self : in Window.item) return Boolean
    is
    begin
       return self.is_Closed;
@@ -94,7 +97,7 @@ package body glow.Window is
 
 
 
-   procedure Prepare_default_lighting (Self : in out Window;
+   procedure Prepare_default_lighting (Self : in out Window.item;
                                        fact : in     GL.Float)
    is
       use GL, G3D;
@@ -163,7 +166,7 @@ package body glow.Window is
 
 
 
-   procedure Reset_for_3D (Self : in out Window'Class)
+   procedure Reset_for_3D (Self : in out Window.item'Class)
    is
       use GL, G3D, G3D.REF;
    begin
@@ -180,7 +183,7 @@ package body glow.Window is
 
 
 
-   procedure enable_Viewport_and_Perspective (Self : in out Window'Class)  -- tbd: move projection matrix to 'window resize'.
+   procedure enable_Viewport_and_Perspective (Self : in out Window.item'Class)  -- tbd: move projection matrix to 'window resize'.
    is
       use GL, G3D, G3D.REF;
    begin

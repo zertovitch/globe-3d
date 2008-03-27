@@ -9,7 +9,7 @@ with ada.unchecked_Conversion;
 package body Math is -- provides math.
 
 
-   use type math.Number;
+   use type math.Real;
    use type math.Integer;
 
 
@@ -34,11 +34,11 @@ package body Math is -- provides math.
    -- Number
    --
 
-   function Clamped (Self : in Number;   Low  : in Number;
-                                         High : in Number) return Number
+   function Clamped (Self : in Real;   Low  : in Real;
+                                         High : in Real) return Real
    is
    begin
-      return number'Max (Low,  number'Min (Self, High));
+      return Real'Max (Low,  Real'Min (Self, High));
    end;
 
 
@@ -48,7 +48,7 @@ package body Math is -- provides math.
 
 
 
-   function Image (Self : in Numbers) return String
+   function Image (Self : in Reals) return String
    is
       the_Image : String (1 .. 1 * 1024 * 1024);   -- handles one megabtyre string ... excess is truncated
       Count     : standard.Natural := 0;
@@ -68,7 +68,7 @@ package body Math is -- provides math.
             add (", ");
          end if;
 
-         add (number'Image (Self (Each)));
+         add (Real'Image (Self (Each)));
       end loop;
 
       add (")");
@@ -89,10 +89,10 @@ package body Math is -- provides math.
 
 
 
-   function to_Numbers (Self : in number_Block) return Numbers
+   function to_Numbers (Self : in Real_Block) return Reals
    is
-      subtype my_Numbers      is Numbers      (1 .. self'Length (1) * self'Length (2));
-      subtype my_number_Block is number_Block (self'First (1) .. self'Last (1),   self'First (2) .. self'Last (2));
+      subtype my_Numbers      is Reals      (1 .. self'Length (1) * self'Length (2));
+      subtype my_number_Block is real_Block (self'First (1) .. self'Last (1),   self'First (2) .. self'Last (2));
 
       function converted_Block is new ada.unchecked_Conversion (my_number_Block, my_Numbers);
    begin
@@ -102,14 +102,14 @@ package body Math is -- provides math.
 
 
 
-   function Min (Self : in number_Block) return Number
+   function Min (Self : in Real_Block) return Real
    is
-      the_Min : Number := Number'Last;
+      the_Min : Real := Real'Last;
    begin
 
       for each_Row in Self'Range (1) loop
          for each_Col in Self'Range (2) loop
-            the_Min := Number'Min (the_Min,  Self (each_Row, each_Col));
+            the_Min := Real'Min (the_Min,  Self (each_Row, each_Col));
          end loop;
       end loop;
 
@@ -119,14 +119,14 @@ package body Math is -- provides math.
 
 
 
-   function Max (Self : in number_Block) return Number
+   function Max (Self : in Real_Block) return Real
    is
-      the_Max : Number := Number'First;
+      the_Max : Real := Real'First;
    begin
 
       for each_Row in Self'Range (1) loop
          for each_Col in Self'Range (2) loop
-            the_Max := Number'Max (the_Max,  Self (each_Row, each_Col));
+            the_Max := Real'Max (the_Max,  Self (each_Row, each_Col));
          end loop;
       end loop;
 
@@ -135,7 +135,7 @@ package body Math is -- provides math.
 
 
 
-   function to_Radians (Degrees : in math.Number) return math.Number
+   function to_Radians (Degrees : in math.Real) return math.Real
    is
    begin
       return Degrees * Pi / 180.0;
@@ -144,7 +144,7 @@ package body Math is -- provides math.
 
 
 
-   function to_Degrees (Radians : in math.Number) return math.Number
+   function to_Degrees (Radians : in math.Real) return math.Real
    is
    begin
       return Radians * 180.0 / Pi;

@@ -14,12 +14,14 @@
 with ogl.Visual;
 with ogl.Geometry;
 with ogl.skinned_Geometry;
+with ogl.Window;
 
 with GLOBE_3D.Textures;
 with Game_Control;
 
 with glow.Devices;
 with glow.Culler;
+with glow.Camera;
 
 with ada.strings.unbounded;
 
@@ -32,7 +34,7 @@ package glow.Window is
 
 
 
-   type Item is tagged limited private;             -- new GLOBE_3D.Window with private;
+   type Item is new ogl.Window.item with private;             -- new GLOBE_3D.Window with private;
    type View is access all Item'Class;
 
 
@@ -151,10 +153,12 @@ private
 
 
 
-   type Item is tagged limited    ---new GLOBE_3D.Window with
+   type Item is new ogl.Window.item with
       record
          Name         : ada.strings.unbounded.unbounded_String := ada.strings.unbounded.to_unbounded_String ("globe3d glut window");
          glut_Window  : Integer;
+
+         Camera       : glow.Camera.item;
 
          Objects      : globe_3d.Visual_array (1 .. 5_000);
          object_Count : Natural := 0;

@@ -3,25 +3,25 @@ project Simple is
    for Source_Dirs use (".", "../../bindings", "../../src//**", "../../ada05_proxy", "../../glow", "../../glow/linux", "../../glow/linux/adaopengl", "../../glow/linux/xlib", "../../ogl", "../../math", "../../math/geometry");
    for Main use ("simple.adb");
 
-   package Linker is
-      for Default_Switches ("ada") use ("-g", "-lGL", "-lGLU", "-lglut", "--LINK=g++");
-   end Linker;
-
-   package Binder is
-      for Default_Switches ("ada") use ("-E");
-   end Binder;
-
-   package Compiler is
-      for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnat95", "-gnat05", "-gnatVc", "-gnatVd", "-gnatVf", "-gnatVi", "-gnatVm", "-gnatVo", "-gnatVr", "-gnatVs", "-gnatVt", "-gnatecdebug.pra");
-   end Compiler;
+   package Ide is
+      for Default_Switches ("adacontrol") use ("-F\gnat_short");
+   end Ide;
 
    package Builder is
       for Default_Switches ("ada") use ("-g", "-a");
    end Builder;
 
-   package Ide is
-      for Default_Switches ("adacontrol") use ("-F\gnat_short");
-   end Ide;
+   package Compiler is
+      for Default_Switches ("ada") use ("-march=pentium4", "-gnato", "-fstack-check", "-g", "-gnat95", "-gnat05", "-gnatVc", "-gnatVd", "-gnatVf", "-gnatVi", "-gnatVm", "-gnatVo", "-gnatVr", "-gnatVs", "-gnatVt", "-gnatecdebug.pra");
+   end Compiler;
+
+   package Binder is
+      for Default_Switches ("ada") use ("-E");
+   end Binder;
+
+   package Linker is
+      for Default_Switches ("ada") use ("-g", "-lGL", "-lGLU", "-lglut", "--LINK=g++");
+   end Linker;
 
 end Simple;
 
