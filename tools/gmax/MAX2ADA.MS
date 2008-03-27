@@ -63,28 +63,35 @@
     format "  )" 
   )
 
+  global gmax_scene = ""
+
   function outputHeader =( 
-    format "-- * max2ada.ms GMax / 3D Studio Max script for exporting to GLOBE_3D\n" 
+    format "-- * Output of max2ada.ms, a GMax / 3D Studio Max script for exporting to GLOBE_3D\n" 
     format "--\n" 
     format "-- * Copy and paste these lines from the Listener into a\n" 
     format "--   text editor, and save the package as an .ada file.\n" 
     format "-- * Alternatively, use the GMaxSLGRAB.exe tool.\n" 
     format "-- * For GNAT, you must save the specification as an .ads file\n" 
     format "--   and the body as an .adb file, or run gnatchop on the whole .ada file.\n" 
-    format "\n" 
+    format "\n"
+    -- Get Title, subject and author: 
     for i = 1 to (fileProperties.getNumProperties #summary) do
       format "-- %: %\n" (fileProperties.getPropertyName #summary i) (fileProperties.getPropertyValue #summary i)
     format "\n" 
+	format "-- File name: %\n" (maxFileName)
+	format "-- File path: %\n" (maxFilePath)
+    format "\n" 
     format "with GLOBE_3D;\n" 
     format "\n"
-    format "package gmax_scene is\n" 
+    gmax_scene = (fileProperties.getPropertyValue #summary 1)
+    format "package % is\n" gmax_scene
     format "\n"
     proc_decl()
     format ";\n"
-    format "end;\n" 
-    format "with GL, GLOBE_3D.Math;\n"
+    format "end %;\n" gmax_scene
+    format "with GL, GL.Materials, GLOBE_3D.Math;\n"
     format "\n"
-    format "package body gmax_scene is\n"
+    format "package body % is\n" gmax_scene
     format "  -- Pretty output: %\n" pretty
     format "  use GL, GLOBE_3D, GLOBE_3D.Math;\n"
     format "\n" 
@@ -444,7 +451,7 @@
     format "    image   : Image_id;\n"
     format "    offset  : Map_idx_pair;\n"
     format "    tiling  : Map_idx_pair;\n"
-    format "    material: Material_type;\n"
+    format "    material: GL.Materials.Material_type;\n"
     format "  end record;\n"
     format "  type Material_info_array is array(Positive range <>) of Material_info;\n"
     proc_decl()
@@ -498,14 +505,14 @@
     format "    end loop;\n"
     format "  end Create;\n" 
     format "\n"
-    format "end;\n" 
+    format "end %;\n" gmax_scene
     format "procedure example is\n" 
     format "  type Texture_enum is (\n" 
     bitmap_names = ""
     first_bitmap = true
     list_bitmaps false false
     format "  );\nbegin\n  -- code chunk:\n" 
-    format "  gmax_scene.Create(\n"
+    format "  %.Create(\n" gmax_scene
     format "    object => gmax,\n"
     format "    scale  => 1.0,\n"
     format "    centre => (0.0,0.0,0.0),\n"
