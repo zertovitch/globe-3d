@@ -180,49 +180,49 @@ begin
     yy_c_buf_p := tmp_yy_cp;
 end yyunput;
 
-procedure unput(c : character) is
-begin
+  procedure Unput(c : Character) is
+  begin
      yyunput( c, yy_bp );
-end unput;
+  end Unput;
 
-function input return character is
-    c : character;
-    yy_cp : integer := yy_c_buf_p;
-begin
+  function Input return Character is
+    c : Character;
+    yy_cp : Integer := yy_c_buf_p;
+  begin
     yy_ch_buf(yy_cp) := yy_hold_char;
 
     if yy_ch_buf(yy_c_buf_p) = YY_END_OF_BUFFER_CHAR then
-    -- need more input
-    yytext_ptr := yy_c_buf_p;
-    yy_c_buf_p := yy_c_buf_p + 1;
+      -- need more input
+      yytext_ptr := yy_c_buf_p;
+      yy_c_buf_p := yy_c_buf_p + 1;
 
-    case yy_get_next_buffer is
+      case yy_get_next_buffer is
         -- this code, unfortunately, is somewhat redundant with
         -- that above
 
         when EOB_ACT_END_OF_FILE =>
-        if yywrap then
+          if yywrap then
             yy_c_buf_p := yytext_ptr;
             return ASCII.NUL;
-        end if;
+          end if;
 
-        yy_ch_buf(0) := ASCII.LF;
-        yy_n_chars := 1;
-        yy_ch_buf(yy_n_chars) := YY_END_OF_BUFFER_CHAR;
-        yy_ch_buf(yy_n_chars + 1) := YY_END_OF_BUFFER_CHAR;
-        yy_eof_has_been_seen := false;
-        yy_c_buf_p := 1;
-        yytext_ptr := yy_c_buf_p;
-        yy_hold_char := yy_ch_buf(yy_c_buf_p);
+          yy_ch_buf(0) := ASCII.LF;
+          yy_n_chars := 1;
+          yy_ch_buf(yy_n_chars) := YY_END_OF_BUFFER_CHAR;
+          yy_ch_buf(yy_n_chars + 1) := YY_END_OF_BUFFER_CHAR;
+          yy_eof_has_been_seen := false;
+          yy_c_buf_p := 1;
+          yytext_ptr := yy_c_buf_p;
+          yy_hold_char := yy_ch_buf(yy_c_buf_p);
 
-        return ( input );
+          return ( Input );
         when EOB_ACT_RESTART_SCAN =>
-        yy_c_buf_p := yytext_ptr;
+          yy_c_buf_p := yytext_ptr;
 
         when EOB_ACT_LAST_MATCH =>
-        raise UNEXPECTED_LAST_MATCH;
+          raise UNEXPECTED_LAST_MATCH;
         when others => null;
-        end case;
+      end case;
     end if;
 
     c := yy_ch_buf(yy_c_buf_p);
@@ -230,16 +230,34 @@ begin
     yy_hold_char := yy_ch_buf(yy_c_buf_p);
 
     return c;
-end input;
+  end Input;
 
-procedure output(c : character) is
-begin
+  procedure Output(c : Character) is
+  begin
     if is_open(user_output_file) then
       Text_IO.put(user_output_file, c);
     else
       Text_IO.put(c);
     end if;
-end output;
+  end Output;
+
+  procedure Output_New_Line is
+  begin
+    if is_open(user_output_file) then
+      Text_IO.New_Line(user_output_file);
+    else
+      Text_IO.New_Line;
+    end if;
+  end Output_New_Line;
+
+  function Output_Column return Text_IO.Count is
+  begin
+    if is_open(user_output_file) then
+      return Text_IO.Col(user_output_file);
+    else
+      return Text_IO.Col;
+    end if;
+  end Output_Column;
 
 -- default yywrap function - always treat EOF as an EOF
 function yywrap return boolean is

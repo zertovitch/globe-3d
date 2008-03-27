@@ -216,7 +216,12 @@ doom3		: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                   {
                     if consider_current_model then 
                       triangle_count:= triangle_count + 1;
-                      Ada_Put_Triangle; Ada_Put_Line(",");
+                      Ada_Put_Triangle; 
+                      if triangle_count mod 4 = 0 then
+                        Ada_Put_Line(",");
+                      else
+                        Ada_Put(",");
+                      end if;
                     end if;
                   }
                   SurfaceIndexes

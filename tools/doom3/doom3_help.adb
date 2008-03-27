@@ -663,7 +663,9 @@ package body Doom3_Help is
   end Ada_create;
 
   procedure Ada_Begin is
+    pretty_mem: Boolean:= pretty;
   begin
+    pretty:= True; -- For the spec. we want a pretty one !
     Ada_Put_Line("with GLOBE_3D, GLOBE_3D.BSP;");
     Ada_New_Line;
     Ada_Put_Line("package " & pkg &" is");
@@ -672,14 +674,15 @@ package body Doom3_Help is
     Ada_Put_Line(";");
     Ada_New_Line;
     Ada_Put_Line("end " & pkg & ';');
-    Ada_Put_Line("with GL, GLOBE_3D.Math, GLOBE_3D.Materials;");
+    pretty:= pretty_mem;
+    Ada_Put_Line("with GL, GLOBE_3D.Math, GL.Materials;");
     Ada_New_Line;
     indent:= 1;
     Ada_Put_Line("package body " & pkg &" is");
     Ada_Put_Line("-- Pretty output: " & Boolean'Image(pretty));
     Ada_Put_Line("-- Junk items' directories: " & Boolean'Image(junk_dirs));
     Ada_Put_Line("-- Areas only: " & Boolean'Image(areas_only));
-    Ada_Put_Line("use GL, GLOBE_3D, GLOBE_3D.Math, GLOBE_3D.Materials;");
+    Ada_Put_Line("use GL, GLOBE_3D, GLOBE_3D.Math, GL.Materials;");
     Ada_New_Line;
     Ada_Put_Line("face_0 : Face_type; -- takes defaults values");
     Ada_Put_Line("face_portal : Face_type; -- prototype for portals");

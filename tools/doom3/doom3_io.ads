@@ -27,11 +27,13 @@ yy_eof_has_been_seen : boolean;
 
 procedure YY_INPUT(buf: out unbounded_character_array; result: out integer; max_size: in integer);
 function yy_get_next_buffer return eob_action_type;
-procedure yyunput( c : character; yy_bp: in out integer );
-procedure unput(c : character);
-function input return character;
-procedure output(c : character);
-function yywrap return boolean;
+procedure yyUnput( c : Character; yy_bp: in out Integer );
+procedure Unput(c : Character);
+function Input return Character;
+procedure Output(c : Character);
+procedure Output_New_Line;
+function Output_Column return Text_IO.Count;
+function yyWrap return Boolean;
 procedure Open_Input(fname : in String);
 procedure Close_Input;
 procedure Create_Output(fname : in String := "");
