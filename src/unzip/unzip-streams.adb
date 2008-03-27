@@ -248,11 +248,19 @@ package body UnZip.Streams is
       raise Use_Error;
     end if;
     if Stream.state = end_of_zip then
-      raise End_Error;
+      -- Zero transfer -> Last:= Item'First - 1, see RM 13.13.1(8)
+      -- No End_Error here, T'Read will raise it: RM 13.13.2(37)
+      if Item'First > Stream_Element_Offset'First then 
+        Last:= Item'First - 1;
+        return;
+      else
+        -- Well, we cannot return Item'First - 1...
+        raise Constraint_Error; -- RM 13.13.1(11) requires this.
+      end if;
     end if;
     if Item'Length <= 0 then
-      -- Nothing to read actually
-      Last := Item'Last;
+      -- Nothing to be read actually.
+      Last:= Item'Last; -- this is < Item'First
       return;
     end if;
     -- From now on, we can assume Item'Length > 0.
@@ -271,11 +279,8 @@ package body UnZip.Streams is
       Item(Item'First .. Last):=
         Stream.uncompressed(Stream.index..Stream.uncompressed'Last);
       Stream.state:= end_of_zip;
-      if Last < Item'Last then
-        -- Hum, reading tried to go beyond the buffer.
-        -- Strict behaviour (GNAT, OA):
-        raise End_Error;
-      end if;
+      -- If Last < Item'Last, the T'Read attribute raises End_Error
+      -- because of the incomplete reading.
     end if;
   end Read;
 
