@@ -1,4 +1,4 @@
--gnatf -aIunzip -aIunzip  -aI..\bindings -aI..\bindings/win32 -aI..\bindings/win32/gcc_fmt
+-gnatf -aIgl -aI../ogl -aI../math -aIunzip  -aI..\bindings -aI..\bindings/win32 -aI..\bindings/win32/gcc_fmt
 -i -aO..\obj\gnatdebg
 
 
@@ -16,7 +16,7 @@ to_upper
 to_lower
 global_data_na
 -- Begin compiler switches
-RELEASE <- active (current) build mode
+DEBUG <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?
 debug o2 false
 debug inlining false
@@ -40,7 +40,7 @@ release strip_all_symbols true
 release profiling false
 -- End compiler switches
 -- Begin Release mode commands
--gnatf -gnat05 -aIgl -aI../ada05_proxy -aIgaming -aIunzip  -aI..\bindings -aI..\bindings/win32 -aI..\bindings/win32/gcc_fmt
+-gnatf -gnat05 -aIgl -aI../ogl -aIgaming -aIunzip  -aI..\bindings -aI..\bindings/win32 -aI..\bindings/win32/gcc_fmt
 -i -aO..\obj\gnatopti
 
 
