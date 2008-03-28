@@ -1,5 +1,6 @@
 
 
+generic
 package math.Algebra is
 
    pragma pure;

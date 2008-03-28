@@ -1,5 +1,5 @@
 
-
+generic
 package math.Algebra.linear is
 
    pragma Pure;
@@ -9,14 +9,14 @@ package math.Algebra.linear is
    -- vector
    --
 
-   function  Norm_2     (Self : in     Vector) return Number;   -- length squared
-   function  Norm       (Self : in     Vector) return Number;   -- magnitude or length
+   function  Norm_2     (Self : in     Vector) return Real;   -- length squared
+   function  Norm       (Self : in     Vector) return Real;   -- magnitude or length
    function  Normalised (Self : in     Vector) return Vector;
    procedure Normalise  (Self : in out Vector);
 
-   procedure scale        (Self : in out Vector;   By : Number);
-   function  sum_Abs      (Self : in     Vector) return Number;           -- sum of absoluted components.
-   function  Index_of_max (Self : in     Vector) return math.Integer;     -- returns the index to the maximum component.
+   procedure scale        (Self : in out Vector;   By : Real);
+   function  sum_Abs      (Self : in     Vector) return Real;           -- sum of absoluted components.
+   function  Index_of_max (Self : in     Vector) return Integer;     -- returns the index to the maximum component.
 --   function  to_Degrees   (Self : in     Vector) return Vector;
 
    procedure swap (X, Y : in out Vector);
@@ -26,7 +26,7 @@ package math.Algebra.linear is
 --   function "*" (Left : Vector;       Right : Vector)   return Number;         -- dot product
 --   function "*" (Left : Vector;       Right : Number)   return Vector;
 --   function "*" (Left : Number;       Right : Vector)   return Vector;
-   function "/" (Left : Vector;       Right : Number)   return Vector;
+   function "/" (Left : Vector;       Right : Real)   return Vector;
 --   function "+" (Left : Vector;       Right : Vector)   return Vector;
 
 --   function Min (Left : in Vector;   Right : in Vector) return Vector;
@@ -42,14 +42,16 @@ package math.Algebra.linear is
 
    function to_Matrix (Row_1, Row_2, Row_3 : in Vector_3) return Matrix_3x3;
 
-   function Min        (Self : in Matrix) return Number;
-   function Max        (Self : in Matrix) return Number;
+   function Min        (Self : in Matrix) return Real;
+   function Max        (Self : in Matrix) return Real;
 
 
-   function sub_Matrix (Self : in Matrix;   start_Row, end_Row : in math.Integer;
-                                            start_Col, end_Col : in math.Integer) return math.Matrix;
+--     function sub_Matrix (Self : in Matrix;   start_Row, end_Row : in Index_type;
+--                                              start_Col, end_Col : in Index_type) return math.Matrix;
+   function sub_Matrix (Self : in Matrix;   start_Row, end_Row : in Integer;
+                                            start_Col, end_Col : in Integer) return math.Matrix;
 
-   function Transposed (Self : in Matrix) return math.Matrix;
+   --function Transposed (Self : in Matrix) return math.Matrix;
 
    function Image (Self : in Matrix) return String;
 
@@ -57,7 +59,7 @@ package math.Algebra.linear is
    -- inversion
    --
 
-   procedure invert (Self : in out Matrix);
+   --procedure invert (Self : in out Matrix);
 
 --   procedure invert_positive_definite (Self : in out Matrix);
    --
@@ -70,20 +72,21 @@ package math.Algebra.linear is
 
 
 
-   function "*" (Left : Matrix;       Right : Number)       return Matrix;
+   function "*" (Left : Matrix;       Right : Real)       return Matrix;
    --function "*" (Left : Matrix_3x3;       Right : Matrix_3x3)       return Matrix;
 
 
 
-   function Identity (Length : in math.Integer := 3) return Matrix;
+--   function Identity (Length : in Index_type := 3) return Matrix;
+   function Identity (Length : in Integer := 3) return Matrix;
 
 
 
    -- quaternion
    --
 
-   function to_Quaternion (aX, aY, aZ : in     Number;
-                           Angle      : in     Number) return Quaternion;
+   function to_Quaternion (aX, aY, aZ : in     Real;
+                           Angle      : in     Real) return Quaternion;
    --
    -- defines self as a rotation about an axis.
 

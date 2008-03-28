@@ -1,5 +1,11 @@
 
+with math.fast_Trigonometry;
+with math.fast_Rotation;
 
+
+
+generic
+   with package fast_Rot is new math.fast_Rotation;
 package math.Algebra.linear.d2 is
 
    --pragma Pure;
@@ -13,31 +19,31 @@ package math.Algebra.linear.d2 is
    function "-" (Left : Vector_2;     Right : Vector_2) return Vector_2;
    function "+" (Left : Vector_2;     Right : Vector_2) return Vector_2;
 
-   function "*" (Left : Vector_2;     Right : Vector_2) return Number;   -- dot product
+   function "*" (Left : Vector_2;     Right : Vector_2) return Real;   -- dot product
 
-   function "*" (Left : Vector_2;     Right : Number)   return Vector_2;
-   function "*" (Left : Number;       Right : Vector_2) return Vector_2;
+   function "*" (Left : Vector_2;     Right : Real)   return Vector_2;
+   function "*" (Left : Real;         Right : Vector_2) return Vector_2;
 
    function min (Left : Vector_2;     Right : Vector_2) return Vector_2;
    function max (Left : Vector_2;     Right : Vector_2) return Vector_2;
 
    --   function Norm2 (Self : Vector_2) return math.Number;
 
-   function Cross (Left  : in Vector_2;   Right : in Vector_2) return math.Number;
-   function Cross (Self  : in Vector_2;   Scale : in Number)   return Vector_2;
-   function Cross (Scale : in Number;     Self  : in Vector_2) return Vector_2;
+   function Cross (Left  : in Vector_2;   Right : in Vector_2) return Real;
+   function Cross (Self  : in Vector_2;   Scale : in Real)   return Vector_2;
+   function Cross (Scale : in Real;     Self  : in Vector_2) return Vector_2;
 
    function Centroid (Self : Vector_2_Array) return Vector_2;
 
-   function Normalise (Self : access Vector_2) return Number;
+   function Normalise (Self : access Vector_2) return Real;
    --
    -- normalises 'Self' and returns the normal length.
 
    procedure normalise  (Self : in out Vector_2);
    function  Normalised (Self : in     Vector_2) return Vector_2;
 
-   function Norm   (Self : in Vector_2) return Number;           -- the length or magnitude of the vector
-   function Norm_2 (Self : in Vector_2) return Number;           -- the length or magnitude of the vector squared
+   function Norm   (Self : in Vector_2) return Real;           -- the length or magnitude of the vector
+   function Norm_2 (Self : in Vector_2) return Real;           -- the length or magnitude of the vector squared
 
 
    function Clamped (Self : in Vector_2;   Low  : in Vector_2;
@@ -48,8 +54,8 @@ package math.Algebra.linear.d2 is
    -- Matrix_2x2
    --
 
-   function to_Rotation (Angle : in Number) return access constant Matrix_2x2;
---   function to_Rotation (Angle : in Number) return Matrix_2x2;
+   function to_Rotation (Angle : in Real) return access constant Matrix_2x2;
+--   function to_Rotation (Angle : in Real) return Matrix_2x2;
 
 --   procedure set_Rotation (Self : access Matrix_2x2;   the_Angle : in Number);
 

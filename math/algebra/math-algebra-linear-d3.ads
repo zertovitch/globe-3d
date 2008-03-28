@@ -1,5 +1,5 @@
 
-
+generic
 package math.Algebra.linear.d3 is
 
    pragma Pure;
@@ -8,20 +8,20 @@ package math.Algebra.linear.d3 is
    -- Vector_3
    --
 
-   function "*" (Left : Vector_3;     Right : Number)   return Vector_3;       -- scale
-   function "*" (Left : Number;       Right : Vector_3) return Vector_3;       -- scale
+   function "*" (Left : Vector_3;     Right : Real)   return Vector_3;       -- scale
+   function "*" (Left : Real;       Right : Vector_3) return Vector_3;       -- scale
 
-   function "*" (Left : Vector_3;     Right : Vector_3) return Number;         -- dot product
+   function "*" (Left : Vector_3;     Right : Vector_3) return Real;         -- dot product
    function "*" (Left : Vector_3;     Right : Vector_3) return Vector_3;       -- cross product
 
    function "+" (Left : Vector_3;     Right : Vector_3) return Vector_3;
    function "-" (Left : Vector_3;     Right : Vector_3) return Vector_3;
 
 
-   function Distance (Self : in Vector_3;   To : in Vector_3) return Number;
+   function Distance (Self : in Vector_3;   To : in Vector_3) return Real;
 
    function Midpoint              (Left, Right: Vector_3) return Vector_3;
-   function angle_Between_preNorm (U : in Vector_3;   V : in Vector_3) return Number;
+   function angle_Between_preNorm (U : in Vector_3;   V : in Vector_3) return Real;
 
 
 
@@ -42,15 +42,15 @@ package math.Algebra.linear.d3 is
 
    function Identity return Matrix_3x3;
 
-   function x_Rotation_from (the_Angle : in Number) return Matrix_3x3;
-   function y_Rotation_from (the_Angle : in Number) return Matrix_3x3;
-   function z_Rotation_from (the_Angle : in Number) return Matrix_3x3;
+   function x_Rotation_from (the_Angle : in Real) return Matrix_3x3;
+   function y_Rotation_from (the_Angle : in Real) return Matrix_3x3;
+   function z_Rotation_from (the_Angle : in Real) return Matrix_3x3;
 
-   function xyz_Rotation (x_Angle, y_Angle, z_Angle : in Number) return math.Matrix_3x3;
+   function xyz_Rotation (x_Angle, y_Angle, z_Angle : in Real) return math.Matrix_3x3;
 
 
-   function to_Attitude (Axis_x, Axis_y, Axis_z   : in     Number;
-                         rotation_Angle           : in     Number) return Matrix_3x3;
+   function to_Attitude (Axis_x, Axis_y, Axis_z   : in     Real;
+                         rotation_Angle           : in     Real) return Matrix_3x3;
    --
    -- returns an attitude describing a rotation about an axis.
 

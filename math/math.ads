@@ -1,4 +1,7 @@
 
+--  with cached_Trigonometry;
+--  with cached_Rotation;
+
 with interfaces.C;
 
 with ada.Numerics;
@@ -10,15 +13,17 @@ generic
    type Integer_Type is range  <>;
    type Float_Type   is digits <>;
 
-   type Index_Type   is range <>;
-   vector_Base : Index_type;           -- specifiy '0' or '1' based indexing
+   --type Index_Type   is range <>;
+   --vector_Base : Index_type;           -- specifiy '0' or '1' based indexing
 
-   type Vector_Type is array (Index_Type range <>) of aliased Float_Type'Base;
+   vector_Base : Integer;           -- specifiy '0' or '1' based indexing
+
+   --type Vector_Type is array (Index_Type range <>) of aliased Float_Type'Base;
 
    --  Vector_Type may need to be of convention Fortran:     -- tbd:
    --     pragma Convention (Fortran, Vector_Type);
 
-   type Matrix_Type is array (Index_Type range <>, Index_Type range <>) of aliased Float_Type'Base;
+   --type Matrix_Type is array (Index_Type range <>, Index_Type range <>) of aliased Float_Type'Base;
 
    --  Matrix_Type MUST be of convention Fortran (column-major order):    -- tbd:
    --     pragma Convention (Fortran, Matrix_Type);
@@ -33,9 +38,9 @@ package Math is           -- tbd: rename to 'Adam' (for Ada Math) ?
    pragma optimize (Time);
 
 
-   subtype Integer  is Integer_type;
-   subtype Natural  is Integer range 0 .. Integer'Last;
-   subtype Positive is Integer range 1 .. Integer'Last;
+   --subtype Integer  is Integer_type;
+   --subtype Natural  is Integer range 0 .. Integer'Last;
+   --subtype Positive is Integer range 1 .. Integer'Last;
 
    procedure increment (Self : in out Integer;   By : in Integer := 1);
    procedure decrement (Self : in out Integer;   By : in Integer := 1);
@@ -50,10 +55,14 @@ package Math is           -- tbd: rename to 'Adam' (for Ada Math) ?
 
 
 
+   -- elementary functions
+   --
 
    package Functions is new Ada.Numerics.Generic_Elementary_Functions (Real);
    use Functions;
 
+
+   --package fast_Trigonometry is new cached_Trigonometry (Real, Functions, 10_000);
 
 
 
@@ -80,26 +89,43 @@ package Math is           -- tbd: rename to 'Adam' (for Ada Math) ?
    -- vector and matrix   (see 'math.Algebra.linear' for subprograms)
    --
 
-   subtype Vector is Vector_type;
+
+   package real_Arrays is new Ada.Numerics.Generic_Real_Arrays (Real);
+
+   subtype Vector is real_arrays.real_Vector;
+   --subtype Vector is Vector_type;
 
    type    Vector_2 is new Vector (vector_Base .. vector_Base + 1);      -- tbd: resolve type/subtype inconsistency
    subtype Vector_3 is     Vector (vector_Base .. vector_Base + 2);
    subtype Vector_4 is     Vector (vector_Base .. vector_Base + 3);
 
-   type vector_2_Array is array (Index_type range <>) of aliased Vector_2;
-   type vector_3_Array is array (Index_type range <>) of aliased Vector_3;
+   type vector_2_Array is array (Integer range <>) of aliased Vector_2;
+   type vector_3_Array is array (Integer range <>) of aliased Vector_3;
 
 
 
-   type Matrix is array (Index_type range <>, Index_type range <>) of aliased Real;
+--   type Matrix is array (Integer range <>, Integer range <>) of aliased Real;
+   subtype Matrix is real_arrays.real_Matrix;
 
-   type    Matrix_2x2 is new Matrix (vector_Base .. vector_Base + 1,   vector_Base .. vector_Base + 1);
+   subtype    Matrix_2x2 is  Matrix (vector_Base .. vector_Base + 1,   vector_Base .. vector_Base + 1);
    subtype Matrix_3x3 is     Matrix (vector_Base .. vector_Base + 2,   vector_Base .. vector_Base + 2);
    subtype Matrix_4x4 is     Matrix (vector_Base .. vector_Base + 3,   vector_Base .. vector_Base + 3);
 
 
    Identity_2x2 : aliased constant Matrix_2x2;
    Identity_3x3 :         constant Matrix_3x3;
+
+
+
+--   package fast_Rotation     is new cached_Rotation     (Real,
+--                                                         Index_type, vector_Base,
+--                                                         Matrix_type,
+--                                                         Matrix_2x2,
+--                                                         10_000);
+
+
+
+
 
 
 

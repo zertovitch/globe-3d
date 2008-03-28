@@ -7,7 +7,7 @@ package body Math is
 
 
    use type math.Real;
-   use type math.Integer;
+   use type Integer;
 
 
 

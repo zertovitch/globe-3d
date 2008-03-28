@@ -1,7 +1,7 @@
 
 --with ada_BLAS.Real;
 
-with pragmarc.Matrix_math;
+--with pragmarc.Matrix_math;
 
 with ada.numerics.generic_real_arrays;
 
@@ -13,7 +13,7 @@ package body math.Algebra.linear.d3 is
 
 
    use math.Functions;
-   use type math.Number, math.Integer;
+   use type Real, Integer;
 
 
 
@@ -49,7 +49,7 @@ package body math.Algebra.linear.d3 is
 
 
 
-   function "*" (Left : Vector_3;     Right : Vector_3) return Number
+   function "*" (Left : Vector_3;     Right : Vector_3) return Real
    is
    begin
       return   Left (1) * Right (1)
@@ -61,10 +61,10 @@ package body math.Algebra.linear.d3 is
 
 
 
-   function angle_Between_preNorm (U : in Vector_3;   V : in Vector_3) return math.Number
+   function angle_Between_preNorm (U : in Vector_3;   V : in Vector_3) return math.Real
    is
       use math.Functions;
-      Val : math.Number := U * V;   -- dot product
+      Val : math.Real := U * V;   -- dot product
    begin
       if    val < -1.0 then   val := -1.0;   -- clamp to avoid rounding errors; acos will fail with values outside this range.
       elsif val >  1.0 then   val :=  1.0;
@@ -87,7 +87,7 @@ package body math.Algebra.linear.d3 is
 
 
 
-   function Distance (Self : in Vector_3;   To : in Vector_3) return Number
+   function Distance (Self : in Vector_3;   To : in Vector_3) return Real
    is
       Pad : Vector := Self - To;
    begin
@@ -117,7 +117,7 @@ package body math.Algebra.linear.d3 is
 
 
 
-   function "*" (Left : Vector_3;     Right : NUmber)   return Vector_3
+   function "*" (Left : Vector_3;     Right : Real)   return Vector_3
    is
    begin
       return (Left (1) * Right,
@@ -127,7 +127,7 @@ package body math.Algebra.linear.d3 is
 
 
 
-   function "*" (Left : Number;       Right : Vector_3) return Vector_3
+   function "*" (Left : Real;       Right : Vector_3) return Vector_3
    is
    begin
       return Right * Left;
@@ -185,33 +185,33 @@ package body math.Algebra.linear.d3 is
    -- pragmarc
    --
 
-   package pragmarc_Matrices is new pragmarc.Matrix_math (Number, -1.0, 0.0);
+--     package pragmarc_Matrices is new pragmarc.Matrix_math (Real, -1.0, 0.0);
+--
+
+--     subtype pragmarc_Vector   is pragmarc_Matrices.Vector;
+--     subtype pragmarc_Vector_3 is pragmarc_Matrices.Vector (3);
+--     subtype pragmarc_Vector_4 is pragmarc_Matrices.Vector (4);
+--
+--     subtype pragmarc_Matrix   is pragmarc_Matrices.Matrix;
+--     subtype pragmarc_Matrix_3 is pragmarc_Matrices.Matrix (3, 3);
+--
+--     use pragmarc_Matrices;
+--     use type pragmarc_Matrix_3;
 
 
-   subtype pragmarc_Vector   is pragmarc_Matrices.Vector;
-   subtype pragmarc_Vector_3 is pragmarc_Matrices.Vector (3);
-   subtype pragmarc_Vector_4 is pragmarc_Matrices.Vector (4);
-
-   subtype pragmarc_Matrix   is pragmarc_Matrices.Matrix;
-   subtype pragmarc_Matrix_3 is pragmarc_Matrices.Matrix (3, 3);
-
-   use pragmarc_Matrices;
-   use type pragmarc_Matrix_3;
 
 
 
-
-
-   function to_Pragmarc (Self : in Quaternion) return pragmarc_Vector
-   is
-      the_Vector : pragmarc_Vector (4);
-   begin
-      for Each in 1 .. 4 loop
-         the_vector.value.Value (each, 1) := Self (math.Integer (Each));
-      end loop;
-
-      return the_Vector;
-   end;
+--     function to_Pragmarc (Self : in Quaternion) return pragmarc_Vector
+--     is
+--        the_Vector : pragmarc_Vector (4);
+--     begin
+--        for Each in 1 .. 4 loop
+--           the_vector.value.Value (each, 1) := Self (math.Integer (Each));
+--        end loop;
+--
+--        return the_Vector;
+--     end;
 
 
 
@@ -237,35 +237,35 @@ package body math.Algebra.linear.d3 is
 
 
 
-   function to_pragmarc (Self : in Matrix_3x3) return pragmarc_Matrix
-   is
-      the_Matrix : pragmarc_Matrix (self'Length (1), self'Length (2));
-   begin
-      for Row in self'Range (1) loop
-         for Col in self'Range (2) loop
-            the_Matrix.value (standard.Integer (Row), standard.Integer (Col)) := Self (Row, Col);
-         end loop;
-      end loop;
-
-      return the_Matrix;
-   end;
-
-
+--     function to_pragmarc (Self : in Matrix_3x3) return pragmarc_Matrix
+--     is
+--        the_Matrix : pragmarc_Matrix (self'Length (1), self'Length (2));
+--     begin
+--        for Row in self'Range (1) loop
+--           for Col in self'Range (2) loop
+--              the_Matrix.value (standard.Integer (Row), standard.Integer (Col)) := Self (Row, Col);
+--           end loop;
+--        end loop;
+--
+--        return the_Matrix;
+--     end;
 
 
 
-   function to_Math (Self : in pragmarc_Matrix_3) return Matrix_3x3
-   is
-      the_Matrix : Matrix_3x3;
-   begin
-      for Row in 1 .. self.num_Rows loop
-         for Col in 1 .. self.num_Columns loop
-             the_Matrix (math.Integer (Row), math.Integer (Col)) := self.Value (Row, Col);
-         end loop;
-      end loop;
 
-      return the_Matrix;
-   end;
+
+--     function to_Math (Self : in pragmarc_Matrix_3) return Matrix_3x3
+--     is
+--        the_Matrix : Matrix_3x3;
+--     begin
+--        for Row in 1 .. self.num_Rows loop
+--           for Col in 1 .. self.num_Columns loop
+--               the_Matrix (math.Integer (Row), math.Integer (Col)) := self.Value (Row, Col);
+--           end loop;
+--        end loop;
+--
+--        return the_Matrix;
+--     end;
 
 
 
@@ -294,15 +294,28 @@ package body math.Algebra.linear.d3 is
    end;
 
 
+
    function "*" (Left  : Matrix_3x3;   Right : Matrix_3x3) return Matrix_3x3
    is
+      r  : Real;
+      AB : Matrix_3x3;
    begin
-      return to_Math (to_pragmarc (Left) * to_pragmarc (Right));
-   end;
+      for i in Left'first (1) .. Left'last (1) loop
+         for j in Left'first (2) .. Left'last (2) loop
+            r := 0.0;
+            for k in Left'first (1) .. Left'last (1) loop
+               r := r  +  (Left (i, k)  *  Right (k, j));
+            end loop;
+            AB (i, j) := r;
+         end loop;
+      end loop;
+
+      return AB;
+   end "*";
 
 
 
-   function xyz_Rotation (x_Angle, y_Angle, z_Angle : in Number) return math.Matrix_3x3
+   function xyz_Rotation (x_Angle, y_Angle, z_Angle : in Real) return math.Matrix_3x3
    is
    begin
       return x_Rotation_from (x_Angle) * y_Rotation_from (y_Angle) * z_Rotation_from (z_Angle);
@@ -312,7 +325,7 @@ package body math.Algebra.linear.d3 is
 
 
 
-   function x_Rotation_from (the_Angle : in Number) return Matrix_3x3
+   function x_Rotation_from (the_Angle : in Real) return Matrix_3x3
    is
       the_Matrix : Matrix_3x3;
    begin
@@ -336,7 +349,7 @@ package body math.Algebra.linear.d3 is
 
 
 
-   function y_Rotation_from (the_Angle : in Number) return Matrix_3x3
+   function y_Rotation_from (the_Angle : in Real) return Matrix_3x3
    is
       the_Matrix : Matrix_3x3;
    begin
@@ -359,7 +372,7 @@ package body math.Algebra.linear.d3 is
 
 
 
-   function z_Rotation_from (the_Angle : in Number) return Matrix_3x3
+   function z_Rotation_from (the_Angle : in Real) return Matrix_3x3
    is
       the_Matrix : Matrix_3x3;
    begin
@@ -384,8 +397,8 @@ package body math.Algebra.linear.d3 is
 
 
 
-   function to_Attitude (Axis_x, Axis_y, Axis_z   : in     Number;
-                         rotation_Angle           : in     Number) return Matrix_3x3
+   function to_Attitude (Axis_x, Axis_y, Axis_z   : in     Real;
+                         rotation_Angle           : in     Real) return Matrix_3x3
    is
    begin
       return to_Matrix (to_Quaternion (Axis_x, Axis_y, Axis_z, rotation_Angle));
@@ -402,8 +415,8 @@ package body math.Algebra.linear.d3 is
 
    function to_Quaternion (Self : in Matrix_3x3) return Quaternion
    is
-      TR : Number;
-      S  : Number;
+      TR : Real;
+      S  : Real;
 
       the_Quaternion : Quaternion;
    begin
@@ -502,8 +515,8 @@ package body math.Algebra.linear.d3 is
 
    procedure setFromMatrix3x3T (Self :    out Quaternion;   the_Matrix : in Matrix_3x3)
    is
-      tr : math.Number := 1.0 + the_Matrix (1, 1) + the_Matrix (2, 2) + the_Matrix (3, 3);
-      s  : math.Number;
+      tr : math.Real := 1.0 + the_Matrix (1, 1) + the_Matrix (2, 2) + the_Matrix (3, 3);
+      s  : math.Real;
    begin
       if tr > 1.0e-9 then
          s        := sqRt (tr);
@@ -565,9 +578,9 @@ package body math.Algebra.linear.d3 is
    is
       the_Matrix : Matrix_3x3;
 
-      qq2 : Number := 2.0  *  Self (2)  *  Self (2);
-      qq3 : Number := 2.0  *  Self (3)  *  Self (3);
-      qq4 : Number := 2.0  *  Self (4)  *  Self (4);
+      qq2 : Real := 2.0  *  Self (2)  *  Self (2);
+      qq3 : Real := 2.0  *  Self (3)  *  Self (3);
+      qq4 : Real := 2.0  *  Self (4)  *  Self (4);
    begin
       the_Matrix (1, 1) := 1.0 - qq3 - qq4;
       the_Matrix (1, 2) := 2.0 * (Self (2) * Self (3) - Self (1) * Self (4));

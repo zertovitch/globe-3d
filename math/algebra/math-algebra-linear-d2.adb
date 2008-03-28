@@ -14,7 +14,7 @@ package body math.Algebra.linear.d2 is
 
 
    use math.Functions;
-   use type math.Number, math.Integer;
+   use type math.Real, Integer;
 
 
 
@@ -54,7 +54,7 @@ package body math.Algebra.linear.d2 is
 
 
 
-   function "*" (Left : Vector_2;     Right : Vector_2) return Number
+   function "*" (Left : Vector_2;     Right : Vector_2) return Real
    is
    begin
       return Left (1) * Right (1)  +  Left (2) * Right (2);
@@ -63,7 +63,7 @@ package body math.Algebra.linear.d2 is
 
 
 
-   function "*" (Left : Vector_2;     Right : Number) return Vector_2
+   function "*" (Left : Vector_2;     Right : Real) return Vector_2
    is
    begin
       return (Left (1) * Right,
@@ -72,7 +72,7 @@ package body math.Algebra.linear.d2 is
 
 
 
-   function "*" (Left : Number;     Right : Vector_2) return Vector_2
+   function "*" (Left : Real;     Right : Vector_2) return Vector_2
    is
    begin
       return (Right (1) * Left,
@@ -86,8 +86,8 @@ package body math.Algebra.linear.d2 is
    function min (Left : Vector_2;     Right : Vector_2) return Vector_2
    is
    begin
-      return (1 => number'Min (Left (1), Right (1)),
-              2 => number'Min (Left (2), Right (2)));
+      return (1 => Real'Min (Left (1),  Right (1)),
+              2 => Real'Min (Left (2),  Right (2)));
    end;
 
 
@@ -95,8 +95,8 @@ package body math.Algebra.linear.d2 is
    function max (Left : Vector_2;     Right : Vector_2) return Vector_2
    is
    begin
-      return (1 => number'Max (Left (1), Right (1)),
-              2 => number'Max (Left (2), Right (2)));
+      return (1 => Real'Max (Left (1),  Right (1)),
+              2 => Real'Max (Left (2),  Right (2)));
    end;
 
 
@@ -110,7 +110,7 @@ package body math.Algebra.linear.d2 is
 
 
 
-   function Cross (Left  : in Vector_2;   Right : in Vector_2) return math.Number
+   function Cross (Left  : in Vector_2;   Right : in Vector_2) return math.Real
    is
    begin
       return Left (1) * Right (2)  -  Left (2) * Right (1);
@@ -143,7 +143,7 @@ package body math.Algebra.linear.d2 is
 
 
 
-   function Cross (Self : in Vector_2;   Scale : in Number) return Vector_2
+   function Cross (Self : in Vector_2;   Scale : in Real) return Vector_2
    is
    begin
       return (Scale * Self (2),  -Scale * Self (1));
@@ -151,7 +151,7 @@ package body math.Algebra.linear.d2 is
 
 
 
-   function Cross (Scale : in Number;   Self : in Vector_2) return Vector_2
+   function Cross (Scale : in Real;   Self : in Vector_2) return Vector_2
    is
    begin
       return (-Scale * Self (2),  Scale * Self (1));
@@ -159,16 +159,16 @@ package body math.Algebra.linear.d2 is
 
 
 
-   function Normalise (Self : access Vector_2) return Number
+   function Normalise (Self : access Vector_2) return Real
    is
-      Length : Number := Norm (Vector (Self.all));
+      Length : Real := Norm (Vector (Self.all));
    begin
-      if Length < Number'Small then
+      if Length < Real'Small then
          return 0.0;
       end if;
 
       declare
-         inv_Length : Number := 1.0 / Length;
+         inv_Length : Real := 1.0 / Length;
       begin
          Self (1) := Self (1) * inv_Length;
          Self (2) := Self (2) * inv_Length;
@@ -180,7 +180,7 @@ package body math.Algebra.linear.d2 is
 
 
 
-   function Norm   (Self : in Vector_2) return Number
+   function Norm   (Self : in Vector_2) return Real
    is
    begin
       return sqRt (Norm_2 (Self));
@@ -189,7 +189,7 @@ package body math.Algebra.linear.d2 is
 
 
 
-   function Norm_2 (Self : in Vector_2) return Number
+   function Norm_2 (Self : in Vector_2) return Real
    is
    begin
       return Self (1) * Self (1)  +  Self (2) * Self (2);
@@ -200,7 +200,7 @@ package body math.Algebra.linear.d2 is
 
    procedure normalise (Self : in out Vector_2)
    is
-     inv_Norm : constant Number := 1.0 / Norm (Self);
+     inv_Norm : constant Real := 1.0 / Norm (Self);
    begin
       self := (1 => Self (1) * inv_Norm,
                2 => Self (2) * inv_Norm);
@@ -223,7 +223,7 @@ package body math.Algebra.linear.d2 is
       the_Centroid    : Vector_2 := (0.0, 0.0);
       reference_Point : Vector_2 := (0.0, 0.0);    -- the reference point for forming triangles.
                                                    -- it's location doesn't change the result (except for rounding error).
-      Area            : Number   := 0.0;
+      Area            : Real   := 0.0;
       Inv_3           : constant := 1.0 / 3.0;
    begin
       pragma assert (self'Length >= 3);
@@ -242,7 +242,8 @@ package body math.Algebra.linear.d2 is
             p1 : Vector_2 := reference_Point;
             p2 : Vector_2 := Self (Each);
 
-            function p3_Index return math.Integer is
+            --function p3_Index return math.Index_type is
+            function p3_Index return Integer is
             begin
                if Each + 1 <= Self'Last then   return Each + 1;   else   return Self'First;   end if;
             end;
@@ -251,16 +252,16 @@ package body math.Algebra.linear.d2 is
             e1 : Vector_2 := p2 - p1;
             e2 : Vector_2 := p3 - p1;
 
-            D  : Number   := cross (e1, e2);
+            D  : Real   := cross (e1, e2);
 
-            triangle_Area : Number := 0.5 * D;
+            triangle_Area : Real := 0.5 * D;
          begin
             Area         := Area + triangle_Area;
             the_Centroid := the_Centroid  +  triangle_Area * Inv_3 * (p1 + p2 + p3);   -- area weighted centroid
          end;
       end loop;
 
-      pragma assert (Area > number'Small);
+      pragma assert (Area > Real'Small);
 
       the_Centroid := the_Centroid * (1.0 / Area);
       return the_Centroid;
@@ -287,10 +288,10 @@ package body math.Algebra.linear.d2 is
    -- Matrix_2x2
    --
 
-   function to_Rotation (Angle : in Number) return access constant Matrix_2x2
+   function to_Rotation (Angle : in Real) return access constant Matrix_2x2
    is
    begin
-      return fast_rotation.to_Rotation (Angle);
+      return fast_rot.to_Rotation (Angle);
    end;
 
 
@@ -372,13 +373,13 @@ package body math.Algebra.linear.d2 is
    function mul   (Left : access constant Matrix_2x2;       Right : access Matrix_2x2)     return Matrix_2x2
    --function "*" (Left : Matrix_2x2;       Right : Matrix_2x2)     return Matrix_2x2
    is
-      r  : Number;
+      r  : Real;
       AB : Matrix_2x2;
    begin
-      for i in math.Integer'(1) .. 2 loop
-         for j in math.Integer'(1) .. 2 loop
+      for i in Left'first (1) .. Left'last (1) loop
+         for j in Left'first (2) .. Left'last (2) loop
             r := 0.0;
-            for k in math.Integer'(1) .. 2 loop
+            for k in Left'first (1) .. Left'last (1) loop
                r := r + Left (i, k) * Right (k, j);
             end loop;
             AB (i, j) := r;
@@ -392,11 +393,11 @@ package body math.Algebra.linear.d2 is
 
    function mul_T (Left : access constant Matrix_2x2;       Right : access Matrix_2x2)     return Matrix_2x2
    is
-      c1 : constant Vector_2 := ((left (1, 1), left (2, 1))  *  (right (1, 1), right (2, 1)),
-                                 (left (1, 2), left (2, 2))  *  (right (1, 1), right (2, 1)));
+      c1 : constant Vector_2 := (Vector_2'(left (1, 1), left (2, 1))  *  Vector_2'(right (1, 1), right (2, 1)),
+                                 Vector_2'(left (1, 2), left (2, 2))  *  Vector_2'(right (1, 1), right (2, 1)));
 
-      c2 : constant Vector_2 := ((left (1, 1), left (2, 1))  *  (right (1, 2), right (2, 2)),
-                                 (left (1, 2), left (2, 2))  *  (right (1, 2), right (2, 2)));
+      c2 : constant Vector_2 := (Vector_2'(left (1, 1), left (2, 1))  *  Vector_2'(right (1, 2), right (2, 2)),
+                                 Vector_2'(left (1, 2), left (2, 2))  *  Vector_2'(right (1, 2), right (2, 2)));
 
    begin
       return (1 => (c1 (1), c2 (1)),
@@ -442,12 +443,12 @@ package body math.Algebra.linear.d2 is
 
    function Solve (Self : in Matrix_2x2;   B : in Vector_2) return Vector_2
    is
-      A11 : Number renames Self (1, 1);
-      A12 : Number renames Self (1, 2);
-      A21 : Number renames Self (2, 1);
-      A22 : Number renames Self (2, 2);
+      A11 : Real renames Self (1, 1);
+      A12 : Real renames Self (1, 2);
+      A21 : Real renames Self (2, 1);
+      A22 : Real renames Self (2, 2);
 
-      det : Number := a11 * a22 - a12 * a21;
+      det : Real := a11 * a22 - a12 * a21;
    begin
       pragma assert (det /= 0.0);
       det := 1.0 / det;

@@ -1,7 +1,7 @@
 
 --with ada_BLAS.Real;
 
-with pragmarc.Matrix_math;
+--with pragmarc.Matrix_math;
 --with gsl_matrixs.Binding;                 --tbs: add pragma pure to swig generated files !!
 --with gsl_linear_algebra.Binding;
 --with ada_blas.Real;
@@ -11,7 +11,7 @@ with ada.numerics.generic_real_arrays;
 --with laCmp;
 
 
-with math.Algebra.linear.d3;   use math.Algebra.linear.d3;  -- only for quaternion which will soon be moving out.
+--with math.Algebra.linear.d3;   use math.Algebra.linear.d3;  -- only for quaternion which will soon be moving out.
 
 with ada.Characters.latin_1;
 
@@ -22,7 +22,7 @@ package body math.Algebra.linear is
    -- tbd: factor 'quaternion' out into it's own package.
 
    use math.Functions;
-   use type math.Number, math.Integer;
+   use type math.Real, Integer;
 
 
 
@@ -40,9 +40,9 @@ package body math.Algebra.linear is
    -- tbd: add remaining BLAS operations.
 
 
-   function Norm_2 (Self : in Vector) return Number
+   function Norm_2 (Self : in Vector) return Real
    is
-      the_Norm_2 : Number := 0.0;
+      the_Norm_2 : Real := 0.0;
    begin
       for Each in Self'range loop
          the_Norm_2 := the_Norm_2 + Self (Each) * Self (Each);
@@ -55,7 +55,7 @@ package body math.Algebra.linear is
 
 
 
-   function Norm (Self : in Vector) return Number
+   function Norm (Self : in Vector) return Real
    is
    begin
       return Sqrt (Norm_2 (Self));
@@ -66,7 +66,7 @@ package body math.Algebra.linear is
 
    procedure normalise (Self : in out Vector)
    is
-     inv_Norm : Number := 1.0 / Norm (Self);
+     inv_Norm : Real := 1.0 / Norm (Self);
    begin
       for Each in self'Range loop
          Self (Each) := Self (Each) * inv_Norm;
@@ -87,7 +87,7 @@ package body math.Algebra.linear is
 
 
 
-   function sum_Abs (Self : in     Vector) return Number
+   function sum_Abs (Self : in     Vector) return Real
    is
    begin
       raise constraint_Error;  -- tbd
@@ -97,7 +97,7 @@ package body math.Algebra.linear is
 
 
 
-   function Index_of_max (Self : in     Vector) return math.Integer
+   function Index_of_max (Self : in     Vector) return Integer
    is
    begin
       raise constraint_error;
@@ -135,7 +135,7 @@ package body math.Algebra.linear is
 
 
 
-   procedure scale (Self : in out Vector;   By : Number)
+   procedure scale (Self : in out Vector;   By : Real)
    is
    begin
       for Each in Self'range loop
@@ -171,7 +171,7 @@ package body math.Algebra.linear is
 
 
 
-   function "/" (Left : Vector;   Right : Number) return Vector
+   function "/" (Left : Vector;   Right : Real) return Vector
    is
       the_Result : Vector := Left;
    begin
@@ -204,7 +204,7 @@ package body math.Algebra.linear is
       pragma assert (Left'Length = Right'Length);
 
       for Each in the_Min'range loop
-         the_Min (Each) := Number'Min (Left (Each),  Right (Each));
+         the_Min (Each) := Real'Min (Left (Each),  Right (Each));
       end loop;
 
       return the_Min;
@@ -219,7 +219,7 @@ package body math.Algebra.linear is
       pragma assert (Left'Length = Right'Length);
 
       for Each in the_Max'range loop
-         the_Max (Each) := Number'Max (Left (Each),  Right (Each));
+         the_Max (Each) := Real'Max (Left (Each),  Right (Each));
       end loop;
 
       return the_Max;
@@ -247,7 +247,7 @@ package body math.Algebra.linear is
             add (", ");
          end if;
 
-         add (number'Image (Self (Each)));
+         add (Real'Image (Self (Each)));
       end loop;
 
       add (")");
@@ -281,13 +281,13 @@ package body math.Algebra.linear is
 
 
 
-   function Min (Self : in Matrix) return Number
+   function Min (Self : in Matrix) return Real
    is
-      the_Min : Number := Number'Last;
+      the_Min : Real := Real'Last;
    begin
       for each_Row in Self'Range (1) loop
          for each_Col in Self'Range (2) loop
-            the_Min := Number'Min (the_Min,  Self (each_Row, each_Col));
+            the_Min := Real'Min (the_Min,  Self (each_Row, each_Col));
          end loop;
       end loop;
 
@@ -297,13 +297,13 @@ package body math.Algebra.linear is
 
 
 
-   function Max (Self : in Matrix) return Number
+   function Max (Self : in Matrix) return Real
    is
-      the_Max : Number := Number'First;
+      the_Max : Real := Real'First;
    begin
       for each_Row in Self'Range (1) loop
          for each_Col in Self'Range (2) loop
-            the_Max := Number'Max (the_Max,  Self (each_Row, each_Col));
+            the_Max := Real'Max (the_Max,  Self (each_Row, each_Col));
          end loop;
       end loop;
 
@@ -340,7 +340,7 @@ package body math.Algebra.linear is
                add (", ");
             end if;
 
-            add (number'Image (Self (Row, Col)));
+            add (Real'Image (Self (Row, Col)));
          end loop;
 
       end loop;
@@ -359,80 +359,80 @@ package body math.Algebra.linear is
 
 
 
-   -- pragmarc
-   --
-
-   package pragmarc_Matrices is new pragmarc.Matrix_math (Number, -1.0, 0.0);
-
-
-   subtype pragmarc_Vector   is pragmarc_Matrices.Vector;
-   subtype pragmarc_Vector_3 is pragmarc_Matrices.Vector (3);
-   subtype pragmarc_Vector_4 is pragmarc_Matrices.Vector (4);
-
-   subtype pragmarc_Matrix   is pragmarc_Matrices.Matrix;
-   subtype pragmarc_Matrix_3 is pragmarc_Matrices.Matrix (3, 3);
-
-   use pragmarc_Matrices;
-   use type pragmarc_Matrix;
-   use type pragmarc_Matrix_3;
-
-
-   function to_Pragmarc (Self : in Quaternion) return pragmarc_Vector
-   is
-      the_Vector : pragmarc_Vector (4);
-   begin
-      for Each in 1 .. 4 loop
-         the_vector.value.Value (each, 1) := Self (math.Integer (Each));
-      end loop;
-
-      return the_Vector;
-   end;
-
-
-
-   function to_Math (Self : in pragmarc_Vector_4) return Quaternion
-   is
-      the_Quaternion : Quaternion;
-   begin
-      for Each in 1 .. 4 loop
-          the_Quaternion (math.Integer (Each)) := Self.value.value (Each, 1);
-      end loop;
-
-      return the_Quaternion;
-   end;
-
-
-
-
-   function to_pragmarc (Self : in Matrix_3x3) return pragmarc_Matrix
-   is
-      the_Matrix : pragmarc_Matrix (self'Length (1), self'Length (2));
-   begin
-      for Row in self'Range (1) loop
-         for Col in self'Range (2) loop
-            the_Matrix.value (standard.Integer (Row), standard.Integer (Col)) := Self (Row, Col);
-         end loop;
-      end loop;
-
-      return the_Matrix;
-   end;
-
-
-
-
-
-   function to_Math (Self : in pragmarc_Matrix_3) return Matrix_3x3
-   is
-      the_Matrix : Matrix_3x3;
-   begin
-      for Row in 1 .. self.num_Rows loop
-         for Col in 1 .. self.num_Columns loop
-             the_Matrix (math.Integer (Row), math.Integer (Col)) := self.Value (Row, Col);
-         end loop;
-      end loop;
-
-      return the_Matrix;
-   end;
+--     -- pragmarc
+--     --
+--
+--     package pragmarc_Matrices is new pragmarc.Matrix_math (Number, -1.0, 0.0);
+--
+--
+--     subtype pragmarc_Vector   is pragmarc_Matrices.Vector;
+--     subtype pragmarc_Vector_3 is pragmarc_Matrices.Vector (3);
+--     subtype pragmarc_Vector_4 is pragmarc_Matrices.Vector (4);
+--
+--     subtype pragmarc_Matrix   is pragmarc_Matrices.Matrix;
+--     subtype pragmarc_Matrix_3 is pragmarc_Matrices.Matrix (3, 3);
+--
+--     use pragmarc_Matrices;
+--     use type pragmarc_Matrix;
+--     use type pragmarc_Matrix_3;
+--
+--
+--     function to_Pragmarc (Self : in Quaternion) return pragmarc_Vector
+--     is
+--        the_Vector : pragmarc_Vector (4);
+--     begin
+--        for Each in 1 .. 4 loop
+--           the_vector.value.Value (each, 1) := Self (math.Integer (Each));
+--        end loop;
+--
+--        return the_Vector;
+--     end;
+--
+--
+--
+--     function to_Math (Self : in pragmarc_Vector_4) return Quaternion
+--     is
+--        the_Quaternion : Quaternion;
+--     begin
+--        for Each in 1 .. 4 loop
+--            the_Quaternion (math.Integer (Each)) := Self.value.value (Each, 1);
+--        end loop;
+--
+--        return the_Quaternion;
+--     end;
+--
+--
+--
+--
+--     function to_pragmarc (Self : in Matrix_3x3) return pragmarc_Matrix
+--     is
+--        the_Matrix : pragmarc_Matrix (self'Length (1), self'Length (2));
+--     begin
+--        for Row in self'Range (1) loop
+--           for Col in self'Range (2) loop
+--              the_Matrix.value (standard.Integer (Row), standard.Integer (Col)) := Self (Row, Col);
+--           end loop;
+--        end loop;
+--
+--        return the_Matrix;
+--     end;
+--
+--
+--
+--
+--
+--     function to_Math (Self : in pragmarc_Matrix_3) return Matrix_3x3
+--     is
+--        the_Matrix : Matrix_3x3;
+--     begin
+--        for Row in 1 .. self.num_Rows loop
+--           for Col in 1 .. self.num_Columns loop
+--               the_Matrix (math.Integer (Row), math.Integer (Col)) := self.Value (Row, Col);
+--           end loop;
+--        end loop;
+--
+--        return the_Matrix;
+--     end;
 
 
 
@@ -451,8 +451,10 @@ package body math.Algebra.linear is
 
 
 
-   function sub_Matrix (Self : in Matrix;   start_Row, end_Row : in math.Integer;
-                                            start_Col, end_Col : in math.Integer) return Matrix
+--     function sub_Matrix (Self : in Matrix;   start_Row, end_Row : in Index_type;
+--                                              start_Col, end_Col : in Index_type) return Matrix
+   function sub_Matrix (Self : in Matrix;   start_Row, end_Row : in Integer;
+                                            start_Col, end_Col : in Integer) return Matrix
    is
       the_sub_Matrix : Matrix (1 .. end_Row - start_Row + 1,
                                1 .. end_Col - start_Col + 1);
@@ -471,7 +473,8 @@ package body math.Algebra.linear is
 
 
 
-   function Identity (Length : in math.Integer := 3) return Matrix
+   --function Identity (Length : in Index_type := 3) return Matrix
+   function Identity (Length : in Integer := 3) return Matrix
    is
       Result : Matrix (1 .. Length, 1 .. Length);
    begin
@@ -500,7 +503,7 @@ package body math.Algebra.linear is
 
 
 
-   function "*" (Left  : in Matrix;   Right : in Number) return Matrix
+   function "*" (Left  : in Matrix;   Right : in Real) return Matrix
    is
       Result : Matrix := Left;
    begin
@@ -541,24 +544,25 @@ package body math.Algebra.linear is
 
 
 
+   package Real_arrays is new Ada.Numerics.Generic_Real_Arrays (Real);
 
 
 
 
-   function Transposed (Self : in Matrix) return Matrix
-   is
-   begin
-     return to_Math (transpose (to_pragmarc (Self)));
-   end;
+--     function Transposed (Self : in Matrix) return Matrix
+--     is
+--     begin
+--       return to_Math (transpose (to_pragmarc (Self)));
+--     end;
 
 
 
 
-   procedure invert (Self : in out Matrix)
-   is
-   begin
-      Self := to_Math (invert (to_pragmarc (Self)));
-   end invert;
+--     procedure invert (Self : in out Matrix)
+--     is
+--     begin
+--        Self := to_Math (invert (to_pragmarc (Self)));
+--     end invert;
 
 
 
@@ -617,18 +621,18 @@ package body math.Algebra.linear is
    --
 
 
-   function to_Quaternion (aX, aY, aZ : in     Number;
-                           Angle      : in     Number) return Quaternion
+   function to_Quaternion (aX, aY, aZ : in     Real;
+                           Angle      : in     Real) return Quaternion
    is
       Result : Quaternion;
-      L      : Number    := aX * aX  +  aY * aY  +  aZ * aZ;
+      L      : Real      := aX * aX  +  aY * aY  +  aZ * aZ;
    begin
       if L > 0.0 then
          declare
-            half_Angle : Number := Angle * 0.5;
+            half_Angle : Real := Angle * 0.5;
          begin
             Result (1) := Cos (half_Angle);
-            L        := Sin (half_Angle) * (1.0 / Sqrt (L));
+            L          := Sin (half_Angle) * (1.0 / Sqrt (L));
             Result (2) := aX * L;
             Result (3) := aY * L;
             Result (4) := aZ * L;
@@ -665,15 +669,55 @@ package body math.Algebra.linear is
    function "*" (Self : in     Quaternion;
                  By   : in     Quaternion) return Quaternion
    is
-      new_Vector : Vector_3 :=   Vector_3 (Self (2 .. 4))  *  By (1)
-                               + Self (1)                  *  Vector_3 (By (2 .. 4))
-                               + Vector_3 (Self (2 .. 4))  *  Vector_3 (By (2 .. 4));
+      t    : constant := 1;
+      x    : constant := 2;
+      y    : constant := 3;
+      z    : constant := 4;
+
+      A    : Quaternion renames Self;
+      B    : Quaternion renames By;
+
+      AtBt : Real := A (t) * B (t);
+      AxBx : Real := A (x) * B (x);
+      AyBy : Real := A (y) * B (y);
+      AzBz : Real := A (z) * B (z);
+
+      AtBx : Real := A (t) * B (x);
+      AxBt : Real := A (x) * B (t);
+      AyBz : Real := A (y) * B (z);
+      AzBy : Real := A (z) * B (y);
+
+      AtBy : Real := A (t) * B (y);
+      AxBz : Real := A (x) * B (z);
+      AyBt : Real := A (y) * B (t);
+      AzBx : Real := A (z) * B (x);
+
+      AtBz : Real := A (t) * B (z);
+      AxBy : Real := A (x) * B (y);
+      AyBx : Real := A (y) * B (x);
+      AzBt : Real := A (z) * B (t);
    begin
-      return (Self (1) * By (1)  -  Vector_3 (Self (2 .. 4)) * Vector_3 (By (2 .. 4)),
-              new_Vector (1),
-              new_Vector (2),
-              new_Vector (3));
+      return (AtBt - AxBx - AyBy - AzBz,
+              AtBx + AxBt + AyBz - AzBy,
+              AtBy - AxBz + AyBt + AzBx,
+              AtBz + AxBy - AyBx + AzBt);
    end;
+
+
+
+
+--     function "*" (Self : in     Quaternion;
+--                   By   : in     Quaternion) return Quaternion
+--     is
+--        new_Vector : Vector_3 :=   Vector_3 (Self (2 .. 4))  *  By (1)
+--                                 + Self (1)                  *  Vector_3 (By (2 .. 4))
+--                                 + Vector_3 (Self (2 .. 4))  *  Vector_3 (By (2 .. 4));
+--     begin
+--        return (Self (1) * By (1)  -  Vector_3 (Self (2 .. 4)) * Vector_3 (By (2 .. 4)),
+--                new_Vector (1),
+--                new_Vector (2),
+--                new_Vector (3));
+--     end;
 
 --    /// Multiply two quaternions, Grassmann product
 --    inline friend csQuaternion operator* (const csQuaternion& q1,
@@ -758,23 +802,23 @@ package body math.Algebra.linear is
 
    function euler_Angles (Self : in     Quaternion) return Vector_3     -- 'self' can be non-normalised quaternion
    is
-      w : Number renames Self (1);
-      x : Number renames Self (2);
-      y : Number renames Self (3);
-      z : Number renames Self (4);
+      w : Real renames Self (1);
+      x : Real renames Self (2);
+      y : Real renames Self (3);
+      z : Real renames Self (4);
 
       the_Angles : Vector_3;
-      bank       : Number renames the_Angles (1);
-      heading    : Number renames the_Angles (2);
-      attitude   : Number renames the_Angles (3);
+      bank       : Real renames the_Angles (1);
+      heading    : Real renames the_Angles (2);
+      attitude   : Real renames the_Angles (3);
 
-      sqw : Number := w * w;
-      sqx : NUmber := x * x;
-      sqy : Number := y * y;
-      sqz : Number := z * z;
+      sqw : Real := w * w;
+      sqx : Real := x * x;
+      sqy : Real := y * y;
+      sqz : Real := z * z;
 
-      unit : Number := sqx + sqy + sqz + sqw;      -- if normalised is one, otherwise is correction factor
-      test : Number := x * y  +  z * w;
+      unit : Real := sqx + sqy + sqz + sqw;      -- if normalised is one, otherwise is correction factor
+      test : Real := x * y  +  z * w;
    begin
       if test > 0.499 * unit then   -- singularity at north pole
          heading  := 2.0 * arcTan (x, w);
@@ -802,8 +846,8 @@ package body math.Algebra.linear is
 
    function to_Quaternion (Self : in Matrix_3x3) return Quaternion
    is
-      TR : Number;
-      S  : Number;
+      TR : Real;
+      S  : Real;
 
       the_Quaternion : Quaternion;
    begin
