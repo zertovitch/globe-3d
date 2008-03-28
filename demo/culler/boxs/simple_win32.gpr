@@ -11,7 +11,7 @@ project Simple_win32 is
       when "Debug" =>
          for Object_Dir use "..\..\..\obj\gnatdebg";
       when "Fast" =>
-         for Object_Dir use "..\..\..\obj\gnatopti";
+         for Object_Dir use "..\..\..\obj\gnatfast";
       when "Small" =>
          for Object_Dir use "..\..\..\obj\gnatsmal";
    end case;
