@@ -14,7 +14,7 @@ with ada.text_io; use ada.text_io;
 with ada.unchecked_Conversion;
 
 with System.Storage_Elements;
-with Ada_Containers_Generic_Array_Sort;
+with Ada.Containers.Generic_Array_Sort;
 
 
 package body GLOBE_3D is
@@ -1284,7 +1284,7 @@ package body GLOBE_3D is
          end "<";
 
          --procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
-         procedure sort is new Ada_Containers_Generic_Array_Sort (Positive,
+         procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
                                                                   visual_geometry,
                                                                   visual_geometrys);
          use oGL.Skins, oGL.Geometry, oGL.Skinned_Geometry;
@@ -1346,7 +1346,7 @@ package body GLOBE_3D is
          end;
 
          --procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
-         procedure sort is new Ada_Containers_Generic_Array_Sort (Positive,
+         procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
                                                                   globe_3d.p_Visual,
                                                                   globe_3d.Visual_array);
       begin

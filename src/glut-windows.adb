@@ -26,8 +26,7 @@ with Ada.Numerics;                      use Ada.Numerics;
 with Ada.Command_Line;
 with Ada.unchecked_Conversion;
 
-with Ada_Containers_Generic_Array_Sort;
---with Ada.Containers.Generic_Array_Sort;        -- use this when Ada05 is generally available on all compilers
+with Ada.Containers.Generic_Array_Sort;
 
 with Ada.Calendar;
 --with Ada.Calendar.Formatting;   use Ada.Calendar.Formatting; -- for Image(t:Time); we use a proxy here

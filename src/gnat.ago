@@ -5,6 +5,7 @@
 WINDOWS_TARGET
 
 
+material_Type
 video
 png
 image (
@@ -14,7 +15,6 @@ g3dem
 to_upper
 to_lower
 global_data_na
-ada.text_io
 -- Begin compiler switches
 RELEASE <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

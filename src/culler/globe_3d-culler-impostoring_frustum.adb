@@ -3,7 +3,7 @@ with globe_3d.Impostor.simple;
 with globe_3d.Impostor.terrain;
 with globe_3d.Math;               use globe_3d.Math;
 
-with Ada_Containers_Generic_Array_Sort;
+with Ada.Containers.Generic_Array_Sort;
 
 with ada.text_IO;       use ada.text_IO;
 with ada.exceptions;    use ada.exceptions;
@@ -263,7 +263,7 @@ package body globe_3d.Culler.impostoring_frustum is
                end "<";
 
                --procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
-               procedure sort is new Ada_Containers_Generic_Array_Sort (Positive,
+               procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
                                                                         impostor.p_Impostor,
                                                                         impostor.p_Impostor_array);
             begin
