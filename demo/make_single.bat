@@ -18,24 +18,34 @@ rem -Wl,--stack=20000000
 
 goto small
 
-rem -----------------------------------------------
 :debug
+rem  -----------------------------------------------
 echo ---- compile mode: DEBUG
-gnatmake %compiler% -g -j2 -fstack-check -gnato -gnatwa -gnatVa -gnatecdebug.pra -fno-strict-aliasing %src% -aO../obj/gnatdebg %1 %2 %3 -bargs -E -largs %obj%
+rem  -----------------------------------------------
+
+rem gnatmake %compiler% -g -j2 -fstack-check -gnato -gnatwa -gnatVa -gnatecdebug.pra -fno-strict-aliasing %src% -aO../obj/gnatdebg %1 %2 %3 -bargs -E -largs %obj%
+gnatmake -PGLOBE_3D_GPS_Win32.gpr GLOBE_3D_Demo.adb -d -XBuild_Mode=Debug 
 goto done
 
-rem -----------------------------------------------
 :fast
+rem  -----------------------------------------------
 echo ---- compile mode: OPTIM: FAST
-gnatmake %compiler% -O2 -j2 -gnatpn -funroll-loops -fpeel-loops -ftracer -funswitch-loops -fno-strict-aliasing %src% -aO../obj/gnatopti %1 %2 %3 -largs %obj% -s -mwindows
+rem  -----------------------------------------------
 
-rem -----------------------------------------------
+rem gnatmake %compiler% -O2 -j2 -gnatpn -funroll-loops -fpeel-loops -ftracer -funswitch-loops -fno-strict-aliasing %src% -aO../obj/gnatfast %1 %2 %3 -largs %obj% -s -mwindows
+gnatmake -PGLOBE_3D_GPS_Win32.gpr GLOBE_3D_Demo.adb -d -XBuild_Mode=Fast 
+
 :small
+rem  -----------------------------------------------
 echo ---- compile mode: OPTIM: SMALL
-rem ** Set a good old version of GNAT (small .exe, Win 9x compatible)
+rem  -----------------------------------------------
+
+rem ** Set an old version of GNAT (small .exe, Win 9x compatible)
 rem ** Trick silent if alternative GNAT not installed...
-path f:\ada\gnat315p\bin;%path%
-gnatmake %compiler% -O2 -j2 -s -gnatp %src% -aO../obj/gnatsmal %1 %2 %3 -largs %obj% -s -mwindows
+rem path f:\ada\gnat315p\bin;%path%
+
+rem gnatmake %compiler% -O2 -s -fomit-frame-pointer -gnatp %src% -aO../obj/gnatsmal %1 %2 %3 -largs %obj% -s -mwindows
+gnatmake -PGLOBE_3D_GPS_Win32.gpr GLOBE_3D_Demo.adb -d -XBuild_Mode=Small 
 
 rem -----------------------------------------------
 :done

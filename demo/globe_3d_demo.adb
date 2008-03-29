@@ -1,10 +1,12 @@
 ------------------------------------------------------------------------------
 --  File:            GLOBE_3D_Demo.adb
 --  Description:     A small demo for GLOBE_3D
---  Copyright (c) Gautier de Montmollin 2002, 2005, 2006
+--  Copyright (c) Gautier de Montmollin 2002, 2005, 2006, 2008
 ------------------------------------------------------------------------------
 
-with GL, GLU, GLUT.Devices;
+with GL,
+     GL.IO,
+     GL.Materials;
 
 with GLOBE_3D,
      GLOBE_3D.IO,
@@ -12,12 +14,12 @@ with GLOBE_3D,
      GLOBE_3D.Options,
      GLOBE_3D.Math,
      GLOBE_3D.Textures,
-     GLOBE_3D.Materials,
      GLOBE_3D.Software_Anti_Aliasing,
      GLOBE_3D.Stars_sky;
 
+with GLU, GLUT.Devices, GLUT_2D;
+
 with Ego, Game_control;
-with GL.IO, GLUT_2D;
 
 ---------------
 -- 3D models --
@@ -460,19 +462,19 @@ procedure GLOBE_3D_Demo is
       icos.face(i).skin:= material_only;
       case (i-1) / 20 is
         -- Non-transparent things
-        when  1 => icos.face(i).material:= GLOBE_3D.Materials.Brass;
-        when  2 => icos.face(i).material:= GLOBE_3D.Materials.Bronze;
-        when  3 => icos.face(i).material:= GLOBE_3D.Materials.Copper;
-        when  4 => icos.face(i).material:= GLOBE_3D.Materials.Polished_Copper;
-        when  5 => icos.face(i).material:= GLOBE_3D.Materials.Gold;
-        when  6 => icos.face(i).material:= GLOBE_3D.Materials.Polished_Bronze;
+        when  1 => icos.face(i).material:= GL.Materials.Brass;
+        when  2 => icos.face(i).material:= GL.Materials.Bronze;
+        when  3 => icos.face(i).material:= GL.Materials.Copper;
+        when  4 => icos.face(i).material:= GL.Materials.Polished_Copper;
+        when  5 => icos.face(i).material:= GL.Materials.Gold;
+        when  6 => icos.face(i).material:= GL.Materials.Polished_Bronze;
         -- Transparent things (Nabokov!)
-        when  7 => icos.face(i).material:= GLOBE_3D.Materials.Pewter;
-        when  8 => icos.face(i).material:= GLOBE_3D.Materials.Pearl;
-        when  9 => icos.face(i).material:= GLOBE_3D.Materials.Obsidian;
-        when 10 => icos.face(i).material:= GLOBE_3D.Materials.Jade;
-        when 11 => icos.face(i).material:= GLOBE_3D.Materials.Emerald;
-        when  0 => icos.face(i).material:= GLOBE_3D.Materials.Ruby;
+        when  7 => icos.face(i).material:= GL.Materials.Pewter;
+        when  8 => icos.face(i).material:= GL.Materials.Pearl;
+        when  9 => icos.face(i).material:= GL.Materials.Obsidian;
+        when 10 => icos.face(i).material:= GL.Materials.Jade;
+        when 11 => icos.face(i).material:= GL.Materials.Emerald;
+        when  0 => icos.face(i).material:= GL.Materials.Ruby;
         when others => null;
       end case;
     end loop;
