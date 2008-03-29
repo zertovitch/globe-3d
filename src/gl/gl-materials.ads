@@ -1,27 +1,46 @@
-
 package GL.Materials is
 
+  -- Material. Doc from the VRML 1.0 spec (refers to OpenGL):
 
-   type Material_type is record               -- tbd: factor out into own package.
-      ambient,
-      diffuse,
-      specular,
-      emission  : GL.Material_Float_vector;
-      shininess : GL.Float; -- 0.0 .. 128.0
-   end record;
+  --  * The ambient color reflects ambient light evenly from all parts of
+  --    an object regardless of viewing and lighting angles.
+  --
+  --  * The diffuse color reflects all VRML light sources depending on the
+  --    angle of the surface with respect to the light source.
+  --    The more directly the surface faces the light, the more
+  --    diffuse light reflects.
+  --
+  --  * The specular color and shininess determine the specular highlights,
+  --    e.g., the shiny spots on an apple. When the angle from the light
+  --    to the surface is close to the angle from the surface to the viewer,
+  --    the specular color is added to the diffuse and ambient color
+  --    calculations.
+  --    Lower shininess values produce soft glows, while higher values
+  --    result in sharper, smaller highlights.
+  --
+  --  * Emissive color models "glowing" objects. This can be useful for
+  --    displaying radiosity-based models (where the light energy of the
+  --    room is computed explicitly), or for displaying scientific data.
 
+  type Material_type is record
+    ambient,
+    diffuse,
+    specular,
+    emission  : GL.Material_Float_vector;
+    shininess : GL.Float; -- 0.0 .. 128.0
+  end record;
 
-   function  is_Transparent (Self : in     Material_type) return Boolean;
+  function is_Transparent (Self : in Material_type) return Boolean;
 
+  neutral_material :
+    constant Material_type:= (ambient =>        (0.2, 0.2, 0.2, 1.0),
+                              diffuse =>        (0.8, 0.8, 0.8, 1.0),
+                              specular =>       (0.0, 0.0, 0.0, 1.0),
+                              emission =>       (0.0, 0.0, 0.0, 1.0),
+                              shininess =>      0.0);                 
+                              -- ^ the values are GL defaults.
 
-
-   neutral_material : constant Material_type:= (ambient =>        (0.2, 0.2, 0.2, 1.0),
-                                                diffuse =>        (0.8, 0.8, 0.8, 1.0),
-                                                specular =>       (0.0, 0.0, 0.0, 1.0),
-                                                emission =>       (0.0, 0.0, 0.0, 1.0),
-                                                shininess =>      0.0);                 -- ^ the values are GL defaults.
-
-  -- A few colours:
+  -- A few colour-dominant materials:
 
   Red   : constant Material_type:= (
     ambient   => (0.0, 0.0, 0.0, 1.0),
@@ -245,4 +264,3 @@ package GL.Materials is
             shininess =>       25.6);
 
 end GL.Materials;
-

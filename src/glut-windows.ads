@@ -16,13 +16,13 @@ with gl.skinned_Geometry;
 
 with GLOBE_3D.Textures;
 with Game_Control;
-with glow.Devices;
+with glut.Devices;
 
 with ada.strings.unbounded;
 
 
 
-package glow.Windows is
+package glut.Windows is
 
 
    procedure initialize;   -- called before any other operation
@@ -178,4 +178,4 @@ private
 
 
   --pragma Linker_options("-mwindows"); -- Suppress console window
-end glow.Windows;
+end glut.Windows;

@@ -3,12 +3,12 @@
 -----------------------------------------------------------------------------
 
 with Interfaces;
-with glow.Windows;              use glow.Windows;
+with glut.Windows;              use glut.Windows;
 with Ada.Characters.Handling;   use Ada.Characters.Handling;
 with System;
 with ada.unchecked_Conversion;
 
-package body glow.Devices is
+package body glut.Devices is
 
 
    -- current_Window : - for accessing the current GLUT window
@@ -19,7 +19,7 @@ package body glow.Devices is
    is
       function to_Window is new ada.unchecked_Conversion (system.Address, windows.Window_view);
    begin
-      return to_Window (glow.getWindowData);
+      return to_Window (glut.getWindowData);
    end;
 
 
@@ -35,7 +35,7 @@ package body glow.Devices is
       if the_current_Window = null then
          return default_Keyboard'access;
       else
-         return glow.windows.Keyboard (the_current_Window);
+         return glut.windows.Keyboard (the_current_Window);
       end if;
    end;
 
@@ -46,16 +46,16 @@ package body glow.Devices is
     use Interfaces;
     m: constant Unsigned_32:= Unsigned_32( modif_code );
   begin
-    current_Keyboard.modif_set( glow.Active_shift ):= (m and glow.Active_shift) /= 0;
-    current_Keyboard.modif_set( glow.Active_ctrl  ):= (m and glow.Active_ctrl) /= 0;
-    current_Keyboard.modif_set( glow.Active_alt   ):= (m and glow.Active_alt) /= 0;
+    current_Keyboard.modif_set( glut.Active_shift ):= (m and glut.Active_shift) /= 0;
+    current_Keyboard.modif_set( glut.Active_ctrl  ):= (m and glut.Active_ctrl) /= 0;
+    current_Keyboard.modif_set( glut.Active_alt   ):= (m and glut.Active_alt) /= 0;
   end Affect_modif_key;
 
 
 
   procedure Update_modifier_keys is
   begin
-    Affect_modif_key( glow.GetModifiers );
+    Affect_modif_key( glut.GetModifiers );
     --  During a callback, GetModifiers may be called
     --  to determine the state of modifier keys
     --  when the keystroke generating the callback occurred.
@@ -67,7 +67,7 @@ package body glow.Devices is
 
   -- GLUT Callback procedures --
 
-  procedure Key( k: glow.Key_type; x,y: Integer ) is
+  procedure Key( k: glut.Key_type; x,y: Integer ) is
 
   begin
     if x=y then null; end if; -- bogus (anti-warning)
@@ -75,7 +75,7 @@ package body glow.Devices is
     Update_modifier_keys;
   end Key;
 
-  procedure Key_up( k: glow.Key_type; x,y: Integer ) is
+  procedure Key_up( k: glut.Key_type; x,y: Integer ) is
   begin
     if x=y then null; end if; -- bogus (anti-warning)
     current_Keyboard.normal_set( To_Upper(Character'Val(k)) ):= False;  -- key k is unpressed
@@ -110,7 +110,7 @@ package body glow.Devices is
      if the_current_Window = null then
         return default_Mouse'access;
      else
-        return glow.windows.Mouse (the_current_Window);
+        return glut.windows.Mouse (the_current_Window);
      end if;
   end;
 
@@ -123,7 +123,7 @@ package body glow.Devices is
     current_Mouse.mx:= x;
     current_Mouse.my:= y;
     if button in current_Mouse.button_state'Range then -- skip extra buttons (wheel, etc.)
-      current_Mouse.button_state( button ) := state = glow.DOWN; -- Joli, non ?
+      current_Mouse.button_state( button ) := state = glut.DOWN; -- Joli, non ?
     end if;
     Update_modifier_keys;
   end Mouse_Event;
@@ -150,7 +150,7 @@ package body glow.Devices is
    --
 
   procedure Initialize is
-    use glow;
+    use glut;
   begin
     IgnoreKeyRepeat   (1);
     KeyboardFunc      (Key'access           );
@@ -210,4 +210,4 @@ package body glow.Devices is
   end Strike_once;
 
 
-end glow.Devices;
+end glut.Devices;

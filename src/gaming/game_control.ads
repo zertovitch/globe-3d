@@ -7,7 +7,7 @@
 
 --  To do: programmable behaviour
 
-with GL, glow.Devices;
+with GL, glut.Devices;
 
 package Game_control is
 
@@ -63,8 +63,8 @@ package Game_control is
               warp_mouse : in     Boolean;                  -- recenter mouse cursor
               c          : in out game_control.Command_set; -- commands are added to c
               gx,gy      :    out GL.Double;                -- mouse movement since last call
-              keyboard   : access glow.devices.Keyboard := glow.devices.default_Keyboard'access;
-              mouse      : access glow.devices.Mouse    := glow.devices.default_Mouse'access
+              keyboard   : access glut.devices.Keyboard := glut.devices.default_Keyboard'access;
+              mouse      : access glut.devices.Mouse    := glut.devices.default_Mouse'access
   );
 
 

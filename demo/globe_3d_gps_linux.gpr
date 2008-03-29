@@ -1,7 +1,7 @@
 project Globe_3D_Gps_Linux is
 
    for Object_Dir use "../obj/gnatdebg";
-   for Source_Dirs use (".", "../bindings", "../bindings/linux", "../src//**", "../ada05_proxy");
+   for Source_Dirs use (".", "../bindings", "../bindings/linux", "../src//**");
    for Main use ("globe_3d_demo.adb");
    for Exec_Dir use ".";
 
@@ -32,7 +32,7 @@ project Globe_3D_Gps_Linux is
    end Linker;
 
    package Compiler is
-      for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnat95", "-gnatwk", "-gnatwm", "-gnatwp", "-gnatwz", "-gnatVc", "-gnatVf", "-gnatVi", "-gnatVm", "-gnatVo", "-gnatVr", "-gnatVs", "-gnatVt", "-gnatyh", "-gnatyi", 
+      for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnat95", "-gnatwk", "-gnatwm", "-gnatwp", "-gnatwz", "-gnatVc", "-gnatVf", "-gnatVi", "-gnatVm", "-gnatVo", "-gnatVr", "-gnatVs", "-gnatVt", "-gnatyh", "-gnatyi",
 "-gnatyk", "-gnatyn", "-gnatyp");
    end Compiler;
 

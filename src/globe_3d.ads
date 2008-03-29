@@ -29,7 +29,14 @@
 
 -------------------------------------------------------------------------
 
-with GL,  oGL.Geometry,  oGL.Frustums,  oGL.Skins,  oGL.skinned_Geometry,  Zip;
+with GL,
+     GL.Geometry,
+     GL.Frustums,
+     GL.Skins,
+     GL.skinned_Geometry,
+     GL.Materials;
+
+with Zip;
 
 with Ada.Text_IO;
 with Ada.Numerics.Generic_Elementary_functions;
@@ -135,7 +142,7 @@ package GLOBE_3D is
 
          Projection_Matrix   :         Globe_3D.Matrix_44;
 
-         frustum_Planes      :         ogl.frustums.plane_Array;
+         frustum_Planes      :         gl.frustums.plane_Array;
       end record;
 
    type p_Camera is access all Camera'Class;
@@ -178,9 +185,9 @@ package GLOBE_3D is
 
 
    function face_Count (o : in Visual) return Natural                   is abstract;
-   function Bounds     (o : in Visual) return ogl.geometry.Bounds_record is abstract;
+   function Bounds     (o : in Visual) return gl.geometry.Bounds_record is abstract;
 
-   function skinned_Geometrys (o : in Visual) return ogl.skinned_geometry.skinned_Geometrys;
+   function skinned_Geometrys (o : in Visual) return gl.skinned_geometry.skinned_Geometrys;
 
    procedure Display (o    : in out Visual;
                       clip : in     Clipping_data) is abstract;
@@ -238,41 +245,7 @@ package GLOBE_3D is
       others => False
     );
 
-  -- Material. Doc from the VRML 1.0 spec (refers to OpenGL):
-
-  --  * The ambientColor reflects ambient light evenly from all parts of
-  --    an object regardless of viewing and lighting angles.
-  --  * The diffuseColor reflects all VRML light sources depending on the
-  --    angle of the surface with respect to the light source.
-  --    The more directly the surface faces the light, the more
-  --    diffuse light reflects.
-  --  * The specularColor and shininess determine the specular highlights,
-  --    e.g., the shiny spots on an apple. When the angle from the light
-  --    to the surface is close to the angle from the surface to the viewer,
-  --    the specularColor is added to the diffuse and ambient color calculations.
-  --    Lower shininess values produce soft glows, while higher values
-  --    result in sharper, smaller highlights.
-  --  * Emissive color models "glowing" objects. This can be useful for
-  --    displaying radiosity-based models (where the light energy of the room
-  --    is computed explicitly), or for displaying scientific data.
-
-  type Material_type is record
-    ambient,
-    diffuse,
-    specular,
-    emission  : GL.Material_Float_vector;
-    shininess : GL.Float; -- 0.0 .. 128.0
-  end record;
-
   null_colour: constant GL.Material_Float_vector:= (0.0,0.0,0.0,0.0);
-
-  neutral_material : constant Material_type:= (
-    ambient =>        (0.2, 0.2, 0.2, 1.0),
-    diffuse =>        (0.8, 0.8, 0.8, 1.0),
-    specular =>       (0.0, 0.0, 0.0, 1.0),
-    emission =>       (0.0, 0.0, 0.0, 1.0),
-    shininess =>      0.0);
-  -- ^ the values are GL defaults.
 
   subtype Idx_3_array is Index_array(1..3);
 
@@ -304,7 +277,8 @@ package GLOBE_3D is
      -- *** > colour part (data ignored when irrelevant):
      colour       : GL.RGB_Color;
      -- *** > material part (data ignored when irrelevant):
-     material     : Material_type:= neutral_material;
+     material     : GL.Materials.Material_type:=
+                      GL.Materials.neutral_material;
      -- *** > texture-mapping part (data ignored when irrelevant):
      texture      : Image_id:= null_image;
      --  Alternative to setting an Image_id, if it is not known at
@@ -366,7 +340,7 @@ package GLOBE_3D is
     pre_calculated : Boolean:= False;
     -- private:
     face_invariant : Face_invariant_array(1..Max_faces);
-    bounds         : ogl.geometry.Bounds_record;
+    bounds         : gl.geometry.Bounds_record;
   end record; -- Object_3D
 
 
@@ -374,7 +348,7 @@ package GLOBE_3D is
   procedure set_Alpha      (o : in out Object_3D;   Alpha : in gl.Double);
   function  is_Transparent (o : in Object_3D) return Boolean;
   function  face_Count     (o : in Object_3D) return Natural;
-  function  Bounds         (o : in Object_3D) return ogl.geometry.Bounds_record;
+  function  Bounds         (o : in Object_3D) return gl.geometry.Bounds_record;
 
 
   procedure Check_object(o: Object_3D);
@@ -581,14 +555,14 @@ private
 
    -- blending support
    --
-   function Is_to_blend (m: GL.Double)                return Boolean;
-   function Is_to_blend (m: GL.Float)                 return Boolean;
-   function Is_to_blend (m: GL.Material_Float_vector) return Boolean;
-   function Is_to_blend (m: Material_type)            return Boolean;
+   function Is_to_blend (m: GL.Double)                  return Boolean;
+   function Is_to_blend (m: GL.Float)                   return Boolean;
+   function Is_to_blend (m: GL.Material_Float_vector)   return Boolean;
+   function Is_to_blend (m: GL.Materials.Material_type) return Boolean;
 
    -- material support
    --
-   procedure Set_Material (m: Material_type);
+   procedure Set_Material (m: GL.Materials.Material_type);
 
 --     -- normal support
 --     --

@@ -1,4 +1,4 @@
-with GL, oGL.IO, Unzip.Streams;
+with GL, GL.IO, Unzip.Streams;
 
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Exceptions;                    use Ada.Exceptions;
@@ -31,10 +31,10 @@ package body GLOBE_3D.Textures is
     procedure Try( zif: in out Zip.Zip_info; name: String ) is
       use Unzip.Streams;
       ftex: Zipped_File_Type;
-      procedure Try_a_type(tex_name_ext: String; format: oGL.IO.Supported_format) is
+      procedure Try_a_type(tex_name_ext: String; format: GL.IO.Supported_format) is
       begin
         Open( ftex, zif, tex_name_ext );
-        oGL.IO.Load( Stream(ftex), format, Image_id'Pos(id)+1, blending_hint );
+        GL.IO.Load( Stream(ftex), format, Image_id'Pos(id)+1, blending_hint );
         Close( ftex );
       exception
         when Zip.File_name_not_found =>
@@ -47,10 +47,10 @@ package body GLOBE_3D.Textures is
       end Try_a_type;
     begin -- Try
       Load_if_needed( zif, name );
-      Try_a_type(tex_name & ".TGA", oGL.IO.TGA);
+      Try_a_type(tex_name & ".TGA", GL.IO.TGA);
     exception
       when Zip.File_name_not_found =>
-        Try_a_type(tex_name & ".BMP", oGL.IO.BMP);
+        Try_a_type(tex_name & ".BMP", GL.IO.BMP);
     end Try;
   begin
     begin

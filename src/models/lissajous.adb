@@ -1,15 +1,15 @@
-with GL, GLOBE_3D.Math, GLOBE_3D.Materials;
+with GL, GLOBE_3D.Math, GL.Materials;
 
 package body Lissajous is
   -- Pretty output: FALSE
-  use GL, GLOBE_3D, GLOBE_3D.Math, GLOBE_3D.Materials;
+  use GL, GLOBE_3D, GLOBE_3D.Math, GL.Materials;
 
 -- begin Separator # 1
 -- VRML Info: ["Knot model created by KnotPlot
 -- URL: http://www.cs.ubc.ca/nest/imager/contributions/scharein/KnotPlot.html
---      
+--
 -- Author: Rob Scharein
---         Department of Computer Science 
+--         Department of Computer Science
 --         2366 Main Mall - Room 201
 --         University of British Columbia
 --         Vancouver, B.C. CANADA  V6T 1Z4
@@ -27,7 +27,7 @@ emission =>  (0.0,0.0,0.0,1.0),
 shininess => 25.6
 );
 -- begin Separator # 3
-coord_3: constant Point_3D_array:= 
+coord_3: constant Point_3D_array:=
 ( (0.0,0.0,0.0),(8.554233,5.904441,8.123777),(8.319682,6.011821,8.440939),(7.929457,5.99825,8.319794),(7.922835,5.882482,7.927761),
 (8.308969,5.824505,7.806616),(8.515342,5.520851,8.133045),(8.273258,5.550528,8.461147),(7.887639,5.587997,8.33065),(7.891396,5.581479,7.921897),
 (8.279338,5.53998,7.79977),(8.453537,5.090384,8.029676),(8.201466,5.04779,8.34871),(7.82225,5.133758,8.222454),(7.839952,5.229484,7.825391),
@@ -430,7 +430,7 @@ coord_3: constant Point_3D_array:=
 (8.325845,6.077217,7.74332),(0.0,0.0,0.0)  --  1997
 );
 
-idx_3: constant Idx_4_array_array:= 
+idx_3: constant Idx_4_array_array:=
 ( (2,3,8,7),(3,4,9,8),(4,5,10,9),(5,6,11,10),(6,2,7,11),(7,8,13,12),(8,9,14,13),(9,10,15,14),
 (10,11,16,15),(11,7,12,16),(12,13,18,17),(13,14,19,18),(14,15,20,19),(15,16,21,20),(16,12,17,21),(17,18,23,22),
 (18,19,24,23),(19,20,25,24),(20,21,26,25),(21,17,22,26),(22,23,28,27),(23,24,29,28),(24,25,30,29),(25,26,31,30),

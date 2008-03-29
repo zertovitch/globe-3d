@@ -1,10 +1,10 @@
-with GL, GLOBE_3D.Math, GLOBE_3D.Materials;
+with GL, GLOBE_3D.Math, GL.Materials;
 
 package body delta4g1 is
 -- Pretty output: FALSE
 -- Junk items' directories: TRUE
 -- Areas only: TRUE
-use GL, GLOBE_3D, GLOBE_3D.Math, GLOBE_3D.Materials;
+use GL, GLOBE_3D, GLOBE_3D.Math, GL.Materials;
 
 face_0 : Face_type; -- takes defaults values
 face_portal : Face_type; -- prototype for portals
@@ -14926,7 +14926,7 @@ Surface_50_triangles: constant Triangle_array:= (
 (24,25,17),
 (20,21,17));
 doom3_vertex_number: Integer;
-begin 
+begin
 area0:= new Object_3D(7389+4*portals_to_be_added,7352+portals_to_be_added);
 
 for p in 1..10 loop
@@ -19198,7 +19198,7 @@ Surface_37_triangles: constant Triangle_array:= (
 (18,8,19),
 (19,8,11));
 doom3_vertex_number: Integer;
-begin 
+begin
 area1:= new Object_3D(1769+4*portals_to_be_added,1716+portals_to_be_added);
 
 for p in 1..20 loop
@@ -21727,7 +21727,7 @@ Surface_32_triangles: constant Triangle_array:= (
 (0,1,2),
 (2,1,3));
 doom3_vertex_number: Integer;
-begin 
+begin
 area2:= new Object_3D(1065+4*portals_to_be_added,861+portals_to_be_added);
 
 for p in 1..48 loop
@@ -22165,7 +22165,7 @@ end;
 area3: p_Object_3D;
 
 procedure Build_area3(area_number: Integer; portals_to_be_added: Integer; centre: Point_3D) is
-begin 
+begin
 area3:= new Object_3D(0+4*portals_to_be_added,0+portals_to_be_added);
 area3.centre:= centre;
 Set_name(area3.all,"delta4g1_$_area3");
@@ -25066,7 +25066,7 @@ Surface_31_triangles: constant Triangle_array:= (
 (52,64,63),
 (52,53,64));
 doom3_vertex_number: Integer;
-begin 
+begin
 area4:= new Object_3D(1418+4*portals_to_be_added,1377+portals_to_be_added);
 
 for p in 1..129 loop
@@ -25531,7 +25531,7 @@ Surface_0_triangles: constant Triangle_array:= (
 (20,21,22),
 (23,22,21));
 doom3_vertex_number: Integer;
-begin 
+begin
 area5:= new Object_3D(24+4*portals_to_be_added,12+portals_to_be_added);
 
 for p in 1..24 loop
@@ -25553,7 +25553,7 @@ end;
 area6: p_Object_3D;
 
 procedure Build_area6(area_number: Integer; portals_to_be_added: Integer; centre: Point_3D) is
-begin 
+begin
 area6:= new Object_3D(0+4*portals_to_be_added,0+portals_to_be_added);
 area6.centre:= centre;
 Set_name(area6.all,"delta4g1_$_area6");
@@ -25562,7 +25562,7 @@ end;
 area7: p_Object_3D;
 
 procedure Build_area7(area_number: Integer; portals_to_be_added: Integer; centre: Point_3D) is
-begin 
+begin
 area7:= new Object_3D(0+4*portals_to_be_added,0+portals_to_be_added);
 area7.centre:= centre;
 Set_name(area7.all,"delta4g1_$_area7");
@@ -26511,7 +26511,7 @@ Surface_24_triangles: constant Triangle_array:= (
 (6,7,0),
 (6,0,3));
 doom3_vertex_number: Integer;
-begin 
+begin
 area8:= new Object_3D(547+4*portals_to_be_added,317+portals_to_be_added);
 
 for p in 1..4 loop
@@ -27533,7 +27533,7 @@ Surface_30_triangles: constant Triangle_array:= (
 (12,13,14),
 (15,12,14));
 doom3_vertex_number: Integer;
-begin 
+begin
 area9:= new Object_3D(384+4*portals_to_be_added,210+portals_to_be_added);
 
 for p in 1..4 loop
@@ -29502,7 +29502,7 @@ Surface_29_triangles: constant Triangle_array:= (
 (20,21,22),
 (23,21,20));
 doom3_vertex_number: Integer;
-begin 
+begin
 area10:= new Object_3D(920+4*portals_to_be_added,546+portals_to_be_added);
 
 for p in 1..50 loop
@@ -30101,7 +30101,7 @@ Surface_12_triangles: constant Triangle_array:= (
 (0,1,2),
 (3,2,1));
 doom3_vertex_number: Integer;
-begin 
+begin
 area11:= new Object_3D(108+4*portals_to_be_added,52+portals_to_be_added);
 
 for p in 1..8 loop
@@ -30840,7 +30840,7 @@ Surface_17_triangles: constant Triangle_array:= (
 (6,3,0),
 (7,3,6));
 doom3_vertex_number: Integer;
-begin 
+begin
 area12:= new Object_3D(319+4*portals_to_be_added,187+portals_to_be_added);
 
 for p in 1..4 loop
@@ -31218,7 +31218,7 @@ Surface_7_triangles: constant Triangle_array:= (
 (0,1,2),
 (3,2,1));
 doom3_vertex_number: Integer;
-begin 
+begin
 area13:= new Object_3D(71+4*portals_to_be_added,39+portals_to_be_added);
 
 for p in 1..5 loop
@@ -31706,7 +31706,7 @@ Surface_14_triangles: constant Triangle_array:= (
 (0,1,2),
 (3,2,1));
 doom3_vertex_number: Integer;
-begin 
+begin
 area14:= new Object_3D(197+4*portals_to_be_added,132+portals_to_be_added);
 
 for p in 1..8 loop
@@ -33111,7 +33111,7 @@ Surface_18_triangles: constant Triangle_array:= (
 (7,3,6),
 (8,5,4));
 doom3_vertex_number: Integer;
-begin 
+begin
 area15:= new Object_3D(644+4*portals_to_be_added,499+portals_to_be_added);
 
 for p in 1..46 loop
@@ -33780,7 +33780,7 @@ Surface_14_triangles: constant Triangle_array:= (
 (0,1,2),
 (1,3,2));
 doom3_vertex_number: Integer;
-begin 
+begin
 area16:= new Object_3D(219+4*portals_to_be_added,148+portals_to_be_added);
 
 for p in 1..8 loop
@@ -38027,7 +38027,7 @@ Surface_13_triangles: constant Triangle_array:= (
 (71,74,72),
 (71,70,74));
 doom3_vertex_number: Integer;
-begin 
+begin
 area17:= new Object_3D(1951+4*portals_to_be_added,2049+portals_to_be_added);
 
 for p in 1..532 loop
@@ -38218,7 +38218,7 @@ end;
 area18: p_Object_3D;
 
 procedure Build_area18(area_number: Integer; portals_to_be_added: Integer; centre: Point_3D) is
-begin 
+begin
 area18:= new Object_3D(0+4*portals_to_be_added,0+portals_to_be_added);
 area18.centre:= centre;
 Set_name(area18.all,"delta4g1_$_area18");
@@ -38227,7 +38227,7 @@ end;
 area19: p_Object_3D;
 
 procedure Build_area19(area_number: Integer; portals_to_be_added: Integer; centre: Point_3D) is
-begin 
+begin
 area19:= new Object_3D(0+4*portals_to_be_added,0+portals_to_be_added);
 area19.centre:= centre;
 Set_name(area19.all,"delta4g1_$_area19");
@@ -40184,45 +40184,45 @@ face_0.whole_texture:= False;
 face_0.P(4):= 0;
 face_portal.skin:= invisible;
 Define_IAPs;
-Build_area0(0,1,centre); 
+Build_area0(0,1,centre);
 group(1):= area0;
-Build_area1(1,1,centre); 
+Build_area1(1,1,centre);
 group(2):= area1;
-Build_area2(2,2,centre); 
+Build_area2(2,2,centre);
 group(3):= area2;
-Build_area3(3,1,centre); 
+Build_area3(3,1,centre);
 group(4):= area3;
-Build_area4(4,3,centre); 
+Build_area4(4,3,centre);
 group(5):= area4;
-Build_area5(5,0,centre); 
+Build_area5(5,0,centre);
 group(6):= area5;
-Build_area6(6,2,centre); 
+Build_area6(6,2,centre);
 group(7):= area6;
-Build_area7(7,2,centre); 
+Build_area7(7,2,centre);
 group(8):= area7;
-Build_area8(8,4,centre); 
+Build_area8(8,4,centre);
 group(9):= area8;
-Build_area9(9,3,centre); 
+Build_area9(9,3,centre);
 group(10):= area9;
-Build_area10(10,2,centre); 
+Build_area10(10,2,centre);
 group(11):= area10;
-Build_area11(11,2,centre); 
+Build_area11(11,2,centre);
 group(12):= area11;
-Build_area12(12,2,centre); 
+Build_area12(12,2,centre);
 group(13):= area12;
-Build_area13(13,2,centre); 
+Build_area13(13,2,centre);
 group(14):= area13;
-Build_area14(14,2,centre); 
+Build_area14(14,2,centre);
 group(15):= area14;
-Build_area15(15,2,centre); 
+Build_area15(15,2,centre);
 group(16):= area15;
-Build_area16(16,2,centre); 
+Build_area16(16,2,centre);
 group(17):= area16;
-Build_area17(17,2,centre); 
+Build_area17(17,2,centre);
 group(18):= area17;
-Build_area18(18,1,centre); 
+Build_area18(18,1,centre);
 group(19):= area18;
-Build_area19(19,0,centre); 
+Build_area19(19,0,centre);
 group(20):= area19;
 area0.point(7390..7393):= (IAP(3).point);
 face_portal.P:= (7390,7391,7392,7393);

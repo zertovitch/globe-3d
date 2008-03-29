@@ -4,16 +4,15 @@
 --  Copyright (c) Gautier de Montmollin/Rod Kay 2006..2007
 ------------------------------------------------------------------------------
 
-with opengl.glx;
+--with opengl.glx;
 
-with GL, GL.IO, GL.frustums,  GL.Skins, GL.Textures, GLU,  glow;
+with GL, GL.IO, GL.Frustums, GL.Skins, GL.Textures, GL.Materials, GLU,  GLUT;
 
 with GLOBE_3D,
      GLOBE_3D.IO,
      GLOBE_3D.Options,
      GLOBE_3D.Math,
      GLOBE_3D.Textures,
-     GLOBE_3D.Materials,
      GLOBE_3D.Software_Anti_Aliasing,
      GLOBE_3D.Stars_sky;
 
@@ -36,7 +35,7 @@ with System.Storage_Elements;
 
 
 
-package body glow.Windows is
+package body glut.Windows is
 
 
    package G3D  renames GLOBE_3D;
@@ -60,7 +59,7 @@ package body glow.Windows is
       use GL;
       function to_Window is new ada.unchecked_Conversion (system.Address, globe_3d.p_Window);
    begin
-      return glow.windows.Window_view (to_Window (getWindowData));
+      return glut.windows.Window_view (to_Window (getWindowData));
    end;
 
 
@@ -252,7 +251,7 @@ package body glow.Windows is
 
    procedure Window_Resize (width, height : Integer)
    is
-      the_Window : constant glow.Windows.Window_view := current_Window;
+      the_Window : constant glut.Windows.Window_view := current_Window;
    begin
       the_Window.forget_mouse := 5;
       set_Size     (the_Window.all,  width, height);
@@ -270,9 +269,9 @@ package body glow.Windows is
    begin
       case value is
          when 1 => -- GLUT.GameModeString (Full_Screen_Mode);
-            glow.FullScreen;
+            glut.FullScreen;
             -- res := GLUT.EnterGameMode;
-            glow.SetCursor (glow.CURSOR_NONE);
+            glut.SetCursor (glut.CURSOR_NONE);
             current_Window.forget_mouse := 10;
             current_Window.full_screen  := True;
          when 2 => null; --GLUT_exit;
@@ -423,7 +422,7 @@ package body glow.Windows is
         Flush;
     end case;
 
-    glow.SwapBuffers;
+    glut.SwapBuffers;
   end Fill_screen;
 
 
@@ -487,7 +486,7 @@ package body glow.Windows is
 
       -- Timer management
       --
-      time_now := glow.Get( glow.ELAPSED_TIME );   -- Number of milliseconds since GLUT.Init
+      time_now := glut.Get( glut.ELAPSED_TIME );   -- Number of milliseconds since GLUT.Init
 
       if self.new_scene then
          self.new_scene := False;
@@ -649,8 +648,8 @@ package body glow.Windows is
       --
       -- tbd: this callback is not being called when a window is iconicised !!
 
-      current_Window.is_Visible := not (        State = glow.HIDDEN
-                                        or else State = glow.FULLY_COVERED);
+      current_Window.is_Visible := not (        State = glut.HIDDEN
+                                        or else State = glut.FULLY_COVERED);
    end;
 
 
@@ -660,14 +659,14 @@ package body glow.Windows is
 
    procedure Start_GLUTs (Self : in out Window)
    is
-      use GL,glow;
+      use GL, GLUT;
 
       function to_Address is new ada.unchecked_Conversion (globe_3d.p_Window, system.Address);
 
-      GLUT_options : glow.Unsigned := glow.DOUBLE  or  glow.RGBA or glow.ALPHA  or  glow.DEPTH;
+      GLUT_options : glut.Unsigned := glut.DOUBLE  or  glut.RGBA or glut.ALPHA  or  glut.DEPTH;
    begin
       if self.Smoothing = hardware then
-         GLUT_options := GLUT_options or glow.MULTISAMPLE;
+         GLUT_options := GLUT_options or glut.MULTISAMPLE;
       end if;
 
       InitDisplayMode (GLUT_options);
@@ -683,12 +682,12 @@ package body glow.Windows is
          raise GLUT_Problem;
       end if;
 
-      glow.CloseFunc        (close_Window'access);
-      glow.ReshapeFunc      (Window_Resize'access);
-      glow.WindowStatusFunc (update_Visibility'access);
-      glow.setWindowData    (to_Address (globe_3d.window'Class (Self)'unchecked_access));
+      glut.CloseFunc        (close_Window'access);
+      glut.ReshapeFunc      (Window_Resize'access);
+      glut.WindowStatusFunc (update_Visibility'access);
+      glut.setWindowData    (to_Address (globe_3d.window'Class (Self)'unchecked_access));
 
-      glow.devices.Initialize;
+      glut.devices.Initialize;
 
 --        if CreateMenu (Menu'access) = 0 then         -- tdb: deferred
 --           raise GLUT_Problem;
@@ -737,9 +736,9 @@ package body glow.Windows is
    procedure initialize
    is
    begin
-      glow.Init;
-      glow.setOption (glow.RENDERING_CONTEXT, glow.USE_CURRENT_CONTEXT);
-      glow.setOption (ACTION_ON_WINDOW_CLOSE, ACTION_CONTINUE_EXECUTION);
+      glut.Init;
+      glut.setOption (glut.GLUT_RENDERING_CONTEXT, glut.GLUT_USE_CURRENT_CONTEXT);
+      glut.setOption (glut.ACTION_ON_WINDOW_CLOSE, ACTION_CONTINUE_EXECUTION);
 
       Texture_association;
    end;
@@ -775,7 +774,7 @@ package body glow.Windows is
    procedure enable (Self : in out Window)
    is
    begin
-      glow.setWindow  (Self.glut_Window);
+      glut.setWindow  (Self.glut_Window);
 --      opengl.glx.glXMakeCurrent;
 
    end;
@@ -936,4 +935,4 @@ package body glow.Windows is
     end;
   end Image;
 
-end glow.Windows;
+end glut.Windows;

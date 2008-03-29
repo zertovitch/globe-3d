@@ -3,7 +3,7 @@ with GLOBE_3D.Options,
      GLOBE_3D.Math,
      GLOBE_3D.Portals;
 
-with oGL.Errors;
+with GL.Errors;
 
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Exceptions;                    use Ada.Exceptions;
@@ -113,7 +113,7 @@ package body GLOBE_3D is
     end Is_to_blend;
 
 
-    function Is_to_blend(m: Material_type) return Boolean  is
+    function Is_to_blend(m: GL.Materials.Material_type) return Boolean  is
     begin
       return
         Is_to_blend(m.ambient) or
@@ -127,7 +127,7 @@ package body GLOBE_3D is
    -- material support
    --
 
-   procedure Set_Material(m: Material_type) is
+   procedure Set_Material(m: GL.Materials.Material_type) is
       use GL;
    begin
       Material(FRONT_AND_BACK, AMBIENT,   m.ambient);
@@ -156,10 +156,10 @@ package body GLOBE_3D is
 
 
 
-   function skinned_Geometrys (o : in Visual) return ogl.skinned_geometry.skinned_Geometrys
+   function skinned_Geometrys (o : in Visual) return gl.skinned_geometry.skinned_Geometrys
    is
    begin
-      return ogl.skinned_geometry.null_skinned_Geometrys;
+      return gl.skinned_geometry.null_skinned_Geometrys;
    end;
 
 
@@ -475,7 +475,7 @@ package body GLOBE_3D is
         when others =>
           -- Avoid setting again and again the neutral material
           if not neutral_material_already_set then
-            Set_Material(neutral_material);
+            Set_Material(GL.Materials.neutral_material);
             neutral_material_already_set:= True;
           end if;
       end case;
@@ -873,7 +873,7 @@ package body GLOBE_3D is
 
 
 
-   function  Bounds         (o : in Object_3D) return ogl.geometry.Bounds_record
+   function  Bounds         (o : in Object_3D) return gl.geometry.Bounds_record
    is
    begin
       return o.Bounds;
@@ -1084,9 +1084,9 @@ package body GLOBE_3D is
 
    procedure set_frustum_Planes (Self : in out Camera'Class)   -- tbd: this seems buggy still :/ ... needs testing !!
    is
-      use GL, oGL.Frustums, globe_3d.Math;
+      use GL, GL.Frustums, globe_3d.Math;
 
-      the_Planes  : ogl.frustums.plane_Array renames self.frustum_Planes;
+      the_Planes  : gl.frustums.plane_Array renames self.frustum_Planes;
 
       nc, fc      : Vector_3D;
       aux, normal : Vector_3D;
@@ -1200,7 +1200,7 @@ package body GLOBE_3D is
       type visual_Geometry is
          record
             Visual   : p_Visual;
-            Geometry : ogl.skinned_geometry.skinned_Geometry;
+            Geometry : gl.skinned_geometry.skinned_Geometry;
          end record;
       pragma Convention (C, visual_Geometry);  -- using convention pragma to disable default initialization (for performance)
 
@@ -1221,7 +1221,7 @@ package body GLOBE_3D is
 
       geometry_Count    : Natural                       := 0;   -- for 'all_Geometrys' array.
 
-      current_Skin      : ogl.skins.p_Skin;
+      current_Skin      : gl.skins.p_Skin;
 
    begin
       -- prepare openGL to display visuals.
@@ -1244,7 +1244,7 @@ package body GLOBE_3D is
       for Each in the_Visuals'range loop
          declare
             the_Visual       : Visual'Class                          renames the_Visuals (Each).all;
-            visual_Geometrys : ogl.skinned_geometry.skinned_Geometrys renames skinned_Geometrys (the_visual);
+            visual_Geometrys : gl.skinned_geometry.skinned_Geometrys renames skinned_Geometrys (the_visual);
          begin
             if is_transparent (the_Visual) then
                transparent_Count                    := transparent_Count + 1;
@@ -1262,7 +1262,7 @@ package body GLOBE_3D is
       end loop;
 
 
-      ogl.Errors.log;
+      gl.Errors.log;
 
 
       -- display all opaque geometries, sorted by gl geometry primitive kind and skin.
@@ -1270,7 +1270,7 @@ package body GLOBE_3D is
       declare
          function "<" (L, R : in visual_geometry) return Boolean
          is
-            use ogl.Geometry, System.Storage_Elements;
+            use gl.Geometry, System.Storage_Elements;
          begin
             if primitive_Id (L.Geometry.Geometry.all)  =  primitive_Id (R.Geometry.Geometry.all) then   -- tbd: find better naming scheme to avoid '.Geometry.Geometry.'
                return to_Integer (L.Geometry.Skin.all'address)  <  to_Integer (R.Geometry.Skin.all'address); -- tbd: check this is safe/portable
@@ -1283,11 +1283,10 @@ package body GLOBE_3D is
             end if;
          end "<";
 
-         --procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
          procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
                                                                   visual_geometry,
                                                                   visual_geometrys);
-         use oGL.Skins, oGL.Geometry, oGL.Skinned_Geometry;
+         use GL.Skins, GL.Geometry, GL.Skinned_Geometry;
 
          current_Visual : p_Visual;
 
@@ -1303,18 +1302,18 @@ package body GLOBE_3D is
             if all_Geometrys (Each).Geometry.Skin /= current_Skin then
                current_Skin := all_Geometrys (Each).Geometry.Skin;
                enable (current_Skin.all);
-               ogl.Errors.log;
+               gl.Errors.log;
             end if;
 
             if all_Geometrys (Each).Geometry.Veneer /= null then
                enable (all_Geometrys (Each).Geometry.Veneer.all);
-               ogl.Errors.log;
+               gl.Errors.log;
             end if;
 
 
             if all_Geometrys (Each).Visual = current_Visual then
                draw (all_Geometrys (Each).Geometry.Geometry.all);
-               ogl.Errors.log;
+               gl.Errors.log;
             else
                GL.PopMatrix;
                GL.PushMatrix;
@@ -1322,7 +1321,7 @@ package body GLOBE_3D is
                Multiply_GL_Matrix (all_Geometrys (Each).Visual.rotation);
 
                draw (all_Geometrys (Each).Geometry.Geometry.all);
-               ogl.Errors.log;
+               gl.Errors.log;
 
                current_Visual := all_Geometrys (Each).Visual;
             end if;
@@ -1332,7 +1331,7 @@ package body GLOBE_3D is
          GL.PopMatrix;
       end;
 
-      ogl.Errors.log;
+      gl.Errors.log;
 
       -- display all transparent visuals, sorted from far to near.
       --
@@ -1369,26 +1368,26 @@ package body GLOBE_3D is
          for Each in 1 .. transparent_Count loop
             declare
                the_Visual       : Visual'Class                          renames all_Transparents (Each).all;
-               visual_Geometrys : constant ogl.skinned_geometry.skinned_Geometrys      := skinned_Geometrys (the_visual); -- tbd: apply ogl state sorting here ?
+               visual_Geometrys : constant gl.skinned_geometry.skinned_Geometrys      := skinned_Geometrys (the_visual); -- tbd: apply ogl state sorting here ?
             begin
                display (the_Visual,  the_Camera.clipper);
-               ogl.Errors.log;
+               gl.Errors.log;
 
                for Each in visual_Geometrys'Range loop
                   declare
-                     use ogl.Skins, ogl.Geometry;
-                     the_Geometry : ogl.skinned_geometry.skinned_Geometry renames visual_Geometrys (Each);
+                     use gl.Skins, gl.Geometry;
+                     the_Geometry : gl.skinned_geometry.skinned_Geometry renames visual_Geometrys (Each);
                   begin
 
                      if the_Geometry.Skin /= current_Skin then
                         current_Skin := the_Geometry.Skin;
                         enable (current_Skin.all);
-                        ogl.Errors.log;
+                        gl.Errors.log;
                      end if;
 
                      if the_Geometry.Veneer /= null then
                         enable (the_Geometry.Veneer.all);
-                        ogl.Errors.log;
+                        gl.Errors.log;
                      end if;
 
                      GL.PushMatrix;
@@ -1397,7 +1396,7 @@ package body GLOBE_3D is
                      Multiply_GL_Matrix (the_Visual.rotation);
 
                      draw (the_Geometry.Geometry.all);
-                     ogl.Errors.log;
+                     gl.Errors.log;
 
                      GL.PopMatrix;
                   end;
@@ -1412,7 +1411,7 @@ package body GLOBE_3D is
 
       PopMatrix;
 
-      ogl.Errors.log;      -- tbd: for debug only
+      gl.Errors.log;      -- tbd: for debug only
    end render;
 
 

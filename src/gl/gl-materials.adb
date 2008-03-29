@@ -1,10 +1,7 @@
-
-
-
 package body GL.Materials is
 
 
-   function  is_Transparent (Self : in     Material_type) return Boolean
+   function  is_Transparent (Self : in Material_type) return Boolean
    is
    begin
       return Self.diffuse (3) < 1.0;
@@ -12,4 +9,3 @@ package body GL.Materials is
 
 
 end GL.Materials;
-

@@ -1,4 +1,4 @@
-with GL, GLOBE_3D.Math;
+with GL, GL.Materials, GLOBE_3D.Math;
 
 package body Dreadnought is
   -- Pretty output: false
@@ -1303,7 +1303,7 @@ package body Dreadnought is
     image   : Image_id;
     offset  : Map_idx_pair;
     tiling  : Map_idx_pair;
-    material: Material_type;
+    material: gl.materials.Material_type;
   end record;
   type Material_info_array is array(Positive range <>) of Material_info;
   procedure Create(
