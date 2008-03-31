@@ -8,7 +8,7 @@ package body GLOBE_3D.BSP is
 
   procedure Locate( P: Point_3D; tree: p_BSP_node; area: out p_Object_3D ) is
 
-    procedure Locate( tree: p_BSP_node ) is
+    procedure Locate_point( tree: p_BSP_node ) is
       -- ^ internal, for skipping useless parameter passing
       use Math, GL;
     begin
@@ -16,23 +16,27 @@ package body GLOBE_3D.BSP is
       info_b_ntl1:= info_b_ntl1 + 1;
       if P * tree.normal + tree.distance > 0.0 then -- in front
         if tree.front_child /= null then
-          Locate( tree.front_child );
+          Locate_point( tree.front_child );
         else
           area:= tree.front_leaf;
         end if;
-      else
+      else -- in back
         if tree.back_child /= null then
-          Locate( tree.back_child );
+          Locate_point( tree.back_child );
         else
           area:= tree.back_leaf;
         end if;
       end if;
-    end Locate;
+    end Locate_point;
 
   begin
     info_b_str1:= Null_Unbounded_String;
     info_b_ntl1:= 0; -- depth counter
-    Locate(tree);
+    if tree = null then
+      area:= null;
+    else
+      Locate_point(tree);
+    end if;
     info_b_bool1:= area /= null;
   end Locate;
 

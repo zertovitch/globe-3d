@@ -1,20 +1,27 @@
 with Ada.Exceptions;                    use Ada.Exceptions;
 with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
+with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Unchecked_Conversion;
+with Ada.Text_IO, Ada.Integer_Text_IO;
 
-with Unzip.Streams;
+with UnZip.Streams;
 with Float_portable_binary_transfer;
 pragma Elaborate_All(Float_portable_binary_transfer);
 
-with Globe_3D.Textures;
+with GLOBE_3D.Textures;
 
 package body GLOBE_3D.IO is
 
-  signature: constant String:=
-    "Globe_3D 3D Binary Object File (" & extension & "). " &
+  signature_obj: constant String:=
+    "GLOBE_3D 3D Binary Object File (" & object_extension & "). " &
     "Format version: 2-Sep-2006." &
-    Character'Val(27); -- Ctrl-Z
+    Character'Val(27); -- Ctrl-Z, because the rest is binary
+
+  signature_bsp: constant String:=
+    "GLOBE_3D Binary Space Partition File (" & BSP_extension & "). " &
+    "Format version: 31-Mar-2008."
+    ;
 
   type U8  is mod 2 ** 8;   for U8'Size  use 8;
   type U16 is mod 2 ** 16;  for U16'Size use 16;
@@ -37,31 +44,47 @@ package body GLOBE_3D.IO is
   function Cvt is new Ada.Unchecked_Conversion( U16, I16 );
   function Cvt is new Ada.Unchecked_Conversion( U32, I32 );
 
+  generic
+    s: Ada.Streams.Stream_IO.Stream_Access;
+    type Number is mod <>;
+  procedure Read_Intel_x86_number(n: out Number);
+
+  procedure Read_Intel_x86_number(n: out Number) is
+    b: U8;
+    m: Number:= 1;
+    bytes: constant Integer:= Number'Size/8;
+  begin
+    n:= 0;
+    for i in 1..bytes loop
+      U8'Read(s,b);
+      n:= n + m * Number(b);
+      m:= m * 256;
+    end loop;
+  end Read_Intel_x86_number;
+
+  generic
+    s: Ada.Streams.Stream_IO.Stream_Access;
+    type Number is mod <>;
+  procedure Write_Intel_x86_number(n: in Number);
+
+  procedure Write_Intel_x86_number(n: in Number) is
+    m: Number:= n;
+    bytes: constant Integer:= Number'Size/8;
+  begin
+    for i in 1..bytes loop
+      U8'Write(s, U8(m mod 256));
+      m:= m / 256;
+    end loop;
+  end Write_Intel_x86_number;
+
   procedure Read(
     s: in  Ada.Streams.Stream_IO.Stream_Access;
     o: out p_Object_3D
   )
   is
 
-    generic
-      type Number is mod <>;
-    procedure Read_Intel_x86_number(n: out Number);
-
-    procedure Read_Intel_x86_number(n: out Number) is
-      b: U8;
-      m: Number:= 1;
-      bytes: constant Integer:= Number'Size/8;
-    begin
-      n:= 0;
-      for i in 1..bytes loop
-        U8'Read(s,b);
-        n:= n + m * Number(b);
-        m:= m * 256;
-      end loop;
-    end Read_Intel_x86_number;
-
-    procedure Read_Intel is new Read_Intel_x86_number( U16 );
-    procedure Read_Intel is new Read_Intel_x86_number( U32 );
+    procedure Read_Intel is new Read_Intel_x86_number( s, U16 );
+    procedure Read_Intel is new Read_Intel_x86_number( s, U32 );
 
     procedure Read_Float(n: out GL.Float) is
       m: U32; e: U16;
@@ -171,11 +194,11 @@ package body GLOBE_3D.IO is
         Read_Map_idx_pair_array(face.texture_edge_map);
       end if;
     end Read_face;
-    test_signature: String(signature'Range);
+    test_signature: String(signature_obj'Range);
     ID: Ident;
   begin
     String'Read(s,test_signature);
-    if test_signature /= signature then
+    if To_Upper(test_signature) /= To_Upper(signature_obj) then
       raise Bad_object_data_format;
     end if;
     Read_String(ID);
@@ -206,22 +229,8 @@ package body GLOBE_3D.IO is
   )
   is
 
-    generic
-      type Number is mod <>;
-    procedure Write_Intel_x86_number(n: in Number);
-
-    procedure Write_Intel_x86_number(n: in Number) is
-      m: Number:= n;
-      bytes: constant Integer:= Number'Size/8;
-    begin
-      for i in 1..bytes loop
-        U8'Write(s, U8(m mod 256));
-        m:= m / 256;
-      end loop;
-    end Write_Intel_x86_number;
-
-    procedure Write_Intel is new Write_Intel_x86_number( U16 );
-    procedure Write_Intel is new Write_Intel_x86_number( U32 );
+    procedure Write_Intel is new Write_Intel_x86_number( s, U16 );
+    procedure Write_Intel is new Write_Intel_x86_number( s, U32 );
 
     procedure Write_Float(n: in GL.Float) is
       m: I32; e: I16;
@@ -324,7 +333,7 @@ package body GLOBE_3D.IO is
     end Write_face;
 
   begin
-    String'Write(s,signature);
+    String'Write(s,signature_obj);
     Write_String(o.ID);
     Write_Intel(U32(o.Max_points));
     Write_Intel(U32(o.Max_faces));
@@ -344,7 +353,17 @@ package body GLOBE_3D.IO is
     -- Main operation done!
   end Write;
 
-  procedure Load(name_in_resource: String; o: out p_Object_3D) is
+  generic
+    type Anything is private;
+    extension: String;
+    animal: String;
+    with procedure Read(
+      s: in  Ada.Streams.Stream_IO.Stream_Access;
+      a: out Anything
+    );
+  procedure Load_generic(name_in_resource: String; a: out Anything);
+
+  procedure Load_generic(name_in_resource: String; a: out Anything) is
     name_ext: constant String:= name_in_resource & extension;
 
     procedure Try( zif: in out Zip.Zip_info; name: String ) is
@@ -353,7 +372,7 @@ package body GLOBE_3D.IO is
     begin -- Try
       Load_if_needed( zif, name );
       Open( fobj, zif, name_ext );
-      Read( Stream(fobj), o );
+      Read( Stream(fobj), a );
       Close( fobj );
     exception
       when Zip.File_name_not_found =>
@@ -361,7 +380,7 @@ package body GLOBE_3D.IO is
       when e:others =>
         raise_exception(
           Exception_Identity(e),
-          Exception_Message(e) & " on object: " & name_ext
+          Exception_Message(e) & " on " & animal & ": " & name_ext
         );
     end Try;
   begin
@@ -377,8 +396,22 @@ package body GLOBE_3D.IO is
     when Zip.File_name_not_found |
          Zip.Zip_file_open_error =>
       -- Never found - neither in level, nor in global pack
-      raise_exception(Missing_object'Identity, "object: " & name_in_resource);
-  end Load;
+      raise_exception(
+        Missing_object'Identity,
+        animal & " not found in any data resource pack: " & name_in_resource
+      );
+  end Load_generic;
+
+  procedure Load_Internal is
+    new Load_generic(
+      Anything  => p_Object_3D,
+      extension => object_extension,
+      animal    => "object",
+      Read      => Read
+    );
+
+  procedure Load(name_in_resource: String; o: out p_Object_3D)
+  renames Load_Internal;
 
   procedure Load_file(file_name: String; o: out p_Object_3D) is
     use Ada.Streams.Stream_IO;
@@ -406,7 +439,97 @@ package body GLOBE_3D.IO is
 
   procedure Save_file(o: in Object_3D'class) is
   begin
-    Save_file(Trim(o.ID,right) & extension, o);
+    Save_file(Trim(o.ID,right) & object_extension, o);
   end Save_file;
+
+  -- Write a BSP tree to a file
+
+  procedure Save_file(file_name: String; tree: in BSP.p_BSP_node) is
+    use BSP;
+
+    n: Positive:= 1;
+
+    procedure Numbering(node: p_BSP_node) is
+    begin
+      if node /= null then
+        node.node_id:= n;
+        n:= n + 1;
+        Numbering(node.front_child);
+        Numbering(node.back_child);
+      end if;
+    end Numbering;
+
+    use Ada.Text_IO, Ada.Integer_Text_IO, RIO;
+    f: File_Type;
+
+    procedure Save_node(node: p_BSP_node) is
+    begin
+      if node /= null then
+        Put(f, node.node_id, 0);
+        Put(f,' ');
+        if node.front_child = null then
+          Put(f, 0, 0);
+        else
+          Put(f, node.front_child.node_id, 0);
+        end if;
+        Put(f,' ');
+        if node.back_child = null then
+          Put(f, 0, 0);
+        else
+          Put(f, node.back_child.node_id, 0);
+        end if;
+        New_Line(f);
+        if node.front_leaf = null then
+          New_Line(f);
+        else
+          Put_Line(f, Trim(node.front_leaf.ID, right));
+        end if;
+        if node.back_leaf = null then
+          New_Line(f);
+        else
+          Put_Line(f, Trim(node.back_leaf.ID, right));
+        end if;
+        for i in node.normal'Range loop
+          Put(f, node.normal(i));
+        end loop;
+        Put(f, node.distance);
+        New_Line(f);
+        --
+        Save_node(node.front_child);
+        Save_node(node.back_child);
+      end if;
+    end Save_node;
+
+  begin
+    Numbering(tree); -- fill the node_id's
+    if Index(file_name, ".")=0 then
+      Create(f, out_file, file_name & BSP_extension);
+    else
+      Create(f, out_file, file_name);
+    end if;
+    Put_Line(f,signature_bsp);
+    Save_node(tree);
+    Close(f);
+  end Save_file;
+
+  procedure Read(
+    s: in  Ada.Streams.Stream_IO.Stream_Access;
+    tree: out BSP.p_BSP_node
+  )
+  is
+  begin
+    null; --!!
+  end Read;
+
+  procedure Load_Internal is
+    new Load_generic(
+      Anything  => BSP.p_BSP_node,
+      extension => BSP_extension,
+      animal    => "BSP tree",
+      Read      => Read
+    );
+
+  procedure Load(name_in_resource: String; tree: out BSP.p_BSP_node)
+  renames Load_Internal;
 
 end GLOBE_3D.IO;

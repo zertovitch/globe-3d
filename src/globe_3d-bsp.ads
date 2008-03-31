@@ -1,6 +1,12 @@
 ----------------------------------
 -- Binary Space Partition (BSP) --
 ----------------------------------
+--
+-- Changes:
+--
+-- 31-Mar-2008: comment: node_id also meant for use with I/O
+-- 14-Oct-2006: created
+
 
 package GLOBE_3D.BSP is
 
@@ -14,7 +20,7 @@ package GLOBE_3D.BSP is
     normal: Vector_3D;
     -- signed distance between origin O and plane; positive if O in front :
     distance: Real;
-    -- informative (debug) :
+    -- informative (debug) or as temporary for I/O :
     node_id: Natural:= 0;
   end record;
 

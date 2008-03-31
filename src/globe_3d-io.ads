@@ -6,6 +6,8 @@
 --     forget to use Rebuild_links for linking them together and
 --     finding texture id's
 
+with GLOBE_3D.BSP;
+
 with Ada.Streams.Stream_IO;
 
 package GLOBE_3D.IO is
@@ -32,7 +34,7 @@ package GLOBE_3D.IO is
   -- I/O from/to files --
   -----------------------
 
-  extension: constant String:=".g3d";
+  object_extension: constant String:= ".g3d";
 
   -- Allocate and read an object from a file
 
@@ -46,14 +48,24 @@ package GLOBE_3D.IO is
 
   procedure Save_file(o: in Object_3D'class);
 
+  BSP_extension: constant String:= ".bsp";
+
+  -- Write a BSP tree to a file
+
+  procedure Save_file(file_name: String; tree: in BSP.p_BSP_node);
+
   -------------------------------------------------------------
   -- Input from files archived into a GLOBE_3D resource file --
   -------------------------------------------------------------
 
   -- Allocate and read an object from the Level or,
-  -- when not there, from the Global resource
+  -- when not there, from the Global data resource
 
   procedure Load(name_in_resource: String; o: out p_Object_3D);
+
+  -- Allocate and read an BSP tree from a file
+
+  procedure Load(name_in_resource: String; tree: out BSP.p_BSP_node);
 
   Bad_object_data_format: exception;
 
