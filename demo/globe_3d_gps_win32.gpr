@@ -1,21 +1,36 @@
 project Globe_3D_Gps_Win32 is
 
    type Build_Mode_Type is
-      ("Fast", "Debug", "Small");
+      ("Debug", "Fast", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
-
    for Source_Dirs use (".", "..\bindings", "..\bindings\win32", "..\bindings\win32\gcc_fmt", "..\src\/**");
    for Main use ("GLOBE_3D_Demo.adb");
    for Exec_Dir use ".";
 
    case Build_Mode is
+
       when "Small" =>
          for Object_Dir use "..\obj\gnatsmal";
-      when "Debug" =>
-         for Object_Dir use "..\obj\gnatdebg";
+
       when "Fast" =>
          for Object_Dir use "..\obj\gnatfast";
+
+      when "Debug" =>
+         for Object_Dir use "..\obj\gnatdebg";
    end case;
+
+   package Binder is
+
+      case Build_Mode is
+
+         when "Small" =>
+
+         when "Fast" =>
+
+         when "Debug" =>
+            for Default_Switches ("ada") use ("-E", "-r");
+      end case;
+   end Binder;
 
    package Compiler is
 
@@ -24,11 +39,11 @@ project Globe_3D_Gps_Win32 is
          when "Small" =>
             for Default_Switches ("ada") use ("-O2", "-s", "-gnatp", "-fno-strict-aliasing", "-gnatecg3d_elim.pra");
 
+         when "Fast" =>
+            for Default_Switches ("ada") use ("-O2", "-gnatn", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-gnatp", "-fno-strict-aliasing", "-gnatecg3d_elim.pra");
+
          when "Debug" =>
             for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnatwkmpz", "-gnatVa", "-gnatecdebug.pra", "-gnatyhiknp", "-fno-strict-aliasing");
-
-         when "Fast" =>
-            for Default_Switches ("ada") use ("-O2", "-gnatn", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-gnatp", "-fno-strict-aliasing");
       end case;
    end Compiler;
 
@@ -39,11 +54,11 @@ project Globe_3D_Gps_Win32 is
          when "Small" =>
             for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
 
-         when "Debug" =>
-            for Default_Switches ("ada") use ("-g", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
-
          when "Fast" =>
             for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
+
+         when "Debug" =>
+            for Default_Switches ("ada") use ("-g", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
       end case;
    end Linker;
 

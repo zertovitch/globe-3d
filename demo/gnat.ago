@@ -1,22 +1,22 @@
 -gnatyebfhkanp -aI../src -aI../src/unzip -aI../src/gl -aI../src/models -aI../src/gaming  -aI../bindings -aI../bindings/win32 -aI../bindings/win32/gcc_fmt -aI../ada05_proxy -gnatf -gnato -gnatwa -gnatVa -gnatecdebug.pra -Iobj/gnatdebg
--i -aO../obj/gnatdebg -bargs -E -g -largs -lopengl32 -lglu32 -lfreeglut -L../obj/libwin32
+-i -aO../obj/gnatdebg -bargs -E -g -largs -lopengl32 -lglu32 -lfreeglut -L../obj/libwin32 ../obj/libwin32/glee.o
 
 
 WINDOWS_TARGET
 
 
+delta4g1
+bsp
+load
 g3d
 .zip
 mini
 30
 strea
-bsp
 trim
 for next
-mem_rot
-skpan
 -- Begin compiler switches
-DEBUG <- active (current) build mode
+RELEASE <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?
 debug o2 false
 debug inlining false
@@ -40,8 +40,8 @@ release strip_all_symbols true
 release profiling false
 -- End compiler switches
 -- Begin Release mode commands
--aI../src -aI../src/gl -aI../src/unzip -aI../src/models -aI../src/gaming -aI../bindings -aI../bindings/win32 -aI../bindings/win32/gcc_fmt -aI../ada05_proxy -gnatecg3d_elim.pra -gnatwp -Iobj/gnatopti
--i -aO../obj/gnatopti -bargs -E -g -largs -lopengl32 -lglu32 -lfreeglut -L../obj/libwin32 -mwindows -s
+-aI../src -aI../src/gl -aI../src/unzip -aI../src/models -aI../src/gaming -aI../bindings -aI../bindings/win32 -aI../bindings/win32/gcc_fmt -gnatecg3d_elim.pra -gnatwp
+-i -aO../obj/gnatfast -bargs -E -g -largs -lopengl32 -lglu32 -lfreeglut -L../obj/libwin32 ../obj/libwin32/glee.o -mwindows -s
 
 
 -- End Release mode commands
