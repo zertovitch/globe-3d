@@ -1,18 +1,29 @@
-rem cleanacu: see gnatpaqs.zip on Gautier's Ada page
+rem for cleanacu: see gnatpaqs.zip on Gautier's Ada page
 rem
 rem go to g3d root:
 cd..
 rem
 cd obj
 cd gnatdebg
-cleanacu
+rem We don't need to keep the .ali, GPS/GNATMAKE can now put all .ali/.o files in a single directory
+rem cleanacu
+ del *.ali
+ del *.o
 del b~*
 cd..
-cd gnatopti
-cleanacu
+cd gnatfast
+rem We don't need to keep the .ali, GPS/GNATMAKE can now put all .ali/.o files in a single directory
+rem cleanacu
+ del *.ali
+ del *.o
+del b~*
 cd..
 cd gnatsmal
-cleanacu
+rem We don't need to keep the .ali, GPS/GNATMAKE can now put all .ali/.o files in a single directory
+rem cleanacu
+ del *.ali
+ del *.o
+del b~*
 cd..
 cd..
 cd demo

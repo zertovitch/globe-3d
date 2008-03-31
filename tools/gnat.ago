@@ -41,7 +41,7 @@ release profiling false
 -- End compiler switches
 -- Begin Release mode commands
 -gnatf -aIunzip  -aI.. -aI..\bindings -aI..\bindings/win32 -aI..\bindings/win32/gcc_fmt
--i -aO..\obj\gnatopti
+-i -aO..\obj\gnatfast
 
 
 -- End Release mode commands
