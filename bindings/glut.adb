@@ -12,15 +12,17 @@ package body GLUT is
    type Argvz is array (0 .. 500) of aliased interfaces.c.strings.Chars_Ptr;
 
    type Arg_Type is new ada.finalization.Controlled with record
-     v       : Argvz;
-     v_Count : Natural;
+     v       : Argvz:= (others => interfaces.c.strings.Null_Ptr);
+     v_Count : Natural:= 0;
    end record;
 
    procedure Finalize (Self : in out Arg_Type)
    is
       use interfaces.c.strings;
    begin
-      free (Self.v (0));
+      if Self.v(0) /= interfaces.c.strings.Null_Ptr then
+        free (Self.v (0));
+      end if;
 
       for I in 1 .. Self.v_Count loop
          free (Self.v (I));
