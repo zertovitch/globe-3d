@@ -569,7 +569,7 @@ package body Doom3_Help is
       Ada_Put_Line("doom3_vertex_number: Integer;");
     end if;
     indent:= indent + 1;
-    Ada_Put("begin ");
+    Ada_Put("begin");
     Ada_Comment("Build_" & Current_Model_name );
     Ada_Put_Line(
       Current_Model_name &
@@ -760,6 +760,7 @@ package body Doom3_Help is
     Ada_Put_Line("face_0.skin:= texture_only;");
     Ada_Put_Line("face_0.whole_texture:= False;");
     Ada_Put_Line("face_0.P(4):= 0;"); -- we have triangles, P(4) is set to 0
+    Ada_Put_Line("face_0.texture_edge_map:= ((0.0,0.0),(0.0,0.0),(0.0,0.0),(0.0,0.0));");
     Ada_Put_Line("face_portal.skin:= invisible;");
     Include_portals_to_areas;
 
@@ -773,7 +774,7 @@ package body Doom3_Help is
         Image(model_stack(i).area) &
         ',' &
         Image(model_stack(i).portals_to_be_added) &
-        ",centre); "
+        ",centre);"
       );
       Ada_Put_Line(
         "group(" &

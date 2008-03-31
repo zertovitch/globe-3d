@@ -5,16 +5,16 @@
 WINDOWS_TARGET
 
 
+"begin 
+build_
+"procedure
+procedure
+face_0
 d3a
 linenum
 linem
 unzip
 4nz5*
-portals_to
-pretty ou
-positive_
-positive 
-doom3_c
 -- Begin compiler switches
 DEBUG <- active (current) build mode
 TRUE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

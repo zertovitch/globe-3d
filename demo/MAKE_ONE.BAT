@@ -3,7 +3,7 @@
 echo ----- GLOBE_3D: Make command for Win32.
 echo.
 
-if "%1" == "" echo Usage: make_single (unit)
+if "%1" == "" echo Usage: make_one (unit)
 if "%1" == "" goto fin
 
 echo ----- Procedure to be built: %1
