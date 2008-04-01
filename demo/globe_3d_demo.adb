@@ -1055,8 +1055,8 @@ procedure GLOBE_3D_Demo is
     for s in Switch_Type loop
       for a in 1..Argument_Count loop
         declare
-          arg: String:= To_Upper(Argument(a));
-          swi: String:= Switch_Type'Image(s);
+          arg: constant String:= To_Upper(Argument(a));
+          swi: constant String:= Switch_Type'Image(s);
         begin
           if arg = '-' & swi or arg = '/' & swi then
             switch(s):= True;

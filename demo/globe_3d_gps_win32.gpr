@@ -28,7 +28,7 @@ project Globe_3D_Gps_Win32 is
          when "Fast" =>
 
          when "Debug" =>
-            for Default_Switches ("ada") use ("-E", "-r");
+            for Default_Switches ("ada") use ("-E");
       end case;
    end Binder;
 
@@ -37,10 +37,10 @@ project Globe_3D_Gps_Win32 is
       case Build_Mode is
 
          when "Small" =>
-            for Default_Switches ("ada") use ("-O2", "-s", "-gnatp", "-fno-strict-aliasing", "-gnatecg3d_elim.pra");
+            for Default_Switches ("ada") use ("-O2", "-s", "-gnatp", "-fno-strict-aliasing", "-gnatec..\..\demo\g3d_elim.pra");
 
          when "Fast" =>
-            for Default_Switches ("ada") use ("-O2", "-gnatn", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-gnatp", "-fno-strict-aliasing", "-gnatecg3d_elim.pra");
+            for Default_Switches ("ada") use ("-O2", "-gnatn", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-gnatp", "-fno-strict-aliasing", "-gnatec..\..\demo\g3d_elim.pra");
 
          when "Debug" =>
             for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnatwkmpz", "-gnatVa", "-gnatecdebug.pra", "-gnatyhiknp", "-fno-strict-aliasing");

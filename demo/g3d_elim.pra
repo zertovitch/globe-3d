@@ -562,7 +562,6 @@ pragma Eliminate (Ada.Strings.Fixed, Overwrite);
 pragma Eliminate (Ada.Strings.Fixed, Move);
 pragma Eliminate (Ada.Strings.Fixed, Insert);
 pragma Eliminate (Ada.Strings.Fixed, Index_Non_Blank);
-pragma Eliminate (Ada.Strings.Fixed, Index);
 pragma Eliminate (Ada.Strings.Fixed, Head);
 pragma Eliminate (Ada.Strings.Fixed, Find_Token);
 pragma Eliminate (Ada.Strings.Fixed, Delete);

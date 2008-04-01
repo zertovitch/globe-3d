@@ -4,13 +4,13 @@ package body GLUT_2D is
 
   GLUT_char: constant array(Font_type) of System.Address:=
   (
-    Screen_9_BY_15 => glut.BITMAP_9_BY_15,
-    Screen_8_BY_13 => glut.BITMAP_8_BY_13,
-    TIMES_ROMAN_10 => glut.BITMAP_TIMES_ROMAN_10,
-    TIMES_ROMAN_24 => glut.BITMAP_TIMES_ROMAN_24,
-    HELVETICA_10   => glut.BITMAP_HELVETICA_10,
-    HELVETICA_12   => glut.BITMAP_HELVETICA_12,
-    HELVETICA_18   => glut.BITMAP_HELVETICA_18
+    Screen_9_BY_15 => GLUT.BITMAP_9_BY_15,
+    Screen_8_BY_13 => GLUT.BITMAP_8_BY_13,
+    TIMES_ROMAN_10 => GLUT.BITMAP_TIMES_ROMAN_10,
+    TIMES_ROMAN_24 => GLUT.BITMAP_TIMES_ROMAN_24,
+    HELVETICA_10   => GLUT.BITMAP_HELVETICA_10,
+    HELVETICA_12   => GLUT.BITMAP_HELVETICA_12,
+    HELVETICA_18   => GLUT.BITMAP_HELVETICA_18
   );
 
   procedure Text_output(
@@ -20,7 +20,7 @@ package body GLUT_2D is
   is
   begin
     for i in s'Range loop
-      null; -- tbd: GLUT.BitmapCharacter(GLUT_char(font), Character'Pos(s(i)));
+      GLUT.BitmapCharacter(GLUT_char(font), Character'Pos(s(i)));
     end loop;
   end Text_output;
 
