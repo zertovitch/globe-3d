@@ -3,7 +3,7 @@ with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Unchecked_Conversion;
-with Ada.Text_IO, Ada.Integer_Text_IO;
+--with Ada.Text_IO, Ada.Integer_Text_IO;
 
 with UnZip.Streams;
 with Float_portable_binary_transfer;
@@ -62,6 +62,22 @@ package body GLOBE_3D.IO is
     end loop;
   end Read_Intel_x86_number;
 
+  procedure Read_Double(
+    s: Ada.Streams.Stream_IO.Stream_Access;
+    n: out GL.Double
+  ) is
+    procedure Read_Intel is new Read_Intel_x86_number( s, U16 );
+    procedure Read_Intel is new Read_Intel_x86_number( s, U32 );
+    m1,m2: U32; e: U16;
+  begin
+    Read_Intel(m1);
+    Read_Intel(m2);
+    Read_Intel(e);
+    Merge(Cvt(m1),Cvt(m2),Cvt(e),n);
+    -- Double is stored in two parts due to the absence of
+    -- 64-bit integers on certain compilers (e.g. OA 8.2)
+  end Read_Double;
+
   generic
     s: Ada.Streams.Stream_IO.Stream_Access;
     type Number is mod <>;
@@ -76,6 +92,54 @@ package body GLOBE_3D.IO is
       m:= m / 256;
     end loop;
   end Write_Intel_x86_number;
+
+  procedure Write_Double(
+    s: Ada.Streams.Stream_IO.Stream_Access;
+    n: in GL.Double)
+  is
+    procedure Write_Intel is new Write_Intel_x86_number( s, U16 );
+    procedure Write_Intel is new Write_Intel_x86_number( s, U32 );
+    m1,m2: I32; e: I16;
+  begin
+    Split(n,m1,m2,e);
+    -- Double is stored in two parts due to the absence of
+    -- 64-bit integers on certain compilers (e.g. OA 8.2)
+    Write_Intel(Cvt(m1));
+    Write_Intel(Cvt(m2));
+    Write_Intel(Cvt(e));
+  end Write_Double;
+
+  procedure Write_String(
+    s  : in  Ada.Streams.Stream_IO.Stream_Access;
+    str: in  String
+  )
+  is
+    tstr: constant String:= Trim(str,right);
+  begin
+    U8'Write(s,tstr'Length);
+    String'Write(s,tstr);
+  end Write_String;
+
+  procedure Read_String(
+    s  : in  Ada.Streams.Stream_IO.Stream_Access;
+    str: out String
+  )
+  is
+    l8: U8;
+    l: Natural;
+  begin
+    U8'Read(s,l8);
+    l:= Natural(l8);
+    if l > str'Length then
+      raise Constraint_Error;
+    end if;
+    String'Read(s,str(str'First..str'First+l-1));
+    str(str'First+l..str'Last):= (others => ' ');
+  end Read_String;
+
+  -------------------
+  -- Object_3D I/O --
+  -------------------
 
   procedure Read(
     s: in  Ada.Streams.Stream_IO.Stream_Access;
@@ -101,44 +165,20 @@ package body GLOBE_3D.IO is
       end loop;
     end Read_Material_Float_vector;
 
-    procedure Read_Double(n: out GL.Double) is
-      m1,m2: U32; e: U16;
-    begin
-      Read_Intel(m1);
-      Read_Intel(m2);
-      Read_Intel(e);
-      Merge(Cvt(m1),Cvt(m2),Cvt(e),n);
-      -- Double is stored in two parts due to the absence of
-      -- 64-bit integers on certain compilers (e.g. OA 8.2)
-    end Read_Double;
-
     procedure Read_Point_3D(p: out Point_3D) is
     begin
       for i in p'Range loop
-        Read_Double(p(i));
+        Read_Double(s, p(i));
       end loop;
     end Read_Point_3D;
 
     procedure Read_Map_idx_pair_array(m: out Map_idx_pair_array) is
     begin
       for i in m'Range loop
-        Read_Double(m(i).U);
-        Read_Double(m(i).V);
+        Read_Double(s, m(i).U);
+        Read_Double(s, m(i).V);
       end loop;
     end Read_Map_idx_pair_array;
-
-    procedure Read_String(str: out String) is
-      l8: U8;
-      l: Natural;
-    begin
-      U8'Read(s,l8);
-      l:= Natural(l8);
-      if l > str'Length then
-        raise Constraint_Error;
-      end if;
-      String'Read(s,str(str'First..str'First+l-1));
-      str(str'First+l..str'Last):= (others => ' ');
-    end Read_String;
 
     v8: U8;
     v32, mp32, mf32: U32;
@@ -152,7 +192,7 @@ package body GLOBE_3D.IO is
       end loop;
       -- 2/ Portal connection: object name is stored;
       --    access must be found later
-      Read_String(face_invar.connect_name);
+      Read_String(s,face_invar.connect_name);
       -- 3/ Skin
       U8'Read(s,v8);
       face.skin:= skin_type'Val(v8);
@@ -160,13 +200,13 @@ package body GLOBE_3D.IO is
       U8'Read(s,v8);
       face.mirror:= Boolean'Val(v8);
       -- 5/ Alpha
-      Read_Double(face.alpha);
+      Read_Double(s, face.alpha);
       -- 6/ Colour
       case face.skin is
         when colour_only | coloured_texture =>
-          Read_Double(face.colour.red);
-          Read_Double(face.colour.green);
-          Read_Double(face.colour.blue);
+          Read_Double(s, face.colour.red);
+          Read_Double(s, face.colour.green);
+          Read_Double(s, face.colour.blue);
         when others =>
           null;
       end case;
@@ -183,7 +223,7 @@ package body GLOBE_3D.IO is
       end case;
       -- 8/ Texture: texture name is stored;
       --    id must be found later
-      Read_String( face_invar.texture_name);
+      Read_String(s, face_invar.texture_name);
       U8'Read(s,v8);
       face.whole_texture:= Boolean'Val(v8);
       U8'Read(s,v8);
@@ -199,9 +239,9 @@ package body GLOBE_3D.IO is
   begin
     String'Read(s,test_signature);
     if To_Upper(test_signature) /= To_Upper(signature_obj) then
-      raise Bad_object_data_format;
+      raise Bad_data_format;
     end if;
-    Read_String(ID);
+    Read_String(s,ID);
     -- Read the object's dimensions, create object, read its contents
     Read_Intel(mp32);
     Read_Intel(mf32);
@@ -216,7 +256,7 @@ package body GLOBE_3D.IO is
     Read_Point_3D(o.centre);
     for i in Matrix_33'Range(1) loop
       for j in Matrix_33'Range(2) loop
-        Read_Double(o.rotation(i,j));
+        Read_Double(s, o.rotation(i,j));
       end loop;
     end loop;
     -- !! sub-objects: skipped !!
@@ -247,38 +287,20 @@ package body GLOBE_3D.IO is
       end loop;
     end Write_Material_Float_vector;
 
-    procedure Write_Double(n: in GL.Double) is
-      m1,m2: I32; e: I16;
-    begin
-      Split(n,m1,m2,e);
-      -- Double is stored in two parts due to the absence of
-      -- 64-bit integers on certain compilers (e.g. OA 8.2)
-      Write_Intel(Cvt(m1));
-      Write_Intel(Cvt(m2));
-      Write_Intel(Cvt(e));
-    end Write_Double;
-
     procedure Write_Point_3D(p: in Point_3D) is
     begin
       for i in p'Range loop
-        Write_Double(p(i));
+        Write_Double(s, p(i));
       end loop;
     end Write_Point_3D;
 
     procedure Write_Map_idx_pair_array(m: in Map_idx_pair_array) is
     begin
       for i in m'Range loop
-        Write_Double(m(i).U);
-        Write_Double(m(i).V);
+        Write_Double(s, m(i).U);
+        Write_Double(s, m(i).V);
       end loop;
     end Write_Map_idx_pair_array;
-
-    procedure Write_String(str: in String) is
-      tstr: constant String:= Trim(str,right);
-    begin
-      U8'Write(s,tstr'Length);
-      String'Write(s,tstr);
-    end Write_String;
 
     procedure Write_face(face: Face_type) is
     begin
@@ -288,22 +310,22 @@ package body GLOBE_3D.IO is
       end loop;
       -- 2/ Portal connection: object name is stored
       if face.connecting = null then
-        Write_String(empty);
+        Write_String(s, empty);
       else
-        Write_String(face.connecting.ID);
+        Write_String(s, face.connecting.ID);
       end if;
       -- 3/ Skin
       U8'Write(s,skin_type'Pos(face.skin));
       -- 4/ Mirror
       U8'Write(s,Boolean'Pos(face.mirror));
       -- 5/ Alpha
-      Write_Double(face.alpha);
+      Write_Double(s, face.alpha);
       -- 6/ Colour
       case face.skin is
         when colour_only | coloured_texture =>
-          Write_Double(face.colour.red);
-          Write_Double(face.colour.green);
-          Write_Double(face.colour.blue);
+          Write_Double(s, face.colour.red);
+          Write_Double(s, face.colour.green);
+          Write_Double(s, face.colour.blue);
         when others =>
           null;
       end case;
@@ -320,9 +342,9 @@ package body GLOBE_3D.IO is
       end case;
       -- 8/ Texture: texture name is stored
       if face.texture = null_image then
-        Write_String(empty);
+        Write_String(s, empty);
       else
-        Write_String(Textures.Texture_name(face.texture,False));
+        Write_String(s, Textures.Texture_name(face.texture,False));
       end if;
       U8'Write(s,Boolean'Pos(face.whole_texture));
       U8'Write(s,Positive'Pos(face.repeat_U));
@@ -333,8 +355,8 @@ package body GLOBE_3D.IO is
     end Write_face;
 
   begin
-    String'Write(s,signature_obj);
-    Write_String(o.ID);
+    String'Write(s, signature_obj);
+    Write_String(s, o.ID);
     Write_Intel(U32(o.Max_points));
     Write_Intel(U32(o.Max_faces));
     for p in o.point'Range loop
@@ -346,7 +368,7 @@ package body GLOBE_3D.IO is
     Write_Point_3D(o.centre);
     for i in Matrix_33'Range(1) loop
       for j in Matrix_33'Range(2) loop
-        Write_Double(o.rotation(i,j));
+        Write_Double(s, o.rotation(i,j));
       end loop;
     end loop;
     -- !! sub-objects: skipped !!
@@ -442,58 +464,60 @@ package body GLOBE_3D.IO is
     Save_file(Trim(o.ID,right) & object_extension, o);
   end Save_file;
 
-  -- Write a BSP tree to a file
+  -------------
+  -- BSP I/O --
+  -------------
 
-  procedure Save_file(file_name: String; tree: in BSP.p_BSP_node) is
+  -- Write a BSP tree to a stream
+
+  procedure Write(
+    s: in  Ada.Streams.Stream_IO.Stream_Access;
+    tree: in BSP.p_BSP_node
+  )
+  is
+    procedure Write_Intel is new Write_Intel_x86_number( s, U32 );
     use BSP;
 
-    n: Positive:= 1;
+    n: Natural:= 0;
 
     procedure Numbering(node: p_BSP_node) is
     begin
       if node /= null then
-        node.node_id:= n;
         n:= n + 1;
+        node.node_id:= n;
         Numbering(node.front_child);
         Numbering(node.back_child);
       end if;
     end Numbering;
 
-    use Ada.Text_IO, Ada.Integer_Text_IO, RIO;
-    f: File_Type;
-
     procedure Save_node(node: p_BSP_node) is
     begin
       if node /= null then
-        Put(f, node.node_id, 0);
-        Put(f,' ');
+        Write_Intel(U32(node.node_id));
         if node.front_child = null then
-          Put(f, 0, 0);
+          Write_Intel(U32'(0));
         else
-          Put(f, node.front_child.node_id, 0);
+          Write_Intel(U32(node.front_child.node_id));
         end if;
-        Put(f,' ');
         if node.back_child = null then
-          Put(f, 0, 0);
+          Write_Intel(U32'(0));
         else
-          Put(f, node.back_child.node_id, 0);
+          Write_Intel(U32(node.back_child.node_id));
         end if;
-        New_Line(f);
         if node.front_leaf = null then
-          New_Line(f);
+          Write_String(s, empty);
         else
-          Put_Line(f, Trim(node.front_leaf.ID, right));
+          Write_String(s, node.front_leaf.ID);
         end if;
         if node.back_leaf = null then
-          New_Line(f);
+          Write_String(s, empty);
         else
-          Put_Line(f, Trim(node.back_leaf.ID, right));
+          Write_String(s, node.back_leaf.ID);
         end if;
         for i in node.normal'Range loop
-          Put(f, node.normal(i));
+          Write_Double(s, node.normal(i));
         end loop;
-        Put(f, node.distance);
-        New_Line(f);
+        Write_Double(s, node.distance);
         --
         Save_node(node.front_child);
         Save_node(node.back_child);
@@ -501,35 +525,115 @@ package body GLOBE_3D.IO is
     end Save_node;
 
   begin
-    Numbering(tree); -- fill the node_id's
+    Numbering(tree);                -- fill the node_id's
+    String'Write(s, signature_bsp); -- header
+    Write_Intel(U32(n));           -- give the number of nodes first
+    Save_node(tree);
+  end Write;
+
+  -- Write a BSP tree to a file
+
+  procedure Save_file(file_name: String; tree: in BSP.p_BSP_node) is
+    use Ada.Streams.Stream_IO;
+    f: File_Type;
+  begin
     if Index(file_name, ".")=0 then
       Create(f, out_file, file_name & BSP_extension);
     else
       Create(f, out_file, file_name);
     end if;
-    Put_Line(f,signature_bsp);
-    Save_node(tree);
+    Write(Stream(f),tree);
     Close(f);
   end Save_file;
 
-  procedure Read(
-    s: in  Ada.Streams.Stream_IO.Stream_Access;
-    tree: out BSP.p_BSP_node
+  procedure Load(
+    name_in_resource: in  String;
+    referred_objects: in  Object_3D_array;
+    tree            : out BSP.p_BSP_node
   )
   is
+
+    function Find_object(ID: Ident; tolerant: Boolean) return p_Object_3D is
+    begin
+      if ID = empty then
+        return null;
+      else
+        for i in referred_objects'Range loop
+          if referred_objects(i).ID = ID then
+            return referred_objects(i);
+          end if;
+        end loop;
+        if tolerant then
+          return null;
+        else
+          raise_exception(
+            Missing_object_in_BSP'Identity,
+            "Object not found: [" & Trim(ID,right) & ']'
+          );
+        end if;
+      end if;
+    end Find_object;
+
+    procedure Read(
+      s           : in  Ada.Streams.Stream_IO.Stream_Access;
+      tree        : out BSP.p_BSP_node
+    )
+    is
+      use BSP;
+      procedure Read_Intel is new Read_Intel_x86_number( s, U32 );
+
+      test_signature: String(signature_bsp'Range);
+      n, j, k: U32;
+      ID: Ident;
+      tol: constant Boolean:= False;
+    begin
+      String'Read(s,test_signature);
+      if To_Upper(test_signature) /= To_Upper(signature_bsp) then
+        raise Bad_data_format;
+      end if;
+      Read_Intel(n);
+      if n < 1 then
+        tree:= null;
+        return;
+      end if;
+      declare
+        farm: array (0..n) of p_BSP_Node;
+      begin
+        farm(0):= null;
+        for i in 1..n loop
+          farm(i):= new BSP_Node;
+        end loop;
+        for i in 1..n loop
+          Read_Intel(j); -- node_id
+          farm(j).node_id:= Integer(j);
+          Read_Intel(k);
+          farm(j).front_child:= farm(k);
+          Read_Intel(k);
+          farm(j).back_child := farm(k);
+          Read_String(s, ID);
+          farm(j).front_leaf:= Find_object(ID, tol);
+          Read_String(s, ID);
+          farm(j).back_leaf := Find_object(ID, tol);
+          for ii in farm(j).normal'Range loop
+            Read_Double(s, farm(j).normal(ii));
+          end loop;
+          Read_Double(s, farm(j).distance);
+        end loop;
+        tree:= farm(1);
+      end;
+    end Read;
+
+    procedure Load_Internal is
+      new Load_generic(
+        Anything  => BSP.p_BSP_node,
+        extension => BSP_extension,
+        animal    => "BSP tree",
+        Read      => Read
+      );
+
+
   begin
-    null; --!!
-  end Read;
-
-  procedure Load_Internal is
-    new Load_generic(
-      Anything  => BSP.p_BSP_node,
-      extension => BSP_extension,
-      animal    => "BSP tree",
-      Read      => Read
-    );
-
-  procedure Load(name_in_resource: String; tree: out BSP.p_BSP_node)
-  renames Load_Internal;
+    Load_Internal(name_in_resource, tree);
+  end Load;
 
 end GLOBE_3D.IO;

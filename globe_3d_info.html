@@ -170,7 +170,7 @@ The Copyright statement appears in GLOBE_3D.ads.
         as the Ada 'Pos attribute does.
    <li> If you develop a GLOBE_3D application with GNAT, here are the relative paths
         in case you have its directory at the same level as the GLOBE_3D one:
-        Include path (change win32 if you compile for another OS): <pre>-aI../globe_3d/src -aI../globe_3d/src/unzip -aI../globe_3d/src/models -aI../globe_3d/src/gaming  -aI../globe_3d/bindings -aI../globe_3d/bindings/win32 -aI../globe_3d/bindings/win32/gcc_fmt</pre>
+        Include path (change win32 if you compile for another OS): <pre>-aI../globe_3d/src -aI../globe_3d/src/gl -aI../globe_3d/src/unzip -aI../globe_3d/src/models -aI../globe_3d/src/gaming  -aI../globe_3d/bindings -aI../globe_3d/bindings/win32 -aI../globe_3d/bindings/win32/gcc_fmt</pre>
         Object path (here of debug mode): <pre>-aO../globe_3d/obj/gnatdebg</pre>
         Library path (here of win32): <pre>-L../globe_3d/obj/libwin32</pre>
   </ul>
@@ -179,14 +179,22 @@ The Copyright statement appears in GLOBE_3D.ads.
  <a name=resources></a>
  <p>
   <ul>
-   <li> Present site for <b>GLOBE_3D</b>: <a target=_blank href=http://www.mysunrise.ch/users/gdm/g3d.htm>here</a>.
+   <li> Present Web page for <b>GLOBE_3D</b>: <a target=_blank href=http://www.mysunrise.ch/users/gdm/g3d.htm>here</a>.<br>&nbsp;
+   
+   <li> <b>GLOBE_3D</b> SourceForge site: <a target=_blank href=http://sourceforge.net/projects/globe3d/>here</a>.
+     &nbsp;
+     <a target=_blank href="http://sourceforge.net"><img
+     src="http://sflogo.sourceforge.net/sflogo.php?group_id=215365&amp;type=4" 
+	 width="125" height="37" border=1 ALIGN=absmiddle alt="SourceForge.net Logo" />
+	 </a>
+
    
    <li> <b>OpenGL</b> & GLUT: <a target=_blank href=http://www.opengl.org/>here</a>.
 
    <li> <b>GNAT</b>, a free Ada compiler with which GLOBE_3D can be compiled:
     <ul>
      <li> GNAT Web site: <a target=_blank href=http://www.adacore.com/>here</a>.
-     <li> GNAT GPL version to be found <a target=_blank href=http://libre2.adacore.com/>here</a>.
+     <li> Free GNAT GPL version to be found <a target=_blank href=http://libre2.adacore.com/>here</a>.
      <li>
        If for some reason, you want to download the last "GNAT Public version",
        two mirrors exist,
@@ -195,7 +203,7 @@ The Copyright statement appears in GLOBE_3D.ads.
      <li>
        For Windows, you have to install the compiler (e.g. gnat-3.15p-nt.exe)
        <b>and</b> the Win32 bindings (e.g. gnatwin-3.15p.exe) that come separately.
-     <li> AdaGIDE: a free Development Environment for GNAT, as alternative to GNAT's GPS:
+     <li> AdaGIDE: a free Development Environment for GNAT, as alternative to GNAT's GPS, e.g. to compile tools during a GPS session:
        <a target=_blank href=http://www.martincarlisle.com/adagide.html>here</a>.
     </ul>
    
@@ -234,7 +242,9 @@ The Copyright statement appears in GLOBE_3D.ads.
    <li> Game_Control: add support for configuration files
    <li> 3D Studio / GMAX: see in the max2ada.ms file
    <li> (demo) improve lightings, better calibrate mouse movements
-   <li> make a Doom 3 / Quake 4 level loader (direct loading, not via the d3a translator)
+   <li> provide catalogues of Visual accesses in a binary tree format; aim: a quick search
+        <b><tt>function Find(ID: Ident; cat: Catalogue) return p_Visual'Class;</tt></b>
+        to replace the linear search in Rebuild_links and Find_object inside the BSP loader (G3D.IO).
    <li> addition and morphing of objects, like in 
         <a target=_blank href=http://homepage.sunrise.ch/mysunrise/gdm/e3d_html/eng3dmor__ads.htm>Engine_3D</a>
    <li> I/O: include the pseudo-normal vectors on vertices

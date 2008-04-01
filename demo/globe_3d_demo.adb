@@ -41,8 +41,9 @@ with Vehic001, Vehic002, X29,
 
 with Ada.Numerics;                      use Ada.Numerics;
 with Ada.Command_Line;
---  with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
+with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
+with Ada.Characters.Handling;           use Ada.Characters.Handling;
 
 procedure GLOBE_3D_Demo is
 
@@ -259,9 +260,9 @@ procedure GLOBE_3D_Demo is
 
   bestiaire, level_stuff: G3D.p_Object_3D_array:= null;
   level_idx, bri_idx, beast: Integer;
-  level_BSP: G3D.BSP.p_BSP_node;
+  level_BSP: G3D.BSP.p_BSP_node:= null;
 
-  procedure Create_objects is
+  procedure Create_objects(load: Boolean) is
     t: constant:= 1.0;
     f2: Natural;
     use GL, G3D;
@@ -479,10 +480,12 @@ procedure GLOBE_3D_Demo is
       end case;
     end loop;
 
-    if Ada.Command_Line.Argument_Count > 0 and then
-      Ada.Command_Line.Argument(1)="-load"
-    then
-      -- We test here the loading of some objects dumped by the -dump option
+    if load then
+      -- We test here the loading and mutual linking
+      -- of some objects dumped by the -dump option.
+      --
+      -- The space station scene:
+      --
       G3D.IO.Load("Space station brick ONE",bri1);
       G3D.IO.Load("Space station brick TWO",bri2);
       -- Relink both bricks:
@@ -490,7 +493,22 @@ procedure GLOBE_3D_Demo is
       G3D.Rebuild_links(bri2.all,(bri1,bri2),False,False);
       Set_name(bri1.all,"Space station brick ONE (loaded)");
       Set_name(bri2.all,"Space station brick TWO (loaded)");
+      --
+      -- The Doom 3 level:
+      --
+      level_stuff:= new Object_3D_array(1..20);
+      for i in level_stuff'Range loop
+        G3D.IO.Load(
+          "Delta4g1_$_area" & Trim(Integer'Image(i-1),Left),
+          level_stuff(i)
+        );
+      end loop;
+      G3D.IO.Load("Delta4g1", level_stuff.all, level_BSP);
     else
+      -- Create objects, don't load them (default).
+      --
+      -- The space station scene:
+      --
       Brick.Create(
         object  => bri1,
         scale   => 100.0,
@@ -521,15 +539,24 @@ procedure GLOBE_3D_Demo is
       -- Connecting portals:
       bri1.face(portal1(5)).connecting:= bri2;
       bri2.face(portal2(6)).connecting:= bri1;
+      --
+      -- The Doom 3 level:
+      --
+      Doom3_Level.Create(
+        level_stuff,
+        level_BSP,
+        (-1468.0+1294.0,+616.0,-1754.0-770.0)
+      );
+      -- "Delta4" area0: -1168.0,+484.0,-2152.0
+      -- 0.0,0.0,0.0
     end if;
 
-    Doom3_Level.Create(level_stuff,level_BSP,(-1468.0+1294.0,+616.0,-1754.0-770.0));
-    -- "Delta4" area0: -1168.0,+484.0,-2152.0
-    -- 0.0,0.0,0.0
+    -- Relink Doom 3 level (either loaded or created):
     if level_stuff /= null then
       for i in level_stuff'Range loop
-        -- NB: portals may have been already linked;
-        -- textures need to be linked
+        -- NB:
+        -- - portals may have been already linked (if created, not loaded);
+        -- - textures need to be linked
         G3D.Rebuild_links(level_stuff(i).all,Level_stuff.all,False,False);
         G3D.Pre_calculate(level_stuff(i).all);
       end loop;
@@ -574,6 +601,7 @@ procedure GLOBE_3D_Demo is
       end if;
     end loop;
     G3D.IO.Save_file(bri2.all);
+    G3D.IO.Save_file("Delta4g1", level_BSP);
   end Dump_objects;
 
   procedure Preload_textures is
@@ -1011,15 +1039,42 @@ procedure GLOBE_3D_Demo is
   procedure Texture_association is
     new G3D.Textures.Associate_textures(Texture_id);
 
+  -- Get eventual command line arguments.
+
+  type Switch_Type is (
+    load, -- load some scenes from .g3d files stored in the GLOBE_3D
+          --        resource files, instead of rebuilding them (default)
+    dump  -- dump all objects of the demo to .g3d files
+  );
+
+  switch: array(Switch_Type) of Boolean:= (others => False);
+
+  procedure Get_arguments is
+    use Ada.Command_Line;
+  begin
+    for s in Switch_Type loop
+      for a in 1..Argument_Count loop
+        declare
+          arg: String:= To_Upper(Argument(a));
+          swi: String:= Switch_Type'Image(s);
+        begin
+          if arg = '-' & swi or arg = '/' & swi then
+            switch(s):= True;
+          end if;
+        end;
+      end loop;
+    end loop;
+  end Get_arguments;
+
 begin
+  Get_arguments;
   G3D.Set_level_data_name("G3Demo_Global_Resources.zip");
   G3D.Set_global_data_name("G3Demo_Level_Resources.zip");
   Texture_association;
-  Create_objects;
-  if Ada.Command_Line.Argument_Count > 0 and then
-    Ada.Command_Line.Argument(1)="-dump"
-  then
-    Dump_objects;
+
+  Create_objects(switch(load));
+  if switch(dump) then
+    Dump_objects; -- even those that were loaded (entropy check)
   end if;
 
   Start_GLUTs;    -- Initialize the GLUT things

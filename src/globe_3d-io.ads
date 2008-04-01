@@ -65,8 +65,14 @@ package GLOBE_3D.IO is
 
   -- Allocate and read an BSP tree from a file
 
-  procedure Load(name_in_resource: String; tree: out BSP.p_BSP_node);
+  procedure Load(
+    name_in_resource: in  String;
+    referred_objects: in  Object_3D_array;
+    tree            : out BSP.p_BSP_node
+  );
 
-  Bad_object_data_format: exception;
+  Bad_data_format: exception;
+
+  Missing_object_in_BSP: exception;
 
 end GLOBE_3D.IO;
