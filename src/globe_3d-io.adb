@@ -3,7 +3,6 @@ with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Unchecked_Conversion;
---with Ada.Text_IO, Ada.Integer_Text_IO;
 
 with UnZip.Streams;
 with Float_portable_binary_transfer;
@@ -13,15 +12,20 @@ with GLOBE_3D.Textures;
 
 package body GLOBE_3D.IO is
 
+  ------------------------------------------------
+  -- Common, internal definitions, routines,... --
+  ------------------------------------------------
+
+  stop_type: constant Character:=
+    Character'Val(26); -- Ctrl-Z to stop typing a binary file
+
   signature_obj: constant String:=
     "GLOBE_3D 3D Binary Object File (" & object_extension & "). " &
-    "Format version: 2-Sep-2006." &
-    Character'Val(27); -- Ctrl-Z, because the rest is binary
+    "Format version: 2-Apr-2008." & stop_type;
 
   signature_bsp: constant String:=
     "GLOBE_3D Binary Space Partition File (" & BSP_extension & "). " &
-    "Format version: 31-Mar-2008."
-    ;
+    "Format version: 2-Apr-2008." & stop_type;
 
   type U8  is mod 2 ** 8;   for U8'Size  use 8;
   type U16 is mod 2 ** 16;  for U16'Size use 16;
@@ -496,23 +500,23 @@ package body GLOBE_3D.IO is
         Write_Intel(U32(node.node_id));
         if node.front_child = null then
           Write_Intel(U32'(0));
+          if node.front_leaf = null then
+            Write_String(s, empty);
+          else
+            Write_String(s, node.front_leaf.ID);
+          end if;
         else
           Write_Intel(U32(node.front_child.node_id));
         end if;
         if node.back_child = null then
           Write_Intel(U32'(0));
+          if node.back_leaf = null then
+            Write_String(s, empty);
+          else
+            Write_String(s, node.back_leaf.ID);
+          end if;
         else
           Write_Intel(U32(node.back_child.node_id));
-        end if;
-        if node.front_leaf = null then
-          Write_String(s, empty);
-        else
-          Write_String(s, node.front_leaf.ID);
-        end if;
-        if node.back_leaf = null then
-          Write_String(s, empty);
-        else
-          Write_String(s, node.back_leaf.ID);
         end if;
         for i in node.normal'Range loop
           Write_Double(s, node.normal(i));
@@ -608,12 +612,16 @@ package body GLOBE_3D.IO is
           farm(j).node_id:= Integer(j);
           Read_Intel(k);
           farm(j).front_child:= farm(k);
+          if k = 0 then
+            Read_String(s, ID);
+            farm(j).front_leaf:= Find_object(ID, tol);
+          end if;
           Read_Intel(k);
           farm(j).back_child := farm(k);
-          Read_String(s, ID);
-          farm(j).front_leaf:= Find_object(ID, tol);
-          Read_String(s, ID);
-          farm(j).back_leaf := Find_object(ID, tol);
+          if k = 0 then
+            Read_String(s, ID);
+            farm(j).back_leaf := Find_object(ID, tol);
+          end if;
           for ii in farm(j).normal'Range loop
             Read_Double(s, farm(j).normal(ii));
           end loop;

@@ -15,16 +15,16 @@ package body GLOBE_3D.BSP is
       info_b_str1:= info_b_str1 & " -> " & Integer'Image(tree.node_id);
       info_b_ntl1:= info_b_ntl1 + 1;
       if P * tree.normal + tree.distance > 0.0 then -- in front
-        if tree.front_child /= null then
-          Locate_point( tree.front_child );
-        else
+        if tree.front_child = null then
           area:= tree.front_leaf;
+        else
+          Locate_point( tree.front_child );
         end if;
       else -- in back
-        if tree.back_child /= null then
-          Locate_point( tree.back_child );
-        else
+        if tree.back_child = null then
           area:= tree.back_leaf;
+        else
+          Locate_point( tree.back_child );
         end if;
       end if;
     end Locate_point;
@@ -32,9 +32,8 @@ package body GLOBE_3D.BSP is
   begin
     info_b_str1:= Null_Unbounded_String;
     info_b_ntl1:= 0; -- depth counter
-    if tree = null then
-      area:= null;
-    else
+    area:= null;
+    if tree /= null then
       Locate_point(tree);
     end if;
     info_b_bool1:= area /= null;
