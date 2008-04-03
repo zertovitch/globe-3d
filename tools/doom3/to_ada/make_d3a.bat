@@ -1,5 +1,7 @@
 @echo off
+echo.
 echo make_d3a: option -f recreates sources from the doom3.y, doom3.l files
+echo.
 if not "%1"=="-f" goto comp
 rem
 echo 1) Compile AYACC/AFLEX files to Ada sources
@@ -14,7 +16,10 @@ ren doom3.a yargla.a
 rem
 echo .
 echo 1.2) Running aflex.exe
+cd..
 aflex.exe -i doom3.l
+cd to_ada
+copy ..\*.a .
 echo .
 rem
 echo 2) Glue everything together and let gnatchop find the right filenames

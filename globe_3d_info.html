@@ -83,9 +83,10 @@ The Copyright statement appears in GLOBE_3D.ads.
  <p>
  There are also command-line options for special purposes:
  <ul>
- <li> <tt>-dump</tt> : dumps all objects in the demo as <tt>.g3d</tt> files 
- <li> <tt>-load</tt> : load both objects ("bricks") of the "space station" demo
-                       instead of creating them
+ <li> <tt>-dump</tt> : dumps all objects in the demo as <tt>.g3d</tt> <tt>.bsp</tt> files
+ <li> <tt>-load</tt> : load both objects ("bricks") of the "space station" demo,
+                       as well as those of the Doom 3 level,
+                       instead of creating them with Ada code
  </ul>
  </p>
 <li> How to <b>build</b> the project on various platforms and compilers:
@@ -195,15 +196,8 @@ The Copyright statement appears in GLOBE_3D.ads.
     <ul>
      <li> GNAT Web site: <a target=_blank href=http://www.adacore.com/>here</a>.
      <li> Free GNAT GPL version to be found <a target=_blank href=http://libre2.adacore.com/>here</a>.
-     <li>
-       If for some reason, you want to download the last "GNAT Public version",
-       two mirrors exist,
-         <a target=_blank href=http://rochebruneadsl.free.fr/stephane/gnat/3.15p/>here</a> and
-         <a target=_blank href=ftp://ftp.cs.kuleuven.be/pub/Ada-Belgium/mirrors/gnu-ada/3.15p/>here</a>.
-     <li>
-       For Windows, you have to install the compiler (e.g. gnat-3.15p-nt.exe)
-       <b>and</b> the Win32 bindings (e.g. gnatwin-3.15p.exe) that come separately.
-     <li> AdaGIDE: a free Development Environment for GNAT, as alternative to GNAT's GPS, e.g. to compile tools during a GPS session:
+     <li> AdaGIDE: a free Development Environment for GNAT, as alternative to GNAT's GPS,
+          e.g. to separately build tools in parallel to a GPS session:
        <a target=_blank href=http://www.martincarlisle.com/adagide.html>here</a>.
     </ul>
    

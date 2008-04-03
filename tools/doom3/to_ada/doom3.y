@@ -1,9 +1,22 @@
 -- Doom3.y
 
--- From a FAQ:
+--------------------------------------------------------
+-- ayacc file for parsing id Software's .proc files   --
+-- i.e. files that the level editor Radiant outputs   --
+-- with the geometry of areas, the portal connections --
+-- and the binary space partition (BSP) tree. The     --
+-- .proc files are those that the games use to load   --
+-- and define levels' scenes.                         --
+--------------------------------------------------------
+
+----------------------------------------------
+-- Version for the translation PROC --> Ada --
+----------------------------------------------
+
+-- From a FAQ (completed):
 -- what are .map, .proc and .cm files?
---  .map is the editor file with entity placement,
---  .proc is the precompiled bsp and
+--  .map is the editor file with entity placement;
+--  .proc is the precompiled gemoetry, portal and bsp;
 --  .cm is the collision map.
 
 %token NUMBER 
@@ -51,15 +64,20 @@ doom3		: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                 ;
 
   mapProcFile_header :
-           mapProcFile003_t 
-           { Put_Line( Standard_Error, "Scanning Proc 3 file (Doom 3)" ); }
+           mapProcFile003
          | mapProcFile004
-           { Put_Line( Standard_Error, "Scanning Proc 4 file (Quake 4)" ); }
          ;
 
+  mapProcFile003 :
+         mapProcFile003_t -- "mapProcFile003"
+         { Put_Line( Standard_Error, "Scanning Proc 3 file (Doom 3)" ); }
+         ;
+
+
   mapProcFile004 :
-         mapProcFile_t D3String -- e.g. PROC "4"
+         mapProcFile_t D3String -- e.g.: 'PROC "4"'
          NUMBER -- checksum ? e.g. 1194436445
+         { Put_Line( Standard_Error, "Scanning Proc 4+ file (Quake 4)" ); }
          ;
 
   mapProcFile_components: mapProcFile_component mapProcFile_components | ;
