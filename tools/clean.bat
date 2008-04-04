@@ -71,8 +71,5 @@ cd vrml
 call cleanw2a
 cd..
 cd doom3
-cd to_ada
-call cleand3a
-cd..
-cd..
+call clean_doom
 cd..
