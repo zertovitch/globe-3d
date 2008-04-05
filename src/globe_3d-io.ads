@@ -67,7 +67,7 @@ package GLOBE_3D.IO is
 
   procedure Load(
     name_in_resource: in  String;
-    referred_objects: in  Object_3D_array;
+    referred        : in  Map_of_Visuals;
     tree            : out BSP.p_BSP_node
   );
 

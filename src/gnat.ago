@@ -1,22 +1,22 @@
--gnatf -aIgl -aI../ogl -aI../math -aIunzip  -aI..\bindings -aI..\bindings/win32 -aI..\bindings/win32/gcc_fmt
+-gnatf -aIgl -aIgaming -aIunzip -aI..\bindings -aI..\bindings\win32 -aI..\bindings\win32\gcc_fmt
 -i -aO..\obj\gnatdebg
 
 
 WINDOWS_TARGET
 
 
-material_Type
+XX
+rebuild
+to_upper
+ident
+Map_of_Visuals 
+visual
+edge
+"*
 video
 png
-image (
-image(
-load_if_need
-g3dem
-to_upper
-to_lower
-global_data_na
 -- Begin compiler switches
-DEBUG <- active (current) build mode
+RELEASE <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?
 debug o2 false
 debug inlining false
@@ -40,8 +40,8 @@ release strip_all_symbols true
 release profiling false
 -- End compiler switches
 -- Begin Release mode commands
--gnatf -gnat05 -aIgl -aI../ogl -aIgaming -aIunzip  -aI..\bindings -aI..\bindings/win32 -aI..\bindings/win32/gcc_fmt
--i -aO..\obj\gnatopti
+-gnatf -aIgl -aIgaming -aIunzip -aI..\bindings -aI..\bindings\win32 -aI..\bindings/win32/gcc_fmt
+-i -aO..\obj\gnatsmal
 
 
 -- End Release mode commands

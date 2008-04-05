@@ -261,6 +261,7 @@ procedure GLOBE_3D_Demo is
   bestiaire, level_stuff: G3D.p_Object_3D_array:= null;
   level_idx, bri_idx, beast: Integer;
   level_BSP: G3D.BSP.p_BSP_node:= null;
+  level_map: G3D.Map_of_Visuals:= G3D.empty_map;
 
   procedure Create_objects(load: Boolean) is
     t: constant:= 1.0;
@@ -489,8 +490,12 @@ procedure GLOBE_3D_Demo is
       G3D.IO.Load("Space station brick ONE",bri1);
       G3D.IO.Load("Space station brick TWO",bri2);
       -- Relink both bricks:
-      G3D.Rebuild_links(bri1.all,(bri1,bri2),False,False);
-      G3D.Rebuild_links(bri2.all,(bri1,bri2),False,False);
+      declare
+        bricks_map: Map_of_Visuals:= Map_of((p_Visual(bri1),p_Visual(bri2)));
+      begin
+        G3D.Rebuild_links(bri1.all,bricks_map,False,False);
+        G3D.Rebuild_links(bri2.all,bricks_map,False,False);
+      end;
       Set_name(bri1.all,"Space station brick ONE (loaded)");
       Set_name(bri2.all,"Space station brick TWO (loaded)");
       --
@@ -502,8 +507,9 @@ procedure GLOBE_3D_Demo is
           "Delta4g1_$_area" & Trim(Integer'Image(i-1),Left),
           level_stuff(i)
         );
+        G3D.Add(level_map, p_Visual(level_stuff(i)));
       end loop;
-      G3D.IO.Load("Delta4g1", level_stuff.all, level_BSP);
+      G3D.IO.Load("Delta4g1", level_map, level_BSP);
     else
       -- Create objects, don't load them (default).
       --
@@ -549,6 +555,9 @@ procedure GLOBE_3D_Demo is
       );
       -- "Delta4" area0: -1168.0,+484.0,-2152.0
       -- 0.0,0.0,0.0
+      for i in level_stuff'Range loop
+        G3D.Add(level_map, p_Visual(level_stuff(i)));
+      end loop;
     end if;
 
     -- Relink Doom 3 level (either loaded or created):
@@ -557,7 +566,7 @@ procedure GLOBE_3D_Demo is
         -- NB:
         -- - portals may have been already linked (if created, not loaded);
         -- - textures need to be linked
-        G3D.Rebuild_links(level_stuff(i).all,Level_stuff.all,False,False);
+        G3D.Rebuild_links(level_stuff(i).all, level_map,False,False);
         G3D.Pre_calculate(level_stuff(i).all);
       end loop;
     end if;

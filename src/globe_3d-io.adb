@@ -1,7 +1,7 @@
 with Ada.Exceptions;                    use Ada.Exceptions;
 with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
-with Ada.Characters.Handling;           use Ada.Characters.Handling;
+-- with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Unchecked_Conversion;
 
 with UnZip.Streams;
@@ -242,7 +242,7 @@ package body GLOBE_3D.IO is
     ID: Ident;
   begin
     String'Read(s,test_signature);
-    if To_Upper(test_signature) /= To_Upper(signature_obj) then
+    if test_signature /= signature_obj then
       raise Bad_data_format;
     end if;
     Read_String(s,ID);
@@ -552,7 +552,7 @@ package body GLOBE_3D.IO is
 
   procedure Load(
     name_in_resource: in  String;
-    referred_objects: in  Object_3D_array;
+    referred        : in  Map_of_Visuals;
     tree            : out BSP.p_BSP_node
   )
   is
@@ -562,11 +562,21 @@ package body GLOBE_3D.IO is
       if ID = empty then
         return null;
       else
-        for i in referred_objects'Range loop
-          if referred_objects(i).ID = ID then
-            return referred_objects(i);
-          end if;
-        end loop;
+        -- XX old linear search:
+        --  for i in referred_objects'Range loop
+        --    if referred_objects(i).ID = ID then
+        --      return referred_objects(i);
+        --    end if;
+        --  end loop;
+        return p_Object_3D(Visuals_Mapping.Element(
+          Visuals_Mapping.Map(referred),
+          Ada.Strings.Unbounded.To_Unbounded_String(ID))
+        );
+      end if;
+    exception
+      when Constraint_Error =>
+        -- GNAT gives also the message:
+        -- no element available because key not in map
         if tolerant then
           return null;
         else
@@ -575,7 +585,6 @@ package body GLOBE_3D.IO is
             "Object not found: [" & Trim(ID,right) & ']'
           );
         end if;
-      end if;
     end Find_object;
 
     procedure Read(
@@ -592,7 +601,7 @@ package body GLOBE_3D.IO is
       tol: constant Boolean:= False;
     begin
       String'Read(s,test_signature);
-      if To_Upper(test_signature) /= To_Upper(signature_bsp) then
+      if test_signature /= signature_bsp then
         raise Bad_data_format;
       end if;
       Read_Intel(n);

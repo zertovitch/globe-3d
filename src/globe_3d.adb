@@ -998,11 +998,12 @@ package body GLOBE_3D is
   end Get_name;
 
   procedure Rebuild_links(
-    o           : in out Object_3D;   -- object to be relinked
-    neighbouring: in Object_3D_array; -- neighbourhood
-    tolerant_obj: in Boolean;         -- tolerant on missing objects
-    tolerant_tex: in Boolean          -- tolerant on missing textures
-  ) is
+    o           : in out Object_3D'Class; -- object to be relinked
+    neighbouring: in     Map_of_Visuals;  -- neighbourhood
+    tolerant_obj: in     Boolean;         -- tolerant on missing objects
+    tolerant_tex: in     Boolean          -- tolerant on missing textures
+  )
+  is
     found: Boolean;
   begin
     for f in o.face'Range loop
@@ -1026,13 +1027,27 @@ package body GLOBE_3D is
       -- 2/ Connections through portals:
       if o.face_invariant(f).connect_name /= empty then
         found:= False;
-        for i in neighbouring'Range loop
-          if neighbouring(i).ID = o.face_invariant(f).connect_name then
-            o.face(f).connecting:= neighbouring(i);
-            found:= True;
-            exit;
-          end if;
-        end loop;
+        -- XX old linear search:
+        --  for i in neighbouring'Range loop
+        --    if neighbouring(i).ID = o.face_invariant(f).connect_name then
+        --      o.face(f).connecting:= neighbouring(i);
+        --      found:= True;
+        --      exit;
+        --    end if;
+        --  end loop;
+        begin
+          o.face(f).connecting:= p_Object_3D(Visuals_Mapping.Element(
+            Visuals_Mapping.Map(neighbouring),
+            Ada.Strings.Unbounded.To_Unbounded_String(o.face_invariant(f).connect_name))
+          );
+
+          found:= True;
+        exception
+          when Constraint_Error =>
+            -- GNAT gives also the message:
+            -- no element available because key not in map
+            null;
+        end;
         if not found then
           if tolerant_obj then
             o.face(f).connecting:= null;
@@ -1415,6 +1430,38 @@ package body GLOBE_3D is
    end render;
 
 
+   function empty_map return Map_of_Visuals is
+     thing: Map_of_Visuals;
+   begin
+     Visuals_Mapping.Map(thing):= Visuals_Mapping.Empty_Map;
+     return thing;
+   end empty_map;
+
+   procedure Add( to_map: in out Map_of_Visuals; what: p_Visual ) is
+    pos: Visuals_Mapping.Cursor;
+    suc: Boolean;
+   begin
+      Visuals_Mapping.Insert(
+        Visuals_Mapping.Map(to_map),
+        Ada.Strings.Unbounded.To_Unbounded_String(what.ID),
+        what,
+        pos,
+        suc
+      );
+     if not suc then
+       raise Add_Error;
+     end if;
+   end Add;
+
+   function Map_of( va: Visual_array ) return Map_of_Visuals is
+     res: Map_of_Visuals:= empty_map;
+   begin
+     -- Perhaps Reserve_Capacity would be good here ??
+     for i in va'Range loop
+       Add(res, va(i));
+     end loop;
+     return res;
+   end Map_of;
 
 end GLOBE_3D;
 

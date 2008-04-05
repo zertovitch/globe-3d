@@ -42,6 +42,8 @@ with Ada.Text_IO;
 with Ada.Numerics.Generic_Elementary_functions;
 with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
+with Ada.Containers.Hashed_Maps;
+with Ada.Strings.Unbounded.Hash;
 
 package GLOBE_3D is
 
@@ -215,8 +217,18 @@ package GLOBE_3D is
    -- clears the color buffer and renders each of the visuals.
 
 
-
-
+   -- Map_of_Visuals
+   --
+   -- We define here a way of finding quickly a Visual's access
+   -- through its identifier.
+   --
+   type Map_of_Visuals is private;
+   -- One can begin with empty_map, then Add Visuals one per one:
+   function empty_map return Map_of_Visuals;
+   procedure Add( to_map: in out Map_of_Visuals; what: p_Visual );
+   Add_error: exception;
+   -- One can also get a map of an array of visuals in one go:
+   function Map_of( va: Visual_array ) return Map_of_Visuals;
 
    -- original G3D Object class
    --
@@ -370,10 +382,10 @@ package GLOBE_3D is
   -- Indicate a portal's name that can be resolved later by Rebuild_links
 
   procedure Rebuild_links(
-    o           : in out Object_3D;   -- object to be relinked
-    neighbouring: in Object_3D_array; -- neighbourhood
-    tolerant_obj: in Boolean;         -- tolerant on missing objects
-    tolerant_tex: in Boolean          -- tolerant on missing textures
+    o           : in out Object_3D'Class; -- object to be relinked
+    neighbouring: in     Map_of_Visuals;  -- neighbourhood
+    tolerant_obj: in     Boolean;         -- tolerant on missing objects
+    tolerant_tex: in     Boolean          -- tolerant on missing textures
   );
   -- Does nothing when texture or object name is empty
   Portal_connection_failed: exception;
@@ -570,5 +582,12 @@ private
 --                                 Pn0, Pn1, Pn2 : in     Integer;
 --                                 N             : in out Vector_3D);
 
+  package Visuals_Mapping is new Ada.Containers.Hashed_Maps
+         (Ada.Strings.Unbounded.Unbounded_String,
+          p_Visual,
+          Ada.Strings.Unbounded.Hash,
+          equivalent_keys => Ada.Strings.Unbounded."=");
+
+  type Map_of_Visuals is new Visuals_Mapping.Map with null record;
 
 end GLOBE_3D;

@@ -187,6 +187,11 @@ procedure Dico_Drill is
           Ada.Strings.Unbounded.Hash,
           equivalent_keys => Ada.Strings.Unbounded."=");
 
+  function S (Source : Ada.Strings.Unbounded.Unbounded_String) return String
+    renames Ada.Strings.Unbounded.To_String;
+  function U (Source : String) return Ada.Strings.Unbounded.Unbounded_String
+    renames Ada.Strings.Unbounded.To_Unbounded_String;
+
   --------------
   -- The Test --
   --------------
@@ -239,7 +244,7 @@ procedure Dico_Drill is
             Binary_tree_rebalancing.Rebalance(bina);
           end if;
         when map =>
-          Maps.Insert(mapa,Ada.Strings.Unbounded.To_Unbounded_String(s(1..l)),elm, pos, suc);
+          Maps.Insert(mapa,U(s(1..l)),elm, pos, suc);
       end case;
     end loop;
     Close(f);
@@ -272,7 +277,7 @@ procedure Dico_Drill is
         when bin =>
           elm:= Find(s(1..l), bina);
         when map =>
-          elm:= Maps.Element(mapa, Ada.Strings.Unbounded.To_Unbounded_String(s(1..l)));
+          elm:= Maps.Element(mapa, U(s(1..l)));
       end case;
       if n > dico_length - 4*80 then
         Put(elm);
@@ -284,6 +289,13 @@ procedure Dico_Drill is
     Put_Line("Time for loading:   " & Duration'Image(t1-t0));
     Put_Line("Time for searching: " & Duration'Image(t2-t1));
     New_Line;
+    --
+    -- Test banana skin to sort out which exception/message comes
+    -- when a key is not in the dico:
+    if mode = map then
+      elm:= Maps.Element(mapa, U("Bachibouzouk"));
+      -- raised CONSTRAINT_ERROR : no element available because key not in map
+    end if;
   end Test;
 
 begin
