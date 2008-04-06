@@ -4,6 +4,7 @@ echo -- Cleanup id's Doom3 / Quake 4 / ... tools --
 echo.
 
 del *.a
+del *.#*
 
 cd to_ada
 
