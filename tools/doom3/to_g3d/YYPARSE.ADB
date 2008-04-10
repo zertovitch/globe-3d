@@ -299,7 +299,7 @@ when 14 => -- #line 97
                  Put( Standard_Error, "- model: " & YYText );
                  if consider_current_model then
 
-                   Ada_Build_Model_Header;
+
 
 
                    New_Line(Standard_Error);
@@ -315,30 +315,24 @@ when 15 => -- #line 110
                  total_faces:= 0;
                
 
-when 16 => -- #line 118
- if consider_current_model then 
-                   Ada_Build_Model_Footer;
-                 end if;
-               
-
-when 22 => -- #line 139
+when 21 => -- #line 139
  Set_current_texture(YYTExt);
 
-                 if consider_current_model then
-                   Ada_Comment("Texture: " &
-                     Get_current_texture
-                   ); -- check
-                 end if;
+
+
+
+
+
 
                  -- Put_Line( Standard_Error, "  - Texture " & Get_current_texture);                 
                
 
-when 23 => -- #line 151
+when 22 => -- #line 151
  num_vertices:= yylval.intval;
                  total_points:= total_points + num_vertices;
                 
 
-when 24 => -- #line 155
+when 23 => -- #line 155
 
                  if consider_current_model then
                    num_indices := yylval.intval;
@@ -349,34 +343,34 @@ when 24 => -- #line 155
                      num_indices / 3
                    );
 
-                   Ada_Put_Line(
-                     "Surface_" &
-                     Image(surface_count) &
-                     "_vertices: constant " &
-                     "Surface_vertex_array:= ("
-                   );
+
+
+
+
+
+
 
                  end if;
                  -- Put_Line( Standard_Error, "  - Vertices " & Image(num_vertices));
                
 
-when 25 => -- #line 176
+when 24 => -- #line 176
 
                  if consider_current_model then
 
-                   Ada_Put_Line(
-                     "Surface_" &
-                     Image(surface_count) &
-                     "_triangles: constant " &
-                     "Triangle_array:= ("
-                   );
+
+
+
+
+
+
 
                    triangle_count:= 0;
                  end if;
                  -- Put_Line( Standard_Error, "  - Indices " & Image(num_vertices));
                
 
-when 26 => -- #line 192
+when 25 => -- #line 192
 
                  if consider_current_model then
                    vertex_offset:= vertex_offset + num_vertices;
@@ -384,252 +378,207 @@ when 26 => -- #line 192
                  end if;
                
 
-when 27 => -- #line 203
- 
-                   if consider_current_model then Ada_Put_Line(","); end if;
-                 
-
-when 29 => -- #line 211
- 
-                   if consider_current_model then Ada_Put_Line(");"); end if;
-                 
-
-when 30 => -- #line 220
-
-                  if consider_current_model then Ada_Put("("); end if;
-                
-
-when 31 => -- #line 225
+when 28 => -- #line 225
  last_U:=       yylval.floatval; 
 
-when 32 => -- #line 226
+when 29 => -- #line 226
  last_V:= 1.0 - yylval.floatval; 
 
-when 33 => -- #line 230
+when 30 => -- #line 230
  
                   if consider_current_model then 
 
-                    Ada_Put(Coords(last_pt));
-                    Ada_Put(",(" & Image(last_U) & ',' & Image(last_V) & ')');
-                    Ada_Put(")");
 
 
+
+
+null; -- store the coords x,y,z, u,v !!
 
                   end if;
                 
 
-when 37 => -- #line 265
+when 34 => -- #line 265
 
                     if consider_current_model then 
                       triangle_count:= triangle_count + 1;
 
-                      Ada_Put_Triangle; 
-                      if triangle_count mod 4 = 0 then
-                        Ada_Put_Line(",");
-                      else
-                        Ada_Put(",");
-                      end if;
 
 
+
+
+
+
+
+null; -- store the index !!
 
                     end if;
                   
 
-when 39 => -- #line 283
+when 36 => -- #line 283
  if consider_current_model then 
                       triangle_count:= triangle_count + 1;
 
-                      if triangle_count = 1 then
-                        Ada_Put("1=>");
-                      end if;
-                      Ada_Put_Triangle; 
-                      Ada_Put_Line(");");
 
 
+
+
+
+
+null; -- store the index !!
 
                     end if;
                   
 
-when 40 => -- #line 300
+when 37 => -- #line 300
  v1:= yylval.intval; 
 
-when 41 => -- #line 302
+when 38 => -- #line 302
  v2:= yylval.intval; 
 
-when 42 => -- #line 304
+when 39 => -- #line 304
  v3:= yylval.intval; 
 
-when 46 => -- #line 333
+when 43 => -- #line 333
 
                   -- Ada_Comment("done with 1 shadowvertex");
                   null;
                 
 
-when 51 => -- #line 350
+when 48 => -- #line 350
  Put_Line( Standard_Error, "- Portals connecting areas (interAreaPortals)" ); 
 
-when 52 => -- #line 355
-
-                     Ada_Put_Line("procedure Define_IAPs is");
-                     Ada_Put_Line("begin");
-                     Ada_Put_Line("IAP:= new IAP_array'((");
-                   
-
-when 53 => -- #line 363
-
-                     Ada_Put_Line("));");
-                     Ada_Put_Line("end Define_IAPs;");
-                   
-
-when 55 => -- #line 374
- Ada_Put_Line(","); 
-
-when 58 => -- #line 383
+when 52 => -- #line 383
 
                       iap_points:= yylval.intval;
                       if iap_points /= 4 then
                         -- ^ Supposed to be 4 (usual),
                         -- if not, some modification is needed
 
-                        Ada_Comment("CAUTION !! Portal with /= 4 points not supported");
 
 
+                        Put_Line( Standard_Error, "!! Portal with /= 4 points");
 
                       end if;
                     
 
-when 59 => -- #line 396
+when 53 => -- #line 396
 
                       iap_pos:= yylval.intval;
 
-                      if pretty then
-                        Ada_Put("( positive_side => ");
-                      else
-                        Ada_Put("(");
-                      end if;
-                      Ada_Put(iap_pos);
+
+
+
+
+
+
 
                     
 
-when 60 => -- #line 408
+when 54 => -- #line 408
 
                       iap_neg:= yylval.intval;
 
-                      if pretty then
-                        Ada_Put(", negative_side => ");
-                      else
-                        Ada_Put(",");
-                      end if;
-                      Ada_Put(iap_neg);
-                      if pretty then
-                        Ada_Put_Line(", point => (");
-                      else
-                        Ada_Put(",(");
-                      end if;
+
+
+
+
+
+
+
+
+
+
+
 
                     
 
-when 61 => -- #line 425
+when 55 => -- #line 425
 
                       Add_IAP;
 
-                      Ada_Put(")");
 
 
+null; -- add the portal face on iap_pos and iap_neg objects !!
 
                     
 
-when 62 => -- #line 437
- Ada_Put_Line(","); 
-
-when 64 => -- #line 443
- Ada_Put_Line(")"); 
-
-when 65 => -- #line 450
+when 58 => -- #line 450
 
 
-                    Ada_Put(Coords(last_pt));
 
 
+null; -- remember vertex !!
 
                   
 
-when 67 => -- #line 466
+when 60 => -- #line 466
  Put_Line( Standard_Error, "- Binary Space Partition tree" ); 
 
-when 68 => -- #line 469
-
-
-                     Ada_Put_Line("D3_BSP_node: D3_BSP_node_array:= (");
+when 61 => -- #line 469
 
 
 
-                   
 
-when 69 => -- #line 477
-
-
-                     Ada_Put_Line(");");
-
-
+null; -- allocate "farm" (as in G3D.IO) !!
 
                    
 
-when 71 => -- #line 490
- Ada_Put_Line(","); 
-
-when 74 => -- #line 499
-
-                      Ada_Put("(");
-                    
-
-when 75 => -- #line 505
-
-
-                      if pretty then Ada_Put(" positive_child => "); end if;
-                      Ada_Put(yylval.intval);
+when 62 => -- #line 477
 
 
 
-                    
 
-when 76 => -- #line 514
+null; -- reconstruct accesses from numbers (as in G3D.IO) !!
 
+                   
 
-                      Ada_Put(",");
-                      if pretty then Ada_Put(" negative_child => "); end if;
-                      Ada_Put(yylval.intval);
-                      Ada_Put(")");
+when 66 => -- #line 505
 
 
+
+
+
+null; -- store child (as in G3D.IO) !!
 
                     
 
-when 77 => -- #line 533
+when 67 => -- #line 514
+
+
+
+
+
+
+
+null; -- store child (as in G3D.IO) !!
+
+                    
+
+when 68 => -- #line 533
 
                   last_d:= yylval.floatval;
 
-                  if pretty then Ada_Put(" normal => "); end if;
-                  Ada_Put(Coords(last_pt));
-                  Ada_Put(",");
-                  if pretty then Ada_Put(" distance => "); end if;
-                  Ada_Put(Image(last_d));
-                  Ada_Put(",");
 
 
+
+
+
+
+
+null; -- store d, n !!
 
                 
 
-when 79 => -- #line 556
+when 70 => -- #line 556
  last_pt(2):= yylval.floatval; 
 
-when 80 => -- #line 557
+when 71 => -- #line 557
  last_pt(0):= yylval.floatval; 
 
-when 81 => -- #line 558
+when 72 => -- #line 558
  last_pt(1):= yylval.floatval; 
 
-when 83 => -- #line 563
+when 74 => -- #line 563
 
 yyval := (
 yy.value_stack(yy.tos)); -- Float

@@ -1,6 +1,6 @@
 @echo off
 echo.
-echo make_d3a: option -f recreates sources from the doom3.y file
+echo make_d3g: option -f recreates some of d3g's sources from the doom3.y file
 echo.
 if not "%1"=="-f" goto comp
 rem
@@ -14,6 +14,6 @@ rem
 :comp
 echo.
 rem
-gnatmake -g -I.. -gnato -gnatVa -gnatec../../../obj/gnatdebg/debug.pra d3a -largs -Wl,--stack=0x10000000
+gnatmake -g -I.. -gnato d3g
 rem
 :fin

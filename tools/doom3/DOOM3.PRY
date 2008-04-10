@@ -97,10 +97,10 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                { Add_Model(YYText);
                  Put( Standard_Error, "- model: " & YYText );
                  if consider_current_model then
-
+#if ver="ada"
                    Ada_Build_Model_Header;
-
-
+#elsif ver="g3d"
+#end if;
                    New_Line(Standard_Error);
                  else
                    Put_Line(Standard_Error, " (ignored)");
@@ -114,12 +114,12 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                }
                Sky
                Surfaces -- the surfaces themselves
-
+#if ver="ada"
                { if consider_current_model then 
                    Ada_Build_Model_Footer;
                  end if;
                }
-
+#end if;
                '}'
                ;
 
@@ -137,13 +137,13 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                '{'
                D3String
                { Set_current_texture(YYTExt);
-
+#if ver="ada"
                  if consider_current_model then
                    Ada_Comment("Texture: " &
                      Get_current_texture
                    ); -- check
                  end if;
-
+#end if;
                  -- Put_Line( Standard_Error, "  - Texture " & Get_current_texture);                 
                }
                -- Name of common texture, like "textures/base_wall/lfwall13f3"
@@ -161,28 +161,28 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                      num_vertices,
                      num_indices / 3
                    );
-
+#if ver="ada"
                    Ada_Put_Line(
                      "Surface_" &
                      Image(surface_count) &
                      "_vertices: constant " &
                      "Surface_vertex_array:= ("
                    );
-
+#end if;
                  end if;
                  -- Put_Line( Standard_Error, "  - Vertices " & Image(num_vertices));
                }
                Surface_Vertices
                {
                  if consider_current_model then
-
+#if ver="ada"
                    Ada_Put_Line(
                      "Surface_" &
                      Image(surface_count) &
                      "_triangles: constant " &
                      "Triangle_array:= ("
                    );
-
+#end if;
                    triangle_count:= 0;
                  end if;
                  -- Put_Line( Standard_Error, "  - Indices " & Image(num_vertices));
@@ -199,28 +199,28 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
   Surface_Vertices :
                  Surface_Vertex
-
+#if ver="ada"
                  { 
                    if consider_current_model then Ada_Put_Line(","); end if;
                  }
-
+#end if;
                  Surface_Vertices
                |
                  Surface_Vertex
-
+#if ver="ada"
                  { 
                    if consider_current_model then Ada_Put_Line(");"); end if;
                  }
-
+#end if;
                  ;
 
   Surface_Vertex :
                 '('
-
+#if ver="ada"
                 {
                   if consider_current_model then Ada_Put("("); end if;
                 }
-
+#end if;
                 D3Float_triple                   -- point in space
                 D3Float { last_U:=       yylval.floatval; }  --  u
                 D3Float { last_V:= 1.0 - yylval.floatval; }  --  v
@@ -229,13 +229,13 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                 D3Float --  nz
                 { 
                   if consider_current_model then 
-
+#if ver="ada"
                     Ada_Put(Coords(last_pt));
                     Ada_Put(",(" & Image(last_U) & ',' & Image(last_V) & ')');
                     Ada_Put(")");
-
-
-
+#elsif ver="g3d"
+null; -- store the coords x,y,z, u,v !!
+#end if;
                   end if;
                 }
                 Surface_Vertex_extra
@@ -265,16 +265,16 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                   {
                     if consider_current_model then 
                       triangle_count:= triangle_count + 1;
-
+#if ver="ada"
                       Ada_Put_Triangle; 
                       if triangle_count mod 4 = 0 then
                         Ada_Put_Line(",");
                       else
                         Ada_Put(",");
                       end if;
-
-
-
+#elsif ver="g3d"
+null; -- store the index !!
+#end if;
                     end if;
                   }
                   Surface_Indices
@@ -282,15 +282,15 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                   Surface_Index -- last or only index
                   { if consider_current_model then 
                       triangle_count:= triangle_count + 1;
-
+#if ver="ada"
                       if triangle_count = 1 then
                         Ada_Put("1=>");
                       end if;
                       Ada_Put_Triangle; 
                       Ada_Put_Line(");");
-
-
-
+#elsif ver="g3d"
+null; -- store the index !!
+#end if;
                     end if;
                   }
                 ;
@@ -351,28 +351,28 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                    '{'
                    NUMBER -- numAreas
                    NUMBER -- numIAP
-
+#if ver="ada"
                    {
                      Ada_Put_Line("procedure Define_IAPs is");
                      Ada_Put_Line("begin");
                      Ada_Put_Line("IAP:= new IAP_array'((");
                    }
-
+#end if;
                    interAreaPortals
-
+#if ver="ada"
                    {
                      Ada_Put_Line("));");
                      Ada_Put_Line("end Define_IAPs;");
                    }
-
+#end if;
                    '}'
                    ;
 
   interAreaPortals:
                  interAreaPortal
-
+#if ver="ada"
                  { Ada_Put_Line(","); }
-
+#end if;
                  interAreaPortals
                 |
                  interAreaPortal
@@ -385,29 +385,29 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                       if iap_points /= 4 then
                         -- ^ Supposed to be 4 (usual),
                         -- if not, some modification is needed
-
+#if ver="ada"
                         Ada_Comment("CAUTION !! Portal with /= 4 points not supported");
-
-
-
+#elsif ver="g3d"
+                        Put_Line( Standard_Error, "!! Portal with /= 4 points");
+#end if;
                       end if;
                     }
                     NUMBER -- positiveSideArea
                     {
                       iap_pos:= yylval.intval;
-
+#if ver="ada"
                       if pretty then
                         Ada_Put("( positive_side => ");
                       else
                         Ada_Put("(");
                       end if;
                       Ada_Put(iap_pos);
-
+#end if;
                     }
                     NUMBER -- negativeSideArea
                     {
                       iap_neg:= yylval.intval;
-
+#if ver="ada"
                       if pretty then
                         Ada_Put(", negative_side => ");
                       else
@@ -419,40 +419,40 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                       else
                         Ada_Put(",(");
                       end if;
-
+#end if;
                     }
                     IAP_Verts -- ( point ) ...
                     {
                       Add_IAP;
-
+#if ver="ada"
                       Ada_Put(")");
-
-
-
+#elsif ver="g3d"
+null; -- add the portal face on iap_pos and iap_neg objects !!
+#end if;
                     }
                     ;
 
   IAP_Verts    : IAP_Vert
-
+#if ver="ada"
                  { Ada_Put_Line(","); }
-
+#end if;
                  IAP_Verts
                 |
                  IAP_Vert
-
+#if ver="ada"
                  { Ada_Put_Line(")"); }
-
+#end if;
                 ;
 
   IAP_Vert      :
                   '('
                   D3Float_triple
                   {
-
+#if ver="ada"
                     Ada_Put(Coords(last_pt));
-
-
-
+#elsif ver="g3d"
+null; -- remember vertex !!
+#end if;
                   }
                   ')'
                 ;
@@ -467,59 +467,59 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                    '{'
                    NUMBER -- numNodes
                    {
-
+#if ver="ada"
                      Ada_Put_Line("D3_BSP_node: D3_BSP_node_array:= (");
-
-
-
+#elsif ver="g3d"
+null; -- allocate "farm" (as in G3D.IO) !!
+#end if;
                    }
                    bsp_nodes
                    {
-
+#if ver="ada"
                      Ada_Put_Line(");");
-
-
-
+#elsif ver="g3d"
+null; -- reconstruct accesses from numbers (as in G3D.IO) !!
+#end if;
                    }
                    '}'
                    ;
 
   bsp_nodes         :
                   bsp_node
-
+#if ver="ada"
                   { Ada_Put_Line(","); }
-
+#end if;
                   bsp_nodes
                 | 
                   bsp_node
                 ;
 
   bsp_node :   
-
+#if ver="ada"
                     {
                       Ada_Put("(");
                     }
-
+#end if;
                     bsp_plane_vector
                     NUMBER -- positiveChild
                     {
-
+#if ver="ada"
                       if pretty then Ada_Put(" positive_child => "); end if;
                       Ada_Put(yylval.intval);
-
-
-
+#elsif ver="g3d"
+null; -- store child (as in G3D.IO) !!
+#end if;
                     }
                     NUMBER -- negativeChild
                     {
-
+#if ver="ada"
                       Ada_Put(",");
                       if pretty then Ada_Put(" negative_child => "); end if;
                       Ada_Put(yylval.intval);
                       Ada_Put(")");
-
-
-
+#elsif ver="g3d"
+null; -- store child (as in G3D.IO) !!
+#end if;
                     }
                     -- a child number of 0 is an opaque, solid area
                     -- negative child numbers are areas: (-1-child)
@@ -532,16 +532,16 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                 D3Float -- d: distance to origin O, >0 if O on the n side
                 {
                   last_d:= yylval.floatval;
-
+#if ver="ada"
                   if pretty then Ada_Put(" normal => "); end if;
                   Ada_Put(Coords(last_pt));
                   Ada_Put(",");
                   if pretty then Ada_Put(" distance => "); end if;
                   Ada_Put(Image(last_d));
                   Ada_Put(",");
-
-
-
+#elsif ver="g3d"
+null; -- store d, n !!
+#end if;
                 }
                 ')'
                 ;
@@ -582,4 +582,3 @@ with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
 
 with Interfaces;                        use Interfaces;
 
-##
