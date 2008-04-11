@@ -301,21 +301,30 @@ when 14 => -- #line 97
 
 
 
-
                    New_Line(Standard_Error);
                  else
                    Put_Line(Standard_Error, " (ignored)");
                  end if;
                
 
-when 15 => -- #line 110
+when 15 => -- #line 109
  vertex_offset:= 1; -- includes numbering shift 0->1
                  surface_count:= 0;
                  total_points:= 0;
                  total_faces:= 0;
                
 
-when 21 => -- #line 139
+when 16 => -- #line 116
+ if consider_current_model then
+
+
+
+                   Build_Model;            -- builds models now
+
+                 end if;
+               
+
+when 22 => -- #line 140
  Set_current_texture(YYTExt);
 
 
@@ -324,15 +333,15 @@ when 21 => -- #line 139
 
 
 
-                 -- Put_Line( Standard_Error, "  - Texture " & Get_current_texture);                 
+                 -- Put_Line( Standard_Error, "  - Texture " & Get_current_texture);
                
 
-when 22 => -- #line 151
+when 23 => -- #line 152
  num_vertices:= yylval.intval;
                  total_points:= total_points + num_vertices;
                 
 
-when 23 => -- #line 155
+when 24 => -- #line 156
 
                  if consider_current_model then
                    num_indices := yylval.intval;
@@ -354,7 +363,7 @@ when 23 => -- #line 155
                  -- Put_Line( Standard_Error, "  - Vertices " & Image(num_vertices));
                
 
-when 24 => -- #line 176
+when 25 => -- #line 177
 
                  if consider_current_model then
 
@@ -370,7 +379,7 @@ when 24 => -- #line 176
                  -- Put_Line( Standard_Error, "  - Indices " & Image(num_vertices));
                
 
-when 25 => -- #line 192
+when 26 => -- #line 193
 
                  if consider_current_model then
                    vertex_offset:= vertex_offset + num_vertices;
@@ -378,15 +387,15 @@ when 25 => -- #line 192
                  end if;
                
 
-when 28 => -- #line 225
- last_U:=       yylval.floatval; 
-
 when 29 => -- #line 226
- last_V:= 1.0 - yylval.floatval; 
+ last_U:= Doom3_Help.Real(yylval.floatval); 
 
-when 30 => -- #line 230
- 
-                  if consider_current_model then 
+when 30 => -- #line 227
+ last_V:= Doom3_Help.Real(1.0 - yylval.floatval); 
+
+when 31 => -- #line 231
+
+                  if consider_current_model then
 
 
 
@@ -397,9 +406,9 @@ null; -- store the coords x,y,z, u,v !!
                   end if;
                 
 
-when 34 => -- #line 265
+when 35 => -- #line 266
 
-                    if consider_current_model then 
+                    if consider_current_model then
                       triangle_count:= triangle_count + 1;
 
 
@@ -414,8 +423,8 @@ null; -- store the index !!
                     end if;
                   
 
-when 36 => -- #line 283
- if consider_current_model then 
+when 37 => -- #line 284
+ if consider_current_model then
                       triangle_count:= triangle_count + 1;
 
 
@@ -429,25 +438,25 @@ null; -- store the index !!
                     end if;
                   
 
-when 37 => -- #line 300
+when 38 => -- #line 301
  v1:= yylval.intval; 
 
-when 38 => -- #line 302
+when 39 => -- #line 303
  v2:= yylval.intval; 
 
-when 39 => -- #line 304
+when 40 => -- #line 305
  v3:= yylval.intval; 
 
-when 43 => -- #line 333
+when 44 => -- #line 334
 
                   -- Ada_Comment("done with 1 shadowvertex");
                   null;
                 
 
-when 48 => -- #line 350
+when 49 => -- #line 351
  Put_Line( Standard_Error, "- Portals connecting areas (interAreaPortals)" ); 
 
-when 52 => -- #line 383
+when 53 => -- #line 384
 
                       iap_points:= yylval.intval;
                       if iap_points /= 4 then
@@ -461,7 +470,7 @@ when 52 => -- #line 383
                       end if;
                     
 
-when 53 => -- #line 396
+when 54 => -- #line 397
 
                       iap_pos:= yylval.intval;
 
@@ -474,7 +483,7 @@ when 53 => -- #line 396
 
                     
 
-when 54 => -- #line 408
+when 55 => -- #line 409
 
                       iap_neg:= yylval.intval;
 
@@ -492,7 +501,7 @@ when 54 => -- #line 408
 
                     
 
-when 55 => -- #line 425
+when 56 => -- #line 426
 
                       Add_IAP;
 
@@ -502,7 +511,7 @@ null; -- add the portal face on iap_pos and iap_neg objects !!
 
                     
 
-when 58 => -- #line 450
+when 59 => -- #line 451
 
 
 
@@ -511,10 +520,10 @@ null; -- remember vertex !!
 
                   
 
-when 60 => -- #line 466
+when 61 => -- #line 467
  Put_Line( Standard_Error, "- Binary Space Partition tree" ); 
 
-when 61 => -- #line 469
+when 62 => -- #line 470
 
 
 
@@ -523,7 +532,7 @@ null; -- allocate "farm" (as in G3D.IO) !!
 
                    
 
-when 62 => -- #line 477
+when 63 => -- #line 478
 
 
 
@@ -532,7 +541,7 @@ null; -- reconstruct accesses from numbers (as in G3D.IO) !!
 
                    
 
-when 66 => -- #line 505
+when 67 => -- #line 506
 
 
 
@@ -542,7 +551,7 @@ null; -- store child (as in G3D.IO) !!
 
                     
 
-when 67 => -- #line 514
+when 68 => -- #line 515
 
 
 
@@ -554,9 +563,9 @@ null; -- store child (as in G3D.IO) !!
 
                     
 
-when 68 => -- #line 533
+when 69 => -- #line 534
 
-                  last_d:= yylval.floatval;
+                  last_d:= Doom3_Help.Real(yylval.floatval);
 
 
 
@@ -569,16 +578,16 @@ null; -- store d, n !!
 
                 
 
-when 70 => -- #line 556
- last_pt(2):= yylval.floatval; 
-
 when 71 => -- #line 557
- last_pt(0):= yylval.floatval; 
+ last_pt(2):= Doom3_Help.Real(yylval.floatval); 
 
 when 72 => -- #line 558
- last_pt(1):= yylval.floatval; 
+ last_pt(0):= Doom3_Help.Real(yylval.floatval); 
 
-when 74 => -- #line 563
+when 73 => -- #line 559
+ last_pt(1):= Doom3_Help.Real(yylval.floatval); 
+
+when 75 => -- #line 564
 
 yyval := (
 yy.value_stack(yy.tos)); -- Float

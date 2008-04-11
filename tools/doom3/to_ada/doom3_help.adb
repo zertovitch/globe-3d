@@ -271,7 +271,10 @@ package body Doom3_Help is
           area_stack(area_top):= model_top;
           is_area:= True;
         else
-          Ada_Put("*** unknown case with model " & name);
+          Ada_Put(
+            "** unknown case with model " & name &
+             ": starts with '_' but not area."
+          );
         end if;
       else
         un:= U(name);

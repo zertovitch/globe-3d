@@ -373,63 +373,77 @@ when 11 =>
 
 when 12 => 
 --# line 42 "doom3.l"
- yylval.intval := Integer'Value(yytext);
+ begin
+                     yylval.intval := Integer'Value(yytext);
+                   exception
+                     when Constraint_Error =>
+                      -- declare
+                      --   msg: constant String:=
+                      --    "Error with integer ? [" & yytext & ']';
+                      -- begin
+                      --   Put_Line(Standard_Error, msg);
+                      --   raise Constraint_Error with msg;
+                      -- end;
+                      yylval.intval := -1;
+                      -- not nice at all, but a >2**31 number
+                      -- seems to appear only at top (some checksum)
+                   end;
                    yylval.floatval:= Real( yylval.intval );
                    return NUMBER;
 
 when 13 => 
---# line 45 "doom3.l"
+--# line 59 "doom3.l"
  yylval.intval := Integer'Value("8#"&yytext&'#');
                    yylval.floatval:= Real( yylval.intval );
                    return NUMBER;
 
 when 14 => 
---# line 49 "doom3.l"
+--# line 63 "doom3.l"
  yylval.floatval := Real'Value(yytext);
                       return FLOAT_t;
 
 when 15 => 
---# line 51 "doom3.l"
+--# line 65 "doom3.l"
  yylval.intval := Integer'Value("16#"&yytext&'#');
                    yylval.floatval:= Real( yylval.intval );
                    return NUMBER;
 
 when 16 => 
---# line 55 "doom3.l"
+--# line 69 "doom3.l"
 return D3String;
 
 when 17 => 
---# line 57 "doom3.l"
+--# line 71 "doom3.l"
  null; -- \t  ;
 
 when 18 => 
---# line 58 "doom3.l"
+--# line 72 "doom3.l"
 linenum:= linenum+1;
 
 when 19 => 
---# line 60 "doom3.l"
+--# line 74 "doom3.l"
  null; -- ??
                      -- C: return *yytext;
                    
 
 when 20 => 
---# line 63 "doom3.l"
+--# line 77 "doom3.l"
  return '('; 
 
 when 21 => 
---# line 64 "doom3.l"
+--# line 78 "doom3.l"
  return ')'; 
 
 when 22 => 
---# line 65 "doom3.l"
+--# line 79 "doom3.l"
  return '}'; 
 
 when 23 => 
---# line 66 "doom3.l"
+--# line 80 "doom3.l"
  return '{'; 
 
 when 24 => 
---# line 68 "doom3.l"
+--# line 82 "doom3.l"
 ECHO;
 when YY_END_OF_BUFFER + INITIAL + 1 => 
     return End_Of_Input;
@@ -482,4 +496,4 @@ when YY_END_OF_BUFFER + INITIAL + 1 =>
             end case; -- case (yy_act)
         end loop; -- end of loop waiting for end of file
 end YYLex;
---# line 68 "doom3.l"
+--# line 82 "doom3.l"

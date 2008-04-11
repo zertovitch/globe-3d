@@ -12,7 +12,7 @@ procedure D3G is
 
   procedure Syntax is
   begin
-    Put_Line( Standard_Error, "Syntax: d3g [option] [input_file]" );
+    Put_Line( Standard_Error, "Syntax: d3g [option] input_file" );
     New_Line( Standard_Error );
     Put_Line( Standard_Error, "D3G translates a Doom 3 or Quake 4 processed map file" );
     Put_Line( Standard_Error, "(.proc) into GLOBE_3D objects (.g3d), bsp (.bsp)." );
@@ -50,7 +50,7 @@ begin
             Doom3_IO.Open_Input (fname => arg);
             Inp_Opened := True;
             Put_Line(Standard_error,
-              "D3G from '" & arg & "' to '" & arg & "'" );
+              "D3G from '" & arg & "." );
           exception
             when Name_Error =>
               Put_Line( Standard_Error, "Input file '" & arg &
@@ -64,8 +64,9 @@ begin
   end loop;
 
   if not Inp_opened then
-    Put_Line(Standard_error,
-      "Missing input file. Rerun ""D3G -h"" for help." );
+    Put_Line(Standard_error,"Missing input file!");
+    Syntax;
+    return;
   end if;
 
   Doom3_Help.has_input:= inp_opened;

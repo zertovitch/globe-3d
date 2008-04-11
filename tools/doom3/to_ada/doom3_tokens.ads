@@ -3,10 +3,10 @@ package Doom3_Tokens is
 
 
   type const_type is (
-    intval, 
-    floatval, 
-    doubleval, 
-    stringval, 
+    intval,
+    floatval,
+    doubleval,
+    stringval,
     any_type
   );
 

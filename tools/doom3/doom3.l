@@ -39,7 +39,21 @@ FALSE               { yylval.intval := 1; return NUMBER; }
                    yylval.floatval := 0.0;
                    return NUMBER;
                  }
--?[1-9][0-9]*    { yylval.intval := Integer'Value(yytext);
+-?[1-9][0-9]*    { begin
+                     yylval.intval := Integer'Value(yytext);
+                   exception
+                     when Constraint_Error =>
+                      -- declare
+                      --   msg: constant String:=
+                      --    "Error with integer ? [" & yytext & ']';
+                      -- begin
+                      --   Put_Line(Standard_Error, msg);
+                      --   raise Constraint_Error with msg;
+                      -- end;
+                      yylval.intval := -1;
+                      -- not nice at all, but a >2**31 number
+                      -- seems to appear only at top (some checksum)
+                   end;
                    yylval.floatval:= Real( yylval.intval );
                    return NUMBER;}
 0[1-7][0-7]*     { yylval.intval := Integer'Value("8#"&yytext&'#');

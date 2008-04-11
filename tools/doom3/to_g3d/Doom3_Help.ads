@@ -1,3 +1,5 @@
+with GLOBE_3D, GL.Materials;
+
 with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
 
 package Doom3_Help is
@@ -21,12 +23,12 @@ package Doom3_Help is
 
   argument_pos_source: Natural:= 0;
 
-  subtype Real is Long_Float;
+  main_centre: GLOBE_3D.Point_3D;
 
-  type Point_3D is array(0..2) of Real;
+  subtype Real is GLOBE_3D.Real;
 
-  last_pt: Point_3D;
-  last_U, last_V, last_d: Real;
+  last_pt: GLOBE_3D.Point_3D;
+  last_U, last_V, last_d: GLOBE_3D.Real;
 
   num_vertices, num_indices, vertex_offset: Natural;
 
@@ -60,32 +62,22 @@ package Doom3_Help is
   iap_pos, iap_neg, iap_points: Integer;
   procedure Add_IAP;
 
-  -- old vrml stuff
-
-  type Material_Float_vector is array(0..3) of aliased Real;
-
-  type Material_type is record
-    ambient,
-    diffuse,
-    specular,
-    emission  : Material_Float_vector;
-    shininess : Real; -- 0.0 .. 128.0
-  end record;
-
-  default_material   : constant Material_type:= (
+  default_material   : constant GL.Materials.Material_type:= (
             ambient =>        (0.2, 0.2, 0.2, 1.0),
             diffuse =>        (0.8, 0.8, 0.8, 1.0),
             specular =>       (0.0, 0.0, 0.0, 1.0),
             emission =>       (0.0, 0.0, 0.0, 1.0),
             shininess =>       25.6);
 
-  current_matos: Material_type:= default_material;
+  current_matos: GL.Materials.Material_type:= default_material;
 
-  last_color: Material_Float_vector;
+  last_color: GL.Material_Float_vector;
 
   triangle_count: Natural;
 
   procedure D3G_Init;
+
+  procedure Build_Model;
 
   procedure Doom3_Comment(s: String); -- dummy
 

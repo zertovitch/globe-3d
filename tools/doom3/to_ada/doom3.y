@@ -1,5 +1,5 @@
 -- Doom3.y generated from Domm3.pry by the gnatprep tool.
--- 
+--
 -- DO NOT MODIFY the Doom3.Y file, but only the Doom3.PRY one !
 
 --------------------------------------------------------------
@@ -22,7 +22,7 @@
 --  .proc is the precompiled gemoetry, portal and bsp;
 --  .cm is the collision map.
 
-%token NUMBER 
+%token NUMBER
 %token FLOAT_t
 %token D3String
 
@@ -35,10 +35,10 @@
 {
 
   type const_type is (
-    intval, 
-    floatval, 
-    doubleval, 
-    stringval, 
+    intval,
+    floatval,
+    doubleval,
+    stringval,
     any_type
   );
 
@@ -50,7 +50,7 @@
      floatval: Long_Float;
   end record;
 
-} 
+}
 
 %%
 
@@ -100,7 +100,6 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
                    Ada_Build_Model_Header;
 
-
                    New_Line(Standard_Error);
                  else
                    Put_Line(Standard_Error, " (ignored)");
@@ -114,18 +113,20 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                }
                Sky
                Surfaces -- the surfaces themselves
+               { if consider_current_model then
 
-               { if consider_current_model then 
-                   Ada_Build_Model_Footer;
+                   Ada_Build_Model_Footer; -- generates Ada code to build model
+
+
+
                  end if;
                }
-
                '}'
                ;
 
   Sky :   NUMBER --          : Quake 4
         |        -- (nothing): Doom 3
-        ; 
+        ;
 
   --------------
   -- Surfaces --
@@ -144,7 +145,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                    ); -- check
                  end if;
 
-                 -- Put_Line( Standard_Error, "  - Texture " & Get_current_texture);                 
+                 -- Put_Line( Standard_Error, "  - Texture " & Get_current_texture);
                }
                -- Name of common texture, like "textures/base_wall/lfwall13f3"
                NUMBER -- numVerts
@@ -200,7 +201,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
   Surface_Vertices :
                  Surface_Vertex
 
-                 { 
+                 {
                    if consider_current_model then Ada_Put_Line(","); end if;
                  }
 
@@ -208,7 +209,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                |
                  Surface_Vertex
 
-                 { 
+                 {
                    if consider_current_model then Ada_Put_Line(");"); end if;
                  }
 
@@ -222,13 +223,13 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                 }
 
                 D3Float_triple                   -- point in space
-                D3Float { last_U:=       yylval.floatval; }  --  u
-                D3Float { last_V:= 1.0 - yylval.floatval; }  --  v
+                D3Float { last_U:= Doom3_Help.Real(yylval.floatval); }       -- u
+                D3Float { last_V:= Doom3_Help.Real(1.0 - yylval.floatval); } -- v
                 D3Float --  nx
                 D3Float --  ny
                 D3Float --  nz
-                { 
-                  if consider_current_model then 
+                {
+                  if consider_current_model then
 
                     Ada_Put(Coords(last_pt));
                     Ada_Put(",(" & Image(last_U) & ',' & Image(last_V) & ')');
@@ -253,7 +254,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
                   -- The indices are those of the array of Vertices above.
                   --
-                  -- Numbering on triangles looks weirdo: e.g. 0 1 2 3 1 0 
+                  -- Numbering on triangles looks weirdo: e.g. 0 1 2 3 1 0
                   -- A bit of guess work: 2,3 appear once, must be opposite.
                   --    0-2
                   --    |\|
@@ -263,10 +264,10 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
                   Surface_Index
                   {
-                    if consider_current_model then 
+                    if consider_current_model then
                       triangle_count:= triangle_count + 1;
 
-                      Ada_Put_Triangle; 
+                      Ada_Put_Triangle;
                       if triangle_count mod 4 = 0 then
                         Ada_Put_Line(",");
                       else
@@ -280,13 +281,13 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                   Surface_Indices
                 |
                   Surface_Index -- last or only index
-                  { if consider_current_model then 
+                  { if consider_current_model then
                       triangle_count:= triangle_count + 1;
 
                       if triangle_count = 1 then
                         Ada_Put("1=>");
                       end if;
-                      Ada_Put_Triangle; 
+                      Ada_Put_Triangle;
                       Ada_Put_Line(");");
 
 
@@ -302,7 +303,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                  { v2:= yylval.intval; }
                  NUMBER
                  { v3:= yylval.intval; }
-                 
+
     -- NB: no direct output, we have to buffer because of cases
     -- with only 1 triangle (occurs...) needing "1=>" before
                ;
@@ -378,7 +379,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                  interAreaPortal
                 ;
 
-  interAreaPortal :                 
+  interAreaPortal :
                     NUMBER -- numPoints
                     {
                       iap_points:= yylval.intval;
@@ -490,11 +491,11 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                   { Ada_Put_Line(","); }
 
                   bsp_nodes
-                | 
+                |
                   bsp_node
                 ;
 
-  bsp_node :   
+  bsp_node :
 
                     {
                       Ada_Put("(");
@@ -531,7 +532,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                 D3Float_triple -- outer normal n
                 D3Float -- d: distance to origin O, >0 if O on the n side
                 {
-                  last_d:= yylval.floatval;
+                  last_d:= Doom3_Help.Real(yylval.floatval);
 
                   if pretty then Ada_Put(" normal => "); end if;
                   Ada_Put(Coords(last_pt));
@@ -553,11 +554,11 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
   D3Float_triple :
                 -- We make some orthogonal transformation towards
                 -- the GLOBE_3D system
-                D3Float { last_pt(2):= yylval.floatval; }
-                D3Float { last_pt(0):= yylval.floatval; }
-                D3Float { last_pt(1):= yylval.floatval; }
+                D3Float { last_pt(2):= Doom3_Help.Real(yylval.floatval); }
+                D3Float { last_pt(0):= Doom3_Help.Real(yylval.floatval); }
+                D3Float { last_pt(1):= Doom3_Help.Real(yylval.floatval); }
               ;
-                
+
   D3Float     : FLOAT_t
               | NUMBER
                 {$$ := ($1); -- Float
