@@ -12,10 +12,6 @@
 -- among the scenes' areas                                  --
 --------------------------------------------------------------
 
-----------------------------------------------
--- Version for the translation PROC --> Ada --
-----------------------------------------------
-
 -- From a FAQ (completed):
 -- what are .map, .proc and .cm files?
 --  .map is the editor file with entity placement;

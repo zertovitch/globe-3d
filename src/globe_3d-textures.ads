@@ -13,21 +13,38 @@ package GLOBE_3D.Textures is
   Textures_not_reserved: exception;
   Texture_out_of_range: exception;
 
-  -----------------------------------------------------------------------
-  -- a) Automatic Texture name association through an enumarated type: --
-  -----------------------------------------------------------------------
-  -- Easy, reliable, but static, monolithic and diallows a
-  -- directory structure
+  ----------------------------------------------------------------------
+  -- a) Automatic Texture name association through an enumarated type --
+  ----------------------------------------------------------------------
+  --
+  -- For test or demo programs.
+  -- Easy, reliable, but: static, hard-coded and diallowing a
+  -- directory structure.
 
   generic
     type Texture_enum is (<>);
   procedure Associate_textures;
 
-  -----------------------------------------
-  -- b) Manual Texture name association: --
-  -----------------------------------------
+  ----------------------------------------------------------------------
+  -- b) Automatic Texture name association by searching the .zip data --
+  --    resource files for images                                     --
+  ----------------------------------------------------------------------
+  --
+  -- For "real life" programs which don't know of the data. 
   -- Allows subdirectories in resource ('/' or '\' in names)
-  -- and a flexible management
+  -- and a flexible management. 
+  -- The texture name list is obtained by traversing the directory of
+  -- both .zip data resource files, searching for images (anyway, the
+  -- textures are read from there!).
+
+  -- TBD! (idea: 11-apr-2008)
+
+  ----------------------------------------
+  -- c) Manual Texture name association --
+  ----------------------------------------
+  --
+  -- Free way of associating names. E.g., the texture name list could be
+  -- simply stored on a text file, or obtained by a "dir"-like operation.
 
   -- - Reserve place for a texture name table:
   procedure Reserve_textures( last_id: Image_id );
