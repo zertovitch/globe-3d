@@ -6,15 +6,12 @@
 
 --with opengl.glx;
 
-with GL, GL.IO, GL.Frustums, GL.Skins, GL.Textures, GL.Materials, GLU,  GLUT;
+with GL, GL.IO, GL.Frustums, GLU,  GLUT;
 
 with GLOBE_3D,
      GLOBE_3D.IO,
-     GLOBE_3D.Options,
      GLOBE_3D.Math,
-     GLOBE_3D.Textures,
-     GLOBE_3D.Software_Anti_Aliasing,
-     GLOBE_3D.Stars_sky;
+     GLOBE_3D.Software_Anti_Aliasing;
 
 with Ego;
 with GLUT_2D;  --, GLUT_Exit;
@@ -22,7 +19,6 @@ with GLUT_2D;  --, GLUT_Exit;
 with Ada.Text_IO;
 
 with Ada.Numerics;                      use Ada.Numerics;
-with Ada.Command_Line;
 with Ada.unchecked_Conversion;
 
 with Ada.Containers.Generic_Array_Sort;
@@ -739,8 +735,6 @@ package body glut.Windows is
       glut.Init;
       glut.setOption (glut.GLUT_RENDERING_CONTEXT, glut.GLUT_USE_CURRENT_CONTEXT);
       glut.setOption (glut.ACTION_ON_WINDOW_CLOSE, ACTION_CONTINUE_EXECUTION);
-
-      Texture_association;
    end;
 
 

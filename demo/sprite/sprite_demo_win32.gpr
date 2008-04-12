@@ -4,7 +4,7 @@ project Sprite_demo_Win32 is
       ("Fast", "Debug", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
 
-   for Source_Dirs use (".", "..\..\bindings", "..\..\bindings\win32", "..\..\src\/**", "..\..\ada05_proxy", "..\..\tools");
+   for Source_Dirs use (".", "..\..\bindings", "..\..\bindings\win32", "..\..\src\/**", "..\..\tools");
    for Main use ("sprite_demo.adb", "sprite_tb.ads");
 
    case Build_Mode is

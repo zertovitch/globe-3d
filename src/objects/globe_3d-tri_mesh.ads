@@ -9,7 +9,7 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GL.Textures;
+with GL.Textures, GL.Skins;
 
 
 

@@ -3,12 +3,13 @@
 -----------------------------------------------------------------------------
 
 with Interfaces;
-with glut.Windows;              use glut.Windows;
+with GLUT.Windows;              use GLUT.Windows;
 with Ada.Characters.Handling;   use Ada.Characters.Handling;
 with System;
 with ada.unchecked_Conversion;
+with GLOBE_3D;
 
-package body glut.Devices is
+package body GLUT.Devices is
 
 
    -- current_Window : - for accessing the current GLUT window
@@ -29,7 +30,6 @@ package body glut.Devices is
 
    function current_Keyboard return p_Keyboard
    is
-      use globe_3d;
       the_current_Window : constant windows.Window_view := current_Window;
    begin
       if the_current_Window = null then
@@ -46,16 +46,16 @@ package body glut.Devices is
     use Interfaces;
     m: constant Unsigned_32:= Unsigned_32( modif_code );
   begin
-    current_Keyboard.modif_set( glut.Active_shift ):= (m and glut.Active_shift) /= 0;
-    current_Keyboard.modif_set( glut.Active_ctrl  ):= (m and glut.Active_ctrl) /= 0;
-    current_Keyboard.modif_set( glut.Active_alt   ):= (m and glut.Active_alt) /= 0;
+    current_Keyboard.modif_set( GLUT.Active_shift ):= (m and GLUT.Active_shift) /= 0;
+    current_Keyboard.modif_set( GLUT.Active_ctrl  ):= (m and GLUT.Active_ctrl) /= 0;
+    current_Keyboard.modif_set( GLUT.Active_alt   ):= (m and GLUT.Active_alt) /= 0;
   end Affect_modif_key;
 
 
 
   procedure Update_modifier_keys is
   begin
-    Affect_modif_key( glut.GetModifiers );
+    Affect_modif_key( GLUT.GetModifiers );
     --  During a callback, GetModifiers may be called
     --  to determine the state of modifier keys
     --  when the keystroke generating the callback occurred.
@@ -67,7 +67,7 @@ package body glut.Devices is
 
   -- GLUT Callback procedures --
 
-  procedure Key( k: glut.Key_type; x,y: Integer ) is
+  procedure Key( k: GLUT.Key_type; x,y: Integer ) is
 
   begin
     if x=y then null; end if; -- bogus (anti-warning)
@@ -75,7 +75,7 @@ package body glut.Devices is
     Update_modifier_keys;
   end Key;
 
-  procedure Key_up( k: glut.Key_type; x,y: Integer ) is
+  procedure Key_up( k: GLUT.Key_type; x,y: Integer ) is
   begin
     if x=y then null; end if; -- bogus (anti-warning)
     current_Keyboard.normal_set( To_Upper(Character'Val(k)) ):= False;  -- key k is unpressed
@@ -123,7 +123,7 @@ package body glut.Devices is
     current_Mouse.mx:= x;
     current_Mouse.my:= y;
     if button in current_Mouse.button_state'Range then -- skip extra buttons (wheel, etc.)
-      current_Mouse.button_state( button ) := state = glut.DOWN; -- Joli, non ?
+      current_Mouse.button_state( button ) := state = GLUT.DOWN; -- Joli, non ?
     end if;
     Update_modifier_keys;
   end Mouse_Event;
@@ -150,16 +150,16 @@ package body glut.Devices is
    --
 
   procedure Initialize is
-    use glut;
+    use GLUT;
   begin
-    IgnoreKeyRepeat   (1);
-    KeyboardFunc      (Key'access           );
-    KeyboardUpFunc    (Key_up'access        );
-    SpecialFunc       (Special_key'access   );
-    SpecialUpFunc     (Special_key_up'access);
-    MouseFunc         (Mouse_Event'access   );
-    MotionFunc        (Motion'access        );
-    PassiveMotionFunc (Passive_Motion'access);
+    IgnoreKeyRepeat(1);
+    KeyboardFunc(      Key'Address                   );
+    KeyboardUpFunc(    Key_up'Address                );
+    SpecialFunc(       Special_key'Address           );
+    SpecialUpFunc(     Special_key_up'Address        );
+    MouseFunc(         Mouse_Event'Address           );
+    MotionFunc(        Motion'Address                );
+    PassiveMotionFunc( Passive_Motion'Address        );
   end Initialize;
 
 
@@ -210,4 +210,4 @@ package body glut.Devices is
   end Strike_once;
 
 
-end glut.Devices;
+end GLUT.Devices;

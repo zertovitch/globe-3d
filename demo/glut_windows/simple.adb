@@ -1,5 +1,6 @@
-
 with GLOBE_3D;     use GLOBE_3D;
+with GLOBE_3D.Textures;
+
 with GLUT.Windows; use GLUT.Windows;
 with gl;
 
@@ -29,6 +30,8 @@ begin
    define (Viewer_2);
    define (Viewer_3);
 
+   G3D.Textures.Reserve_Textures(6);
+
    box.create (the_Object);
 
    the_Object.Centre := (0.0, 2.0, -5.0);
@@ -55,11 +58,4 @@ begin
    destroy (Viewer_3);
 
    put_Line ("Done");
-
-exception
-   when storage_Error =>
-      put_Line ("freeglut bug detected ... please use patched freeglut, if possible");
 end Simple;
-
-
-

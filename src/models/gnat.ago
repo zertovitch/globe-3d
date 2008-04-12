@@ -41,7 +41,7 @@ release profiling false
 -- End compiler switches
 -- Begin Release mode commands
 -aI.. -aI..\gl  -aI..\unzip
--i -aO..\..\obj\gnatopti
+-i -aO..\..\obj\gnatfast
 
 
 -- End Release mode commands

@@ -5,16 +5,16 @@
 WINDOWS_TARGET
 
 
+last_entry
+image_id
+reserve_tex
+!!
 XX
 rebuild
 to_upper
 ident
 Map_of_Visuals 
 visual
-edge
-"*
-video
-png
 -- Begin compiler switches
 RELEASE <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

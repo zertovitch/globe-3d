@@ -3,7 +3,8 @@ with GLOBE_3D.Options,
      GLOBE_3D.Math,
      GLOBE_3D.Portals;
 
-with GL.Errors;
+with GL.Errors,
+     GL.Skins;
 
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Exceptions;                    use Ada.Exceptions;
@@ -11,7 +12,7 @@ with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
 
 with ada.text_io; use ada.text_io;
 
-with ada.unchecked_Conversion;
+-- with ada.unchecked_Conversion;
 
 with System.Storage_Elements;
 with Ada.Containers.Generic_Array_Sort;

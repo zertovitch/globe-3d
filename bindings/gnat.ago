@@ -5,6 +5,7 @@
 WINDOWS_TARGET
 
 
+gluerrorstr
 genbuffers
 EXTENSIONS
 "...
@@ -14,7 +15,6 @@ get_string
 gl_overloader
 string
 multisam
-import
 -- Begin compiler switches
 RELEASE <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?
@@ -41,7 +41,7 @@ release profiling false
 -- End compiler switches
 -- Begin Release mode commands
 -Iwin32
--i -aO..\obj\gnatopti -largs -lopengl32 -lglu32 -L../obj/libwin32
+-i -aO..\obj\gnatfast -largs -lopengl32 -lglu32 -L../obj/libwin32
 
 
 -- End Release mode commands

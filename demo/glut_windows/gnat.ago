@@ -40,8 +40,8 @@ release strip_all_symbols true
 release profiling false
 -- End compiler switches
 -- Begin Release mode commands
--aI../../src -aI../../src/gl -aI../../src/unzip -aI../../src/models -aI../../src/gaming -aI../../bindings -aI../../bindings/win32 -aI../../bindings/win32/gcc_fmt -gnatwp -Iobj/gnatopti -aI../../ada05_proxy
--i -aO../../obj/gnatopti -bargs -E -g -largs -lopengl32 ../../obj/libwin32/glee.o -lglu32 -lfreeglut -L../../obj/libwin32 -mwindows -s
+-aI../../src -aI../../src/gl -aI../../src/unzip -aI../../src/models -aI../../src/gaming -aI../../bindings -aI../../bindings/win32 -aI../../bindings/win32/gcc_fmt -gnatwp
+-i -aO../../obj/gnatfast -bargs -E -g -largs -lopengl32 ../../obj/libwin32/glee.o -lglu32 -lfreeglut -L../../obj/libwin32 -mwindows -s
 
 
 -- End Release mode commands

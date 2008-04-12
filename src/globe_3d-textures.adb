@@ -11,7 +11,7 @@ package body GLOBE_3D.Textures is
   type Texture_info is record
     loaded       : Boolean;
     blending_hint: Boolean;
-    name         : Ident;
+    name         : Ident:= empty;
   end record;
 
   type Texture_info_array is array( Image_id range <>) of Texture_info;
@@ -19,14 +19,19 @@ package body GLOBE_3D.Textures is
 
   procedure Dispose is new Ada.Unchecked_Deallocation(Texture_info_array, p_Texture_info_array);
 
-  texture_2d_infos: p_Texture_info_array:= null;
+  type Texture_2d_infos_type is record
+    tex              : p_Texture_info_array:= null;
+    last_entry_in_use: Image_ID:= null_image;
+  end record;
+
+  texture_2d_infos: Texture_2d_infos_type;
 
   -----------------------------
   -- Load_texture (internal) --
   -----------------------------
 
   procedure Load_texture_2D (id: Image_id; blending_hint: out Boolean) is
-    tex_name: constant String:= Trim(texture_2D_infos(id).name,Right);
+    tex_name: constant String:= Trim(texture_2D_infos.tex(id).name,Right);
 
     procedure Try( zif: in out Zip.Zip_info; name: String ) is
       use Unzip.Streams;
@@ -70,23 +75,26 @@ package body GLOBE_3D.Textures is
 
   function Valid_texture_ID(id: Image_id) return Boolean is
   begin
-    return id in texture_2d_infos'Range;
+    if texture_2D_infos.tex = null then
+      raise Textures_not_reserved;
+    end if;
+    return id in texture_2d_infos.tex'Range;
   end Valid_texture_ID;
 
   procedure Check_2D_texture(id: Image_id; blending_hint: out Boolean) is
   begin
-    if texture_2D_infos = null then
+    if texture_2D_infos.tex = null then
       raise Textures_not_reserved;
     end if;
     if not Valid_texture_ID(id) then raise
       Texture_out_of_range;
     end if;
-    if texture_2D_infos(id).loaded then
-      blending_hint:= texture_2D_infos(id).blending_hint;
+    if texture_2D_infos.tex(id).loaded then
+      blending_hint:= texture_2D_infos.tex(id).blending_hint;
     else
       Load_texture_2D(id, blending_hint);
-      texture_2D_infos(id).loaded:= True;
-      texture_2D_infos(id).blending_hint:= blending_hint;
+      texture_2D_infos.tex(id).loaded:= True;
+      texture_2D_infos.tex(id).blending_hint:= blending_hint;
     end if;
   end Check_2D_texture;
 
@@ -108,11 +116,11 @@ package body GLOBE_3D.Textures is
 
   procedure Reserve_textures( last_id: Image_id ) is
   begin
-    if texture_2d_infos /= null then
-      Dispose(texture_2d_infos);
+    if texture_2d_infos.tex /= null then
+      Dispose(texture_2d_infos.tex);
     end if;
-    texture_2d_infos:= new Texture_info_array(0..last_id);
-    texture_2d_infos.all:= (others => (False,False,empty));
+    texture_2d_infos.tex:= new Texture_info_array(0..last_id);
+    texture_2d_infos.tex.all:= (others => (False,False,empty));
   end Reserve_textures;
 
   procedure Name_texture( id: Image_id; name: String ) is
@@ -121,13 +129,21 @@ package body GLOBE_3D.Textures is
     for i in name'Range loop
       n_id(n_id'First + i - name'First):= name(i);
     end loop;
-    if texture_2D_infos = null then
+    if texture_2D_infos.tex = null then
       raise Textures_not_reserved;
     end if;
-    if id not in texture_2d_infos'Range then raise
+    if id not in texture_2d_infos.tex'Range then raise
       Texture_out_of_range;
     end if;
-    texture_2d_infos(id).name:= n_id;
+    texture_2d_infos.tex(id).name:= n_id;
+    texture_2d_infos.last_entry_in_use:=
+      Image_ID'Max(texture_2d_infos.last_entry_in_use, id);
+  end Name_texture;
+
+  procedure Name_texture( name: String; id: out Image_id ) is
+  begin
+    id:= texture_2d_infos.last_entry_in_use + 1;
+    Name_Texture(id, name);
   end Name_texture;
 
   procedure Associate_textures is
@@ -141,10 +157,13 @@ package body GLOBE_3D.Textures is
   function Texture_name( id: Image_id; trim: Boolean ) return Ident is
     tn: Ident;
   begin
-    if id not in texture_2d_infos'Range then raise
+    if texture_2D_infos.tex = null then
+      raise Textures_not_reserved;
+    end if;
+    if id not in texture_2d_infos.tex'Range then raise
       Texture_out_of_range;
     end if;
-    tn:= texture_2d_infos(id).name;
+    tn:= texture_2d_infos.tex(id).name;
     if trim then
       return Ada.Strings.Fixed.Trim(tn,Right);
     else
@@ -155,8 +174,11 @@ package body GLOBE_3D.Textures is
   function Texture_ID( name: Ident ) return Image_ID is
     up_name: constant Ident:= To_Upper(name);
   begin
-    for id in texture_2d_infos'Range loop
-      if up_name = To_Upper(texture_2d_infos(id).name) then
+    if texture_2D_infos.tex = null then
+      raise Textures_not_reserved;
+    end if;
+    for id in texture_2d_infos.tex'Range loop
+      if up_name = To_Upper(texture_2d_infos.tex(id).name) then
         return id;
       end if;
     end loop;

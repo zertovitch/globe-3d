@@ -4,11 +4,11 @@
 --  Copyright (c) Gautier de Montmollin/Rod Kay 2007
 ------------------------------------------------------------------------------
 
-with GLOBE_3D;
-with GL;
+--with GLOBE_3D;
+--with GL;
 --with Game_control;
 
-package glut.Devices is
+package GLUT.Devices is
 
 
    procedure Initialize;
@@ -21,7 +21,7 @@ package glut.Devices is
    --
 
    type Key_set         is array (Character ) of Boolean;
-   type Modifier_set    is array (glut.Active_shift .. glut.Active_alt) of Boolean;
+   type Modifier_set    is array (GLUT.Active_shift .. GLUT.Active_alt) of Boolean;
    type Special_set     is array (1 .. 200) of Boolean;
    type Special_key_set is array (1 .. 128) of Boolean;
 
@@ -52,7 +52,7 @@ package glut.Devices is
    -- Mouse
    --
 
-   type mouse_button_Set is array( glut.LEFT_BUTTON .. glut.RIGHT_BUTTON ) of Boolean;
+   type mouse_button_Set is array( GLUT.LEFT_BUTTON .. GLUT.RIGHT_BUTTON ) of Boolean;
 
    type Mouse is
       record
@@ -66,4 +66,4 @@ package glut.Devices is
    default_Mouse : aliased Mouse;
 
 
-end glut.Devices;
+end GLUT.Devices;

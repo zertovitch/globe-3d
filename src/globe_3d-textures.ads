@@ -30,9 +30,9 @@ package GLOBE_3D.Textures is
   --    resource files for images                                     --
   ----------------------------------------------------------------------
   --
-  -- For "real life" programs which don't know of the data. 
+  -- For "real life" programs which don't know of the data.
   -- Allows subdirectories in resource ('/' or '\' in names)
-  -- and a flexible management. 
+  -- and a flexible management.
   -- The texture name list is obtained by traversing the directory of
   -- both .zip data resource files, searching for images (anyway, the
   -- textures are read from there!).
@@ -51,6 +51,9 @@ package GLOBE_3D.Textures is
 
   -- - Associate a name to a texture id:
   procedure Name_texture( id: Image_id; name: String );
+
+  -- - Associate a name to a texture id that the system finds itself (+2008)
+  procedure Name_texture( name: String; id: out Image_id );
 
   -- - Recall a texture's name
   function Texture_name( id: Image_id; trim: Boolean ) return Ident;

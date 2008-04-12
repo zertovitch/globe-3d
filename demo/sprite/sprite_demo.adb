@@ -27,6 +27,8 @@ begin
    g3d.Set_global_data_name ("../G3Demo_Global_Resources.zip");
    g3d.Set_level_data_name  ("../G3Demo_Level_Resources.zip");
 
+   g3d.Textures.Reserve_Textures(100);
+
    glut.Windows.initialize;
 
    define (the_Viewer);
@@ -62,11 +64,11 @@ begin
 
 
       declare
-         void : boolean;
+        new_id: Image_ID;
       begin
-         bind_2d_texture (glut.windows.texture_id'Pos (face1), void);
+        Name_Texture("face1", new_id);
+        set_Name (the_Skin.Texture,  to => gl.textures.texture_Name(new_id));
       end;
-      set_Name (the_Skin.Texture,  to => glut.windows.texture_id'pos (glut.windows.face1) + 1);
 
 
       the_Sprite.add (geometry => the_Geometry.all'access,

@@ -32,7 +32,6 @@
 with GL,
      GL.Geometry,
      GL.Frustums,
-     GL.Skins,
      GL.skinned_Geometry,
      GL.Materials;
 

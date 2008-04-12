@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  File:            GLUT-Windows.ads
 --  Description:     A Windowed viewer for GLOBE_3D, based on GLUT
---  Copyright (c) Gautier de Montmollin/Rod Kay 2006..2007
+--  Copyright (c) Gautier de Montmollin/Rod Kay 2006..2008
 ------------------------------------------------------------------------------
 
 
@@ -11,18 +11,18 @@
 --      - find way to fix visibilty when window is iconised (may be platform dependant).
 
 
-with gl.Geometry;
-with gl.skinned_Geometry;
+--with gl.Geometry;
+--with gl.skinned_Geometry;
 
-with GLOBE_3D.Textures;
 with Game_Control;
-with glut.Devices;
+with GLUT.Devices;
 
 with ada.strings.unbounded;
 
+with GLOBE_3D;
 
 
-package glut.Windows is
+package GLUT.Windows is
 
 
    procedure initialize;   -- called before any other operation
@@ -73,29 +73,6 @@ package glut.Windows is
 
    function  Smoothing    (Self : in     Window)                             return Smoothing_method;
    procedure Smoothing_is (Self : in out Window;   Now : in Smoothing_method);
-
-
-
-
-   -- textures (tbd: generalise textures)
-   --
-
-   type Texture_id is (face1, face2, face3, face4, face5, face6,
-                       portmet1, fdmetal1, bleubosl,
-                       alum_001, alum_002,
-                       tole_001, grumnoir,
-                       carometl, spacity1,
-                       quad_qcq,
-                       earth_map,
-                       GBWINGS, GBTOP, GBDEC, GLOW,
-                       irin_Terrain);
-
-
-   procedure Texture_association is
-     new globe_3d.Textures.Associate_textures(Texture_id);
-
-
-
 
 
    -- Status display
@@ -178,4 +155,4 @@ private
 
 
   --pragma Linker_options("-mwindows"); -- Suppress console window
-end glut.Windows;
+end GLUT.Windows;

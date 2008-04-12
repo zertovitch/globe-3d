@@ -4,7 +4,7 @@ project Simple_win32 is
       ("Fast", "Debug", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
 
-   for Source_Dirs use (".", "../../../bindings", "../../../bindings/win32", "../../../src//**", "../../../ada05_proxy");
+   for Source_Dirs use (".", "../../../bindings", "../../../bindings/win32", "../../../src//**");
    for Main use ("simple.adb");
 
    case Build_Mode is
