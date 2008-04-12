@@ -4,6 +4,7 @@ with Ada.Command_Line;                  use Ada.Command_Line;
 with Ada.Text_IO;                       use Ada.Text_IO;
 -- with Ada.Characters.Handling;
 with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
+with Ada.Unchecked_Deallocation;
 
 package body Doom3_Help is
 
@@ -236,10 +237,23 @@ package body Doom3_Help is
   -- Surfaces --
   --------------
 
+  use GLOBE_3D;
+
+  type p_Map_idx_pair_array is access Map_idx_pair_array;
+
+  procedure Dispose is
+    new Ada.Unchecked_Deallocation( Map_idx_pair_array, p_Map_idx_pair_array);
+
   type Surface is record
     texture_name : Unbounded_String;
     npoints      : Natural;
     nfaces       : Natural;
+    point        : GLOBE_3D.p_Point_3D_array;
+    uv           : p_Map_idx_pair_array;
+    tri          : p_Face_array; -- only tri(t).P used there!
+    curr_pt      : Natural;
+    curr_uv      : Natural;
+    curr_tri     : Natural;
   end record;
 
   surface_stack: array(1..10_000) of Surface;
@@ -247,8 +261,15 @@ package body Doom3_Help is
   surface_top: Natural:= 0;
 
   procedure Reset_surfaces is
+    use GLOBE_3D;
   begin
+    for i in 1..surface_top loop
+      Dispose(surface_stack(i).point);
+      Dispose(surface_stack(i).uv);
+      Dispose(surface_stack(i).tri);
+    end loop;
     surface_top:= 0;
+    surface_count:= 0;
   end;
 
   procedure Add_surface(
@@ -257,9 +278,12 @@ package body Doom3_Help is
     nfaces : Natural
   )
   is
-    name: constant String:= Junk(Strip_quotes(name_with_quotes));
+    use GLOBE_3D;
+    base_name: constant String:= Optional_Junk(Strip_quotes(name_with_quotes));
+    name: constant String:= base_name & "_d";
   begin
-    Insert(name,catalogue);
+    Insert(name, catalogue);
+    -- insert the name with "diffuse" suffix (the image itself)
     surface_top:= surface_top + 1;
     declare
       st: Surface renames surface_stack(surface_top);
@@ -267,7 +291,34 @@ package body Doom3_Help is
       st.texture_name:= U(name);
       st.npoints:= npoints;
       st.nfaces:=  nfaces;
+      st.point:= new Point_3D_array(1..npoints);
+      st.uv   := new Map_idx_pair_array(1..npoints);
+      st.tri  := new Face_array(1..nfaces);
+      st.curr_pt  := 0;
+      st.curr_uv  := 0;
+      st.curr_tri := 0;
     end;
+  end;
+
+  procedure Set_current_surface_current_point(p: Point_3D) is
+    st: Surface renames surface_stack(surface_top);
+  begin
+    st.curr_pt:= st.curr_pt + 1;
+    st.point(st.curr_pt):= P;
+  end;
+
+  procedure Set_current_surface_current_uv(uv: GLOBE_3D.Map_idx_pair) is
+    st: Surface renames surface_stack(surface_top);
+  begin
+    st.curr_uv:= st.curr_uv + 1;
+    st.uv(st.curr_uv):= uv;
+  end;
+
+  procedure Set_current_surface_current_triangle is
+    st: Surface renames surface_stack(surface_top);
+  begin
+    st.curr_tri:= st.curr_tri + 1;
+    st.tri(st.curr_tri).P:= (v1,v2,v3,Integer'Last);
   end;
 
   function Get_surface_texture_name(nb: Natural) return String is
@@ -308,7 +359,7 @@ package body Doom3_Help is
   face_portal : GLOBE_3D.Face_type; -- prototype for portals
 
   procedure Build_Model is
-    p,f: Natural:= 0;
+    p,f, p_mem: Natural:= 0;
     doom3_vertex_number: Integer;
     use GLOBE_3D;
   begin
@@ -316,25 +367,30 @@ package body Doom3_Help is
     max_faces := Integer'Max(max_faces, total_faces);
     max_points:= Integer'Max(max_points,total_points);
     for i in 1..surface_count loop
-      for p in 1..Get_surface_npoints(i) loop
-        model_stack(model_top).obj.point(p):= Surface(i-1).vertices(p).pt;
+      p_mem:= p;
+      for ps in surface_stack(i).point'Range loop
+        p:= p + 1;
+        model_stack(model_top).obj.point(p):= surface_stack(i).point(ps);
       end loop;
-      for f in 1..Get_surface_nfaces(i) loop
+      for fs in surface_stack(i).tri'Range loop
         for s in 1..3 loop
           doom3_vertex_number:=
-            Surface(i-1).triangles(f)(4-s);
+            surface_stack(i).tri(fs).P(4-s);
             -- vertex nb for this surface; (4-s) to invert orientation
-          face_0.P(s):= doom3_vertex_number + (p+1); -- add the offset!
+          face_0.P(s):= doom3_vertex_number + (p_mem+1); -- add the offset!
           -- Set the texture coordinates
-          face_0.texture_edge_map(s):= Surface(i-1).vertices(
+          face_0.texture_edge_map(s):= surface_stack(i).uv(
             doom3_vertex_number + 1
-          ).uv;
+          );
         end loop;
+        f:= f + 1;
         model_stack(model_top).obj.face(f):= face_0;
+--         put_line(
+--            "surface " & i'img & " face " &
+--            f'img & "texture: " & Get_surface_texture_name(i)
+--         );
         Texture_name_hint(model_stack(model_top).obj.all, f, Get_surface_texture_name(i));
       end loop;
-      p:= p + Get_surface_npoints(i);
-      f:= f + Get_surface_nfaces(i);
     end loop;
     model_stack(model_top).last_point:= p;
     model_stack(model_top).last_face:= f;
@@ -377,12 +433,26 @@ package body Doom3_Help is
   procedure YY_Accept is
     nb_points, nb_polys: Natural;
   begin
+    for i in 1..model_top loop
+      Put_Line(Standard_Error, 
+        "Writing object file: " &
+        model_stack(i).obj.ID
+      );
+      GLOBE_3D.IO.Save_file(model_stack(i).obj.all);
+    end loop;
     Write_catalogue;
   end YY_Accept;
 
   procedure D3G_Init is
+    use GL;
   begin
-    null;
+    main_centre:= -- !!
+       (-1468.0+1294.0,+616.0,-1754.0-770.0); -- Delta4 magic!
+    face_0.skin:= texture_only;
+    face_0.whole_texture:= False;
+    face_0.P(4):= 0; -- we have triangles, P(4) is set to 0
+    face_0.texture_edge_map:= ((0.0,0.0),(0.0,0.0),(0.0,0.0),(0.0,0.0));
+    face_portal.skin:= invisible;
   end;
 
   procedure YY_Abort is

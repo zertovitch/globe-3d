@@ -55,6 +55,10 @@ package Doom3_Help is
     nfaces : Natural
   );
 
+  procedure Set_current_surface_current_point(p: GLOBE_3D.Point_3D);
+  procedure Set_current_surface_current_uv(uv: GLOBE_3D.Map_idx_pair);
+  procedure Set_current_surface_current_triangle;
+
   function Get_surface_texture_name(nb: Natural) return String;
   function Get_surface_npoints(nb: Natural) return Natural;
   function Get_surface_nfaces(nb: Natural) return Natural;

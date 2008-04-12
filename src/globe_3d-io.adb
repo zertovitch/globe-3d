@@ -306,7 +306,7 @@ package body GLOBE_3D.IO is
       end loop;
     end Write_Map_idx_pair_array;
 
-    procedure Write_face(face: Face_type) is
+    procedure Write_face(face: Face_type; face_invar: Face_invariant_type) is
     begin
       -- 1/ Points
       for i in face.p'Range loop
@@ -346,8 +346,12 @@ package body GLOBE_3D.IO is
       end case;
       -- 8/ Texture: texture name is stored
       if face.texture = null_image then
-        Write_String(s, empty);
+        -- Maybe a texture name has been given with Texture_name_hint,
+        -- but was not yet attached to a GL ID number through Rebuild_Links
+        Write_String(s, face_invar.texture_name);
       else
+        -- Usual way: We can get the texture name associated to the
+        -- GL ID number; name is stored by GLOBE_3D.Textures.
         Write_String(s, Textures.Texture_name(face.texture,False));
       end if;
       U8'Write(s,Boolean'Pos(face.whole_texture));
@@ -367,7 +371,7 @@ package body GLOBE_3D.IO is
       Write_Point_3D(o.point(p));
     end loop;
     for f in o.face'Range loop
-      Write_face(o.face(f));
+      Write_face(o.face(f), o.face_invariant(f));
     end loop;
     Write_Point_3D(o.centre);
     for i in Matrix_33'Range(1) loop

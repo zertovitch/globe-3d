@@ -39,6 +39,7 @@ FALSE               { yylval.intval := 1; return NUMBER; }
                    yylval.floatval := 0.0;
                    return NUMBER;
                  }
+                 
 -?[1-9][0-9]*    { begin
                      yylval.intval := Integer'Value(yytext);
                    exception
@@ -54,16 +55,20 @@ FALSE               { yylval.intval := 1; return NUMBER; }
                       -- not nice at all, but a >2**31 number
                       -- seems to appear only at top (some checksum)
                    end;
-                   yylval.floatval:= Real( yylval.intval );
+                   yylval.floatval:= Long_Float( yylval.intval );
                    return NUMBER;}
+                   
 0[1-7][0-7]*     { yylval.intval := Integer'Value("8#"&yytext&'#');
-                   yylval.floatval:= Real( yylval.intval );
+                   yylval.floatval:= Long_Float( yylval.intval );
                    return NUMBER;}
 
--?[0-9]*\.?[0-9]*([eE][+-]?[0-9]+)?    { yylval.floatval := Real'Value(yytext);
-                      return FLOAT_t;}
+-?[0-9]*\.?[0-9]*([eE][+-]?[0-9]+)? {
+                   yylval.floatval := Long_Float'Value(yytext);
+                   return FLOAT_t;
+                   }
+                   
 0x[0-9A-Fa-f]+   { yylval.intval := Integer'Value("16#"&yytext&'#');
-                   yylval.floatval:= Real( yylval.intval );
+                   yylval.floatval:= Long_Float( yylval.intval );
                    return NUMBER;}
 
 \"({NOTGUIL})*\" {return D3String;}

@@ -12,14 +12,10 @@
 -- among the scenes' areas                                  --
 --------------------------------------------------------------
 
-----------------------------------------------
--- Version for the translation PROC --> Ada --
-----------------------------------------------
-
 -- From a FAQ (completed):
 -- what are .map, .proc and .cm files?
 --  .map is the editor file with entity placement;
---  .proc is the precompiled gemoetry, portal and bsp;
+--  .proc is the precompiled geometry, portal and bsp;
 --  .cm is the collision map.
 
 %token NUMBER
@@ -107,7 +103,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                }
                NUMBER   -- # of surfaces
                { vertex_offset:= 1; -- includes numbering shift 0->1
-                 surface_count:= 0;
+                 Reset_surfaces;
                  total_points:= 0;
                  total_faces:= 0;
                }
@@ -234,6 +230,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                     Ada_Put(Coords(last_pt));
                     Ada_Put(",(" & Image(last_U) & ',' & Image(last_V) & ')');
                     Ada_Put(")");
+
 
 
 

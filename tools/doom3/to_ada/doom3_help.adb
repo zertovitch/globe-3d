@@ -424,6 +424,7 @@ package body Doom3_Help is
   procedure Reset_surfaces is
   begin
     surface_top:= 0;
+    surface_count:= 0;
   end;
 
   procedure Add_surface(

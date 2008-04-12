@@ -5,6 +5,7 @@
 WINDOWS_TARGET
 
 
+dump
 delta4g1
 bsp
 load
@@ -14,7 +15,6 @@ mini
 30
 strea
 trim
-for next
 -- Begin compiler switches
 RELEASE <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

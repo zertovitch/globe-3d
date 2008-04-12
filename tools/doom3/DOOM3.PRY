@@ -15,7 +15,7 @@
 -- From a FAQ (completed):
 -- what are .map, .proc and .cm files?
 --  .map is the editor file with entity placement;
---  .proc is the precompiled gemoetry, portal and bsp;
+--  .proc is the precompiled geometry, portal and bsp;
 --  .cm is the collision map.
 
 %token NUMBER
@@ -103,7 +103,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                }
                NUMBER   -- # of surfaces
                { vertex_offset:= 1; -- includes numbering shift 0->1
-                 surface_count:= 0;
+                 Reset_surfaces;
                  total_points:= 0;
                  total_faces:= 0;
                }
@@ -231,7 +231,8 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                     Ada_Put(",(" & Image(last_U) & ',' & Image(last_V) & ')');
                     Ada_Put(")");
 #elsif ver="g3d"
-null; -- store the coords x,y,z, u,v !!
+                    Set_current_surface_current_point(last_pt);
+                    Set_current_surface_current_uv((last_u,last_v));
 #end if;
                   end if;
                 }
@@ -270,7 +271,7 @@ null; -- store the coords x,y,z, u,v !!
                         Ada_Put(",");
                       end if;
 #elsif ver="g3d"
-null; -- store the index !!
+                      Set_current_surface_current_triangle;
 #end if;
                     end if;
                   }
@@ -286,7 +287,7 @@ null; -- store the index !!
                       Ada_Put_Triangle;
                       Ada_Put_Line(");");
 #elsif ver="g3d"
-null; -- store the index !!
+                      Set_current_surface_current_triangle;
 #end if;
                     end if;
                   }
