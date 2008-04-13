@@ -5,6 +5,7 @@
 WINDOWS_TARGET
 
 
+slowish
 put_trian
 reset_
 face_0
@@ -14,7 +15,6 @@ max_Faces
 _$_
 optional
 !!
-rd_error
 -- Begin compiler switches
 DEBUG <- active (current) build mode
 TRUE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

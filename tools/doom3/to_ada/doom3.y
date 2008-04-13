@@ -96,9 +96,10 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
                    Ada_Build_Model_Header;
 
-                   New_Line(Standard_Error);
+
+
                  else
-                   Put_Line(Standard_Error, " (ignored)");
+                   Put(Standard_Error, " (ignored) ");
                  end if;
                }
                NUMBER   -- # of surfaces
@@ -116,6 +117,10 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
 
                  end if;
+                 Put_Line(
+                   Standard_Error,
+                   Integer'Image(total_Faces) & " triangles"
+                 );
                }
                '}'
                ;
@@ -150,9 +155,9 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                 }
                NUMBER -- numIndexes
                {
+                 num_indices := yylval.intval;
+                 total_faces:= total_faces + num_indices / 3;
                  if consider_current_model then
-                   num_indices := yylval.intval;
-                   total_faces:= total_faces + num_indices / 3;
                    Add_surface(
                      Get_current_texture,
                      num_vertices,
@@ -389,6 +394,9 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
 
                       end if;
+
+
+
                     }
                     NUMBER -- positiveSideArea
                     {
@@ -424,8 +432,6 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                       Add_IAP;
 
                       Ada_Put(")");
-
-
 
                     }
                     ;

@@ -15,10 +15,10 @@ rem
 :comp
 echo.
 rem
-set opt_comp294572=-O2 -gnatp
-set opt_comp294572=-gnato -gnatVa -gnatec../../../obj/gnatdebg/debug.pra
+set opt_comp294572=-O2 -gnatp -aO..\..\..\obj\gnatsmal
+set opt_comp294572=-gnato -gnatVa -gnatec../../../obj/gnatdebg/debug.pra -aO..\..\..\obj\gnatdebg
 rem
-gnatmake -i -g %1 %2 %opt_comp294572% -I.. -I.. -I..\..\..\src -I..\..\..\bindings -I..\..\..\bindings\win32 -I..\..\..\src\unzip -I..\..\..\src\gl -aO..\..\..\obj\gnatdebg d3g -largs -lopengl32 -lglu32 -lfreeglut -L../../../obj/libwin32 ../../../obj/libwin32/glee.o
+gnatmake -i -g %1 %2 %opt_comp294572% -I.. -I.. -I..\..\..\src -I..\..\..\bindings -I..\..\..\bindings\win32 -I..\..\..\src\unzip -I..\..\..\src\gl d3g -largs -lopengl32 -lglu32 -lfreeglut -L../../../obj/libwin32 ../../../obj/libwin32/glee.o
 rem
 set opt_comp294572=
 :fin

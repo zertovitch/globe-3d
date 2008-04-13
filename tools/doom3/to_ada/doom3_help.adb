@@ -719,20 +719,15 @@ package body Doom3_Help is
   -- Portals must be inserted as supplemental (transparent) faces of areas
 
   procedure Include_portals_to_areas is
+
     procedure Increment_number_of_portals(area: Integer) is
     begin
-      if area >= 0 then
-        -- slowish algorithm, should have an area stack too
-        -- but anyway it's not critical...
-        for i in 1..model_top loop
-          if model_stack(i).area = area then -- must be >= 0
-            model_stack(i).portals_to_be_added:=
-              model_stack(i).portals_to_be_added + 1;
-            exit; -- only one area with this number
-          end if;
-        end loop;
+      if area in 0..area_top then
+        model_stack(area_stack(area)).portals_to_be_added:=
+          model_stack(area_stack(area)).portals_to_be_added + 1;
       end if;
     end;
+
   begin
     if IAP_top=0 then
       return;
@@ -788,7 +783,7 @@ package body Doom3_Help is
     -- All models and then also areas are allocated, we can link the
     -- portals directly (not through names)
     for i in 1..model_top loop
-      if model_stack(i).area >= 0 and not bypass_portals then
+      if model_stack(i).portals_to_be_added > 0 then
         Complete_area_with_portals(i);
       end if;
     end loop;

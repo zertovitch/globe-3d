@@ -96,9 +96,10 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
 
 
-                   New_Line(Standard_Error);
+                   null;
+
                  else
-                   Put_Line(Standard_Error, " (ignored)");
+                   Put(Standard_Error, " (ignored) ");
                  end if;
                }
                NUMBER   -- # of surfaces
@@ -116,6 +117,10 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                    Build_Model;            -- builds models now
 
                  end if;
+                 Put_Line(
+                   Standard_Error,
+                   Integer'Image(total_Faces) & " triangles"
+                 );
                }
                '}'
                ;
@@ -150,9 +155,9 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                 }
                NUMBER -- numIndexes
                {
+                 num_indices := yylval.intval;
+                 total_faces:= total_faces + num_indices / 3;
                  if consider_current_model then
-                   num_indices := yylval.intval;
-                   total_faces:= total_faces + num_indices / 3;
                    Add_surface(
                      Get_current_texture,
                      num_vertices,
@@ -389,6 +394,9 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                         Put_Line( Standard_Error, "!! Portal with /= 4 points");
 
                       end if;
+
+                      iap_curr_point:= 0;
+
                     }
                     NUMBER -- positiveSideArea
                     {
@@ -425,8 +433,6 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
 
 
-null; -- add the portal face on iap_pos and iap_neg objects !!
-
                     }
                     ;
 
@@ -449,7 +455,7 @@ null; -- add the portal face on iap_pos and iap_neg objects !!
 
 
 
-null; -- remember vertex !!
+                    Add_IAP_Vertex;
 
                   }
                   ')'

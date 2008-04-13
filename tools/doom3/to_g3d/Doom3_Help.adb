@@ -342,16 +342,40 @@ package body Doom3_Help is
 
   type IAP is record
     iap_pos, iap_neg, iap_points: Integer;
+    points: Point_3D_array(1..4);
   end record;
+
+  curr_IAP_points: Point_3D_array(1..4);
 
   IAP_stack: array(1..10_000) of IAP;
   IAP_top: Natural:= 0;
 
+  invalid_iap: exception;
+
   procedure Add_IAP is
   begin
     IAP_top:= IAP_top + 1;
-    IAP_stack(IAP_top):= (iap_pos, iap_neg, iap_points);
+    declare
+      p: IAP renames IAP_stack(IAP_top);
+    begin
+      p.iap_pos:= iap_pos;
+      p.iap_neg:= iap_neg;
+      p.iap_points:= iap_points;
+      if iap_points not in p.points'Range then
+        raise invalid_iap;
+      end if;
+      p.points:= curr_IAP_points;
+    end;
   end Add_IAP;
+
+  procedure Add_IAP_Vertex is
+  begin
+    iap_curr_point:= iap_curr_point + 1;
+    if iap_curr_point not in 1..4 then
+      raise invalid_iap;
+    end if;
+    curr_IAP_points(iap_curr_point):= last_pt;
+  end Add_IAP_Vertex;
 
   max_faces, max_points: Natural:= 0;
 
@@ -402,20 +426,15 @@ package body Doom3_Help is
   -- Portals must be inserted as supplemental (transparent) faces of areas
 
   procedure Include_portals_to_areas is
+
     procedure Increment_number_of_portals(area: Integer) is
     begin
-      if area >= 0 then
-        -- slowish algorithm, should have an area stack too
-        -- but anyway it's not critical...
-        for i in 1..model_top loop
-          if model_stack(i).area = area then -- must be >= 0
-            model_stack(i).portals_to_be_added:=
-              model_stack(i).portals_to_be_added + 1;
-            exit; -- only one area with this number
-          end if;
-        end loop;
+      if area in 0..area_top then
+        model_stack(area_stack(area)).portals_to_be_added:=
+          model_stack(area_stack(area)).portals_to_be_added + 1;
       end if;
     end;
+
   begin
     if IAP_top=0 then
       return;
@@ -426,15 +445,80 @@ package body Doom3_Help is
       Increment_number_of_portals(IAP_stack(i).iap_pos);
       Increment_number_of_portals(IAP_stack(i).iap_neg);
     end loop;
+    -- Now, re-allocate model objects by adding new points and faces
+    for a in 0..area_top loop
+      declare
+        m: Model renames model_stack(area_stack(a));
+        new_obj: p_Object_3D;
+        p,f: Natural;
+      begin
+        if m.portals_to_be_added > 0 then
+          p:= m.obj.max_points;
+          f:= m.obj.max_faces;
+          new_obj:= new Object_3D(
+            Max_points => p + 4*m.portals_to_be_added,
+            Max_faces  => f  +   m.portals_to_be_added
+          );
+          -- Clone common part:
+          Visual(new_obj.all)          := Visual(m.obj.all);
+          new_obj.point(1..p)          := m.obj.point;
+          new_obj.face(1..f)           := m.obj.face;
+          new_obj.face_invariant(1..f) := m.obj.face_invariant;
+          -- Dispose(m.obj);
+          m.obj:= new_obj;
+        end if;
+      end;
+    end loop;
+    -- Details and linking are done with Complete_area_with_portals later.
   end Include_portals_to_areas;
+
+  procedure Complete_area_with_portals(model_nb: Positive) is
+    p,f: Natural:= 0;
+    m: Model renames model_stack(model_nb);
+    area: constant Natural:= m.area; -- supposed >= 0
+
+    procedure Include_Portals(iap_nb, side_area, other_side: Integer; reversed: Boolean) is
+    begin
+      if side_area /= area then
+        return;
+      end if;
+      p:= m.last_point;
+      f:= m.last_face;
+      -- Add the 4 new vertices:
+      m.obj.point(p+1..p+4):= IAP_stack(iap_nb).points;
+      -- Define the face:
+      if reversed then
+        face_portal.P:= (p+4, p+3, p+2, p+1);
+      else
+        face_portal.P:= (p+1, p+2, p+3, p+4);
+      end if;
+      -- ** Direct connection (needs all areas being created):
+      face_portal.connecting:= model_stack(area_stack(other_side)).obj;
+      m.obj.face(f+1):= face_portal;
+      p:= p + 4;
+      f:= f + 1;
+      m.last_point:= p;
+      m.last_face:= f;
+    end Include_Portals;
+
+  begin
+    for i in 1..iap_top loop
+      Include_Portals(i, iap_stack(i).iap_pos, iap_stack(i).iap_neg, True);
+      Include_Portals(i, iap_stack(i).iap_neg, iap_stack(i).iap_pos, False);
+    end loop;
+  end Complete_area_with_portals;
 
   bypass_portals: constant Boolean:= False;
 
   procedure YY_Accept is
     nb_points, nb_polys: Natural;
   begin
+    Include_portals_to_areas;
     for i in 1..model_top loop
-      Put_Line(Standard_Error, 
+      if not (bypass_portals or model_stack(i).portals_to_be_added = 0) then
+        Complete_area_with_portals(i);
+      end if;
+      Put_Line(Standard_Error,
         "Writing object file: " &
         model_stack(i).obj.ID
       );

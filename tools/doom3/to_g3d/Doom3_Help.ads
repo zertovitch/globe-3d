@@ -64,7 +64,10 @@ package Doom3_Help is
   function Get_surface_nfaces(nb: Natural) return Natural;
 
   iap_pos, iap_neg, iap_points: Integer;
+  iap_curr_point: Integer;
+
   procedure Add_IAP;
+  procedure Add_IAP_Vertex;
 
   default_material   : constant GL.Materials.Material_type:= (
             ambient =>        (0.2, 0.2, 0.2, 1.0),
