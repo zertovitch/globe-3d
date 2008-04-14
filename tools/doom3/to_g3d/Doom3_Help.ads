@@ -69,6 +69,8 @@ package Doom3_Help is
   procedure Add_IAP;
   procedure Add_IAP_Vertex;
 
+  procedure Include_portals_to_areas;
+
   default_material   : constant GL.Materials.Material_type:= (
             ambient =>        (0.2, 0.2, 0.2, 1.0),
             diffuse =>        (0.8, 0.8, 0.8, 1.0),
@@ -81,6 +83,13 @@ package Doom3_Help is
   last_color: GL.Material_Float_vector;
 
   triangle_count: Natural;
+
+  current_BSP_node: Integer:= -1;
+  pos_BSP_child,
+  neg_BSP_child   : Integer;
+
+  procedure Allocate_BSP_farm(number: Natural);
+  procedure Process_BSP_Node;
 
   procedure D3G_Init;
 

@@ -391,7 +391,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
 
 
-                        Put_Line( Standard_Error, "!! Portal with /= 4 points");
+                        Put_Line( Standard_Error, "CAUTION ! Portal with /= 4 points");
 
                       end if;
 
@@ -474,17 +474,16 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
 
 
-null; -- allocate "farm" (as in G3D.IO) !!
+                     Include_portals_to_areas;
+                     -- We need reallocated models before building the BSP tree
+                     -- I.e. BSP's should appear after IAP's (usual order).
+                     Allocate_BSP_farm(yylval.intval);
 
                    }
                    bsp_nodes
-                   {
 
 
 
-null; -- reconstruct accesses from numbers (as in G3D.IO) !!
-
-                   }
                    '}'
                    ;
 
@@ -498,12 +497,25 @@ null; -- reconstruct accesses from numbers (as in G3D.IO) !!
                   bsp_node
                 ;
 
+-- In .proc files:
+--
+--  /* node format is: ( planeVector ) positiveChild negativeChild */
+--  /* a child number of 0 is an opaque, solid area */
+--  /* negative child numbers are areas: (-1-child) */
+--  /* node 0 */ ( 1 0 0 -1024 ) 1 1684
+--  /* node 1 */ ( 1 0 0 -2048 ) 2 576
+--  /* node 2 */ ( 0 1 0 -2048 ) 3 16
+--
+-- NB: node 0 cannot be a child, then...
+
   bsp_node :
+                    {
 
 
 
+                      current_BSP_node:= current_BSP_node + 1;
 
-
+                    }
                     bsp_plane_vector
                     NUMBER -- positiveChild
                     {
@@ -511,7 +523,7 @@ null; -- reconstruct accesses from numbers (as in G3D.IO) !!
 
 
 
-null; -- store child (as in G3D.IO) !!
+                      pos_BSP_child:= yylval.intval;
 
                     }
                     NUMBER -- negativeChild
@@ -522,12 +534,10 @@ null; -- store child (as in G3D.IO) !!
 
 
 
-null; -- store child (as in G3D.IO) !!
+                      neg_BSP_child:= yylval.intval;
+                      Process_BSP_Node;
 
                     }
-                    -- a child number of 0 is an opaque, solid area
-                    -- negative child numbers are areas: (-1-child)
-                    -- node 0 : ( 1 0 0 -3072 ) 1 1515
                     ;
 
   bsp_plane_vector :
@@ -543,8 +553,6 @@ null; -- store child (as in G3D.IO) !!
 
 
 
-
-null; -- store d, n !!
 
                 }
                 ')'

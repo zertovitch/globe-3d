@@ -389,7 +389,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                         -- ^ Supposed to be 4 (usual),
                         -- if not, some modification is needed
 
-                        Ada_Comment("CAUTION !! Portal with /= 4 points not supported");
+                        Ada_Comment("CAUTION ! Portal with /= 4 points not supported");
 
 
 
@@ -476,15 +476,14 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
 
 
+
+
+
                    }
                    bsp_nodes
-                   {
 
-                     Ada_Put_Line(");");
+                   { Ada_Put_Line(");"); }
 
-
-
-                   }
                    '}'
                    ;
 
@@ -498,12 +497,25 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                   bsp_node
                 ;
 
+-- In .proc files:
+--
+--  /* node format is: ( planeVector ) positiveChild negativeChild */
+--  /* a child number of 0 is an opaque, solid area */
+--  /* negative child numbers are areas: (-1-child) */
+--  /* node 0 */ ( 1 0 0 -1024 ) 1 1684
+--  /* node 1 */ ( 1 0 0 -2048 ) 2 576
+--  /* node 2 */ ( 0 1 0 -2048 ) 3 16
+--
+-- NB: node 0 cannot be a child, then...
+
   bsp_node :
-
                     {
-                      Ada_Put("(");
-                    }
 
+                      Ada_Put("(");
+
+
+
+                    }
                     bsp_plane_vector
                     NUMBER -- positiveChild
                     {
@@ -524,10 +536,8 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
 
 
+
                     }
-                    -- a child number of 0 is an opaque, solid area
-                    -- negative child numbers are areas: (-1-child)
-                    -- node 0 : ( 1 0 0 -3072 ) 1 1515
                     ;
 
   bsp_plane_vector :
@@ -543,8 +553,6 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                   if pretty then Ada_Put(" distance => "); end if;
                   Ada_Put(Image(last_d));
                   Ada_Put(",");
-
-
 
                 }
                 ')'

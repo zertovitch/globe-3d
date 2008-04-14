@@ -471,7 +471,7 @@ when 53 => -- #line 386
 
 
 
-                        Put_Line( Standard_Error, "!! Portal with /= 4 points");
+                        Put_Line( Standard_Error, "CAUTION ! Portal with /= 4 points");
 
                       end if;
 
@@ -535,42 +535,46 @@ when 62 => -- #line 473
 
 
 
-null; -- allocate "farm" (as in G3D.IO) !!
+                     Include_portals_to_areas;
+                     -- We need reallocated models before building the BSP tree
+                     -- I.e. BSP's should appear after IAP's (usual order).
+                     Allocate_BSP_farm(yylval.intval);
 
                    
 
-when 63 => -- #line 481
+when 66 => -- #line 512
 
 
 
 
-null; -- reconstruct accesses from numbers (as in G3D.IO) !!
-
-                   
-
-when 67 => -- #line 509
-
-
-
-
-
-null; -- store child (as in G3D.IO) !!
+                      current_BSP_node:= current_BSP_node + 1;
 
                     
 
-when 68 => -- #line 518
+when 67 => -- #line 521
 
 
 
 
 
-
-
-null; -- store child (as in G3D.IO) !!
+                      pos_BSP_child:= yylval.intval;
 
                     
 
-when 69 => -- #line 537
+when 68 => -- #line 530
+
+
+
+
+
+
+
+                      neg_BSP_child:= yylval.intval;
+                      Process_BSP_Node;
+
+                    
+
+when 69 => -- #line 547
 
                   last_d:= Doom3_Help.Real(yylval.floatval);
 
@@ -581,20 +585,18 @@ when 69 => -- #line 537
 
 
 
-null; -- store d, n !!
-
                 
 
-when 71 => -- #line 560
+when 71 => -- #line 568
  last_pt(2):= Doom3_Help.Real(yylval.floatval); 
 
-when 72 => -- #line 561
+when 72 => -- #line 569
  last_pt(0):= Doom3_Help.Real(yylval.floatval); 
 
-when 73 => -- #line 562
+when 73 => -- #line 570
  last_pt(1):= Doom3_Help.Real(yylval.floatval); 
 
-when 75 => -- #line 567
+when 75 => -- #line 575
 
 yyval := (
 yy.value_stack(yy.tos)); -- Float

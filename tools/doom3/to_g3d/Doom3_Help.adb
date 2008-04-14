@@ -1,4 +1,4 @@
-with GLOBE_3D.IO;
+with GLOBE_3D.IO, GLOBE_3D.BSP, GLOBE_3D.Math;
 
 with Ada.Command_Line;                  use Ada.Command_Line;
 with Ada.Text_IO;                       use Ada.Text_IO;
@@ -457,7 +457,7 @@ package body Doom3_Help is
           f:= m.obj.max_faces;
           new_obj:= new Object_3D(
             Max_points => p + 4*m.portals_to_be_added,
-            Max_faces  => f  +   m.portals_to_be_added
+            Max_faces  => f +   m.portals_to_be_added
           );
           -- Clone common part:
           Visual(new_obj.all)          := Visual(m.obj.all);
@@ -508,30 +508,118 @@ package body Doom3_Help is
     end loop;
   end Complete_area_with_portals;
 
+  type BSP_farm is array(Natural range <>) of GLOBE_3D.BSP.p_BSP_Node;
+
+  type p_BSP_farm is access BSP_farm;
+
+  farm: p_BSP_farm;
+
+  procedure Allocate_BSP_farm(number: Natural) is
+  begin
+    farm:= new BSP_farm(0..number-1);
+    for i in farm'Range loop
+      farm(i):= new GLOBE_3D.BSP.BSP_Node;
+    end loop;
+    current_BSP_node:= -1;
+  end;
+
+  procedure Process_BSP_Node is
+    use GLOBE_3D.BSP, GLOBE_3D.Math, GL;
+    n: BSP_Node renames farm(current_BSP_node).all;
+  begin
+    -- In .proc files:
+    --
+    --  /* node format is: ( planeVector ) positiveChild negativeChild */
+    --  /* a child number of 0 is an opaque, solid area */
+    --  /* negative child numbers are areas: (-1-child) */
+    --  /* node 0 */ ( 1 0 0 -1024 ) 1 1684
+    --  /* node 1 */ ( 1 0 0 -2048 ) 2 576
+    --  /* node 2 */ ( 0 1 0 -2048 ) 3 16
+    --
+    -- NB: node 0 cannot be a child, then...
+    --
+    if pos_BSP_child > 0 then
+      n.front_child:= farm(pos_BSP_child);
+    elsif pos_BSP_child < 0 then
+      n.front_leaf:= model_stack(area_stack(-1-pos_BSP_child)).obj;
+    end if;
+    if neg_BSP_child > 0 then
+      n.back_child:= farm(neg_BSP_child);
+    elsif neg_BSP_child < 0 then
+      n.back_leaf:=  model_stack(area_stack(-1-neg_BSP_child)).obj;
+    end if;
+    n.normal:= last_pt;
+    n.distance:= last_d - main_centre * n.normal;
+  end Process_BSP_Node;
+
+  procedure Write_Summary(name: String) is
+    use GL, GLOBE_3D.Math;
+    log: File_Type;
+    s: Point_3D;
+  begin
+    Create(log, out_file, name);
+    Put_Line(log, "Coords of main imposed centre: " & Coords(main_centre));
+    New_Line(log);
+    for i in 1..model_top loop
+      declare
+        m: Model renames model_stack(i);
+      begin
+        Put_Line(log, "Model: " & Trim(m.obj.ID, Right));
+        Put_Line(log, "=====");
+        Put_Line(log,
+          "  Polygon(s):" &
+          Integer'Image(m.last_face) &
+          " and" &
+          Integer'Image(m.portals_to_be_added) &
+          " portal(s)");
+        Put_Line(log,
+          "  Vertices:" &
+          Integer'Image(m.last_point) &
+          " and" &
+          Integer'Image(m.portals_to_be_added * 4) &
+          " for portals");
+        s:= (0.0, 0.0, 0.0);
+        for p in m.obj.point'Range loop
+          s:= s + m.obj.point(p);
+        end loop;
+        s:= s * (1.0 / Real(m.obj.max_points));
+        Put_Line(log, "  Coords of average vertex: " & Coords(s));
+      end;
+      New_Line(log);
+    end loop;
+    Close(log);
+  end Write_Summary;
+
   bypass_portals: constant Boolean:= False;
 
   procedure YY_Accept is
-    nb_points, nb_polys: Natural;
   begin
-    Include_portals_to_areas;
+    -- Include_portals_to_areas : done at beginning of BSP.
     for i in 1..model_top loop
       if not (bypass_portals or model_stack(i).portals_to_be_added = 0) then
         Complete_area_with_portals(i);
       end if;
       Put_Line(Standard_Error,
-        "Writing object file: " &
-        model_stack(i).obj.ID
+        "Writing object file (.g3d) for: " &
+        Trim(model_stack(i).obj.ID, Right) & '.'
       );
-      GLOBE_3D.IO.Save_file(model_stack(i).obj.all);
+      GLOBE_3D.IO.Save_file(model_stack(i).obj.all); -- Save each object
     end loop;
-    Write_catalogue;
+    Put_Line(Standard_Error, "Writing BSP tree (.bsp).");
+    GLOBE_3D.IO.Save_file(pkg,farm(0)); -- Save BSP tree.
+    Put_Line(Standard_Error, "Writing texture catalogue (.txt).");
+    Write_catalogue; -- Save a list of textures
+    Put_Line(Standard_Error, "Writing a summary (.log).");
+    Write_Summary(pkg & ".log");
   end YY_Accept;
 
   procedure D3G_Init is
     use GL;
   begin
     main_centre:= -- !!
-       (-1468.0+1294.0,+616.0,-1754.0-770.0); -- Delta4 magic!
+      (-174.0, +616.0, -2524.0)
+      -- Delta4 magic to the entrance!
+    ;
     face_0.skin:= texture_only;
     face_0.whole_texture:= False;
     face_0.P(4):= 0; -- we have triangles, P(4) is set to 0

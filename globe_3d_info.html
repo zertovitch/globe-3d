@@ -7,7 +7,8 @@ The Copyright statement appears in GLOBE_3D.ads.
 
 <hr>
 <ol>
-<li><a href=#demo>Navigating in 3D with the Demo</a>
+<li><a href=#features>Quick feature list</a>
+<li><a href=#demo>Navigating in 3D with the main demo</a>
 <li><a href=#build>How to build the engine</a>
 <li><a href=#prog>Programming notes around GLOBE_3D</a>
 <li><a href=#resources>Web Resources</a>
@@ -19,7 +20,31 @@ The Copyright statement appears in GLOBE_3D.ads.
 <hr>
 
 <ol>
-<li>As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_Demo.
+<li>
+<a name=features>
+<b><font face="Arial, Tahoma">Quick feature list of GLOBE_3D:</font></b>
+</a>
+ <p>
+ <ul>
+ <li>unconditionally portable sources (one set of sources for all platforms)
+ <li>real-time rendering; fast with a 3D hardware-accelerated graphics card
+ <li>full eye movements and rotations
+ <li>displays combinations of colours, materials, textures
+ <li>transparency
+ <li>multiple area rendering with the portal technique, e.g. for inner scenes
+ <li>binary space partition (BSP)
+ <li>extruded surface generator
+ <li>easy management of resources like textures, stored in .zip files
+ <li>input-output of 3D objects or linked groups of objects
+ <li>screenshots and video captures 
+ <li>multi-view support
+ <li>vectorized geometry support
+ </ul>
+ </p>
+<li>
+<b><font face="Arial, Tahoma">Navigating in 3D with the main GLOBE_3D Demo.</font></b>
+<p>
+As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_Demo.
     In the same directory, you need:
   <ul>
     <li>the executable, <b>GLOBE_3D_Demo.exe</b> (Windows), <b>globe_3d_mac_ppc</b> (Mac PowerPC)
@@ -89,8 +114,10 @@ The Copyright statement appears in GLOBE_3D.ads.
                        instead of creating them with Ada code
  </ul>
  </p>
-<li> How to <b>build</b> the project on various platforms and compilers:
- <a name=build></a>
+<li>
+ <a name=build>
+ <b><font face="Arial, Tahoma">How to <b>build</b> the project on various platforms and compilers:
+ </font></b></a>
  <p>
   The main demo, in directory ./demo, can serve as a prototype for your applications
   using GLOBE_3D. That directory also contains various scripts (or so) for various systems.
@@ -143,8 +170,10 @@ The Copyright statement appears in GLOBE_3D.ads.
     Any volunteer ?...
   </ul>
  </p>
-<li> Programming notes around GLOBE_3D:
- <a name=prog></a>
+<li> 
+ <a name=prog>
+ <b><font face="Arial, Tahoma">Programming notes around GLOBE_3D:</font></b>
+ </a>
  <p>
   <ul>
    <li> 
@@ -176,8 +205,10 @@ The Copyright statement appears in GLOBE_3D.ads.
         Library path (here of win32): <pre>-L../globe_3d/obj/libwin32</pre>
   </ul>
  </p>
- <li> <b>Web resources</b> for GLOBE_3D:
- <a name=resources></a>
+ <li> 
+ <a name=resources>
+  <b><font face="Arial, Tahoma">Web resources for GLOBE_3D:</font></b>
+</a>
  <p>
   <ul>
    <li> Present Web page for <b>GLOBE_3D</b>: <a target=_blank href=http://www.mysunrise.ch/users/gdm/g3d.htm>here</a>.<br>&nbsp;
@@ -215,8 +246,9 @@ The Copyright statement appears in GLOBE_3D.ads.
   </ul>
  </p>
 <li>
-  <a name=bugs></a>
-  <b>Open bugs</b>:
+  <a name=bugs>
+    <b><font face="Arial, Tahoma">Open bugs</font></b>
+  </a>
  <p>
   <ul>
    <li> (Game_control/GLUT) Modifier keys are not updated independently of the others key down/up events.
@@ -226,8 +258,10 @@ The Copyright statement appears in GLOBE_3D.ads.
   </ul>
  </p>
 <li>
-  <a name=todo></a>
-  <b>To-do list</b> (some items may go beyond the scope of graphics and GLOBE_3D):
+  <a name=todo>
+    <b><font face="Arial, Tahoma">To-do list</font></b>
+  </a>
+  (some items may go beyond the scope of graphics and GLOBE_3D):
  <p>
   <ul>
    <li> Collision detection e.g. (for objects seen from outside) by testing distance to a
@@ -236,9 +270,7 @@ The Copyright statement appears in GLOBE_3D.ads.
    <li> Game_Control: add support for configuration files
    <li> 3D Studio / GMAX: see in the max2ada.ms file
    <li> (demo) improve lightings, better calibrate mouse movements
-   <li> provide catalogues of Visual accesses in a binary tree format; aim: a quick search
-        <b><tt>function Find(ID: Ident; cat: Catalogue) return p_Visual'Class;</tt></b>
-        to replace the linear search in Rebuild_links and Find_object inside the BSP loader (G3D.IO).
+   <li> replace linear search of texture ID's by a quick search using maps (cf the one for visuals)
    <li> addition and morphing of objects, like in 
         <a target=_blank href=http://homepage.sunrise.ch/mysunrise/gdm/e3d_html/eng3dmor__ads.htm>Engine_3D</a>
    <li> I/O: include the pseudo-normal vectors on vertices
@@ -258,7 +290,10 @@ The Copyright statement appears in GLOBE_3D.ads.
   </ul>
  </p>
 <li>
-  <a name=thanks></a>
+  <a name=thanks>
+    <b><font face="Arial, Tahoma">Thanks</font></b>
+  </a>
+  <p>
   <b>Many thanks</b> to Rod Kay, for the new evolutive object-oriented type tree around the 3D object,
   major improvements of GLOBE_3D rendering
   for polygon soups, GLUT.Windows, GLUT.Devices, and nice demos (terrain
@@ -275,10 +310,14 @@ The Copyright statement appears in GLOBE_3D.ads.
   </ul>
  </p>
 <li>
-  <a name=contact></a>Contact:
+  <a name=contact>
+    <b><font face="Arial, Tahoma">Contact:</font></b>
+  </a>
+  <p>
   <ul>
    <li>Main author and project coordinator: Gautier de Montmollin, Switzerland
        e-mail: <a target=_blank href=http://homepage.sunrise.ch/mysunrise/gdm/email.htm>here</a>.
   </ul>
+  </p>
 </ol>
 </body>
