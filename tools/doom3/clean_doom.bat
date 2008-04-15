@@ -33,5 +33,7 @@ del *.log
 del *.a
 del *.ali
 del *.o
+del *.bsp
+del *.g3d
 
 cd..

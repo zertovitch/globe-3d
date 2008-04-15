@@ -538,11 +538,15 @@ when 62 => -- #line 473
                      Include_portals_to_areas;
                      -- We need reallocated models before building the BSP tree
                      -- I.e. BSP's should appear after IAP's (usual order).
+                     Compute_Averages;
+                     -- We need to compute model and esp. area averages to get
+                     -- the main_centre set before setting BSP distances
+                     -- in case of the -Carea-number option
                      Allocate_BSP_farm(yylval.intval);
 
                    
 
-when 66 => -- #line 512
+when 66 => -- #line 516
 
 
 
@@ -551,7 +555,7 @@ when 66 => -- #line 512
 
                     
 
-when 67 => -- #line 521
+when 67 => -- #line 525
 
 
 
@@ -561,7 +565,7 @@ when 67 => -- #line 521
 
                     
 
-when 68 => -- #line 530
+when 68 => -- #line 534
 
 
 
@@ -574,7 +578,7 @@ when 68 => -- #line 530
 
                     
 
-when 69 => -- #line 547
+when 69 => -- #line 551
 
                   last_d:= Doom3_Help.Real(yylval.floatval);
 
@@ -587,16 +591,16 @@ when 69 => -- #line 547
 
                 
 
-when 71 => -- #line 568
+when 71 => -- #line 572
  last_pt(2):= Doom3_Help.Real(yylval.floatval); 
 
-when 72 => -- #line 569
+when 72 => -- #line 573
  last_pt(0):= Doom3_Help.Real(yylval.floatval); 
 
-when 73 => -- #line 570
+when 73 => -- #line 574
  last_pt(1):= Doom3_Help.Real(yylval.floatval); 
 
-when 75 => -- #line 575
+when 75 => -- #line 579
 
 yyval := (
 yy.value_stack(yy.tos)); -- Float

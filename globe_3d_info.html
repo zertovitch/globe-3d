@@ -11,6 +11,7 @@ The Copyright statement appears in GLOBE_3D.ads.
 <li><a href=#demo>Navigating in 3D with the main demo</a>
 <li><a href=#build>How to build the engine</a>
 <li><a href=#prog>Programming notes around GLOBE_3D</a>
+<li><a href=#tools>Tools provided with GLOBE_3D</a>
 <li><a href=#resources>Web Resources</a>
 <li><a href=#bugs>Open bugs</a>
 <li><a href=#todo>To-do list</a>
@@ -205,6 +206,39 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
         Library path (here of win32): <pre>-L../globe_3d/obj/libwin32</pre>
   </ul>
  </p>
+<li> 
+ <a name=tools>
+ <b><font face="Arial, Tahoma">Tools provided with GLOBE_3D</font></b>
+ </a>
+ <p>
+  In the <tt>./tools</tt> subdirectory, you find the following tools:
+  <ul>
+   <li> <tt>./tools/gmax</tt> contains a script, <b>max2ada.ms</b>, for the GMAX software, to convert a 3D model
+        into a package capable of generating the equivalent GLOBE_3D object.
+        To use it, run the script from GMAX, and use GMaxSLGRAB.exe to grab the Ada code
+        from the "listener" window. Example of its output is Dreadnought.ads/.adb in <tt>./src/models</tt> 
+   <li> <tt>./tools/vrml</tt> contains an Ada program, <b>wrl2ada.adb</b>, for translating VRML code into an Ada package
+        capable of creating a GLOBE_3D corresponding to the VRML world / object.
+        Example of its output is Lissajous.ads/.adb in <tt>./src/models</tt>
+   <li> <tt>./tools/doom3</tt> contains two tools that take as input a .proc file that is written
+        by id software's Radiant level designer family (the editor provided with Doom 3 is one of them).
+    <ul>
+     <li> <tt>./tools/doom3/to_ada</tt> contains a source translator, <b>d3a</b>, similar to the VRML one.
+          The generated Ada code builds the level's objects and areas, connects the areas through
+          portals and build a BSP tree.
+          Its advantage is the one of having Ada source code for generating 3D worlds (no I/O or file
+          format issues), but even a small level produces a huge Ada source that becomes a challenge to
+          some compilers.
+     <li> <tt>./tools/doom3/to_g3d</tt> contains a file converter, <b>d3g</b>, that uses GLOBE_3D "behind the scenes"
+          for building in-memory the objects and then write binary files (.g3d, .bsp) that GLOBE_3D.IO is
+          able to load in an application.
+    </ul>
+   <li> <b>gl_overloader.adb</b> : a simple procedure that writes a chunk of Ada code,
+        with overloaded names for various GL routines with different C names
+        for different parameter list. You find the result GL.ads in the <tt>./bindings</tt> subdirectory.
+   <li> <b>check_tiling.htm</b>: a mini HTML file just to visually check if a texture is periodic enough.
+  </ul>
+ </p>
  <li> 
  <a name=resources>
   <b><font face="Arial, Tahoma">Web resources for GLOBE_3D:</font></b>
@@ -266,14 +300,14 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
   <ul>
    <li> Collision detection e.g. (for objects seen from outside) by testing distance to a
         bounding ellipsoid, then a rough convex polyhedron, then the least faces possible
-   <li> Move reusable parts of the demo to Game_Control or other packages (GLUT.Windows in the works)
+   <li> Move reusable parts of the big demo to Game_Control or other packages (GLUT.Windows in the works)
    <li> Game_Control: add support for configuration files
    <li> 3D Studio / GMAX: see in the max2ada.ms file
    <li> (demo) improve lightings, better calibrate mouse movements
    <li> replace linear search of texture ID's by a quick search using maps (cf the one for visuals)
    <li> addition and morphing of objects, like in 
         <a target=_blank href=http://homepage.sunrise.ch/mysunrise/gdm/e3d_html/eng3dmor__ads.htm>Engine_3D</a>
-   <li> I/O: include the pseudo-normal vectors on vertices
+   <li> I/O: 1) include the pseudo-normal vectors on vertices 2) store texture name only if different
    <li> possibility to impose custom pseudo-normal vectors on vertices
    <li> implement sub-objects or neighour-objects (linked lists)
    <li> make a demo with <a target=_blank href=http://www.openalada.com/>OpenALAda</a>

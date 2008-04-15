@@ -23,7 +23,11 @@ package Doom3_Help is
 
   argument_pos_source: Natural:= 0;
 
-  main_centre: GLOBE_3D.Point_3D;
+  main_centre: GLOBE_3D.Point_3D:= (0.0, 0.0, 0.0);
+
+  area_centering: Integer:= -1;
+
+  procedure Compute_Averages;
 
   subtype Real is GLOBE_3D.Real;
 

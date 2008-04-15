@@ -65,6 +65,7 @@ package body Doom3_Help is
     last_face          : Natural:= 0;
     -- last defined; used for IAP post-processing
     obj                : GLOBE_3D.p_Object_3D;
+    avg_point          : GLOBE_3D.Point_3D;
   end record;
 
   model_stack: array(1..10_000) of Model;
@@ -385,16 +386,17 @@ package body Doom3_Help is
   procedure Build_Model is
     p,f, p_mem: Natural:= 0;
     doom3_vertex_number: Integer;
+    m: Model renames model_stack(model_top);
     use GLOBE_3D;
   begin
-    model_stack(model_top).obj:= new Object_3D(total_points,total_faces);
+    m.obj:= new Object_3D(total_points,total_faces);
     max_faces := Integer'Max(max_faces, total_faces);
     max_points:= Integer'Max(max_points,total_points);
     for i in 1..surface_count loop
       p_mem:= p;
       for ps in surface_stack(i).point'Range loop
         p:= p + 1;
-        model_stack(model_top).obj.point(p):= surface_stack(i).point(ps);
+        m.obj.point(p):= surface_stack(i).point(ps);
       end loop;
       for fs in surface_stack(i).tri'Range loop
         for s in 1..3 loop
@@ -413,7 +415,12 @@ package body Doom3_Help is
 --            "surface " & i'img & " face " &
 --            f'img & "texture: " & Get_surface_texture_name(i)
 --         );
-        Texture_name_hint(model_stack(model_top).obj.all, f, Get_surface_texture_name(i));
+        begin
+          Texture_name_hint(m.obj.all, f, Get_surface_texture_name(i));
+        exception
+          when Constraint_Error =>
+            raise Constraint_Error with "Texture ident too long. Try with -j.";
+        end;
       end loop;
     end loop;
     model_stack(model_top).last_point:= p;
@@ -552,13 +559,41 @@ package body Doom3_Help is
     n.distance:= last_d - main_centre * n.normal;
   end Process_BSP_Node;
 
+  procedure Compute_Averages is
+    use GL, GLOBE_3D.Math;
+  begin
+    for i in 1..model_top loop
+      declare
+        m: Model renames model_stack(i);
+        s: Point_3D;
+      begin
+        s:= (0.0, 0.0, 0.0);
+        if m.last_point > 0 then
+          for p in 1..m.last_point loop
+            s:= s + m.obj.point(p);
+          end loop;
+          s:= s * (1.0 / Real(m.last_point));
+          m.avg_point:= s;
+        end if;
+      end;
+    end loop;
+    if area_centering >= 0 then
+      main_centre:= main_centre - model_stack(area_stack(area_centering)).avg_point;
+      for i in 1..model_top loop -- we need to correct that on each object's centre.
+        model_stack(i).obj.centre:= main_centre;
+      end loop;
+    end if;
+  end Compute_Averages;
+
   procedure Write_Summary(name: String) is
     use GL, GLOBE_3D.Math;
     log: File_Type;
-    s: Point_3D;
   begin
     Create(log, out_file, name);
     Put_Line(log, "Coords of main imposed centre: " & Coords(main_centre));
+    if area_centering >= 0 then
+      Put_Line(log, "Centered on area #: " & Integer'Image(area_centering));
+    end if;
     New_Line(log);
     for i in 1..model_top loop
       declare
@@ -578,12 +613,7 @@ package body Doom3_Help is
           " and" &
           Integer'Image(m.portals_to_be_added * 4) &
           " for portals");
-        s:= (0.0, 0.0, 0.0);
-        for p in m.obj.point'Range loop
-          s:= s + m.obj.point(p);
-        end loop;
-        s:= s * (1.0 / Real(m.obj.max_points));
-        Put_Line(log, "  Coords of average vertex: " & Coords(s));
+        Put_Line(log, "  Coords of average vertex: " & Coords(m.avg_point));
       end;
       New_Line(log);
     end loop;
@@ -616,10 +646,6 @@ package body Doom3_Help is
   procedure D3G_Init is
     use GL;
   begin
-    main_centre:= -- !!
-      (-174.0, +616.0, -2524.0)
-      -- Delta4 magic to the entrance!
-    ;
     face_0.skin:= texture_only;
     face_0.whole_texture:= False;
     face_0.P(4):= 0; -- we have triangles, P(4) is set to 0

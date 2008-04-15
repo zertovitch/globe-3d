@@ -477,6 +477,10 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                      Include_portals_to_areas;
                      -- We need reallocated models before building the BSP tree
                      -- I.e. BSP's should appear after IAP's (usual order).
+                     Compute_Averages;
+                     -- We need to compute model and esp. area averages to get
+                     -- the main_centre set before setting BSP distances
+                     -- in case of the -Carea-number option
                      Allocate_BSP_farm(yylval.intval);
 
                    }
