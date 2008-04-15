@@ -577,15 +577,19 @@ when 68 => -- #line 473
 
 
 
+
+
+
+
                    
 
-when 69 => -- #line 485
+when 69 => -- #line 489
  Ada_Put_Line(");"); 
 
-when 71 => -- #line 493
+when 71 => -- #line 497
  Ada_Put_Line(","); 
 
-when 74 => -- #line 512
+when 74 => -- #line 516
 
 
                       Ada_Put("(");
@@ -594,7 +598,7 @@ when 74 => -- #line 512
 
                     
 
-when 75 => -- #line 521
+when 75 => -- #line 525
 
 
                       if pretty then Ada_Put(" positive_child => "); end if;
@@ -604,7 +608,7 @@ when 75 => -- #line 521
 
                     
 
-when 76 => -- #line 530
+when 76 => -- #line 534
 
 
                       Ada_Put(",");
@@ -617,7 +621,7 @@ when 76 => -- #line 530
 
                     
 
-when 77 => -- #line 547
+when 77 => -- #line 551
 
                   last_d:= Doom3_Help.Real(yylval.floatval);
 
@@ -630,16 +634,16 @@ when 77 => -- #line 547
 
                 
 
-when 79 => -- #line 568
+when 79 => -- #line 572
  last_pt(2):= Doom3_Help.Real(yylval.floatval); 
 
-when 80 => -- #line 569
+when 80 => -- #line 573
  last_pt(0):= Doom3_Help.Real(yylval.floatval); 
 
-when 81 => -- #line 570
+when 81 => -- #line 574
  last_pt(1):= Doom3_Help.Real(yylval.floatval); 
 
-when 83 => -- #line 575
+when 83 => -- #line 579
 
 yyval := (
 yy.value_stack(yy.tos)); -- Float

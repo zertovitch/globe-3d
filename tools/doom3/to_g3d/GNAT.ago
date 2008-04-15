@@ -5,16 +5,16 @@
 WINDOWS_TARGET
 
 
+insert(
+unzip
+"_d
+_d
 area_stack
 main_c
 surface_count
 add_surf
 total_faces
 current_model
-_pos_s
-_error
-consider
-"begin
 -- Begin compiler switches
 DEBUG <- active (current) build mode
 TRUE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

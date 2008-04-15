@@ -12,4 +12,4 @@ rem Update local copy of level resource data
 zip -f -1 G3Demo_Level_Resources.zip
 
 rem start the big demo, load everything:
-g -load
+GLOBE_3D_Demo.exe -load

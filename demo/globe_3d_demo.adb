@@ -261,9 +261,30 @@ procedure GLOBE_3D_Demo is
   bestiaire, level_stuff: G3D.p_Object_3D_array:= null;
   level_idx, bri_idx, beast: Integer;
   level_BSP: G3D.BSP.p_BSP_node:= null;
-  level_map: G3D.Map_of_Visuals:= G3D.empty_map;
+  level_map: G3D.Map_of_Visuals:= G3D.empty_map; -- dictionary
 
-  procedure Create_objects(load: Boolean) is
+  procedure Load_Doom(name: String) is
+    area_max: Natural:= 0;
+    ls: G3D.Object_3D_array(1..1_000);
+  begin
+    for i in ls'Range loop
+      begin
+        G3D.IO.Load(
+          name & "_$_area" & Trim(Integer'Image(i-1),Left),
+          ls(i)
+        );
+      exception
+        when G3D.Missing_object =>
+          exit;
+      end;
+      area_max:= i;
+      G3D.Add(level_map, G3D.p_Visual(ls(i))); -- add to dico
+    end loop;
+    G3D.IO.Load(name, level_map, level_BSP); -- load BSP tree
+    level_stuff:= new G3D.Object_3D_array'(ls(1..area_max));
+  end Load_Doom;
+
+  procedure Create_objects(load: Boolean; doom3_custom: String) is
     t: constant:= 1.0;
     f2: Natural;
     use GL, G3D;
@@ -485,7 +506,7 @@ procedure GLOBE_3D_Demo is
       -- We test here the loading and mutual linking
       -- of some objects dumped by the -dump option.
       --
-      -- The space station scene:
+      -- Load the space station scene:
       --
       G3D.IO.Load("Space station brick ONE",bri1);
       G3D.IO.Load("Space station brick TWO",bri2);
@@ -499,21 +520,18 @@ procedure GLOBE_3D_Demo is
       Set_name(bri1.all,"Space station brick ONE (loaded)");
       Set_name(bri2.all,"Space station brick TWO (loaded)");
       --
-      -- The Doom 3 level:
+      -- Load the Doom 3 level:
       --
-      level_stuff:= new Object_3D_array(1..20);
-      for i in level_stuff'Range loop
-        G3D.IO.Load(
-          "Delta4g1_$_area" & Trim(Integer'Image(i-1),Left),
-          level_stuff(i)
-        );
-        G3D.Add(level_map, p_Visual(level_stuff(i)));
-      end loop;
-      G3D.IO.Load("Delta4g1", level_map, level_BSP);
+      if doom3_custom = "" then
+        Load_Doom("Delta4g1");
+      else
+        G3D.Set_level_data_name(doom3_custom & ".zip");
+        Load_Doom(doom3_custom);
+      end if;
     else
       -- Create objects, don't load them (default).
       --
-      -- The space station scene:
+      -- Create the space station scene:
       --
       Brick.Create(
         object  => bri1,
@@ -546,7 +564,7 @@ procedure GLOBE_3D_Demo is
       bri1.face(portal1(5)).connecting:= bri2;
       bri2.face(portal2(6)).connecting:= bri1;
       --
-      -- The Doom 3 level:
+      -- Create the Doom 3 level:
       --
       Doom3_Level.Create(
         level_stuff,
@@ -1053,10 +1071,13 @@ procedure GLOBE_3D_Demo is
   type Switch_Type is (
     load, -- load some scenes from .g3d files stored in the GLOBE_3D
           --        resource files, instead of rebuilding them (default)
+          -- "-load=mylevel" sets "mylevel.zip" as level resource; loads
+          -- mylevel_$_area#.g3d with #=1,2,3...; loads mylevel.bsp.
     dump  -- dump all objects of the demo to .g3d files
   );
 
   switch: array(Switch_Type) of Boolean:= (others => False);
+  custom: Unbounded_String;
 
   procedure Get_arguments is
     use Ada.Command_Line;
@@ -1064,11 +1085,15 @@ procedure GLOBE_3D_Demo is
     for s in Switch_Type loop
       for a in 1..Argument_Count loop
         declare
-          arg: constant String:= To_Upper(Argument(a));
-          swi: constant String:= Switch_Type'Image(s);
+          arg_long: constant String:= Argument(a);
+          swi     : constant String:= Switch_Type'Image(s);
+          arg     : constant String:= To_Upper(arg_long(arg_long'First..swi'Last+1));
         begin
           if arg = '-' & swi or arg = '/' & swi then
             switch(s):= True;
+            if s = load then
+              custom:= To_Unbounded_String(arg_long(swi'Last+3..arg_long'Last));
+            end if;
           end if;
         end;
       end loop;
@@ -1081,7 +1106,7 @@ begin
   G3D.Set_global_data_name("G3Demo_Level_Resources.zip");
   Texture_association;
 
-  Create_objects(switch(load));
+  Create_objects(switch(load), To_String(custom));
   if switch(dump) then
     Dump_objects; -- even those that were loaded (entropy check)
   end if;

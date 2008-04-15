@@ -5,16 +5,16 @@
 WINDOWS_TARGET
 
 
+load
+mylev
+unbounded
+load_do
+Level_Doom
+Level_Doom(
 dump
 delta4g1
 bsp
-load
 g3d
-.zip
-mini
-30
-strea
-trim
 -- Begin compiler switches
 RELEASE <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?
@@ -41,7 +41,7 @@ release profiling false
 -- End compiler switches
 -- Begin Release mode commands
 -aI../src -aI../src/gl -aI../src/unzip -aI../src/models -aI../src/gaming -aI../bindings -aI../bindings/win32 -aI../bindings/win32/gcc_fmt -gnatecg3d_elim.pra -gnatwp
--i -aO../obj/gnatsmal -bargs -E -g -largs -lopengl32 -lglu32 -lfreeglut -L../obj/libwin32 ../obj/libwin32/glee.o -mwindows -s
+-i -aO../obj/gnatfast -bargs -E -g -largs -lopengl32 -lglu32 -lfreeglut -L../obj/libwin32 ../obj/libwin32/glee.o -mwindows -s
 
 
 -- End Release mode commands

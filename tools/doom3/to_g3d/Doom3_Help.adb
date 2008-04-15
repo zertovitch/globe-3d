@@ -190,24 +190,38 @@ package body Doom3_Help is
     use Ada.Text_IO;
     f: File_type;
     n: Natural:= 0;
-    type Style_kind is (Ada_enum, Unzip_list, Unzip_cmd);
+    type Style_kind is (Ada_enum, Unzip_list, Unzip_cmd, add_suffix);
     junk_opt: String(1..2):= "  ";
 
     procedure Traverse( p: p_dir_node; style: Style_kind ) is
     begin
       if p /= null then
         Traverse(p.left,style);
-        case style is
-          when Ada_enum   =>
-            declare
-              s: constant String:= Junk(p.name);
-            begin
-              if Col(f)+s'Length > 75 then New_Line(f); else Put(f,' '); end if;
-              Put(f,junk(p.name) & ',');
-            end;
-          when Unzip_list => Put_Line(f,p.name & "*");
-          when Unzip_cmd  => Put_Line(f,"unzip " & junk_opt & " pak004.zip " & p.name & "*");
-        end case;
+        declare
+          tex: constant String:= p.name(1..p.name_len-2); -- remove the "_d"
+        begin
+          case style is
+            when Ada_enum   =>
+              declare
+                s: constant String:= Junk(p.name);
+              begin
+                if Col(f)+s'Length > 75 then New_Line(f); else Put(f,' '); end if;
+                Put(f,junk(p.name) & ',');
+              end;
+            when Unzip_list =>
+              Put_Line(f, tex & ".tga");
+              Put_Line(f, p.name & ".tga");
+            when Unzip_cmd  =>
+              Put_Line(f,"unzip " & junk_opt & " pak004.zip " & p.name & "*");
+            when add_suffix =>
+              Put_Line(f,"if not exist " & p.name & ".tga ren " & tex & ".tga " & p.name & ".tga");
+              Put_Line(f,"if exist " & tex & ".tga       del " & tex & ".tga");
+              Put_Line(f,"if exist " & tex & "_bmp.tga   del " & tex & "_bmp.tga");
+              Put_Line(f,"if exist " & tex & "_s.tga     del " & tex & "_s.tga");
+              Put_Line(f,"if exist " & tex & "_h.tga     del " & tex & "_h.tga");
+              Put_Line(f,"if exist " & tex & "_local.tga del " & tex & "_local.tga");
+          end case;
+        end;
         n:= n + 1;
         Traverse(p.right,style);
       end if;
@@ -219,12 +233,15 @@ package body Doom3_Help is
     end if;
     Create(f,out_file, pkg & "_textures.txt");
     for style in Style_kind loop
+      n:= 0;
       Put_Line(f,"***" & Style_kind'Image(style) & ':');
       case style is
         when Ada_Enum => null;
         when Unzip_list =>
           Put_Line(f,"7zip e -i@list.txt pak004.zip");
         when Unzip_cmd =>
+          null;
+        when Add_suffix =>
           null;
       end case;
       Traverse(catalogue,style);

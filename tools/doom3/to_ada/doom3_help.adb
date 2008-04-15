@@ -392,6 +392,7 @@ package body Doom3_Help is
     end if;
     Create(f,out_file, pkg & "_textures.txt");
     for style in Style_kind loop
+      n:= 0;
       Put_Line(f,"***" & Style_kind'Image(style) & ':');
       case style is
         when Ada_Enum => null;
