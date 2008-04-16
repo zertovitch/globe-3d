@@ -27,7 +27,7 @@ package body Box is
       begin
          f.P       := P;
          f.skin    := coloured_texture;
-         GLOBE_3D.Textures.Name_Texture(texture, new_id);
+         GLOBE_3D.Textures.Add_texture_name(texture, new_id);
          f.texture := new_id;
          f.colour  := colour;
          f.alpha   := alpha;

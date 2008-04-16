@@ -12,10 +12,10 @@ package GLOBE_3D.Textures is
   --      and other infos
   --   an image name -> a number (Image_ID)
 
-  ---------------------------------------------------------------------
-  -- Here are three ways of register the texture names that GLOBE_3D --
-  -- will find on the resource files.                                --
-  ---------------------------------------------------------------------
+  ------------------------------------------------------------------------
+  -- Here are three ways of registering the texture names that GLOBE_3D --
+  -- will find on the resource files.                                   --
+  ------------------------------------------------------------------------
 
   --------------------------------------------
   -- a) Texture-by-texture name association --
@@ -27,10 +27,10 @@ package GLOBE_3D.Textures is
 
   procedure Add_texture_name( name: String; id: out Image_id );
 
-  ----------------------------------------------------------------------
+  ------------------------------------------------------------
   -- b) Texture name association by searching the .zip data --
-  --    resource files for images                                     --
-  ----------------------------------------------------------------------
+  --    resource files for images                           --
+  ------------------------------------------------------------
   --
   -- For "real life" programs which don't know of the data.
   -- Allows subdirectories in resource ('/' or '\' in names)
@@ -41,9 +41,9 @@ package GLOBE_3D.Textures is
 
   procedure Register_textures_from_resources;
 
-  ----------------------------------------------------------------------
+  ------------------------------------------------------------
   -- c) Texture name association through an enumarated type --
-  ----------------------------------------------------------------------
+  ------------------------------------------------------------
   --
   -- For test or demo programs.
   -- Easy, reliable, but: static, hard-coded and diallowing a
@@ -57,13 +57,21 @@ package GLOBE_3D.Textures is
   -- Once that texture names are registered, you have the following tools --
   --------------------------------------------------------------------------
 
-  -- Check if the texture is loaded and load it if needed
+  -- - Recall a texture's ID - you need it to define objects' faces.
+  function Texture_ID( name: String ) return Image_ID;
+  Texture_name_not_found: exception;
+
+  -- - Recall a texture's name
+  function Texture_name( id: Image_id; trim: Boolean ) return Ident;
+
+  -- Check if the texture image has been loaded and load it if needed.
+  -- This is done automatically, but you may want to force the loading
+  -- of the images before beginning to display.
   procedure Check_2D_texture(id: Image_id; blending_hint: out Boolean);
   -- variant for situations where the blending information doesn't matter:
   procedure Check_2D_texture(id: Image_id);
-
-  -- Check, then bind as current GL texture
-  procedure Bind_2D_texture(id: Image_id; blending_hint: out Boolean);
+  -- same, but for all textures.
+  procedure Check_all_textures;
 
   function Valid_texture_ID(id: Image_id) return Boolean;
 
@@ -78,12 +86,5 @@ package GLOBE_3D.Textures is
   -- - Erase the present texture collection
   --   (names, GL ID's, evenutally loaded images)
   procedure Reset_textures;
-
-  -- - Recall a texture's name
-  function Texture_name( id: Image_id; trim: Boolean ) return Ident;
-
-  -- - Recall a texture's ID
-  function Texture_ID( name: String ) return Image_ID;
-  Texture_name_not_found: exception;
 
 end GLOBE_3D.Textures;

@@ -5,6 +5,9 @@
 WINDOWS_TARGET
 
 
+into_gl
+bind
+bind_
 null_unbou
 warp
 special
@@ -12,9 +15,6 @@ rotation_speed
 decel
 lightfv
 materialfv
-material_
-light_
-glblendfunc
 -- Begin compiler switches
 DEBUG <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?
@@ -41,7 +41,7 @@ release profiling false
 -- End compiler switches
 -- Begin Release mode commands
 -aI.. -aI..\..\bindings -aI..\..\bindings\win32 -aI..\unzip
--i -aO..\..\obj\gnatopti -largs -lopengl32 -lglu32 -L../../obj/libwin32
+-i -aO..\..\obj\gnatfast -largs -lopengl32 -lglu32 -L../../obj/libwin32
 
 
 -- End Release mode commands

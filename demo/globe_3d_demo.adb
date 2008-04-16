@@ -593,19 +593,6 @@ procedure GLOBE_3D_Demo is
     G3D.IO.Save_file("Delta4g1", level_BSP);
   end Dump_objects;
 
-  procedure Preload_textures is
-    -- dummy_boolean: Boolean;
-  begin
-    -- Pre-load textures of the game level to avoid
-    -- delays by seeing new areas through portals
-    null; -- !!
-    -- for t in level_textures loop
-    --   G3D.Textures.Check_2D_texture(
-    --   ??,
-    --   dummy_boolean);
-    -- end loop;
-  end Preload_textures;
-
   procedure Display_scene(
     o: in out G3D.Object_3D'Class;
     gc: Game_control.Command_set;
@@ -1078,7 +1065,7 @@ begin
   Start_GLs;      -- Initialize the (Open)GL things
   Reset_eye;
 
-  Preload_textures;
+  G3D.Textures.Check_all_textures; -- Preload the textures
 
   GLUT.MainLoop;  -- Let's rock !
 

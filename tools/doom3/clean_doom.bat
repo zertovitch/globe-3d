@@ -5,6 +5,8 @@ echo.
 
 del *.a
 del *.#*
+del *.ali
+del *.o
 
 cd to_ada
 

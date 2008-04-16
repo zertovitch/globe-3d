@@ -120,15 +120,18 @@ package body GLOBE_3D.Textures is
     Check_2D_texture(id,junk);
   end Check_2D_texture;
 
-  ---------------------
-  -- Bind_2D_texture --
-  ---------------------
-
-  procedure Bind_2D_texture (id: Image_id; blending_hint: out Boolean) is
+  procedure Check_all_textures is
   begin
-    Check_2D_texture(id, blending_hint);
-    GL.BindTexture( GL.TEXTURE_2D, GL.Uint(Image_id'Pos(id)+1) );
-  end Bind_2D_texture;
+    for i in null_image+1 .. texture_2d_infos.last_entry_in_use loop
+      Check_2D_texture(i);
+    end loop;
+  end Check_all_textures;
+
+  --  procedure Bind_2D_texture (id: Image_id; blending_hint: out Boolean) is
+  --  begin
+  --    Check_2D_texture(id, blending_hint);
+  --    GL.BindTexture( GL.TEXTURE_2D, GL.Uint(Image_id'Pos(id)+1) );
+  --  end Bind_2D_texture;
 
   procedure Reset_textures is
   begin

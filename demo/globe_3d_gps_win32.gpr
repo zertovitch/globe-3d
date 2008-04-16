@@ -19,18 +19,38 @@ project Globe_3D_Gps_Win32 is
          for Object_Dir use "..\obj\gnatdebg";
    end case;
 
-   package Binder is
+   package Ide is
+      for Default_Switches ("adacontrol") use ("-F", "gnat_short");
+   end Ide;
+
+   package Builder is
+      for Default_Switches ("ada") use ("-j2");
+   end Builder;
+
+   package Naming is
+      for Specification_Suffix ("c") use ".h";
+      for Implementation_Suffix ("c") use ".c";
+      for Specification_Suffix ("c++") use ".hh";
+      for Implementation_Suffix ("c++") use ".cpp";
+      for Specification_Suffix ("changelog") use "changelog";
+      for Specification_Suffix ("project file") use ".gpr";
+      for Specification_Suffix ("python") use ".py";
+   end Naming;
+
+   package Linker is
 
       case Build_Mode is
 
          when "Small" =>
+            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32", "-mwindows");
 
          when "Fast" =>
+            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
 
          when "Debug" =>
-            for Default_Switches ("ada") use ("-E");
+            for Default_Switches ("ada") use ("-g", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
       end case;
-   end Binder;
+   end Linker;
 
    package Compiler is
 
@@ -47,38 +67,18 @@ project Globe_3D_Gps_Win32 is
       end case;
    end Compiler;
 
-   package Linker is
+   package Binder is
 
       case Build_Mode is
 
          when "Small" =>
-            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
 
          when "Fast" =>
-            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
 
          when "Debug" =>
-            for Default_Switches ("ada") use ("-g", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
+            for Default_Switches ("ada") use ("-E");
       end case;
-   end Linker;
-
-   package Naming is
-      for Specification_Suffix ("c") use ".h";
-      for Implementation_Suffix ("c") use ".c";
-      for Specification_Suffix ("c++") use ".hh";
-      for Implementation_Suffix ("c++") use ".cpp";
-      for Specification_Suffix ("changelog") use "changelog";
-      for Specification_Suffix ("project file") use ".gpr";
-      for Specification_Suffix ("python") use ".py";
-   end Naming;
-
-   package Builder is
-      for Default_Switches ("ada") use ("-j2");
-   end Builder;
-
-   package Ide is
-      for Default_Switches ("adacontrol") use ("-F", "gnat_short");
-   end Ide;
+   end Binder;
 
 end Globe_3D_Gps_Win32;
 

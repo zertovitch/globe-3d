@@ -5,6 +5,7 @@
 WINDOWS_TARGET
 
 
+bind_
 load
 mylev
 unbounded
@@ -14,7 +15,6 @@ Level_Doom(
 dump
 delta4g1
 bsp
-g3d
 -- Begin compiler switches
 RELEASE <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

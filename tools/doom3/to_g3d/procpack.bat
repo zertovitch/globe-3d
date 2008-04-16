@@ -1,5 +1,7 @@
 @echo off
 
+call make_d3g
+
 echo ** Build and save objects, BSP, etc. from %1.proc
 
 d3g -j -a %1.proc -c0
