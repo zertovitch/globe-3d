@@ -203,46 +203,6 @@ procedure GLOBE_3D_Demo is
     end case;
   end Menu;
 
-  -- NB: using an enumerated type for indexing textures is handy here
-  -- but would be nasty in an application with full dynamic data
-  type Texture_id is (
-    face1, face2, face3, face4, face5, face6,
-    portmet1, fdmetal1, bleubosl,
-    alum_001, alum_002,
-    tole_001, grumnoir,
-    carometl, spacity1,
-    quad_qcq,
-    earth_map,
-    wood_1, wall_plaster_2, floor_wood_3, floor_wood_4,
-    -- *** Delta Labs 4: (pasted from delta4g1_textures.txt) ***
-    a_conmonitorbackblk_d, a_tecpipe2sil_d, alphabet4_d, black_d, blinkydec1_d,
-    boothspeaker_d, conmonitorxl1_d, conpanel1tec_d, conpanel3tec_d,
-    conpanel6tec_d, conpanel7atec_d, cpupanels1a_d, cpupanels1b_d,
-    desknurnies1_d, fgrill_d, floorvent02_d, ghotile3_d, gotcablecage_d,
-    gotcgate_d, gotgimwall2mini_d, gotsilvercol1_d, grate1a_d,
-    hangingwires2sided_d, hangingwires_shadow_d, hoser5_d, ind_logo1_d,
-    lfwall19_d, lfwall1a_d, lfwall24_d, lfwall25_d, lfwall2_d, lfwall3a_d,
-    lfwall5_d, lfwall5_red_d, lfwall9_d, mcitya7_3_d, mcityc13a_d,
-    minpanel1cutyel_d, minpanel1yel_d, minwall11yel_d, minwall12yel_d,
-    minwall13yel_d, minwall2yel_d, minwall3ayel_d, minwall3cyel_d,
-    minwall4yel_d, pipecap2a_d, reactorwalk1a_d, sflframetrim1_d, sflgrate2_d,
-    sflgrate4_d, sflgrate5_d, sflpanel1d_d, sflpanel4a_d, sflpanel5_d,
-    sflpanel6_d, sflpanel7_d, sflpanel8_d, skpanel11a_d, skpanel12b_d,
-    skpanel17cg_d, skpanel1_d, skpanel20_d, skpanel25a_d, skpanel4_d,
-    skpanel5_d, skpanel8_d, skpanel8a_d, skpanelt_d, snpanel12_d, sopanel2c_d,
-    sopanel30_d, sopanel32_d, sopanel34_d, sopanel34a_d, sopanel35a_d,
-    squaretile_d, stecolumn1yel_d, stecolumn2yel_d, stedoorframe2_trim_d,
-    stehalllight_d, stehalllight_off_d, stelabwafer1_d, stelabwafer2_d,
-    stelabwafer3_d, stemettrim_d, steribwall1yel_d, sterlightdecal_d,
-    stesilverswatch_d, steslashtrim_d, stetile4_d, stewall3bhaz_yel_d,
-    stewall4yel_d, stewall6yel_d, stewall7yel_d, strim_d, striplight3_d,
-    superpipes_d, tecpipe1blk_d, tecpipe1red_d, tecpipe1yel_d, tecpipebraid2_d,
-    tecpipebraid3_d, tecpipebraid4red_d, tecserver3_d, tecstairstepdirt_d,
-    topbox_d
-  );
-
-  subtype level_textures is Texture_id range a_conmonitorbackblk_d .. topbox_d;
-
   alpha: GL.Double:= 1.0;
 
   bri1, bri2,
@@ -287,20 +247,20 @@ procedure GLOBE_3D_Demo is
   procedure Create_objects(load: Boolean; doom3_custom: String) is
     t: constant:= 1.0;
     f2: Natural;
-    use GL, G3D;
+    use GL, G3D, G3D.Textures;
 
     function Basic_face(
-      P      : G3D.Index_array;
-      texture: Texture_id;
-      colour : GL.RGB_Color;
-      repeat : Positive)
+      P       : G3D.Index_array;
+      tex_name: String;
+      colour  : GL.RGB_Color;
+      repeat  : Positive)
     return Face_type
     is
       f: Face_type; -- takes defaults values
     begin
       f.P       := P;
       f.skin    := coloured_texture;
-      f.texture := Texture_id'Pos(texture);
+      f.texture := Texture_ID(tex_name);
       f.colour  := colour;
       f.alpha   := alpha;
       f.repeat_U:= repeat;
@@ -318,12 +278,12 @@ procedure GLOBE_3D_Demo is
       ( (-t,-t,-t), (-t, t,-t), ( t, t,-t), ( t,-t,-t),
         (-t,-t, t), (-t, t, t), ( t, t, t), ( t,-t, t));
     cube.face:=
-      ( Basic_face((3,2,6,7),face1,(1.0,0.0,0.0),1),
-        Basic_face((4,3,7,8),face2,(0.0,1.0,0.0),2),
-        Basic_face((8,7,6,5),face3,(0.0,0.0,1.0),3),
-        Basic_face((1,4,8,5),face4,(1.0,1.0,0.0),4),
-        Basic_face((2,1,5,6),face5,(0.0,1.0,1.0),5),
-        Basic_face((3,4,1,2),face6,(1.0,0.0,1.0),6));
+      ( Basic_face((3,2,6,7),"face1",(1.0,0.0,0.0),1),
+        Basic_face((4,3,7,8),"face2",(0.0,1.0,0.0),2),
+        Basic_face((8,7,6,5),"face3",(0.0,0.0,1.0),3),
+        Basic_face((1,4,8,5),"face4",(1.0,1.0,0.0),4),
+        Basic_face((2,1,5,6),"face5",(0.0,1.0,1.0),5),
+        Basic_face((3,4,1,2),"face6",(1.0,0.0,1.0),6));
     Set_name(cube.all,"Trust the Cube !");
     --
     -- Basic cube, but with half-faces as triangles
@@ -367,9 +327,9 @@ procedure GLOBE_3D_Demo is
       object => vhc_002,
       scale  => 100.0,
       centre => (80.0,0.0,-70.0),
-      metal_door    => Texture_id'Pos(portmet1),
-      metal_surface => Texture_id'Pos(fdmetal1),
-      bumped_blue   => Texture_id'Pos(bleubosl)
+      metal_door    => Texture_id("portmet1"),
+      metal_surface => Texture_id("fdmetal1"),
+      bumped_blue   => Texture_id("bleubosl")
     );
 
     Pre_calculate(vhc_002.all);
@@ -402,10 +362,10 @@ procedure GLOBE_3D_Demo is
       object => dreadnought_ship,
       scale  => 0.065,
       centre => (0.0,-250.0,-500.0),
-      alum_001 => Texture_id'Pos(alum_001),
-      alum_002 => Texture_id'Pos(alum_002),
-      grumnoir => Texture_id'Pos(grumnoir),
-      tole_001 => Texture_id'Pos(tole_001)
+      alum_001 => Texture_id("alum_001"),
+      alum_002 => Texture_id("alum_002"),
+      grumnoir => Texture_id("grumnoir"),
+      tole_001 => Texture_id("tole_001")
     );
     Pre_calculate(dreadnought_ship.all);
 
@@ -417,8 +377,8 @@ procedure GLOBE_3D_Demo is
       surface    => Extruded_surface.square,
       max_u3     => 0.2,
       iterations => 100,
-      hor_tex    => Texture_id'Pos(spacity1),
-      ver_tex    => Texture_id'Pos(spacity1),
+      hor_tex    => Texture_id("spacity1"),
+      ver_tex    => Texture_id("spacity1"),
       tiling_hu  => 1,
       tiling_hv  => 1,
       tiling_vu  => 2,
@@ -434,8 +394,8 @@ procedure GLOBE_3D_Demo is
       surface    => Extruded_surface.sphere,
       max_u3     => 0.03,
       iterations => 2000,
-      hor_tex    => Texture_id'Pos(alum_001),
-      ver_tex    => Texture_id'Pos(spacity1),
+      hor_tex    => Texture_id("alum_001"),
+      ver_tex    => Texture_id("spacity1"),
       tiling_hu  => 30, -- ~ 2 * v-tiling
       tiling_hv  => 15,
       tiling_vu  => 31, -- should be ~ 2*pi* v-tiling
@@ -447,12 +407,12 @@ procedure GLOBE_3D_Demo is
       object  => sierp,
       scale   => 200.0,
       centre  => (0.0,0.0,-300.0),
-      texture => (Texture_id'Pos(face1),
-                  Texture_id'Pos(face2),
-                  Texture_id'Pos(face3),
-                  Texture_id'Pos(face4),
-                  Texture_id'Pos(face5),
-                  Texture_id'Pos(face6)),
+      texture => (Texture_id("face1"),
+                  Texture_id("face2"),
+                  Texture_id("face3"),
+                  Texture_id("face4"),
+                  Texture_id("face5"),
+                  Texture_id("face6")),
       tiled   => False,
       fractal_level => 2
     );
@@ -461,7 +421,7 @@ procedure GLOBE_3D_Demo is
       object   => globe,
       scale    => 10.0,
       centre   => (0.0,0.0,-50.0),
-      mercator => Texture_id'Pos(earth_map),
+      mercator => Texture_id("earth_map"),
       parts    => 45
     );
     Set_name(globe.all,"The Earth !");
@@ -526,6 +486,8 @@ procedure GLOBE_3D_Demo is
         Load_Doom("Delta4g1");
       else
         G3D.Set_level_data_name(doom3_custom & ".zip");
+        G3D.Textures.Reset_textures;
+        G3D.Textures.Register_textures_from_resources;
         Load_Doom(doom3_custom);
       end if;
     else
@@ -540,12 +502,12 @@ procedure GLOBE_3D_Demo is
         kind    => Brick.cube,
         opening => (5 => True, others=> False),
         portal  => portal1,
-        texture => (Texture_id'Pos(face1),
-                    Texture_id'Pos(face2),
-                    Texture_id'Pos(face3),
-                    Texture_id'Pos(face4),
-                    Texture_id'Pos(face5),
-                    Texture_id'Pos(face6))
+        texture => (Texture_id("face1"),
+                    Texture_id("face2"),
+                    Texture_id("face3"),
+                    Texture_id("face4"),
+                    Texture_id("face5"),
+                    Texture_id("face6"))
       );
       Set_name(bri1.all,"Space station brick ONE");
 
@@ -556,7 +518,7 @@ procedure GLOBE_3D_Demo is
         kind    => Brick.cube,
         opening => (5|6 => True, others=> False),
         portal  => portal2,
-        texture => (others => Texture_id'Pos(alum_002))
+        texture => (others => Texture_id("alum_002"))
       );
       Set_name(bri2.all,"Space station brick TWO");
 
@@ -632,13 +594,16 @@ procedure GLOBE_3D_Demo is
   end Dump_objects;
 
   procedure Preload_textures is
-    dummy_boolean: Boolean;
+    -- dummy_boolean: Boolean;
   begin
     -- Pre-load textures of the game level to avoid
     -- delays by seeing new areas through portals
-    for t in level_textures loop
-      G3D.Textures.Check_2D_texture(Texture_id'Pos(t),dummy_boolean);
-    end loop;
+    null; -- !!
+    -- for t in level_textures loop
+    --   G3D.Textures.Check_2D_texture(
+    --   ??,
+    --   dummy_boolean);
+    -- end loop;
   end Preload_textures;
 
   procedure Display_scene(
@@ -1063,9 +1028,6 @@ procedure GLOBE_3D_Demo is
     end if;
   end Start_GLs;
 
-  procedure Texture_association is
-    new G3D.Textures.Associate_textures(Texture_id);
-
   -- Get eventual command line arguments.
 
   type Switch_Type is (
@@ -1102,9 +1064,10 @@ procedure GLOBE_3D_Demo is
 
 begin
   Get_arguments;
-  G3D.Set_level_data_name("G3Demo_Global_Resources.zip");
-  G3D.Set_global_data_name("G3Demo_Level_Resources.zip");
-  Texture_association;
+  G3D.Set_global_data_name("G3Demo_Global_Resources.zip");
+  G3D.Set_level_data_name("G3Demo_Level_Resources.zip");
+  --
+  G3D.Textures.Register_textures_from_resources;
 
   Create_objects(switch(load), To_String(custom));
   if switch(dump) then

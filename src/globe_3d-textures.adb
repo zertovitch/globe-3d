@@ -5,12 +5,17 @@ with Ada.Exceptions;                    use Ada.Exceptions;
 with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
+with Ada.Containers.Hashed_Maps;
+with Ada.Strings.Unbounded.Hash;
 
 package body GLOBE_3D.Textures is
 
+  ------------------------------------------------------------------
+  -- 1) Fast access though the number (Image_ID -> Texture_info): --
+  ------------------------------------------------------------------
   type Texture_info is record
-    loaded       : Boolean;
-    blending_hint: Boolean;
+    loaded       : Boolean:= False;
+    blending_hint: Boolean:= False;
     name         : Ident:= empty;
   end record;
 
@@ -19,12 +24,29 @@ package body GLOBE_3D.Textures is
 
   procedure Dispose is new Ada.Unchecked_Deallocation(Texture_info_array, p_Texture_info_array);
 
+  -----------------------------------
+  -- 2) Fast access through a name --
+  -----------------------------------
+
+  package Texture_Name_Mapping is new Ada.Containers.Hashed_Maps
+         (Ada.Strings.Unbounded.Unbounded_String,
+          Image_id,
+          Ada.Strings.Unbounded.Hash,
+          equivalent_keys => Ada.Strings.Unbounded."=");
+
   type Texture_2d_infos_type is record
-    tex              : p_Texture_info_array:= null;
-    last_entry_in_use: Image_ID:= null_image;
+    tex              : p_Texture_info_array;
+    map              : Texture_Name_Mapping.Map;
+    last_entry_in_use: Image_ID;
   end record;
 
-  texture_2d_infos: Texture_2d_infos_type;
+  empty_texture_2d_infos: constant Texture_2d_infos_type:=
+    ( null,
+      Texture_Name_Mapping.Empty_Map,
+      null_image
+    );
+
+  texture_2d_infos: Texture_2d_infos_type:= empty_texture_2d_infos;
 
   -----------------------------
   -- Load_texture (internal) --
@@ -75,19 +97,13 @@ package body GLOBE_3D.Textures is
 
   function Valid_texture_ID(id: Image_id) return Boolean is
   begin
-    if texture_2D_infos.tex = null then
-      raise Textures_not_reserved;
-    end if;
-    return id in texture_2d_infos.tex'Range;
+    return id in null_image+1 .. texture_2d_infos.last_entry_in_use;
   end Valid_texture_ID;
 
   procedure Check_2D_texture(id: Image_id; blending_hint: out Boolean) is
   begin
-    if texture_2D_infos.tex = null then
-      raise Textures_not_reserved;
-    end if;
-    if not Valid_texture_ID(id) then raise
-      Texture_out_of_range;
+    if not Valid_texture_ID(id) then
+      raise Undefined_texture_ID;
     end if;
     if texture_2D_infos.tex(id).loaded then
       blending_hint:= texture_2D_infos.tex(id).blending_hint;
@@ -114,54 +130,88 @@ package body GLOBE_3D.Textures is
     GL.BindTexture( GL.TEXTURE_2D, GL.Uint(Image_id'Pos(id)+1) );
   end Bind_2D_texture;
 
-  procedure Reserve_textures( last_id: Image_id ) is
+  procedure Reset_textures is
   begin
     if texture_2d_infos.tex /= null then
       Dispose(texture_2d_infos.tex);
     end if;
-    texture_2d_infos.tex:= new Texture_info_array(0..last_id);
-    texture_2d_infos.tex.all:= (others => (False,False,empty));
-  end Reserve_textures;
+    texture_2d_infos:= empty_texture_2d_infos;
+  end Reset_textures;
 
-  procedure Name_texture( id: Image_id; name: String ) is
+  procedure Add_texture_name( name: String; id: out Image_id ) is
+    new_tab: p_Texture_info_array;
     n_id: Ident:= empty;
+    pos: Texture_Name_Mapping.Cursor;
+    success: Boolean;
   begin
+    if texture_2d_infos.tex = null then
+      texture_2d_infos.tex:= new Texture_info_array(0..100);
+    end if;
+    if texture_2d_infos.last_entry_in_use >= texture_2d_infos.tex'Last then
+      -- We need to enlarge the table: we double it...
+      new_tab:= new Texture_info_array(0..texture_2d_infos.tex'Last * 2);
+      new_tab(texture_2d_infos.tex'Range):= texture_2d_infos.tex.all;
+      Dispose(texture_2d_infos.tex);
+      texture_2d_infos.tex:= new_tab;
+    end if;
+    id:= texture_2d_infos.last_entry_in_use + 1;
     for i in name'Range loop
       n_id(n_id'First + i - name'First):= name(i);
     end loop;
-    if texture_2D_infos.tex = null then
-      raise Textures_not_reserved;
-    end if;
-    if id not in texture_2d_infos.tex'Range then raise
-      Texture_out_of_range;
-    end if;
+    n_id:= To_Upper(n_id);
     texture_2d_infos.tex(id).name:= n_id;
     texture_2d_infos.last_entry_in_use:=
-      Image_ID'Max(texture_2d_infos.last_entry_in_use, id);
-  end Name_texture;
+    Image_ID'Max(texture_2d_infos.last_entry_in_use, id);
+    -- Feed the name dictionary with the new name:
+    Texture_Name_Mapping.Insert(
+      texture_2d_infos.map,
+      Ada.Strings.Unbounded.To_Unbounded_String(name),
+      id,
+      pos,
+      success
+    );
+    if not success then -- A.18.4. 45/2
+      raise Duplicate_name with name;
+    end if;
+  end Add_texture_name;
 
-  procedure Name_texture( name: String; id: out Image_id ) is
+  procedure Register_textures_from_resources is
+
+    procedure Register( zif: in out Zip.Zip_info; name: String ) is
+      procedure Action( name: String ) is
+        dummy: Image_id;
+        ext: constant String:= name(name'Last-3..name'Last);
+      begin
+        if ext = ".BMP" or ext = ".TGA" then
+          Add_texture_name(name(name'First..name'Last-4), dummy);
+        end if;
+      end Action;
+      procedure Traverse is new Zip.Traverse(Action);
+    begin
+      Load_if_needed( zif, name );
+      Traverse(zif);
+      -- That's it!
+    end Register;
+
   begin
-    id:= texture_2d_infos.last_entry_in_use + 1;
-    Name_Texture(id, name);
-  end Name_texture;
+    Register( zif_level,  To_String(level_data_name) );
+    Register( zif_global, To_String(global_data_name) );
+  end Register_textures_from_resources;
 
   procedure Associate_textures is
+    dummy: Image_id;
   begin
-    Reserve_textures( Texture_enum'Pos(Texture_enum'Last) );
+    Reset_textures;
     for t in Texture_enum loop
-      Name_Texture( Texture_enum'Pos(t), Texture_enum'Image(t) );
+      Add_texture_name( Texture_enum'Image(t), dummy );
     end loop;
   end Associate_textures;
 
   function Texture_name( id: Image_id; trim: Boolean ) return Ident is
     tn: Ident;
   begin
-    if texture_2D_infos.tex = null then
-      raise Textures_not_reserved;
-    end if;
-    if id not in texture_2d_infos.tex'Range then raise
-      Texture_out_of_range;
+    if not Valid_texture_ID(id) then
+      raise Undefined_texture_ID;
     end if;
     tn:= texture_2d_infos.tex(id).name;
     if trim then
@@ -171,24 +221,15 @@ package body GLOBE_3D.Textures is
     end if;
   end Texture_name;
 
-  function Texture_ID( name: Ident ) return Image_ID is
-    up_name: constant Ident:= To_Upper(name);
+  function Texture_ID( name: String ) return Image_ID is
+    up_name: constant String:= To_Upper(name);
   begin
-    if texture_2D_infos.tex = null then
-      raise Textures_not_reserved;
-    end if;
-    for id in texture_2d_infos.tex'Range loop
-      if up_name = To_Upper(texture_2d_infos.tex(id).name) then
-        return id;
-      end if;
-    end loop;
-    raise_exception(
-      Texture_name_not_found'Identity,
-      " Texture: [" & Trim(name,both) & ']'
-    );
-    raise Constraint_Error;
-    -- ^ fake, just some compilers warn because they don't know that
-    --   raise_exception will raise an exception.
+    return Texture_Name_Mapping.Element(
+            texture_2d_infos.map,
+            Ada.Strings.Unbounded.To_Unbounded_String(Trim(up_name,both)));
+  exception
+    when Constraint_Error =>
+      raise Undefined_texture_name with " Texture: [" & Trim(name,both) & ']';
   end Texture_ID;
 
 end GLOBE_3D.Textures;

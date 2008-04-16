@@ -30,8 +30,6 @@ begin
    define (Viewer_2);
    define (Viewer_3);
 
-   G3D.Textures.Reserve_Textures(6);
-
    box.create (the_Object);
 
    the_Object.Centre := (0.0, 2.0, -5.0);

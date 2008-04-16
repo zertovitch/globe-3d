@@ -225,7 +225,7 @@ package GLOBE_3D is
    -- One can begin with empty_map, then Add Visuals one per one:
    function empty_map return Map_of_Visuals;
    procedure Add( to_map: in out Map_of_Visuals; what: p_Visual );
-   Add_error: exception;
+   Duplicate_name: exception;
    -- One can also get a map of an array of visuals in one go:
    function Map_of( va: Visual_array ) return Map_of_Visuals;
 

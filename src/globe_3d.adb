@@ -395,7 +395,7 @@ package body GLOBE_3D is
       end loop;
       if is_textured(o.face(f).skin) and then
          not Textures.Valid_texture_ID(o.face(f).texture) then
-        raise_exception(Textures.Texture_out_of_range'Identity,
+        raise_exception(Textures.Undefined_texture_ID'Identity,
            o.id & " face="   & Integer'Image(f) &
                   " skin="   & Skin_Type'Image(o.face(f).skin) &
                   " texture_id=" & Image_ID'Image(o.face(f).texture));
@@ -1440,17 +1440,17 @@ package body GLOBE_3D is
 
    procedure Add( to_map: in out Map_of_Visuals; what: p_Visual ) is
     pos: Visuals_Mapping.Cursor;
-    suc: Boolean;
+    success: Boolean;
    begin
       Visuals_Mapping.Insert(
         Visuals_Mapping.Map(to_map),
         Ada.Strings.Unbounded.To_Unbounded_String(what.ID),
         what,
         pos,
-        suc
+        success
       );
-     if not suc then
-       raise Add_Error;
+     if not success then -- A.18.4. 45/2
+       raise Duplicate_name with what.ID;
      end if;
    end Add;
 
