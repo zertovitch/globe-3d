@@ -19,7 +19,7 @@ with GLOBE_3D,
 
 with GLU, GLUT.Devices, GLUT_2D;
 
-with Ego, Game_control;
+with Actors, Game_control;
 
 ---------------
 -- 3D models --
@@ -114,10 +114,7 @@ procedure GLOBE_3D_Demo is
 
   deg2rad   : constant:= pi / 180.0;
 
-  field_of_view_angle: constant:= 55.0;
-
-  -- For culling portals (culling # 1)
-  max_dot_product : G3D.Real:= 0.0;
+  ego: G3D.Camera;
 
   procedure Reset_for_3D( width, height: Integer ) is
     use GL, G3D, G3D.REF;
@@ -127,12 +124,12 @@ procedure GLOBE_3D_Demo is
     MatrixMode( PROJECTION );
     LoadIdentity;
     aspect:= GL.Double(width) / GL.Double(height);
-    fovy:= field_of_view_angle;
+    fovy:= ego.FOVy;
     half_fov_max_rads:= 0.5 * fovy * deg2rad;
     if aspect > 1.0 then -- x side angle broader than y side angle
       half_fov_max_rads:= ArcTan(aspect * Tan(half_fov_max_rads));
     end if;
-    max_dot_product:= Sin(half_fov_max_rads);
+    ego.clipper.max_dot_product:= Sin(half_fov_max_rads);
     GLU.Perspective(
       fovy   => fovy,
       -- field of view angle (deg) in the y direction
@@ -607,13 +604,17 @@ procedure GLOBE_3D_Demo is
     Disable( LIGHTING );
     Enable( DEPTH_TEST );
     MatrixMode( MODELVIEW );
-    Set_GL_Matrix(Ego.world_rotation);
-    Stars.Display(Ego.world_rotation);
+    Set_GL_Matrix(ego.world_rotation);
+    Stars.Display(ego.world_rotation);
     Enable( LIGHTING );
     Enable( CULL_FACE );
     CullFace( BACK );
 
-    Translate ( -Ego.eye(0), -Ego.eye(1), -Ego.eye(2) );
+    GL.Translate (
+      -ego.clipper.eye_position(0),
+      -ego.clipper.eye_position(1),
+      -ego.clipper.eye_position(2)
+    );
 
     PushMatrix;
     ------------------------
@@ -621,9 +622,9 @@ procedure GLOBE_3D_Demo is
     ------------------------
     G3D.Display(
       o,
-      ( Ego.eye,
-        Ego.view_direction,
-        max_dot_product,
+      ( ego.clipper.eye_position,
+        ego.clipper.view_direction,
+        ego.clipper.max_dot_product,
         (0,0,Integer(main_size_x)-1,Integer(main_size_y)-1)
       )
     );
@@ -656,8 +657,12 @@ procedure GLOBE_3D_Demo is
       GLUT_2D.Text_output(0,40,main_size_x, main_size_y,"Ctrl mode: "  &
         Boolean'Image(gc( Game_control.ctrl_mode )), GLUT_2D.Helvetica_10);
 
-      GLUT_2D.Text_output(0,50,main_size_x, main_size_y,"Eye: " & Coords(Ego.eye) & " reset: 0",GLUT_2D.Helvetica_10);
-      GLUT_2D.Text_output(0,60,main_size_x, main_size_y,"View direction: " & Coords(Ego.view_direction),GLUT_2D.Helvetica_10);
+      GLUT_2D.Text_output(0,50,main_size_x, main_size_y,"Eye: " &
+        Coords(ego.clipper.eye_position) &
+        " reset: 0",GLUT_2D.Helvetica_10
+      );
+      GLUT_2D.Text_output(0,60,main_size_x, main_size_y,"View direction: " &
+        Coords(ego.clipper.view_direction),GLUT_2D.Helvetica_10);
 
       for i in light_info'Range loop
         if Is_light_switched(i) then
@@ -738,8 +743,8 @@ procedure GLOBE_3D_Demo is
 
   procedure Reset_eye is
   begin
-    Ego.eye:= ( 0.0, 0.0, 4.0 );
-    Ego.world_rotation:= Globe_3D.Id_33;
+    ego.clipper.eye_position:= ( 0.0, 0.0, 4.0 );
+    ego.world_rotation:= G3D.Id_33;
   end Reset_eye;
 
   screenshot_count: Natural:= 0;
@@ -750,6 +755,8 @@ procedure GLOBE_3D_Demo is
   video_declared_rate: constant:= 30;
   seconds_video: Long_Float; -- seconds since last captured image
   trigger_video: constant Long_Float:= 1.0 / Long_Float(video_rate);
+
+  object_rotation_speed: G3D.Vector_3D:= ( 0.0, 0.0, 0.0 );
 
   procedure Main_operations is
 
@@ -843,18 +850,20 @@ procedure GLOBE_3D_Demo is
     -------------------------------------
     if gc( ctrl_mode ) then
       if Can_be_rotated then
-        Ego.Abstract_rotation(
+        Actors.Abstract_rotation(
           gc => gc,
           gx => gx,
           gy => gy,
           unitary_change => seconds,
           deceleration   => attenu_r,
           matrix         => bestiaire(beast).rotation,
-          time_step      => seconds
+          time_step      => seconds,
+          rotation_speed => object_rotation_speed
         );
       end if;
     else
-      Ego.Eye_rotation(
+      Actors.Rotation(
+        actor => ego,
         gc => gc,
         gx => gx,
         gy => gy,
@@ -867,7 +876,8 @@ procedure GLOBE_3D_Demo is
     --------------------
     -- Moving the eye --
     --------------------
-    Ego.Eye_translation(
+    Actors.Translation(
+      actor => ego,
       gc => gc,
       gx => gx,
       gy => gy,
@@ -878,7 +888,7 @@ procedure GLOBE_3D_Demo is
 
     if beast = bri_idx then
       -- The cheapest Binary Space Partition ever !...
-      if Ego.eye(2) < -50.0 then
+      if ego.clipper.eye_position(2) < -50.0 then
         bestiaire(bri_idx):= bri2;
       else
         bestiaire(bri_idx):= bri1;
@@ -887,7 +897,7 @@ procedure GLOBE_3D_Demo is
       declare
         area: p_Object_3D;
       begin
-        G3D.BSP.Locate(Ego.eye, level_BSP, area);
+        G3D.BSP.Locate(ego.clipper.eye_position, level_BSP, area);
         if area = null then
           null; -- not found, we keep the previous one
         else
@@ -896,9 +906,12 @@ procedure GLOBE_3D_Demo is
       end;
     end if;
 
-    Ego.view_direction:= Transpose(Ego.world_rotation) * (0.0,0.0,-1.0);
+    Ego.clipper.view_direction:= Transpose(Ego.world_rotation) * (0.0,0.0,-1.0);
 
-    frontal_light.position:= (GL.Float(Ego.eye(0)),GL.Float(Ego.eye(1)),GL.Float(Ego.eye(2)),1.0);
+    frontal_light.position:= (
+      GL.Float(ego.clipper.eye_position(0)),
+      GL.Float(ego.clipper.eye_position(1)),
+      GL.Float(ego.clipper.eye_position(2)),1.0);
     G3D.Define( 1, frontal_light);
 
     if gc( n0 ) then

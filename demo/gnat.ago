@@ -5,6 +5,8 @@
 WINDOWS_TARGET
 
 
+attenu_r
+max_dot_
 bind_
 load
 mylev
@@ -13,8 +15,6 @@ load_do
 Level_Doom
 Level_Doom(
 dump
-delta4g1
-bsp
 -- Begin compiler switches
 RELEASE <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

@@ -1,4 +1,4 @@
--gnatf -aI.. -aI..\..\bindings -aI..\..\bindings\win32 -aI..\unzip
+-gnatf -aI.. -aI..\..\bindings -aI..\..\bindings\win32 -aI..\unzip -aI..\gl
 -i -aO..\..\obj\gnatdebg
 
 

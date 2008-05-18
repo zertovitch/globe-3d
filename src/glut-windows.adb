@@ -13,20 +13,19 @@ with GLOBE_3D,
      GLOBE_3D.Math,
      GLOBE_3D.Software_Anti_Aliasing;
 
-with Ego;
+with Actors;
 with GLUT_2D;  --, GLUT_Exit;
 
-with Ada.Text_IO;
+-- with Ada.Text_IO;
 
 with Ada.Numerics;                      use Ada.Numerics;
 with Ada.unchecked_Conversion;
 
-with Ada.Containers.Generic_Array_Sort;
+-- with Ada.Containers.Generic_Array_Sort;
 
 with Ada.Calendar;
---with Ada.Calendar.Formatting;   use Ada.Calendar.Formatting; -- for Image(t:Time); we use a proxy here
 
-with System.Storage_Elements;
+-- with System.Storage_Elements;
 
 
 
@@ -555,29 +554,26 @@ package body glut.Windows is
 
       -- Rotating the eye
 
-      Ego.Eye_rotation (gc => self.game_command,
+      Actors.Rotation ( self.Camera,
+                        gc => self.game_command,
                         gx => gx,
                         gy => gy,
                         unitary_change => seconds,
                         deceleration   => attenu_r,
-                        time_step      => time_Step,
-                        the_world_rotation => self.Camera.world_Rotation'access,
-                        the_rotation_speed => self.Camera.rotation_Speed'access);
+                        time_step      => time_Step);
 
 
 
 
       -- Moving the eye
 
-      Ego.Eye_translation(gc => self.game_command,
+      Actors.Translation( self.Camera,
+                          gc => self.game_command,
                           gx => gx,
                           gy => gy,
                           unitary_change     => seconds,
                           deceleration       => attenu_t,
-                          time_step          => time_Step,
-                          the_eye            => self.Camera.Clipper.eye_Position'access,
-                          the_world_rotation => self.Camera.world_Rotation'access,
-                          the_speed          => self.Camera.Speed'access);
+                          time_step          => time_Step);
 
 
       if self.game_command (n0) then

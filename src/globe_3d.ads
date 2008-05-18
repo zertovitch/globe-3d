@@ -122,28 +122,28 @@ package GLOBE_3D is
 
    type Camera is tagged
       record
-         Clipper             :         Clipping_data      := (eye_position    => (0.0,  0.0,  5.0),
-                                                              view_direction  => (0.0,  0.0, -1.0),
-                                                              max_dot_product => 0.0,
-                                                              main_clipping   => (0, 0, 0, 0));
-         world_Rotation      : aliased Globe_3D.Matrix_33 := Globe_3D.Id_33;
-         Speed               : aliased Globe_3D.Vector_3D := (0.0, 0.0, 0.0);
-         rotation_Speed      : aliased Globe_3D.Vector_3D := (0.0, 0.0, 0.0);
+         Clipper             : Clipping_data:= (eye_position    => (0.0,  0.0,  5.0),
+                                                view_direction  => (0.0,  0.0, -1.0),
+                                                max_dot_product => 0.0,
+                                                main_clipping   => (0, 0, 0, 0));
+         world_Rotation      : Matrix_33 := Id_33;
+         Speed               : Vector_3D := (0.0, 0.0, 0.0);
+         rotation_Speed      : Vector_3D := (0.0, 0.0, 0.0);
 
-         FOVy                :         Real               := default_field_of_view_Angle;  -- field of view angle (deg) in the y direction
-         Aspect              :         Real;                                               -- x/y aspect ratio
+         FOVy                : Real  := default_field_of_view_Angle;  -- field of view angle (deg) in the y direction
+         Aspect              : Real;                                  -- x/y aspect ratio
 
-         near_plane_Distance :         Real               := 1.0;                          -- distance to the near clipping plane
-         near_plane_Width    :         Real;
-         near_plane_Height   :         Real;
+         near_plane_Distance : Real  := 1.0;                          -- distance to the near clipping plane
+         near_plane_Width    : Real;
+         near_plane_Height   : Real;
 
-         far_plane_Distance  :         Real               := fairly_Far;                   -- distance to the far clipping plane
-         far_plane_Width     :         Real;
-         far_plane_Height    :         Real;
+         far_plane_Distance  : Real  := fairly_Far;                   -- distance to the far clipping plane
+         far_plane_Width     : Real;
+         far_plane_Height    : Real;
 
-         Projection_Matrix   :         Globe_3D.Matrix_44;
+         Projection_Matrix   : Matrix_44;
 
-         frustum_Planes      :         gl.frustums.plane_Array;
+         frustum_Planes      : gl.frustums.plane_Array;
       end record;
 
    type p_Camera is access all Camera'Class;
@@ -427,7 +427,7 @@ package GLOBE_3D is
 
 
 
-  -- Windowing management
+  -- Abstract windowing management
   --
 
   type Window is abstract tagged
