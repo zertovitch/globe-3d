@@ -32,7 +32,7 @@ with Vehic001, Vehic002, X29,
      Dreadnought,
      --  VRML_scene,
      --  gmax_scene,
-     Doom3_Level,
+     --  Doom3_Level,
      Extruded_surface,
      Sierpinski
      ;
@@ -235,7 +235,7 @@ procedure GLOBE_3D_Demo is
           exit;
       end;
       area_max:= i;
-      G3D.Add(level_map, G3D.p_Visual(ls(i))); -- add to dico
+      G3D.Add(level_map, G3D.p_Visual(ls(i))); -- add to dictionary
     end loop;
     G3D.IO.Load(name, level_map, level_BSP); -- load BSP tree
     level_stuff:= new G3D.Object_3D_array'(ls(1..area_max));
@@ -459,6 +459,18 @@ procedure GLOBE_3D_Demo is
       end case;
     end loop;
 
+    --
+    -- Load a Doom 3 level from .g3d/.bsp files
+    --
+    if doom3_custom = "" then
+      Load_Doom("Delta4g1");
+    else
+      G3D.Set_level_data_name(doom3_custom & ".zip");
+      G3D.Textures.Reset_textures;
+      G3D.Textures.Register_textures_from_resources;
+      Load_Doom(doom3_custom);
+    end if;
+
     if load then
       -- We test here the loading and mutual linking
       -- of some objects dumped by the -dump option.
@@ -476,17 +488,6 @@ procedure GLOBE_3D_Demo is
       end;
       Set_name(bri1.all,"Space station brick ONE (loaded)");
       Set_name(bri2.all,"Space station brick TWO (loaded)");
-      --
-      -- Load the Doom 3 level:
-      --
-      if doom3_custom = "" then
-        Load_Doom("Delta4g1");
-      else
-        G3D.Set_level_data_name(doom3_custom & ".zip");
-        G3D.Textures.Reset_textures;
-        G3D.Textures.Register_textures_from_resources;
-        Load_Doom(doom3_custom);
-      end if;
     else
       -- Create objects, don't load them (default).
       --
@@ -522,19 +523,6 @@ procedure GLOBE_3D_Demo is
       -- Connecting portals:
       bri1.face(portal1(5)).connecting:= bri2;
       bri2.face(portal2(6)).connecting:= bri1;
-      --
-      -- Create the Doom 3 level:
-      --
-      Doom3_Level.Create(
-        level_stuff,
-        level_BSP,
-        (-1468.0+1294.0,+616.0,-1754.0-770.0)
-      );
-      -- "Delta4" area0: -1168.0,+484.0,-2152.0
-      -- 0.0,0.0,0.0
-      for i in level_stuff'Range loop
-        G3D.Add(level_map, p_Visual(level_stuff(i)));
-      end loop;
     end if;
 
     -- Relink Doom 3 level (either loaded or created):
