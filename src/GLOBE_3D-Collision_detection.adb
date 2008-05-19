@@ -3,7 +3,7 @@ with GLOBE_3D.Math;                     use GLOBE_3D.Math;
 package body GLOBE_3D.Collision_detection is
 
   procedure Reaction(
-    o           : Object_3D;
+    o           : Object_3D'Class;
     ball        : Ball_type;
     method      : Reaction_method;
     step        : in out Vector_3D; -- Whole step (in: desired, out: effective)

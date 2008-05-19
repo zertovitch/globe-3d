@@ -15,7 +15,8 @@ with GLOBE_3D,
      GLOBE_3D.Math,
      GLOBE_3D.Textures,
      GLOBE_3D.Software_Anti_Aliasing,
-     GLOBE_3D.Stars_sky;
+     GLOBE_3D.Stars_sky,
+     GLOBE_3D.Collision_detection;
 
 with GLU, GLUT.Devices, GLUT_2D;
 
@@ -746,9 +747,30 @@ procedure GLOBE_3D_Demo is
 
   object_rotation_speed: G3D.Vector_3D:= ( 0.0, 0.0, 0.0 );
 
+  detect_collisions: Boolean:= False;
+
   procedure Main_operations is
 
     use GL, G3D, G3DM, G3D.REF, Game_control;
+
+    procedure My_Limiting(step: in out GLOBE_3D.Vector_3D) is
+      use G3D.Collision_detection;
+      radius: constant:= 0.5;
+      reacted: Real; -- unused further
+    begin
+      if detect_collisions then
+        Reaction(
+          bestiaire(beast).all,
+          (ego.clipper.eye_position, radius),
+          slide,
+          step,
+          reacted
+        );
+      end if;
+    end My_Limiting;
+
+    procedure My_Limited_Translation is
+    new Actors.Limited_Translation(My_Limiting);
 
     function Can_be_rotated return Boolean is
     begin
@@ -833,6 +855,10 @@ procedure GLOBE_3D_Demo is
       end loop;
     end if;
 
+    if gc(toggle_10) then
+      detect_collisions:= not detect_collisions;
+    end if;
+
     -------------------------------------
     -- Rotating they eye or the object --
     -------------------------------------
@@ -864,7 +890,7 @@ procedure GLOBE_3D_Demo is
     --------------------
     -- Moving the eye --
     --------------------
-    Actors.Translation(
+    My_Limited_Translation(
       actor => ego,
       gc => gc,
       gx => gx,

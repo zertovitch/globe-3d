@@ -1,13 +1,13 @@
 ------------------------------------------------------------------------------
 --  File:            Game_control.ads
 --  Description:     Command set for games, based on GLUT
---  Copyright (c) Gautier de Montmollin 2002, 2005, 2006
+--  Copyright (c) Gautier de Montmollin 2002, 2005..2008
 ------------------------------------------------------------------------------
 -- Cannibalized from Game_Driving (see Engine_3D)
 
 --  To do: programmable behaviour
 
-with GL, glut.Devices;
+with GL, GLUT.Devices;
 
 package Game_control is
 
@@ -36,6 +36,7 @@ package Game_control is
     special_plus,
     special_minus,
       photo, video,
+    toggle_10,
     interrupt_game,
       n0,n1,n2,n3,n4,n5,n6,n7,n8,n9, -- numeric keys
     bogus_command  -- a control can be directed on this
@@ -63,8 +64,8 @@ package Game_control is
               warp_mouse : in     Boolean;                  -- recenter mouse cursor
               c          : in out game_control.Command_set; -- commands are added to c
               gx,gy      :    out GL.Double;                -- mouse movement since last call
-              keyboard   : access glut.devices.Keyboard := glut.devices.default_Keyboard'access;
-              mouse      : access glut.devices.Mouse    := glut.devices.default_Mouse'access
+              keyboard   : access GLUT.devices.Keyboard := GLUT.devices.default_Keyboard'access;
+              mouse      : access GLUT.devices.Mouse    := GLUT.devices.default_Mouse'access
   );
 
 

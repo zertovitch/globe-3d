@@ -14,11 +14,11 @@ package body Game_control is
               warp_mouse   : in     Boolean;     -- recenter mouse cursor
               c            : in out game_Control.Command_set; -- commands are added to c
               gx,gy        :    out GL.Double;   -- mouse movement since last call
-              Keyboard   : access glut.devices.Keyboard := glut.devices.default_Keyboard'access;
-              Mouse      : access glut.devices.Mouse    := glut.devices.default_Mouse'access
+              Keyboard   : access GLUT.devices.Keyboard := GLUT.devices.default_Keyboard'access;
+              Mouse      : access GLUT.devices.Mouse    := GLUT.devices.default_Mouse'access
   )
    is
-    use glut.Devices;
+    use GLUT.Devices;
 
     sensib: constant:= 8.0;
     dx,dy: Integer;
@@ -31,14 +31,14 @@ package body Game_control is
 
     -- Clavier: !! lettres: clavier CH
 
-    c( slide_mode ):=     Keyboard.modif_set( glut.Active_alt );
+    c( slide_mode ):=     Keyboard.modif_set( GLUT.Active_alt );
 
     if c( slide_mode ) then
-      c( slide_up ):=       Keyboard.special_set( glut.key_page_up );
-      c( slide_down ):=     Keyboard.special_set( glut.key_page_down );
+      c( slide_up ):=       Keyboard.special_set( GLUT.key_page_up );
+      c( slide_down ):=     Keyboard.special_set( GLUT.key_page_down );
     else
-      c( turn_up ):=        Keyboard.special_set( glut.key_page_up );
-      c( turn_down ):=      Keyboard.special_set( glut.key_page_down );
+      c( turn_up ):=        Keyboard.special_set( GLUT.key_page_up );
+      c( turn_down ):=      Keyboard.special_set( GLUT.key_page_down );
       c( slide_left ):=     Keyboard.normal_set( 'A' );
       c( slide_right ):=    Keyboard.normal_set( 'D' );
       c( slide_up ):=       Keyboard.normal_set( 'R' );
@@ -55,26 +55,27 @@ package body Game_control is
     end loop;
 
 
-    c( photo ):=          Strike_once( glut.key_F12, Keyboard );
-    c( video ):=          Strike_once( glut.key_F11, Keyboard );
+    c( photo ):=          Strike_once( GLUT.key_F12, Keyboard );
+    c( video ):=          Strike_once( GLUT.key_F11, Keyboard );
+    c( toggle_10 ):=      Strike_once( GLUT.key_F10, Keyboard );
 
     c( interrupt_game ):= Keyboard.normal_set( ASCII.ESC );
-    c( go_forward ):=     Keyboard.special_set( glut.key_up )
+    c( go_forward ):=     Keyboard.special_set( GLUT.key_up )
                           or
                           Keyboard.normal_set( 'W' );
-    c( go_backwards ):=   Keyboard.special_set( glut.key_down )
+    c( go_backwards ):=   Keyboard.special_set( GLUT.key_down )
                           or
                           Keyboard.normal_set( 'S' );
-    c( run_mode ):=       Keyboard.modif_set( glut.Active_shift );
-    c( ctrl_mode ):=      Keyboard.modif_set( glut.Active_ctrl );
+    c( run_mode ):=       Keyboard.modif_set( GLUT.Active_shift );
+    c( ctrl_mode ):=      Keyboard.modif_set( GLUT.Active_ctrl );
 
 
     -----------
     -- Mouse --
     -----------
 
-    if Mouse.button_state( glut.LEFT_BUTTON )  then c( go_forward ):= True; end if;
-    if Mouse.button_state( glut.RIGHT_BUTTON ) then c( slide_mode ):= True; end if;
+    if Mouse.button_state( GLUT.LEFT_BUTTON )  then c( go_forward ):= True; end if;
+    if Mouse.button_state( GLUT.RIGHT_BUTTON ) then c( slide_mode ):= True; end if;
 
     dx:= Mouse.mx - Mouse.oldx;
     dy:= Mouse.my - Mouse.oldy;
@@ -104,18 +105,18 @@ package body Game_control is
        (abs(Mouse.mx-size_x/2) > size_x/4 or abs(Mouse.my-size_y/2) > size_y/4) then
       Mouse.oldx:= size_x/2;
       Mouse.oldy:= size_y/2;
-      glut.WarpPointer(Mouse.oldx, Mouse.oldy);
+      GLUT.WarpPointer(Mouse.oldx, Mouse.oldy);
     else
       Mouse.oldx:= Mouse.mx;
       Mouse.oldy:= Mouse.my;
     end if;
 
     if c( slide_mode ) then
-      c( slide_left ):=     Keyboard.special_set( glut.key_left );
-      c( slide_right ):=    Keyboard.special_set( glut.key_right );
+      c( slide_left ):=     Keyboard.special_set( GLUT.key_left );
+      c( slide_right ):=    Keyboard.special_set( GLUT.key_right );
     else
-      c( turn_left ):=      Keyboard.special_set( glut.key_left );
-      c( turn_right ):=     Keyboard.special_set( glut.key_right );
+      c( turn_left ):=      Keyboard.special_set( GLUT.key_left );
+      c( turn_right ):=     Keyboard.special_set( GLUT.key_right );
     end if;
 
   end Append_commands;

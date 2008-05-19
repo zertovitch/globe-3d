@@ -5,7 +5,7 @@ package body Actors is
 
   use GLOBE_3D, GLOBE_3D.Math, GLOBE_3D.REF, Game_control, GL;
 
-  procedure Translation(
+  procedure Limited_Translation(
     actor         : in out GLOBE_3D.Camera;
     gc            : Game_control.Command_set;
     gx,gy         : GLOBE_3D.Real;
@@ -54,11 +54,28 @@ package body Actors is
       --    speed(2) );  -- forward/backwards
       --   -- ^ vector in the local referential
 
+    Limiting(step);
+
     actor.clipper.eye_position:= actor.clipper.eye_position + step;
 
     actor.speed:= deceleration * actor.speed;
 
-  end Translation;
+  end Limited_Translation;
+
+  procedure No_Limitation(step: in out GLOBE_3D.Vector_3D) is
+  null;
+
+  procedure Translation_inst is new Limited_Translation(No_Limitation);
+
+  procedure Translation(
+    actor         : in out GLOBE_3D.Camera;
+    gc            : Game_control.Command_set;
+    gx,gy         : GLOBE_3D.Real;
+    unitary_change: GLOBE_3D.Real;
+    deceleration  : GLOBE_3D.Real;
+    time_step     : GLOBE_3D.Real
+  )
+  renames Translation_inst;
 
   procedure Rotation(
     actor         : in out GLOBE_3D.Camera;
