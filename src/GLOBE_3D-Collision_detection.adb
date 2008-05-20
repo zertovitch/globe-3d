@@ -10,7 +10,7 @@ package body GLOBE_3D.Collision_detection is
     reacted     : out Real          -- in proportion to step
   )
   is
-    P0rf,P1rf: Point_3D;
+    P_after_step: Point_3D;
     u,n : Vector_3D;
     dist: Real; -- distance orientee
     retour: Real:= 0.0;
@@ -21,26 +21,27 @@ package body GLOBE_3D.Collision_detection is
 
     function Dans_prisme_epaissi(f: Positive) return Boolean is
       sfp1: Positive;
-      js, jsp1: Positive;
       Ps, Psp1: Point_3D;
-      u,a,npa: Vector_3D;
-      dsp: Real;
+      u, edge_vector, npa: Vector_3D;
+      dist_edge, nnpa: Real;
       facteur: constant:= 1.1;
     begin
+      -- Cycle through face's vertices
       for sf in reverse 1..o.Face_invariant(f).last_edge loop
         sfp1:= 1 + sf mod o.Face_invariant(f).last_edge;
-        js  := o.Face_invariant(f).P_compact(sf);
-        jsp1:= o.Face_invariant(f).P_compact(sfp1);
-        Ps  := o.point(js);
-        Psp1:= o.point(jsp1);
-        a:= Psp1 - Ps; -- vecteur arete
-         -- npa: ortho a la face num. sf du prisme engendre
-         --      par la face de l'objet et la normale au plan
-        npa:= n*a; -- npa vers interieur du prisme
-        npa:= 1.0/Norm(npa) * npa;
-        u:= P1rf - (o.point(js) + o.Centre);
-        dsp:= u * npa;
-        if dsp < - ball.radius * facteur then
+        Ps  := o.point( o.Face_invariant(f).P_compact(sf)   );
+        Psp1:= o.point( o.Face_invariant(f).P_compact(sfp1) );
+        edge_vector:= Psp1 - Ps;
+        npa:= n * edge_vector;
+        nnpa:= Norm(npa);
+        if Almost_Zero(nnpa) then -- degenerated edge
+          return False;
+        end if;
+        npa:= 1.0/nnpa * npa;
+        -- npa points towards the prism's interior
+        u:= P_after_step - (Ps + o.Centre);
+        dist_edge:= u * npa;
+        if dist_edge < - ball.radius * facteur then
           return False;
         end if;
       end loop;
@@ -53,14 +54,13 @@ package body GLOBE_3D.Collision_detection is
       return;
     end if;
 
-    P0rf:= ball.centre;
+    P_after_step:= ball.centre + step;
 
-    P1rf:= P0rf + step;
     for face in reverse 1..o.Max_faces loop
       n:= o.Face_invariant(face).normal;
       if step * n < 0.0 then
         j1:= o.Face_invariant(face).P_compact(1);
-        u:= P1rf - (o.point(j1)+o.Centre);
+        u:= P_after_step - (o.point(j1) + o.Centre);
         dist:= u * n;
         if dist < ball.radius -- ouch! react we must!
           -- this includes negatives values of dist

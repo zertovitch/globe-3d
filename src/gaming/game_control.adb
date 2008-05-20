@@ -2,8 +2,8 @@
 --  This file contains the body, please refer to specification (.ads file)
 -----------------------------------------------------------------------------
 
-with Interfaces;
-with Ada.Characters.Handling;           use Ada.Characters.Handling;
+-- with Interfaces;
+-- with Ada.Characters.Handling;           use Ada.Characters.Handling;
 
 package body Game_control is
 

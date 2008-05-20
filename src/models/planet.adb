@@ -59,12 +59,24 @@ package body Planet is
     k:= 1;
     for j in 0..n-2 loop
       for i in 0..n-2 loop
-        face_0.P:= (n*j+i+1, n*j+i+2, n*j+i+n+2, n*j+i+n+1);
+        if j=0 then
+          face_0.P:= (i+1, 0, i+n+2, i+n+1);
+        elsif j=n-2 then
+          face_0.P:= (n*j+i+1, n*j+i+2, n*j+i+n+2, 0);
+        else
+          face_0.P:= (n*j+i+1, n*j+i+2, n*j+i+n+2, n*j+i+n+1);
+        end if;
         Map_texture(i,j);
         object.face(k):= face_0;
         k:= k + 1;
       end loop;
-      face_0.P:= (n*j+n, n*j+1, n*j+n+1, n*j+n+n);
+      if j=0 then
+        face_0.P:= (n, 0, n*j+n+1, n*j+n+n);
+      elsif j=n-2 then
+        face_0.P:= (n*j+n, n*j+1, n*j+n+1, 0);
+      else
+        face_0.P:= (n*j+n, n*j+1, n*j+n+1, n*j+n+n);
+      end if;
       Map_texture(n-1,j);
       object.face(k):= face_0;
       k:= k + 1;

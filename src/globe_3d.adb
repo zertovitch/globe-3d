@@ -310,13 +310,22 @@ package body GLOBE_3D is
       end loop;
       -- * Face invariant : Normal of unrotated face
       N:= (0.0, 0.0, 0.0);
-      Add_Normal_of_3p(o, fa.P(1), fa.P(2), fa.P(4), N);
-      -- We sum other normals for not too flat faces,
-      -- in order to have a convenient average
-      Add_Normal_of_3p(o, fa.P(2), fa.P(3), fa.P(1), N);
-      Add_Normal_of_3p(o, fa.P(3), fa.P(4), fa.P(2), N);
-      Add_Normal_of_3p(o, fa.P(4), fa.P(1), fa.P(3), N);
-      -- NB: it also fits for triangles !
+      case fi.last_edge is
+        when 3 =>
+          Add_Normal_of_3p(o,
+            fi.P_compact(1),
+            fi.P_compact(2),
+            fi.P_compact(3),
+            N
+          );
+        when 4 =>
+          Add_Normal_of_3p(o, fa.P(1), fa.P(2), fa.P(4), N);
+          -- We sum other normals for not perfectly flat faces,
+          -- in order to have a convenient average...
+          Add_Normal_of_3p(o, fa.P(2), fa.P(3), fa.P(1), N);
+          Add_Normal_of_3p(o, fa.P(3), fa.P(4), fa.P(2), N);
+          Add_Normal_of_3p(o, fa.P(4), fa.P(1), fa.P(3), N);
+      end case;
       length_N:= Norm( N );
       if Almost_zero(length_N) then
         if strict_geometry then
@@ -396,9 +405,10 @@ package body GLOBE_3D is
       if is_textured(o.face(f).skin) and then
          not Textures.Valid_texture_ID(o.face(f).texture) then
         raise_exception(Textures.Undefined_texture_ID'Identity,
-           o.id & " face="   & Integer'Image(f) &
-                  " skin="   & Skin_Type'Image(o.face(f).skin) &
-                  " texture_id=" & Image_ID'Image(o.face(f).texture));
+           Trim(o.id, right) &
+           " face="   & Integer'Image(f) &
+           " skin="   & Skin_Type'Image(o.face(f).skin) &
+           " texture_id=" & Image_ID'Image(o.face(f).texture));
       end if;
     end loop;
     for p in o.point'Range loop
@@ -406,7 +416,9 @@ package body GLOBE_3D is
         if strict_geometry then
           -- Strict approach: detect any unmatched point:
           raise_exception(point_unmatched'Identity,
-            o.id & " pt="&Integer'Image(p));
+            Trim(o.id, right) &
+            " point " & Integer'Image(p) &
+            " belongs to none of the object's face");
         end if;
       else
         length:= Norm( o.edge_vector(p) );

@@ -579,6 +579,8 @@ procedure GLOBE_3D_Demo is
     G3D.IO.Save_file("Delta4g1", level_BSP);
   end Dump_objects;
 
+  detect_collisions: Boolean:= False;
+
   procedure Display_scene(
     o: in out G3D.Object_3D'Class;
     gc: Game_control.Command_set;
@@ -586,6 +588,12 @@ procedure GLOBE_3D_Demo is
     technical_infos: Boolean
   )
   is
+    procedure Msg(line: GL.Int; s: String) is
+    begin
+      GLUT_2D.Text_output(
+        0,line,main_size_x, main_size_y, s, GLUT_2D.Helvetica_10
+      );
+    end Msg;
     use GL, G3D, G3D.REF, G3DM;
     light_info: String(1..8);
   begin
@@ -634,24 +642,18 @@ procedure GLOBE_3D_Demo is
       GLUT_2D.Text_output( (0.0,1.0,0.0),"y", GLUT_2D.Times_Roman_24 );
       GLUT_2D.Text_output( (0.0,0.0,1.0),"z", GLUT_2D.Times_Roman_24 );
 
-      GLUT_2D.Text_output(0,10,main_size_x, main_size_y,
-        "Name (Space key for next object or scene): " & Get_name(o) &
+      Msg(10, "Name (Space key for next object or scene): " & Get_name(o) &
         " # of points" & Integer'Image(o.max_points) &
-        " # of faces"  & Integer'Image(o.max_faces)
-        , GLUT_2D.Helvetica_10);
-      GLUT_2D.Text_output(0,20,main_size_x, main_size_y,"Run mode (Shift): "   &
-        Boolean'Image(gc( Game_control.run_mode )), GLUT_2D.Helvetica_10);
-      GLUT_2D.Text_output(0,30,main_size_x, main_size_y,"Slide mode (Alt): " &
-        Boolean'Image(gc( Game_control.slide_mode )), GLUT_2D.Helvetica_10);
-      GLUT_2D.Text_output(0,40,main_size_x, main_size_y,"Ctrl mode: "  &
-        Boolean'Image(gc( Game_control.ctrl_mode )), GLUT_2D.Helvetica_10);
+        " # of faces"  & Integer'Image(o.max_faces));
+      Msg(20, "Run mode (Shift): " &
+        Boolean'Image(gc( Game_control.run_mode )));
+      Msg(30, "Slide mode (Alt): " &
+        Boolean'Image(gc( Game_control.slide_mode )));
+      Msg(40, "Ctrl mode: "  &
+        Boolean'Image(gc( Game_control.ctrl_mode )));
 
-      GLUT_2D.Text_output(0,50,main_size_x, main_size_y,"Eye: " &
-        Coords(ego.clipper.eye_position) &
-        " reset: 0",GLUT_2D.Helvetica_10
-      );
-      GLUT_2D.Text_output(0,60,main_size_x, main_size_y,"View direction: " &
-        Coords(ego.clipper.view_direction),GLUT_2D.Helvetica_10);
+      Msg(50, "Eye: " & Coords(ego.clipper.eye_position) & " reset: 0" );
+      Msg(60, "View direction: " & Coords(ego.clipper.view_direction));
 
       for i in light_info'Range loop
         if Is_light_switched(i) then
@@ -660,20 +662,17 @@ procedure GLOBE_3D_Demo is
           light_info(i):= 'x';
         end if;
       end loop;
-      GLUT_2D.Text_output(0,70,main_size_x, main_size_y,"Lights: [" & light_info & ']',GLUT_2D.Helvetica_10);
-      GLUT_2D.Text_output(0,80,main_size_x, main_size_y,
-        "Objects seen: " & Natural'Image(info_b_ntl2)
-      , GLUT_2D.Helvetica_10);
+      Msg(70, "Lights: [" & light_info & ']');
+      Msg(80, "Objects seen: " & Natural'Image(info_b_ntl2));
       if beast = level_idx then
-        GLUT_2D.Text_output(0,90,main_size_x, main_size_y,
-          "BSP depth: " & Natural'Image(info_b_ntl1) &
+        Msg(90, "BSP depth: " & Natural'Image(info_b_ntl1) &
           ". Area found: " & Boolean'Image(info_b_bool1) &
-          ". BSP path: " & To_String(info_b_str1)
-        , GLUT_2D.Helvetica_10);
+          ". BSP path: " & To_String(info_b_str1));
       end if;
+      Msg(100, "Collision detection: " & Boolean'Image(detect_collisions));
 
       if sec > 0.0 then
-        GLUT_2D.Text_output(0,130,main_size_x, main_size_y,"FPS: " & Integer'Image(Integer(1.0/sec)), GLUT_2D.Helvetica_10);
+        Msg(140, "FPS: " & Integer'Image(Integer(1.0/sec)));
       end if;
 
       PopMatrix;
@@ -746,8 +745,6 @@ procedure GLOBE_3D_Demo is
   trigger_video: constant Long_Float:= 1.0 / Long_Float(video_rate);
 
   object_rotation_speed: G3D.Vector_3D:= ( 0.0, 0.0, 0.0 );
-
-  detect_collisions: Boolean:= False;
 
   procedure Main_operations is
 
@@ -998,8 +995,8 @@ procedure GLOBE_3D_Demo is
       GLUT_options:= GLUT_options or GLUT.MULTISAMPLE;
     end if;
     InitDisplayMode( GLUT_options );
-    main_size_x:= 500;
-    main_size_y:= 400;
+    main_size_x:= 520;
+    main_size_y:= 420;
     --  -- Mini Web video:
     --  main_size_x:= 200;
     --  main_size_y:= 128;
