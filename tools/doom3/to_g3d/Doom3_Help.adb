@@ -262,6 +262,11 @@ package body Doom3_Help is
   procedure Dispose is
     new Ada.Unchecked_Deallocation( Map_idx_pair_array, p_Map_idx_pair_array);
 
+  type p_Index_array is access Index_array;
+
+  procedure Dispose is
+    new Ada.Unchecked_Deallocation( Index_array, p_Index_array);
+
   type Surface is record
     texture_name : Unbounded_String;
     npoints      : Natural;
@@ -269,7 +274,10 @@ package body Doom3_Help is
     point        : GLOBE_3D.p_Point_3D_array;
     uv           : p_Map_idx_pair_array;
     tri          : p_Face_array; -- only tri(t).P used there!
+    tri_d3       : p_Face_array; -- tri_d3(t).P has Doom 3 indices
+    d3_pt_to_pt  : p_Index_array; -- The Doom 3 points are redundant
     curr_pt      : Natural;
+    curr_d3_pt   : Natural;
     curr_uv      : Natural;
     curr_tri     : Natural;
   end record;
@@ -285,6 +293,8 @@ package body Doom3_Help is
       Dispose(surface_stack(i).point);
       Dispose(surface_stack(i).uv);
       Dispose(surface_stack(i).tri);
+      Dispose(surface_stack(i).tri_d3);
+      Dispose(surface_stack(i).d3_pt_to_pt);
     end loop;
     surface_top:= 0;
     surface_count:= 0;
@@ -309,20 +319,37 @@ package body Doom3_Help is
       st.texture_name:= U(name);
       st.npoints:= npoints;
       st.nfaces:=  nfaces;
-      st.point:= new Point_3D_array(1..npoints);
-      st.uv   := new Map_idx_pair_array(1..npoints);
-      st.tri  := new Face_array(1..nfaces);
-      st.curr_pt  := 0;
-      st.curr_uv  := 0;
-      st.curr_tri := 0;
+      st.point      := new Point_3D_array(1..npoints);
+      st.d3_pt_to_pt:= new Index_array(1..npoints);
+      st.uv         := new Map_idx_pair_array(1..npoints);
+      st.tri        := new Face_array(1..nfaces);
+      st.tri_d3     := new Face_array(1..nfaces);
+      st.curr_pt   := 0;
+      st.curr_d3_pt:= 0;
+      st.curr_uv   := 0;
+      st.curr_tri  := 0;
     end;
   end;
 
   procedure Set_current_surface_current_point(p: Point_3D) is
     st: Surface renames surface_stack(surface_top);
+    use GLOBE_3D.Math;
   begin
+    st.curr_d3_pt:= st.curr_d3_pt + 1;
+    for i in 1..st.curr_pt loop
+      if Almost_zero(Norm(st.point(i) - P)) then
+        --  Put_Line( Standard_Error,
+        --    "Duplicate point: pt #" & Integer'Image(i) &
+        --    " is same as intended for #" & Integer'Image(st.curr_pt)
+        --  );
+        total_points:= total_points - 1;
+        st.d3_pt_to_pt(st.curr_d3_pt):= i;
+        return;
+      end if;
+    end loop;
     st.curr_pt:= st.curr_pt + 1;
     st.point(st.curr_pt):= P;
+    st.d3_pt_to_pt(st.curr_d3_pt):= st.curr_pt;
   end;
 
   procedure Set_current_surface_current_uv(uv: GLOBE_3D.Map_idx_pair) is
@@ -334,9 +361,24 @@ package body Doom3_Help is
 
   procedure Set_current_surface_current_triangle is
     st: Surface renames surface_stack(surface_top);
+    w1: Integer:= st.d3_pt_to_pt(v1+1);
+    w2: Integer:= st.d3_pt_to_pt(v2+1);
+    w3: Integer:= st.d3_pt_to_pt(v3+1);
+    use GLOBE_3D.Math;
   begin
+    if (v1=v2 or v2=v3 or v1=v3 or        -- <- original idx same
+        w1=w2 or w2=w3 or w1=w3) or else  -- <- distinct vertices same
+        Almost_zero(                      -- <- 2 vertices aligned,
+          Norm((st.point(w1)-st.point(w2)) * (st.point(w1)-st.point(w3)))
+        )
+    then -- our triangle is not a triangle (stands on a line!)
+      -- Put_Line( Standard_Error, "Degenerated triangle detected" );
+      total_faces:= total_faces - 1;
+      return;
+    end if;
     st.curr_tri:= st.curr_tri + 1;
-    st.tri(st.curr_tri).P:= (v1,v2,v3,Integer'Last);
+    st.tri(st.curr_tri).P:= (w1,w2,w3,Integer'Last);
+    st.tri_d3(st.curr_tri).P:= (v1,v2,v3,Integer'Last);
   end;
 
   function Get_surface_texture_name(nb: Natural) return String is
@@ -400,30 +442,51 @@ package body Doom3_Help is
   face_0      : GLOBE_3D.Face_type; -- takes defaults values
   face_portal : GLOBE_3D.Face_type; -- prototype for portals
 
+  whole_pts, whole_tris, whole_d3_pts, whole_d3_tris: Natural:= 0;
+
   procedure Build_Model is
     p,f, p_mem: Natural:= 0;
-    doom3_vertex_number: Integer;
+    local_vertex_number: Integer;
+    d3_vertex_number: Integer;
     m: Model renames model_stack(model_top);
     use GLOBE_3D;
   begin
     m.obj:= new Object_3D(total_points,total_faces);
     max_faces := Integer'Max(max_faces, total_faces);
     max_points:= Integer'Max(max_points,total_points);
+    New_Line( Standard_Error );
+    Put_Line( Standard_Error,
+      "   -->" & Integer'Image(total_points) &
+      " distinct points, of" & Integer'Image(d3_total_points)
+    );
+    Put_Line( Standard_Error,
+      "   and" & Integer'Image(total_faces) &
+      " non-degenerated faces, of" & Integer'Image(d3_total_faces) &
+      " i.e. " & Integer'Image(d3_total_faces - total_faces) &
+      " are degenerated"
+    );
+    whole_pts := whole_pts + total_points;
+    whole_tris:= whole_tris + total_faces;
+    whole_d3_pts := whole_d3_pts + d3_total_points;
+    whole_d3_tris:= whole_d3_tris + d3_total_faces;
+
     for i in 1..surface_count loop
       p_mem:= p;
-      for ps in surface_stack(i).point'Range loop
+      for ps in 1..surface_stack(i).curr_pt loop
         p:= p + 1;
         m.obj.point(p):= surface_stack(i).point(ps);
       end loop;
-      for fs in surface_stack(i).tri'Range loop
+      for fs in 1..surface_stack(i).curr_tri loop
         for s in 1..3 loop
-          doom3_vertex_number:=
+          local_vertex_number:=
             surface_stack(i).tri(fs).P(4-s);
+          d3_vertex_number:=
+            surface_stack(i).tri_d3(fs).P(4-s);
             -- vertex nb for this surface; (4-s) to invert orientation
-          face_0.P(s):= doom3_vertex_number + (p_mem+1); -- add the offset!
+          face_0.P(s):= local_vertex_number + p_mem; -- add the offset!
           -- Set the texture coordinates
           face_0.texture_edge_map(s):= surface_stack(i).uv(
-            doom3_vertex_number + 1
+            d3_vertex_number + 1
           );
         end loop;
         f:= f + 1;
@@ -612,6 +675,18 @@ package body Doom3_Help is
       Put_Line(log, "Centered on area #: " & Integer'Image(area_centering));
     end if;
     New_Line(log);
+    Put_Line(log,
+      "All vertices, distinct per model" & Integer'Image(whole_pts) &
+      "  from" & Integer'Image(whole_d3_pts) &
+      ", i.e." & Integer'Image((100*whole_pts)/whole_d3_pts) &
+      '%'
+    );
+    Put_Line(log,
+      "All valid triangles" & Integer'Image(whole_tris) &
+      "  from" & Integer'Image(whole_d3_tris) &
+      ", i.e." & Integer'Image((100*whole_tris)/whole_d3_tris) &
+      '%'
+    );
     for i in 1..model_top loop
       declare
         m: Model renames model_stack(i);

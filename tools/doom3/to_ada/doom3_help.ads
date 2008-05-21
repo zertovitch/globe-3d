@@ -36,6 +36,7 @@ package Doom3_Help is
   surface_count: Natural;
 
   total_points, total_faces: Natural;
+  d3_total_points, d3_total_faces: Natural;
 
   v1,v2,v3: Natural;
 

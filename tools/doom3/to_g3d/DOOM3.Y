@@ -107,6 +107,8 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                  Reset_surfaces;
                  total_points:= 0;
                  total_faces:= 0;
+                 d3_total_points:= 0;
+                 d3_total_faces:= 0;
                }
                Sky
                Surfaces -- the surfaces themselves
@@ -152,11 +154,13 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                NUMBER -- numVerts
                { num_vertices:= yylval.intval;
                  total_points:= total_points + num_vertices;
+                 d3_total_points:= d3_total_points + num_vertices;
                 }
                NUMBER -- numIndexes
                {
                  num_indices := yylval.intval;
                  total_faces:= total_faces + num_indices / 3;
+                 d3_total_faces:= d3_total_faces + num_indices / 3;
                  if consider_current_model then
                    Add_surface(
                      Get_current_texture,
@@ -175,8 +179,6 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                  -- Put_Line( Standard_Error, "  - Vertices " & Image(num_vertices));
                }
                Surface_Vertices
-               {
-                 if consider_current_model then
 
 
 
@@ -185,10 +187,12 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
 
 
-                   triangle_count:= 0;
-                 end if;
-                 -- Put_Line( Standard_Error, "  - Indices " & Image(num_vertices));
-               }
+
+
+
+
+
+
                Surface_Indices
                '}'
                {
@@ -267,7 +271,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                   Surface_Index
                   {
                     if consider_current_model then
-                      triangle_count:= triangle_count + 1;
+
 
 
 
@@ -284,7 +288,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                 |
                   Surface_Index -- last or only index
                   { if consider_current_model then
-                      triangle_count:= triangle_count + 1;
+
 
 
 
