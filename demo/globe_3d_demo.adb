@@ -579,7 +579,7 @@ procedure GLOBE_3D_Demo is
     G3D.IO.Save_file("Delta4g1", level_BSP);
   end Dump_objects;
 
-  detect_collisions: Boolean:= False;
+  detect_collisions: Boolean:= True;
 
   procedure Display_scene(
     o: in out G3D.Object_3D'Class;
@@ -752,7 +752,7 @@ procedure GLOBE_3D_Demo is
 
     procedure My_Limiting(step: in out GLOBE_3D.Vector_3D) is
       use G3D.Collision_detection;
-      radius: constant:= 0.5;
+      radius: constant:= 4.0;
       reacted: Real; -- unused further
     begin
       if detect_collisions then
@@ -1044,8 +1044,9 @@ procedure GLOBE_3D_Demo is
   type Switch_Type is (
     load, -- load some scenes from .g3d files stored in the GLOBE_3D
           --        resource files, instead of rebuilding them (default)
-          -- "-load=mylevel" sets "mylevel.zip" as level resource; loads
-          -- mylevel_$_area#.g3d with #=1,2,3...; loads mylevel.bsp.
+          --   "-load=mylevel" sets "mylevel.zip" as level resource;
+          --   from that resource, loads mylevel_$_area#.g3d with #=1,2,3...
+          --   and loads mylevel.bsp.
     dump  -- dump all objects of the demo to .g3d files
   );
 

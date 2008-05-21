@@ -32,7 +32,8 @@ The Copyright statement appears in GLOBE_3D.ads.
  <li>full eye movements and rotations
  <li>displays combinations of colours, materials, textures
  <li>transparency
- <li>multiple area rendering with the portal technique, e.g. for inner scenes
+ <li>multiple area rendering with the portal technique, e.g. for large inner scenes
+ <li>collision detection
  <li>binary space partition (BSP)
  <li>extruded surface generator
  <li>easy management of resources like textures, stored in .zip files
@@ -101,6 +102,7 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
   <tr><td><td>    0     <td> - <td> reset eye position and orientation
   <tr><td><td>    1..9  <td> - <td> switch a light on / off
   <tr><td><td>    space <td> - <td> next object (or group of objects)
+  <tr><td><td>    F10   <td> - <td> collision detection on / off
   <tr><td><td>    F11   <td> - <td> video capture (.avi) on / off
   <tr><td><td>    F12   <td> - <td> screenshot (.bmp)
 
@@ -111,8 +113,9 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
  <ul>
  <li> <tt>-dump</tt> : dumps all objects in the demo as <tt>.g3d</tt> <tt>.bsp</tt> files
  <li> <tt>-load</tt> : load both objects ("bricks") of the "space station" demo,
-                       as well as those of the Doom 3 level,
                        instead of creating them with Ada code
+ <li> <tt>-load=mylevel</tt> : sets "mylevel.zip" as level resource; from that resource, loads
+                               mylevel_$_area#.g3d with #=1,2,3...; loads mylevel.bsp.
  </ul>
  </p>
 <li>
@@ -298,8 +301,6 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
   (some items may go beyond the scope of graphics and GLOBE_3D):
  <p>
   <ul>
-   <li> Collision detection e.g. (for objects seen from outside) by testing distance to a
-        bounding ellipsoid, then a rough convex polyhedron, then the least faces possible
    <li> Move reusable parts of the big demo to Game_Control or other packages (GLUT.Windows in the works)
    <li> Game_Control: add support for configuration files
    <li> 3D Studio / GMAX: see in the max2ada.ms file
