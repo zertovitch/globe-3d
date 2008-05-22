@@ -190,7 +190,7 @@ package body Doom3_Help is
     use Ada.Text_IO;
     f: File_type;
     n: Natural:= 0;
-    type Style_kind is (Ada_enum, Unzip_list, Unzip_cmd, add_suffix);
+    type Style_kind is (Ada_enum, Unzip_list, Unzip_cmd, add_suffix, copy_fakes);
     junk_opt: String(1..2):= "  ";
 
     procedure Traverse( p: p_dir_node; style: Style_kind ) is
@@ -220,6 +220,8 @@ package body Doom3_Help is
               Put_Line(f,"if exist " & tex & "_s.tga     del " & tex & "_s.tga");
               Put_Line(f,"if exist " & tex & "_h.tga     del " & tex & "_h.tga");
               Put_Line(f,"if exist " & tex & "_local.tga del " & tex & "_local.tga");
+            when copy_fakes =>
+              Put_Line(f, "copy _fake.tga tmp\" & p.name & ".tga");
           end case;
         end;
         n:= n + 1;
@@ -242,6 +244,8 @@ package body Doom3_Help is
         when Unzip_cmd =>
           null;
         when Add_suffix =>
+          null;
+        when copy_fakes =>
           null;
       end case;
       Traverse(catalogue,style);

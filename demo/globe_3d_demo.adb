@@ -472,7 +472,7 @@ procedure GLOBE_3D_Demo is
       Load_Doom(doom3_custom);
     end if;
 
-    if load then
+    if load and doom3_custom = "" then
       -- We test here the loading and mutual linking
       -- of some objects dumped by the -dump option.
       --
