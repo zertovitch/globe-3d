@@ -26,6 +26,10 @@
 -- http://www.opensource.org/licenses/mit-license.php
 
 -------------------------------------------------------------------------
+-- Change log
+--
+-- 21-May-2008: GM: slide mode working, by adding dist_before > 0.0
+-- 14-May-2008: GM: package created (re-used most of old Engine_3D)
 
 package GLOBE_3D.Collision_detection is
 

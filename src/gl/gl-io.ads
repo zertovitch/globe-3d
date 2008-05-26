@@ -19,10 +19,10 @@
 --                    - capture a video of the current, active viewport
 --                        to an AVI file
 --
---  Date / Version:  10-May-2007; 13-Oct-2006; 30-Apr-2006; ... ; 28-Feb-2002
---  Author:          G. de Montmollin
 ------------------------------------------------------------------------------
 -- Change log:
+--
+-- 26-May-2008 (GdM): added support for TGA images with RLE encoding
 --
 -- 27-Jan-2008 (RK):  added 'Image' record and a function to get greyscale pixels from an Image.
 --

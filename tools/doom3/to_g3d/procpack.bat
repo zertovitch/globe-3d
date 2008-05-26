@@ -2,9 +2,13 @@
 
 call make_d3g
 
-echo ** Build and save objects, BSP, etc. from %1.proc
+echo ** Build and save objects, BSP, etc. from %1.proc into %1.zip
 
-d3g -j -a %1.proc -c0
+if not exist %1.proc unzip %1.zip %1.proc
+
+if     "%2"=="" d3g -j -a %1.proc -c0
+if not "%2"=="" d3g -j -a %1.proc %2 %3 %4 %5 %6 %7 %8
+
 
 echo ** Make / update %1.zip file with the stuff
 
@@ -32,4 +36,6 @@ cd..
 
 echo ** Display!
 
-GLOBE_3D_Demo.exe -load=%1
+echo GLOBE_3D_Demo.exe -load=%1 >%1.bat
+
+%1
