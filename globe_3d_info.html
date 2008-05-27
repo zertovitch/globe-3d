@@ -7,12 +7,12 @@ The Copyright statement appears in GLOBE_3D.ads.
 
 <hr>
 <ol>
-<li><a href=#features>Quick feature list</a>
-<li><a href=#demo>Navigating in 3D with the main demo</a>
+<li><a href=#features>Quick <b>feature</b> list</a>
+<li><a href=#demo>Navigating in 3D with the main <b>demo</b></a>
 <li><a href=#build>How to build the engine</a>
 <li><a href=#prog>Programming notes around GLOBE_3D</a>
-<li><a href=#tools>Tools provided with GLOBE_3D</a>
-<li><a href=#resources>Web Resources</a>
+<li><a href=#tools><b>Tools</b> provided with GLOBE_3D</a>
+<li><a href=#resources><b>Web</b> Resources</a>
 <li><a href=#bugs>Open bugs</a>
 <li><a href=#todo>To-do list</a>
 <li><a href=#thanks>Thanks</a>
@@ -234,7 +234,26 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
           some compilers.
      <li> <tt>./tools/doom3/to_g3d</tt> contains a file converter, <b>d3g</b>, that uses GLOBE_3D "behind the scenes"
           for building in-memory the objects and then write binary files (.g3d, .bsp) that GLOBE_3D.IO is
-          able to load in an application.
+          able to load in an application.<br>
+          The batch script <tt>procpack.bat</tt> allows a relatively easy way
+          to automatize the packaging of a game level.
+          If you have such a file (search the Internet for
+          "<a href=http://www.google.com/search?q=Doom+3+Map>Doom 3 Map</a>" or
+          "<a href=http://www.google.com/search?q=Quake+4+Map>Quake 4 map</a>"),
+          extract the <tt>.pk4</tt> file, that is indeed a .zip file.
+          Then, put all textures in, say, <tt>mylevel.zip</tt>; store it
+          in the <tt>./tools/doom3/to_ada</tt>.
+          In the same directory, put the .proc file, renamed if needed as
+          <tt>mylevel.proc</tt>.
+          If you have Doom 3, Quake 4, or any game of that family,
+          you may want to adjust the line with "pak004" in
+          <tt>procpack.bat</tt>. You also need the following utilites:
+          zip, unzip, 7zip (the latter has powerful name matching features).
+          When everything is ready, run "procpack mylevel".
+          You'll get an updated <tt>mylevel.zip</tt> with all textures,
+          3D objects corresponding to areas and the BSP tree.
+          <tt>GLOBE_3D_Demo -load=mylevel</tt> will then load the game level,
+          and you can navigate in it...
     </ul>
    <li> <b>gl_overloader.adb</b> : a simple procedure that writes a chunk of Ada code,
         with overloaded names for various GL routines with different C names
@@ -248,9 +267,9 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
 </a>
  <p>
   <ul>
-   <li> Present Web page for <b>GLOBE_3D</b>: <a target=_blank href=http://www.mysunrise.ch/users/gdm/g3d.htm>here</a>.<br>&nbsp;
+   <li> Present Web page for <b>GLOBE_3D</b>: <a target=_blank href=http://globe3d.sf.net>here</a>.<br>&nbsp;
    
-   <li> <b>GLOBE_3D</b> SourceForge site: <a target=_blank href=http://sourceforge.net/projects/globe3d/>here</a>.
+   <li> <b>GLOBE_3D</b> SourceForge project site: <a target=_blank href=http://sf.net/projects/globe3d/>here</a>.
      &nbsp;
      <a target=_blank href="http://sourceforge.net"><img
      src="http://sflogo.sourceforge.net/sflogo.php?group_id=215365&amp;type=4" 
@@ -305,8 +324,6 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
    <li> Game_Control: add support for configuration files
    <li> 3D Studio / GMAX: see in the max2ada.ms file
    <li> (demo) improve lightings, better calibrate mouse movements
-   <li> addition and morphing of objects, like in 
-        <a target=_blank href=http://homepage.sunrise.ch/mysunrise/gdm/e3d_html/eng3dmor__ads.htm>Engine_3D</a>
    <li> I/O: 1) include the pseudo-normal vectors on vertices 2) store texture name only if different
    <li> possibility to impose custom pseudo-normal vectors on vertices
    <li> implement sub-objects or neighour-objects (linked lists)
@@ -350,7 +367,7 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
   <p>
   <ul>
    <li>Main author and project coordinator: Gautier de Montmollin, Switzerland
-       e-mail: <a target=_blank href=http://homepage.sunrise.ch/mysunrise/gdm/email.htm>here</a>.
+       e-mail: <a target=_blank href=http://sf.net/users/gdemont/>here</a>.
   </ul>
   </p>
 </ol>

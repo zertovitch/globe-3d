@@ -24,18 +24,29 @@ md tmp
 cd tmp
 del *.bmp
 del *.tga
-cd..
-call %1_textures_copy_fakes
-cd tmp
 
-call 7zip e -y -i@..\%1_textures_unzip_list.txt C:\Transferts\Doom3map\pak004.zip
+echo   ** Put: Original textures
+7z e -y -i@..\%1_textures_unzip_list.txt C:\temp\pak004.pk4
+
+echo   ** Put: Modified textures, e.g. stored as BMP's with palette
+7z e -y -i@..\%1_textures_unzip_list.txt ..\palettex.zip
+
+echo   ** Put: Already stored textures
 unzip -o ..\%1.zip *.tga *.bmp
+
+echo   ** Put: Fake images for missing textures
+call ..\%1_textures_copy_fakes
+
+echo   ** Do some filtering
 call ..\%1_textures_add_tex_suffix
+
+echo   ** Store all these pictures
 zip ..\%1.zip *.bmp *.tga
+
 cd..
 
 echo ** Display!
 
 echo GLOBE_3D_Demo.exe -load=%1 >%1.bat
 
-%1
+start %1

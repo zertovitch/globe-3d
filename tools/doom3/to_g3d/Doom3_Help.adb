@@ -191,6 +191,23 @@ package body Doom3_Help is
     f: File_type;
     n: Natural:= 0;
     type Style_kind is (Ada_enum, Unzip_list, Unzip_cmd, add_suffix, copy_fakes);
+
+    function File_suffix(style: Style_kind) return String is
+    begin
+      case style is
+        when Ada_Enum =>
+          return "_enum.ada";
+        when Unzip_list =>
+          return "_unzip_list.txt";
+        when Unzip_cmd =>
+          return "_unzip.bat";
+        when Add_suffix =>
+          return "_add_tex_suffix.bat";
+        when copy_fakes =>
+          return "_copy_fakes.bat";
+      end case;
+    end;
+
     junk_opt: String(1..2):= "  ";
 
     procedure Traverse( p: p_dir_node; style: Style_kind ) is
@@ -209,10 +226,10 @@ package body Doom3_Help is
                 Put(f,junk(p.name) & ',');
               end;
             when Unzip_list =>
-              Put_Line(f, tex & ".tga");
-              Put_Line(f, p.name & ".tga");
+              Put_Line(f, tex & "*");
+              Put_Line(f, p.name & "*");
             when Unzip_cmd  =>
-              Put_Line(f,"unzip " & junk_opt & " pak004.zip " & p.name & "*");
+              Put_Line(f,"unzip " & junk_opt & " C:\Transferts\Doom3map\pak004.zip " & p.name & "*");
             when add_suffix =>
               Put_Line(f,"if not exist " & p.name & ".tga ren " & tex & ".tga " & p.name & ".tga");
               Put_Line(f,"if exist " & tex & ".tga       del " & tex & ".tga");
@@ -220,8 +237,9 @@ package body Doom3_Help is
               Put_Line(f,"if exist " & tex & "_s.tga     del " & tex & "_s.tga");
               Put_Line(f,"if exist " & tex & "_h.tga     del " & tex & "_h.tga");
               Put_Line(f,"if exist " & tex & "_local.tga del " & tex & "_local.tga");
+              Put_Line(f,"if exist " & p.name & ".bmp del " & p.name & ".tga");
             when copy_fakes =>
-              Put_Line(f, "copy _fake.tga tmp\" & p.name & ".tga");
+              Put_Line(f, "if not exist " & p.name & ".tga copy ..\_fake.tga " & p.name & ".tga");
           end case;
         end;
         n:= n + 1;
@@ -233,26 +251,16 @@ package body Doom3_Help is
     if junk_dirs then
       junk_opt:= "-j";
     end if;
-    Create(f,out_file, pkg & "_textures.txt");
     for style in Style_kind loop
       n:= 0;
-      Put_Line(f,"***" & Style_kind'Image(style) & ':');
-      case style is
-        when Ada_Enum => null;
-        when Unzip_list =>
-          Put_Line(f,"7zip e -i@list.txt pak004.zip");
-        when Unzip_cmd =>
-          null;
-        when Add_suffix =>
-          null;
-        when copy_fakes =>
-          null;
-      end case;
+      Create(f,out_file, pkg & "_textures" & File_suffix(style));
       Traverse(catalogue,style);
-      New_Line(f);
+      Close(f);
     end loop;
-    Put_Line(f, "*** Total: " & Image(n) & " distinct textures");
-    Close(f);
+    Put_Line(
+      Standard_Error,
+      "*** Total: " & Image(n) & " distinct textures"
+    );
   end Write_catalogue;
 
   --------------
@@ -657,8 +665,8 @@ package body Doom3_Help is
             s:= s + m.obj.point(p);
           end loop;
           s:= s * (1.0 / Real(m.last_point));
-          m.avg_point:= s;
         end if;
+        m.avg_point:= s;
       end;
     end loop;
     if area_centering >= 0 then
