@@ -5,6 +5,8 @@
 WINDOWS_TARGET
 
 
+traverse
+raise_
 2005
 glblendfunc
 @
@@ -13,8 +15,6 @@ init
 gnat
 vertex3dv
 vertex 
-vertex
-new_lin
 -- Begin compiler switches
 RELEASE <- active (current) build mode
 TRUE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

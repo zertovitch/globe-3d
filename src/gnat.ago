@@ -5,6 +5,8 @@
 WINDOWS_TARGET
 
 
+p_Object_3D
+object_3d_arr
 transla
 camera
 window
@@ -13,8 +15,6 @@ invariant
 Rebuild_Links
 hint
 texture
-index_arr
-dispose
 -- Begin compiler switches
 RELEASE <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

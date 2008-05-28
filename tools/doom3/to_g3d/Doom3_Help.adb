@@ -190,7 +190,11 @@ package body Doom3_Help is
     use Ada.Text_IO;
     f: File_type;
     n: Natural:= 0;
-    type Style_kind is (Ada_enum, Unzip_list, Unzip_cmd, add_suffix, copy_fakes);
+    type Style_kind is
+     (Ada_enum, Unzip_list, Unzip_cmd,
+      add_suffix1,
+      add_suffix2,
+      copy_fakes);
 
     function File_suffix(style: Style_kind) return String is
     begin
@@ -201,8 +205,10 @@ package body Doom3_Help is
           return "_unzip_list.txt";
         when Unzip_cmd =>
           return "_unzip.bat";
-        when Add_suffix =>
-          return "_add_tex_suffix.bat";
+        when Add_suffix1 =>
+          return "_add_tex_suffix1.bat";
+        when Add_suffix2 =>
+          return "_add_tex_suffix2.bat";
         when copy_fakes =>
           return "_copy_fakes.bat";
       end case;
@@ -226,20 +232,21 @@ package body Doom3_Help is
                 Put(f,junk(p.name) & ',');
               end;
             when Unzip_list =>
-              Put_Line(f, tex & "*");
-              Put_Line(f, p.name & "*");
+              Put_Line(f, tex & ".tga");
+              Put_Line(f, p.name & ".tga");
             when Unzip_cmd  =>
               Put_Line(f,"unzip " & junk_opt & " C:\Transferts\Doom3map\pak004.zip " & p.name & "*");
-            when add_suffix =>
+            when add_suffix1 =>
               Put_Line(f,"if not exist " & p.name & ".tga ren " & tex & ".tga " & p.name & ".tga");
+            when copy_fakes =>
+              Put_Line(f, "if not exist " & p.name & ".tga copy ..\_fake.bmp " & p.name & ".bmp");
+            when add_suffix2 =>
               Put_Line(f,"if exist " & tex & ".tga       del " & tex & ".tga");
               Put_Line(f,"if exist " & tex & "_bmp.tga   del " & tex & "_bmp.tga");
               Put_Line(f,"if exist " & tex & "_s.tga     del " & tex & "_s.tga");
               Put_Line(f,"if exist " & tex & "_h.tga     del " & tex & "_h.tga");
               Put_Line(f,"if exist " & tex & "_local.tga del " & tex & "_local.tga");
               Put_Line(f,"if exist " & p.name & ".bmp del " & p.name & ".tga");
-            when copy_fakes =>
-              Put_Line(f, "if not exist " & p.name & ".tga copy ..\_fake.tga " & p.name & ".tga");
           end case;
         end;
         n:= n + 1;

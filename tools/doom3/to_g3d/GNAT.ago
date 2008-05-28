@@ -1,10 +1,13 @@
--gnatVa -gnatec../../../obj/gnatdebg/debug.pra -I.. -I..\..\..\src -I..\..\..\bindings -I..\..\..\bindings\win32 -I..\..\..\src\unzip -I..\..\..\src\gl
+-gnatVa -gnatec../../../obj/gnatdebg/debug.pra -I.. -I..\.. -I..\..\..\src -I..\..\..\bindings -I..\..\..\bindings\win32 -I..\..\..\src\unzip -I..\..\..\src\gl
 -i -aO..\..\..\obj\gnatdebg -largs -Wl,--stack=0x10000000 -lopengl32 -lglu32 -lfreeglut -L../../../obj/libwin32 ../../../obj/libwin32/glee.o
 
 
 WINDOWS_TARGET
 
 
+avg_point
+log
+fake
 insert(
 unzip
 "_d
@@ -12,9 +15,6 @@ _d
 area_stack
 main_c
 surface_count
-add_surf
-total_faces
-current_model
 -- Begin compiler switches
 DEBUG <- active (current) build mode
 TRUE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

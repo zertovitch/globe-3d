@@ -5,6 +5,7 @@
 WINDOWS_TARGET
 
 
+bsp
 slowish
 put_trian
 reset_
@@ -14,7 +15,6 @@ total_faces
 max_Faces
 _$_
 optional
-!!
 -- Begin compiler switches
 DEBUG <- active (current) build mode
 TRUE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

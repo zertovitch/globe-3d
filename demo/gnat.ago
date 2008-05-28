@@ -5,16 +5,16 @@
 WINDOWS_TARGET
 
 
+alpha_
+alpha
+bestiaire
+main_op
+bsp
+doom3_l
 attenu_r
 max_dot_
 bind_
 load
-mylev
-unbounded
-load_do
-Level_Doom
-Level_Doom(
-dump
 -- Begin compiler switches
 RELEASE <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

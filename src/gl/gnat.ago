@@ -5,6 +5,7 @@
 WINDOWS_TARGET
 
 
+!!
 into_gl
 bind
 bind_
@@ -14,7 +15,6 @@ special
 rotation_speed
 decel
 lightfv
-materialfv
 -- Begin compiler switches
 DEBUG <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

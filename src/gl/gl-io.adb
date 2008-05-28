@@ -90,7 +90,7 @@ package body GL.IO is
       is_run_packet: Boolean;
 
       procedure RLE_Pixel(iBits: Integer; pix: out Byte_array) is
-        tmp: GL.UByte;
+
         procedure Get_pixel is
         begin
           case iBits is
@@ -110,8 +110,10 @@ package body GL.IO is
           end case;
         end Get_pixel;
 
+        tmp: GL.UByte;
+
       begin
-        if RLE_pixels_remaining = 0 then -- load RLE code
+        if RLE_pixels_remaining <= 0 then -- load RLE code
           GL.UByte'Read( s, tmp );
           Get_pixel;
           RLE_pixels_remaining:= GL.UByte'Pos(tmp and 16#7F#);
@@ -128,19 +130,22 @@ package body GL.IO is
                 null;
             end case;
           end if;
-        elsif is_run_packet then
-          case iBits is
-            when 32 =>
-              pix:= pix_mem(1..4);
-            when 24 =>
-              pix:= pix_mem(1..3);
-            when 8  =>
-              pix:= pix_mem(1..1);
-            when others =>
-              null;
-          end case;
         else
-          Get_pixel;
+          if is_run_packet then
+            case iBits is
+              when 32 =>
+                pix:= pix_mem(1..4);
+              when 24 =>
+                pix:= pix_mem(1..3);
+              when 8  =>
+                pix:= pix_mem(1..1);
+              when others =>
+                null;
+            end case;
+          else
+            Get_pixel;
+          end if;
+          RLE_pixels_remaining:= RLE_pixels_remaining - 1;
         end if;
       end RLE_Pixel;
 
