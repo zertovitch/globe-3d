@@ -668,7 +668,9 @@ procedure GLOBE_3D_Demo is
         end if;
       end loop;
       Msg(70, "Lights: [" & light_info & ']');
-      Msg(80, "Objects seen: " & Natural'Image(info_b_ntl2));
+      Msg(80,
+        "Objects seen:" & Natural'Image(info_b_ntl2) &
+        "; max portal depth:" & Natural'Image(info_b_ntl3));
       if beast = level_idx then
         Msg(90, "BSP depth: " & Natural'Image(info_b_ntl1) &
           ". Area found: " & Boolean'Image(info_b_bool1) &

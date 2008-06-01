@@ -703,17 +703,23 @@ package body GLOBE_3D is
         end if;
       end Try_portal;
 
-    begin
+    begin -- Display_clipped
       if not o.pre_calculated then
         Pre_calculate(o);
       end if;
+      --
       -- a/ Display connected objects which are visible through o's faces
-      if (not filter_portal_depth) or else -- filter_portal_depth: test/debug
-         portal_depth in 0..6
+      --    This is where recursion happens
+      if portal_depth <= 50 and then
+         -- ^ prevents infinite recursion on buggy portals (e.g. origin2.proc)
+         ((not filter_portal_depth) or else -- filter_portal_depth: test/debug
+          portal_depth in 0..6)
       then
         for f in o.face'Range loop
           if o.face(f).connecting /= null then
             Try_portal(f);
+            -- ^ recursively calls Display_clipped for
+            --   objects visible through face f.
           end if;
         end loop;
       end if;
@@ -736,6 +742,7 @@ package body GLOBE_3D is
           GL.Disable(GL.SCISSOR_TEST);
         end if;
         info_b_ntl2:= info_b_ntl2 + 1;
+        info_b_ntl3:= Natural'Max(portal_depth, info_b_ntl3);
         Display_one(o);
       end if;
       if show_portals and then portal_depth > 0 then
@@ -745,6 +752,7 @@ package body GLOBE_3D is
 
   begin
     info_b_ntl2:= 0; -- count amount of objects displayed, not distinct
+    info_b_ntl3:= 0; -- records max depth
     Display_clipped( o, clip_area => clip.main_clipping, portal_depth => 0 );
   end Display;
 

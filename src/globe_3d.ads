@@ -516,7 +516,8 @@ package GLOBE_3D is
   info_b_clip : Clipping_area:= (0,0,0,0);
   info_b_pnt  : array(0..4) of Point_3D:= (others => (others => 123.0));
   info_b_ntl1,
-  info_b_ntl2 : Natural:= 0;
+  info_b_ntl2,
+  info_b_ntl3 : Natural:= 0;
   info_b_str1 : Ada.Strings.Unbounded.Unbounded_String:=
                   Ada.Strings.Unbounded.Null_Unbounded_String;
 
