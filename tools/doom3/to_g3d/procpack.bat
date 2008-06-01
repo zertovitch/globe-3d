@@ -3,6 +3,7 @@
 if "%1"=="" goto syntaxe
 
 if not exist %1.proc unzip %1.zip %1.proc
+rem ^ the .zip file may contain the .proc file, although useless for globe_3d
 if not exist %1.proc echo Processed map file "%1.proc" not found!
 if not exist %1.proc goto syntaxe
 
@@ -29,11 +30,17 @@ cd tmp
 del *.bmp
 del *.tga
 
-echo   ** Put: Original textures
-7zip_210 e -y -i@..\%1_textures_unzip_list.txt c:\temp\pak004.pk4
+echo   ** Put: Original textures (d3tex.zip has contents of pak004.pk4, but flat directory)
+rem * Fast
+7z e -y -i@..\%1_textures_unzip_list.txt ..\d3tex.zip
+rem * Slow, but with standard unzip
+rem call ..\%1_textures_unzip1
 
 echo   ** Put: Modified textures, e.g. stored as BMP's with palette
-7zip_210 e -y -i@..\%1_textures_unzip_list.txt ..\palettex.zip
+rem * Fast
+7z e -y -i@..\%1_textures_unzip_list.txt ..\palettex.zip
+rem * Slow, but with standard unzip
+rem call ..\%1_textures_unzip2
 
 echo   ** Put: Already stored textures
 unzip -o ..\%1.zip *.tga *.bmp
@@ -52,7 +59,8 @@ zip ..\%1.zip *.bmp *.tga
 
 cd..
 
-echo ** Display!
+echo.
+echo ** Display and Play!
 
 echo GLOBE_3D_Demo.exe -load=%1 >%1.bat
 

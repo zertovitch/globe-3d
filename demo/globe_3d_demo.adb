@@ -238,7 +238,12 @@ procedure GLOBE_3D_Demo is
       area_max:= i;
       G3D.Add(level_map, G3D.p_Visual(ls(i))); -- add to dictionary
     end loop;
-    G3D.IO.Load(name, level_map, level_BSP); -- load BSP tree
+    begin
+      G3D.IO.Load(name, level_map, level_BSP); -- load BSP tree
+    exception
+      when G3D.Missing_object =>
+        null; -- Some custom levels like the Reims Cathedral have no BSP
+    end;
     level_stuff:= new G3D.Object_3D_array'(ls(1..area_max));
   end Load_Doom;
 
@@ -539,7 +544,7 @@ procedure GLOBE_3D_Demo is
 
     -- Whole 3D zoo:
     bestiaire:= new Object_3D_array'(
-      level_Stuff(1),
+      level_stuff(level_stuff'First),
       globe,
       sierp,
       extrude_test_1, borg_star,
@@ -748,7 +753,7 @@ procedure GLOBE_3D_Demo is
 
   procedure Main_operations is
 
-    use GL, G3D, G3DM, G3D.REF, Game_control;
+    use GL, G3D, G3DM, G3D.REF, G3D.BSP, Game_control;
 
     procedure My_Limiting(step: in out GLOBE_3D.Vector_3D) is
       use G3D.Collision_detection;
@@ -904,7 +909,7 @@ procedure GLOBE_3D_Demo is
       else
         bestiaire(bri_idx):= bri1;
       end if;
-    elsif beast = level_idx then
+    elsif beast = level_idx and level_BSP /= null then
       declare
         area: p_Object_3D;
       begin

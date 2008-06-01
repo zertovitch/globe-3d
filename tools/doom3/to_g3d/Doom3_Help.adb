@@ -191,7 +191,9 @@ package body Doom3_Help is
     f: File_type;
     n: Natural:= 0;
     type Style_kind is
-     (Ada_enum, Unzip_list, Unzip_cmd,
+     (Ada_enum, Unzip_list,
+      Unzip_cmd1,
+      Unzip_cmd2,
       add_suffix1,
       add_suffix2,
       copy_fakes);
@@ -203,8 +205,10 @@ package body Doom3_Help is
           return "_enum.ada";
         when Unzip_list =>
           return "_unzip_list.txt";
-        when Unzip_cmd =>
-          return "_unzip.bat";
+        when Unzip_cmd1 =>
+          return "_unzip1.bat";
+        when Unzip_cmd2 =>
+          return "_unzip2.bat";
         when Add_suffix1 =>
           return "_add_tex_suffix1.bat";
         when Add_suffix2 =>
@@ -232,10 +236,19 @@ package body Doom3_Help is
                 Put(f,junk(p.name) & ',');
               end;
             when Unzip_list =>
-              Put_Line(f, tex & ".tga");
-              Put_Line(f, p.name & ".tga");
-            when Unzip_cmd  =>
-              Put_Line(f,"unzip " & junk_opt & " C:\Transferts\Doom3map\pak004.zip " & p.name & "*");
+              Put_Line(f, tex & ".*");
+              Put_Line(f, p.name & ".*");
+            when Unzip_cmd1  =>
+              if junk_dirs then
+                Put_Line(f,"unzip -o ..\d3tex.zip " & p.name & ".tga");
+                Put_Line(f,"unzip -o ..\d3tex.zip " & tex & ".tga");
+              else
+                -- unused variant
+                Put_Line(f,"unzip C:\Transferts\Doom3map\pak004.zip " & p.name & "*");
+              end if;
+            when Unzip_cmd2  =>
+              Put_Line(f,"unzip -o ..\palettex.zip " & p.name & ".*");
+              Put_Line(f,"unzip -o ..\palettex.zip " & tex & ".*");
             when add_suffix1 =>
               Put_Line(f,"if not exist " & p.name & ".tga ren " & tex & ".tga " & p.name & ".tga");
             when copy_fakes =>
@@ -618,7 +631,7 @@ package body Doom3_Help is
 
   type p_BSP_farm is access BSP_farm;
 
-  farm: p_BSP_farm;
+  farm: p_BSP_farm:= null;
 
   procedure Allocate_BSP_farm(number: Natural) is
   begin
@@ -746,8 +759,11 @@ package body Doom3_Help is
       );
       GLOBE_3D.IO.Save_file(model_stack(i).obj.all); -- Save each object
     end loop;
-    Put_Line(Standard_Error, "Writing BSP tree (.bsp).");
-    GLOBE_3D.IO.Save_file(pkg,farm(0)); -- Save BSP tree.
+    -- Some custom levels like the Reims Cathedral have no BSP
+    if farm /= null then
+      Put_Line(Standard_Error, "Writing BSP tree (.bsp).");
+      GLOBE_3D.IO.Save_file(pkg,farm(0)); -- Save BSP tree.
+    end if;
     Put_Line(Standard_Error, "Writing texture catalogue (.txt).");
     Write_catalogue; -- Save a list of textures
     Put_Line(Standard_Error, "Writing a summary (.log).");
