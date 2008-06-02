@@ -152,6 +152,7 @@ package GLOBE_3D is
    procedure set_frustum_Planes (Self : in out Camera'Class);
 
 
+   subtype Flip_state is Boolean; -- another name, just to avoid misreading
 
 
    -- 'Visual' class hierarchy
@@ -190,8 +191,10 @@ package GLOBE_3D is
 
    function skinned_Geometrys (o : in Visual) return gl.skinned_geometry.skinned_Geometrys;
 
-   procedure Display (o    : in out Visual;
-                      clip : in     Clipping_data) is abstract;
+   procedure Display (o          : in out Visual;
+                      clip       : in     Clipping_data;
+                      drawn_state: in     Flip_state:= False
+   ) is abstract;
 
 
    procedure Set_name (o: in out Visual'class; new_name: String);
@@ -267,14 +270,13 @@ package GLOBE_3D is
   type Map_idx_pair_array is array(Natural range <>) of Map_idx_pair;
   subtype Map_idx_pair_4_array is Map_idx_pair_array(1..4);
 
-
-
   type Face_type is record
      P            : Idx_4_array;  -- indices of the edges (anticlockwise)
                   -- one of them can be 0 (triangle); then the
                   -- "missing" edge indicates how to put texture
      -- *** Portals :
      connecting   : p_Object_3D:= null; -- object behind - if there is one
+     drawn_portal : Flip_state:= False;
 
      -- *** Surface
      skin         : Skin_type;
@@ -404,8 +406,9 @@ package GLOBE_3D is
   ------------------------------------------------------------
 
   procedure Display(
-    o    : in out Object_3D;
-    clip : in     Clipping_data
+    o          : in out Object_3D;
+    clip       : in     Clipping_data;
+    drawn_state: in     Flip_state:= False -- meaningful only with portals
   );
   -- - "out" for o because object might be pre_calculated if not yet
   -- - clip:

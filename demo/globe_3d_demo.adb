@@ -586,6 +586,8 @@ procedure GLOBE_3D_Demo is
 
   detect_collisions: Boolean:= True;
 
+  drawn_state: G3D.Flip_state:= True;
+
   procedure Display_scene(
     o: in out G3D.Object_3D'Class;
     gc: Game_control.Command_set;
@@ -628,8 +630,10 @@ procedure GLOBE_3D_Demo is
         ego.clipper.view_direction,
         ego.clipper.max_dot_product,
         (0,0,Integer(main_size_x)-1,Integer(main_size_y)-1)
-      )
+      ),
+      drawn_state
     );
+    drawn_state:= not drawn_state;
     PopMatrix;
 
     if technical_infos then

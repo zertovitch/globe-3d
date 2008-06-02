@@ -650,8 +650,9 @@ package body GLOBE_3D is
 
 
   procedure Display(
-    o    : in out Object_3D;
-    clip : in     Clipping_data
+    o          : in out Object_3D;
+    clip       : in     Clipping_data;
+    drawn_state: in     Flip_state:= False -- meaningful only with portals
   )
   is
 
@@ -710,13 +711,22 @@ package body GLOBE_3D is
       --
       -- a/ Display connected objects which are visible through o's faces
       --    This is where recursion happens
-      if portal_depth <= 50 and then
-         -- ^ prevents infinite recursion on buggy portals (e.g. origin2.proc)
-         ((not filter_portal_depth) or else -- filter_portal_depth: test/debug
-          portal_depth in 0..6)
+      if (not filter_portal_depth) or else -- filter_portal_depth: test/debug
+         portal_depth in 0..6
       then
         for f in o.face'Range loop
-          if o.face(f).connecting /= null then
+          if o.face(f).connecting /= null and then
+             o.face(f).drawn_portal /= drawn_state
+             -- ^ prevents infinite recursion on rare cases where
+             -- object A or B is not convex, and A and B see each other
+             -- and the culling by clipping cannot stop the recursion
+             -- (e.g. origin2.proc, tomb.proc)
+             --
+             -- NB: drawing [different parts of] the same object several times
+             -- is right, since portions can be seen through diffrent portals,
+             -- but going more than once through the same portal is wrong
+          then
+            o.face(f).drawn_portal := drawn_state;
             Try_portal(f);
             -- ^ recursively calls Display_clipped for
             --   objects visible through face f.
