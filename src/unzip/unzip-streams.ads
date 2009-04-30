@@ -33,7 +33,7 @@
 -- NB: this is the MIT License, as found 12-Sep-2007 on the site
 -- http://www.opensource.org/licenses/mit-license.php
 
-with Zip;
+with Zip, Zip_Streams;
 
 with Ada.Streams.Stream_IO, Ada.IO_Exceptions;
 
@@ -47,6 +47,7 @@ package UnZip.Streams is
    -- in the archive file named Archive_Name. The function Stream(..)
    -- then gives access to the opened stream.
 
+   -- Version: Zip as a file
    procedure Open
      (File           : in out Zipped_File_Type; -- File-in-archive handle
       Archive_Name   : in String;               -- Name of archive file
@@ -55,8 +56,20 @@ package UnZip.Streams is
       Case_sensitive : in Boolean:= False
      );
 
+   -- Version: Zip as a stream
+   procedure Open
+     (File           : in out Zipped_File_Type; -- File-in-archive handle
+      Archive_Stream : in Zip_Streams.Zipstream_Class; -- Archive's stream
+      Name           : in String;               -- Name of zipped entry
+      Password       : in String := "";         -- Decryption password
+      Case_sensitive : in Boolean:= False
+     );
+
    -- Same as above, but uses a the pre-loaded contents of the archive's
-   -- Central Directory; hence Archive_Info is passed instead of Archive_Name
+   -- Central Directory; hence Archive_Info is passed instead of
+   -- Archive_Name or Archive_Stream.
+   -- You need to call Zip.Load( Archive_Info... ) prior to opening the
+   -- compressed file.
 
    procedure Open
      (File           : in out Zipped_File_Type; -- File-in-archive handle

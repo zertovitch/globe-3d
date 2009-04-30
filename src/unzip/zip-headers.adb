@@ -1,7 +1,8 @@
+with Ada.Streams; use Ada.Streams;
 package body Zip.Headers is
 
   -----------------------------------------------------------
-  -- Unsigned_8 array <-> various integers, with Intel endianess --
+  -- Byte array <-> various integers, with Intel endianess --
   -----------------------------------------------------------
 
   -- Get numbers with correct trucmuche endian, to ensure
@@ -75,6 +76,9 @@ package body Zip.Headers is
     seconds         : Unsigned_32;
   begin
     Split(date, year, month, day, seconds_day_dur);
+    if year < 1980 then -- avoid invalid DOS date
+      year:= 1980;
+    end if;
     seconds_day:= Unsigned_32(seconds_day_dur);
     hours:= seconds_day / 3600;
     minutes:=  (seconds_day / 60) mod 60;
@@ -112,13 +116,13 @@ package body Zip.Headers is
   -- PKZIP file header, as in central directory - PK12 --
   -------------------------------------------------------
   procedure Read_and_check(
-    stream : in out Ada.Streams.Root_Stream_Type'Class;
+    stream : in  Zipstream_Class;
     header : out Central_File_Header
   )
   is
     chb: Byte_Buffer( 1..46 );
   begin
-    Byte_Buffer'Read(stream'Access, chb);
+    Byte_Buffer'Read(stream, chb);
 
     if not PK_signature(chb, 1) then
       raise bad_central_header;
@@ -143,7 +147,7 @@ package body Zip.Headers is
   end Read_and_check;
 
   procedure Write(
-    stream : in out Ada.Streams.Root_Stream_Type'Class;
+    stream : in     Zipstream_Class;
     header : in     Central_File_Header
   )
   is
@@ -167,20 +171,20 @@ package body Zip.Headers is
     chb(39..42):= Intel_bf( header.external_attributes );
     chb(43..46):= Intel_bf( header.local_header_offset );
 
-    Byte_Buffer'Write(stream'Access, chb);
+    Byte_Buffer'Write(stream, chb);
   end Write;
 
   -----------------------------------------------------------------------
   -- PKZIP local file header, in front of every file in archive - PK34 --
   -----------------------------------------------------------------------
   procedure Read_and_check(
-    stream : in out Ada.Streams.Root_Stream_Type'Class;
+    stream : in     Zipstream_Class;
     header :    out Local_File_Header
   )
   is
     lhb: Byte_Buffer( 1..30 );
   begin
-    Byte_Buffer'Read(stream'Access, lhb);
+    Byte_Buffer'Read(stream, lhb);
 
     if not PK_signature(lhb, 3) then
       raise bad_local_header;
@@ -199,9 +203,9 @@ package body Zip.Headers is
   end Read_and_check;
 
   procedure Write(
-    stream : in out Ada.Streams.Root_Stream_Type'Class;
-    header : in     Local_File_Header
-  )
+                  stream : in     Zipstream_Class;
+                  header : in     Local_File_Header
+                 )
   is
     lhb: Byte_Buffer( 1..30 );
   begin
@@ -217,7 +221,7 @@ package body Zip.Headers is
     lhb(27..28):= Intel_bf( header.filename_length );
     lhb(29..30):= Intel_bf( header.extra_field_length );
 
-    Byte_Buffer'Write(stream'Access, lhb);
+    Byte_Buffer'Write(stream, lhb);
   end Write;
 
   -------------------------------------------
@@ -244,13 +248,13 @@ package body Zip.Headers is
   end Copy_and_check;
 
   procedure Read_and_check(
-    stream  : in out Ada.Streams.Root_Stream_Type'Class;
+    stream  : in     Zipstream_Class;
     the_end :    out End_of_Central_Dir
   )
   is
     eb: Byte_Buffer( 1..22 );
   begin
-    Byte_Buffer'Read(stream'Access, eb);
+    Byte_Buffer'Read(stream, eb);
     Copy_and_check(eb, the_end);
   end Read_and_check;
 
@@ -264,31 +268,32 @@ package body Zip.Headers is
   --  3) zipped files
 
   procedure Load(
-    file   : in     Ada.Streams.Stream_IO.File_Type;
+    stream : in     Zipstream_Class;
     the_end:    out End_of_Central_Dir
-  )
+    )
   is
     end_buffer: Byte_Buffer( 1..22 );
     min_end_start: Ada.Streams.Stream_IO.Count;
     use Ada.Streams.Stream_IO;
+    max_comment: constant:= 65_535;
   begin
     -- 20-Jun-2001: abandon search below min_end_start
     --              - read about max comment length in appnote
 
-    if Size(file) <= 65_535 then
+    if Size(stream) <= max_comment then
       min_end_start:= 1;
     else
-      min_end_start:= Size(file) - 65_535;
+      min_end_start:= Ada.Streams.Stream_IO.Count(Size(stream)) - max_comment;
     end if;
 
     -- Yes, we must _search_ for it...
     -- because PKWARE put a variable comment _after_ it 8-(
 
-    for i in reverse min_end_start .. Size(file) - 21 loop
-      Ada.Streams.Stream_IO.Set_Index(file, i);
+    for i in reverse min_end_start .. Ada.Streams.Stream_IO.Count(Size(stream)) - 21 loop
+      Zip_Streams.Set_Index(stream, Positive(i));
       begin
         for j in end_buffer'Range loop
-          Unsigned_8'Read(Ada.Streams.Stream_IO.Stream(file), end_buffer(j));
+          Byte'Read(stream, end_buffer(j));
           -- 20-Jun-2001: useless to read more if 1st character is not 'P'
           if j=end_buffer'First and then
              end_buffer(j)/=Character'Pos('P') then
@@ -298,13 +303,18 @@ package body Zip.Headers is
         Copy_and_check( end_buffer, the_end );
         return; -- the_end found and filled -> exit
       exception
-        when bad_end => null; -- we will try 1 index before...
+        when bad_end =>
+          if i > min_end_start then
+            null;  -- we will try 1 index before...
+          else
+            raise; -- definitely no "end-of-central-directory" here
+          end if;
       end;
     end loop;
   end Load;
 
   procedure Write(
-    stream  : in out Ada.Streams.Root_Stream_Type'Class;
+    stream  : in     Zipstream_Class;
     the_end : in     End_of_Central_Dir
   )
   is
@@ -320,7 +330,7 @@ package body Zip.Headers is
     eb(17..20):= Intel_bf( the_end.central_dir_offset );
     eb(21..22):= Intel_bf( the_end.main_comment_length );
 
-    Byte_Buffer'Write(stream'Access, eb);
+    Byte_Buffer'Write(stream, eb);
   end Write;
 
   ------------------------------------------------------------------
@@ -343,19 +353,19 @@ package body Zip.Headers is
   end Copy_and_check;
 
   procedure Read_and_check(
-    stream        : in out Ada.Streams.Root_Stream_Type'Class;
+    stream        : in     Zipstream_Class;
     the_data_desc :    out Data_descriptor
   )
   is
     ddb: Byte_Buffer( 1..16 );
   begin
-    Byte_Buffer'Read(stream'Access, ddb);
+    Byte_Buffer'Read(stream, ddb);
     Copy_and_check(ddb, the_data_desc);
   end Read_and_check;
 
   procedure Write(
-    stream        : in out Ada.Streams.Root_Stream_Type'Class;
-    the_data_desc : in     Data_descriptor
+    stream        : in Zipstream_Class;
+    the_data_desc : in Data_descriptor
   )
   is
     ddb: Byte_Buffer( 1..16 );
@@ -366,7 +376,7 @@ package body Zip.Headers is
     ddb( 9..12):= Intel_bf( the_data_desc.compressed_size );
     ddb(13..16):= Intel_bf( the_data_desc.uncompressed_size );
 
-    Byte_Buffer'Write(stream'Access, ddb);
+    Byte_Buffer'Write(stream, ddb);
   end Write;
 
 end Zip.Headers;

@@ -10,10 +10,10 @@ package body Zip.CRC is
     for i in CRC32_Table'Range loop
       l:= i;
       for bit in 0..7 loop
-        if (l and 1) /= 0 then
-          l:= Shift_Right(l,1) xor Seed;
-        else
+        if (l and 1) = 0 then
           l:= Shift_Right(l,1);
+        else
+          l:= Shift_Right(l,1) xor Seed;
         end if;
       end loop;
       CRC32_Table(i):= l;

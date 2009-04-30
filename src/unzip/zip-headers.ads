@@ -11,7 +11,8 @@
 -- * Copying a header from a buffer (Copy_and_check)
 -- * Writing a header to a data stream (Write)
 
-with Ada.Streams.Stream_IO, Ada.Calendar, Interfaces;
+with Ada.Calendar, Interfaces;
+with Zip_Streams;  use Zip_Streams;
 
 package Zip.Headers is
 
@@ -38,14 +39,14 @@ package Zip.Headers is
   );
 
   procedure Read_and_check(
-    stream        : in out Ada.Streams.Root_Stream_Type'Class;
+    stream        : in     Zipstream_Class;
     the_data_desc :    out Data_descriptor
   );
 
   bad_data_descriptor: exception;
 
   procedure Write(
-    stream        : in out Ada.Streams.Root_Stream_Type'Class;
+    stream        : in     Zipstream_Class;
     the_data_desc : in     Data_descriptor
   );
 
@@ -67,15 +68,15 @@ package Zip.Headers is
   local_header_length: constant:= 30;
 
   procedure Read_and_check(
-    stream : in out Ada.Streams.Root_Stream_Type'Class;
-    header :    out Local_File_Header
+    stream : in  Zipstream_Class;
+    header : out Local_File_Header
   );
 
   bad_local_header: exception;
 
   procedure Write(
-    stream : in out Ada.Streams.Root_Stream_Type'Class;
-    header : in     Local_File_Header
+    stream : in Zipstream_Class;
+    header : in Local_File_Header
   );
 
   -------------------------------------------------------
@@ -106,14 +107,14 @@ package Zip.Headers is
   central_header_length: constant:= 46;
 
   procedure Read_and_check(
-    stream : in out Ada.Streams.Root_Stream_Type'Class;
+    stream : in     Zipstream_Class;
     header :    out Central_File_Header
   );
 
   bad_central_header: exception;
 
   procedure Write(
-    stream : in out Ada.Streams.Root_Stream_Type'Class;
+    stream : in     Zipstream_Class;
     header : in     Central_File_Header
   );
 
@@ -142,7 +143,7 @@ package Zip.Headers is
   );
 
   procedure Read_and_check(
-    stream  : in out Ada.Streams.Root_Stream_Type'Class;
+    stream  : in     Zipstream_Class;
     the_end :    out End_of_Central_Dir
   );
 
@@ -150,13 +151,13 @@ package Zip.Headers is
 
   -- A bit more elaborated: from an open file (not a stream),
   -- find the End-of-Central-dir and load it; keep the file open.
-  procedure Load(
-    file   : in     Ada.Streams.Stream_IO.File_Type;
+   procedure Load(
+    stream : in     Zipstream_Class;
     the_end:    out End_of_Central_Dir
-  );
+    );
 
   procedure Write(
-    stream  : in out Ada.Streams.Root_Stream_Type'Class;
+    stream  : in     Zipstream_Class;
     the_end : in     End_of_Central_Dir
   );
 

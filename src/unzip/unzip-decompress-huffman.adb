@@ -21,7 +21,7 @@ package body UnZip.Decompress.Huffman is
     tcount : Natural; -- just a stat. Idea: replace table_list with an array
 
   begin
-    if trace then
+    if full_trace then
       Ada.Text_IO.Put("[HufT_Free... ");
       tcount:= 0;
     end if;
@@ -30,11 +30,11 @@ package body UnZip.Decompress.Huffman is
       current:= tl;
       tl     := tl.next;
       Dispose( current );  -- destroy the current node
-      if trace then
+      if full_trace then
         tcount:= tcount+1;
       end if;
     end loop;
-    if trace then
+    if full_trace then
       Ada.Text_IO.Put_Line( Integer'Image(tcount)& " tables]" );
     end if;
   end HufT_Free;
@@ -92,7 +92,7 @@ package body UnZip.Decompress.Huffman is
     no_copy_length_array: constant Boolean:= d'Length=0 or e'Length=0;
 
   begin
-    if trace then
+    if full_trace then
       Ada.Text_IO.Put("[HufT_Build...");
     end if;
     tl:= null;
@@ -321,7 +321,7 @@ package body UnZip.Decompress.Huffman is
       end loop;  -- am1
     end loop;  -- k
 
-    if trace then
+    if full_trace then
       Ada.Text_IO.Put_Line("finished]");
     end if;
 

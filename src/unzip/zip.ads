@@ -8,11 +8,11 @@
 --------------
 -- Library for manipulating archive files in the Zip format
 --
--- Pure Ada 95+ code, 100% portable: OS- and compiler- independent.
+-- Pure Ada 95 code, 100% portable: OS-, CPU- and compiler- independent.
 
 -- Legal licensing note:
 
---  Copyright (c) 1999..2008 Gautier de Montmollin
+--  Copyright (c) 1999..2009 Gautier de Montmollin
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
 --  of this software and associated documentation files (the "Software"), to deal
@@ -37,22 +37,40 @@
 
 with Interfaces;
 with Ada.Streams.Stream_IO;
+with Zip_Streams;
 
 package Zip is
+
+  version   : constant String:= "31";
+  reference : constant String:= "20-Feb-2009";
+  web       : constant String:= "http://unzip-ada.sf.net/";
 
   --------------
   -- Zip_info --
   --------------
 
+  -- Zip_info contains the Zip file name or input stream,
+  -- and the archive's sorted directory
   type Zip_info is private;
-  -- contains the Zip file name and its sorted directory
 
-  -- Load the whole .zip directory in archive (from) into a tree, for
-  -- fast searching
+  -----------------------------------------------------------------------
+  -- Load the whole .zip directory in archive (from) into a tree, for  --
+  -- fast searching                                                    --
+  -----------------------------------------------------------------------
+
+  -- from file version
 
   procedure Load(
     info           : out Zip_info;
     from           : in  String;
+    case_sensitive : in  Boolean:= False
+  );
+
+  -- from stream version
+
+  procedure Load(
+    info           : out Zip_info;
+    from           : in  Zip_Streams.Zipstream_Class;
     case_sensitive : in  Boolean:= False
   );
 
@@ -63,6 +81,8 @@ package Zip is
   function Is_loaded( info: in Zip_info ) return Boolean;
 
   function Zip_name( info: in Zip_info ) return String;
+
+  function Zip_stream( info: in Zip_info ) return Zip_Streams.Zipstream_Class;
 
   function Entries( info: in Zip_info ) return Natural;
 
@@ -93,42 +113,50 @@ package Zip is
   -- Data sizes in archive
   subtype File_size_type is Interfaces.Unsigned_32;
 
-  -- Compression methods
+  -- Compression methods or formats in the "official" PKWARE Zip format.
+  -- Details in appnote.txt, part V.J
+  --   C: supported for compressing
+  --   D: supported for decompressing
+
   type PKZip_method is
-   ( store,    -- ok
-     shrink,   -- ok
-     reduce_1, -- ok
-     reduce_2, -- ok
-     reduce_3, -- ok
-     reduce_4, -- ok
-     implode,  -- ok
-     tokenize, -- not implemented by PKWARE
-     deflate,  -- ok
+   ( store,     -- C,D
+     shrink,    -- C,D
+     reduce_1,  -- C,D
+     reduce_2,  -- C,D
+     reduce_3,  -- C,D
+     reduce_4,  -- C,D
+     implode,   --   D
+     tokenize,
+     deflate,   --   D
+     deflate_e, --   D - Enhanced deflate
+     bzip2,
+     lzma,
+     ppmd,
      unknown
    );
 
   -- Technical: translates the method code as set in zip archives
   function Method_from_code(x: Interfaces.Unsigned_16) return PKZip_method;
+  function Method_from_code(x: Natural) return PKZip_method;
 
   --------------------------------------------------------------------------
   -- Offsets - various procedures giving 1-based indexes to local headers --
   --------------------------------------------------------------------------
 
-  -- Find 1st offset in a Zip file (file opened and kept open)
+  -- Find 1st offset in a Zip stream
 
   procedure Find_first_offset(
-    file           : in     Ada.Streams.Stream_IO.File_Type;
-    file_index     :    out Ada.Streams.Stream_IO.Positive_Count
-  );
+    file           : in     Zip_Streams.Zipstream_Class;
+    file_index     :    out Positive );
 
   -- Find offset of a certain compressed file
   -- in a Zip file (file opened and kept open)
 
   procedure Find_offset(
-    file           : in     Ada.Streams.Stream_IO.File_Type;
+    file           : in     Zip_Streams.Zipstream_Class;
     name           : in     String;
     case_sensitive : in     Boolean;
-    file_index     :    out Ada.Streams.Stream_IO.Positive_Count;
+    file_index     :    out Positive;
     comp_size      :    out File_size_type;
     uncomp_size    :    out File_size_type
   );
@@ -154,15 +182,39 @@ package Zip is
     uncomp_size    :    out File_size_type
   );
 
+  -- User-defined procedure for feedback occuring during
+  -- compression or decompression (entry_skipped meaningful
+  -- only for the latter)
+
+  type Feedback_proc is access
+    procedure (
+      percents_done:  in Natural;  -- %'s completed
+      entry_skipped:  in Boolean;  -- indicates one can show "skipped", no %'s
+      user_abort   : out Boolean   -- e.g. transmit a "click on Cancel" here
+    );
+
   -- General-purpose procedure (nothing really specific to Zip / UnZip):
   -- reads either the whole buffer from a file, or if the end of the file
   -- lays inbetween, a part of the buffer.
+  --
+  -- The procedure's names and parameters match Borland Pascal / Delphi
 
   procedure BlockRead(
     file         : in     Ada.Streams.Stream_IO.File_Type;
     buffer       :    out Zip.Byte_Buffer;
     actually_read:    out Natural
   );
+
+  procedure BlockRead(
+    file         : in     Zip_Streams.Zipstream_Class;
+    buffer       :    out Zip.Byte_Buffer;
+    actually_read:    out Natural
+  );
+
+  -- This does the same as Ada 2005's Ada.Directories.Exists
+  -- Just there as helper for Ada 95 only systems
+  --
+  function Exists(name:String) return Boolean;
 
 private
   -- Zip_info, 23.VI.1999.
@@ -188,7 +240,9 @@ private
 
   type Zip_info is record
     loaded          : Boolean:= False;
-    zip_file_name   : p_String;
+    zip_file_name   : p_String;        -- a file name...
+    zip_input_stream: Zip_Streams.Zipstream_Class; -- ...or an input stream
+    -- ^ when not null, we use this and not zip_file_name
     dir_binary_tree : p_Dir_node;
     total_entries   : Natural;
   end record;

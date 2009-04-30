@@ -1,18 +1,18 @@
---  ___  ____  ____  ____  ________  ___   ______       ______     ___
---  |.|  |../  |...\ |../ /___..._/  |.|   |.___.\     /. __ .\  __|.|   ____
---  |.|  |.|   |.|\.\|.|     /../    |.|   |.____/     |.|__|.| /....|  __\..\
---  |.|__|.|   |.| \...|   _/../___  |.|   |.|    ===  |..__..||. = .| | = ..|
---  |______|  /__|  \__|  /_______/  |_|  /__|        /__|  |_| \__\_|  \__\_|
+--  ________  ___   ______       ______     ___
+-- /___..._/  |.|   |.___.\     /. __ .\  __|.|   ____
+--    /../    |.|   |.____/     |.|__|.| /....|  __\..\
+--  _/../___  |.|   |.|    ===  |..__..||. = .| | = ..|
+-- /_______/  |_|  /__|        /__|  |_| \__\_|  \__\_|
 
 -- UnZip
 --------
--- This library allows to uncompress deflated, imploded, reduced,
--- shrunk and stored files from a Zip file.
+-- This library allows to uncompress deflated, enhanced deflated,
+-- imploded, reduced, shrunk and stored files from a Zip file.
 --
--- Pure Ada 95+ code, 100% portable: OS- and compiler- independent.
+-- Pure Ada 95 code, 100% portable: OS-, CPU- and compiler- independent.
 
 --  Ada translation & substantial rewriting by Gautier de Montmollin
---    http://homepage.sunrise.ch/mysunrise/gdm/unzipada.htm
+--    Web: see the Zip.web constant
 --  based on Pascal version 2.10 by Abimbola A Olowofoyeku,
 --    http://www.greatchief.plus.com/
 --  itself based on Pascal version by Christian Ghisler,
@@ -23,7 +23,7 @@
 
 -- Legal licensing note:
 
---  Copyright (c) 1999..2008 Gautier de Montmollin
+--  Copyright (c) 1999..2009 Gautier de Montmollin
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
 --  of this software and associated documentation files (the "Software"), to deal
@@ -124,6 +124,7 @@ package UnZip is
   -------------------------------------------------------------------------
 
   -- Extract one precise file (what) from an archive (from)
+  -- Needs Zip.Load(from, ...) prior to the extraction
 
   procedure Extract( from                 : Zip.Zip_info;
                      what                 : String;
@@ -134,6 +135,7 @@ package UnZip is
 
   -- Extract one precise file (what) from an archive (from),
   -- but save under a new name (rename)
+  -- Needs Zip.Load(from, ...) prior to the extraction
 
   procedure Extract( from                 : Zip.Zip_info;
                      what                 : String;
@@ -153,11 +155,6 @@ package UnZip is
   -- may require the non-standard attribute "unrestricted_access",
   -- or some changes.
   -- Read unzipada.adb for details and examples.
-
-  -- One day I'll make them parameters of a generic Unzip package.
-
-  type Feedback_proc is access
-    procedure ( percents_done: in Natural; user_abort: out Boolean );
 
   type Name_conflict_intervention is
     ( yes, no, yes_to_all, none, rename_it, abort_now );
@@ -189,7 +186,7 @@ package UnZip is
   -- Extract all files from an archive (from)
 
   procedure Extract( from                 : String;
-                     feedback             : Feedback_proc;
+                     feedback             : Zip.Feedback_proc;
                      help_the_file_exists : Resolve_conflict_proc;
                      tell_data            : Tell_data_proc;
                      get_pwd              : Get_password_proc;
@@ -202,7 +199,7 @@ package UnZip is
 
   procedure Extract( from                 : String;
                      what                 : String;
-                     feedback             : Feedback_proc;
+                     feedback             : Zip.Feedback_proc;
                      help_the_file_exists : Resolve_conflict_proc;
                      tell_data            : Tell_data_proc;
                      get_pwd              : Get_password_proc;
@@ -217,7 +214,7 @@ package UnZip is
   procedure Extract( from        : String;
                      what        : String;
                      rename      : String;
-                     feedback    : Feedback_proc;
+                     feedback    : Zip.Feedback_proc;
                      tell_data   : Tell_data_proc;
                      get_pwd     : Get_password_proc;
                      options     : Option_set:= no_option;
@@ -228,10 +225,11 @@ package UnZip is
   -- Using Zip_info structure:
 
   -- Extract all files from an archive (from)
+  -- Needs Zip.Load(from, ...) prior to the extraction
 
   procedure Extract( from                 : Zip.Zip_info;
                      what                 : String;
-                     feedback             : Feedback_proc;
+                     feedback             : Zip.Feedback_proc;
                      help_the_file_exists : Resolve_conflict_proc;
                      tell_data            : Tell_data_proc;
                      get_pwd              : Get_password_proc;
@@ -241,11 +239,12 @@ package UnZip is
                    );
 
   -- Extract one precise file (what) from an archive (from)
+  -- Needs Zip.Load(from, ...) prior to the extraction
 
   procedure Extract( from                 : Zip.Zip_info;
                      what                 : String;
                      rename               : String;
-                     feedback             : Feedback_proc;
+                     feedback             : Zip.Feedback_proc;
                      tell_data            : Tell_data_proc;
                      get_pwd              : Get_password_proc;
                      options              : Option_set:= no_option;

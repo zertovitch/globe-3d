@@ -1,7 +1,7 @@
--- UnZip-Ada
-------------
--- Huffman tree generation and deletion
--- Data structure rewritten by G. de Montmollin
+-- UnZip.Decompress.Huffman
+---------------------------
+-- Huffman tree generation and deletion.
+-- Originally from info-zip's unzip, data structure rewritten by G. de Montmollin
 
 private package UnZip.Decompress.Huffman is
 

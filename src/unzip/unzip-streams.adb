@@ -23,7 +23,7 @@ package body UnZip.Streams is
   --------------------------------------------------
 
   procedure UnZipFile (
-    zip_file        :        Ada.Streams.Stream_IO.File_Type;
+    zip_file        :        Zip_Streams.Zipstream_Class;
     header_index    : in out Ada.Streams.Stream_IO.Positive_Count;
     mem_ptr         :    out p_Stream_Element_Array;
     password        : in out Ada.Strings.Unbounded.Unbounded_String;
@@ -36,14 +36,15 @@ package body UnZip.Streams is
     data_descriptor_present: Boolean;
     encrypted: Boolean;
     method: PKZip_method;
-    use Ada.Streams.Stream_IO, Zip;
+    use Ada.Streams.Stream_IO, Zip, Zip_Streams;
   begin
-    begin
-      Ada.Streams.Stream_IO.Set_Index ( zip_file, header_index );
-      Zip.Headers.Read_and_check(
-        Ada.Streams.Stream_IO.Stream(zip_file).all,
-        local_header
-      );
+     begin
+        Zip_Streams.Set_Index(zip_file, Positive(header_index));
+         declare
+            TempStream : constant Zipstream_Class := zip_file;
+         begin
+            Zip.Headers.Read_and_check(TempStream, local_header);
+         end;
     exception
       when Zip.Headers.bad_local_header =>
         raise;
@@ -82,13 +83,12 @@ package body UnZip.Streams is
     encrypted:= (local_header.bit_flag and 1) /= 0;
 
     begin
-      Set_Index ( zip_file, work_index ); -- eventually skips the file name
+      Zip_Streams.Set_Index ( zip_file, Positive(work_index) ); -- eventually skips the file name
     exception
       when others => raise Read_Error;
     end;
 
     -- Unzip correct type
-
     UnZip.Decompress.Decompress_data(
       zip_file             => zip_file,
       format               => method,
@@ -122,17 +122,16 @@ package body UnZip.Streams is
 
   end UnZipFile;
 
+
   use Ada.Streams.Stream_IO;
 
-  procedure S_Extract(
-    from           : Zip.Zip_info;
-    what           : String;
-    mem_ptr        : out p_Stream_Element_Array;
-    Password       : in String;
-    Case_sensitive : in Boolean
-  )
-  is
-    zip_file     : File_Type;
+  procedure S_Extract( from     : Zip.Zip_info;
+                       stream   : in Zip_Streams.Zipstream_Class;
+                       what     : String;
+                       mem_ptr  : out p_Stream_Element_Array;
+                       Password : in String;
+                       Case_sensitive : in Boolean
+                      ) is
     header_index : Positive_Count;
     comp_size    : File_size_type;
     uncomp_size  : File_size_type;
@@ -140,23 +139,19 @@ package body UnZip.Streams is
       Ada.Strings.Unbounded.To_Unbounded_String(password);
   begin
     Zip.Find_offset(
-      from, what,
-      Case_sensitive,
+      from, what, Case_sensitive,
       header_index,
       comp_size,
       uncomp_size
     );
-    -- search offset "offline" !
-    Open(zip_file, In_File, Zip.Zip_name(from) );
     UnZipFile(
-      zip_file,
+      stream,
       header_index,
       mem_ptr,
       work_password,
       comp_size,
       uncomp_size
     );
-    Close(zip_file);
   end S_Extract;
 
   -------------------- for exportation:
@@ -190,27 +185,50 @@ package body UnZip.Streams is
 
   procedure Open
      (File           : in out Zipped_File_Type; -- File-in-archive handle
-      Archive_Info   : in Zip.Zip_info;         -- Archive's Zip_info
+      Archive_Info   : in Zip.Zip_info;         -- loaded by Load_zip_info
       Name           : in String;               -- Name of zipped entry
       Password       : in String := "";         -- Decryption password
       Case_sensitive : in Boolean:= False
-     )
-  is
-    use Ada.Streams;
+     ) is
+    use Zip_Streams, Ada.Streams;
+    MyStream     : aliased ZipFile_Stream;
+    input_stream : Zipstream_Class;
+    use_a_file   : constant Boolean:= Zip.Zip_Stream(Archive_Info) = null;
   begin
     if File = null then
-      File:= new Unzip_Stream_Type;
+      File:= new UnZip_Stream_Type;
     elsif File.state /= uninitialized then -- forgot to close last time!
       raise Use_Error;
     end if;
+    if use_a_file then
+      input_stream:= MyStream'Unchecked_Access;
+      SetName (input_stream , Zip.Zip_name(Archive_Info));
+      Open (MyStream, Ada.Streams.Stream_IO.In_File);
+    else -- use the given stream
+      input_stream:= Zip.Zip_Stream(Archive_Info);
+    end if;
+    --
     File.archive_info:= Archive_Info;
     File.file_name:= new String' (Name);
-    S_Extract( from           =>   File.archive_info,
-               what           =>   Name,
-               mem_ptr        =>   File.uncompressed,
-               Password       =>   Password,
-               Case_sensitive =>   Case_sensitive
-    );
+    begin
+      S_Extract(
+        File.archive_info,
+        input_stream,
+        Name,
+        File.Uncompressed,
+        Password,
+        Case_sensitive
+      );
+      if use_a_file then
+        Close (MyStream);
+      end if;
+    exception
+      when others =>
+        if use_a_file then
+          Close (MyStream);
+        end if;
+        raise;
+    end;
     File.index:= File.uncompressed'First;
     File.state:= data_uncompressed;
     -- Bug fix for data of size 0 - 29-Nov-2002
@@ -228,14 +246,34 @@ package body UnZip.Streams is
       Password       : in String := "";         -- Decryption password
       Case_sensitive : in Boolean:= False
      )
+   is
+    temp_info: Zip.Zip_info;
+    -- this local record (but not the full tree) is copied by Open(..)
+  begin
+    Zip.Load( temp_info, Archive_Name, Case_sensitive);
+    Open( File, temp_info, Name, Password, Case_sensitive );
+    File.delete_info_on_closing:= True; -- Close will delete temp. dir tree
+  end Open;
+
+  procedure Open
+     (File           : in out Zipped_File_Type; -- File-in-archive handle
+      Archive_Stream : in Zip_Streams.Zipstream_Class; -- Archive's stream
+      Name           : in String;               -- Name of zipped entry
+      Password       : in String := "";         -- Decryption password
+      Case_sensitive : in Boolean:= False
+     )
   is
     temp_info: Zip.Zip_info;
     -- this local record (but not the full tree) is copied by Open(..)
   begin
-    Zip.Load( temp_info, Archive_Name, Case_sensitive );
+    Zip.Load( temp_info, Archive_Stream, Case_sensitive);
     Open( File, temp_info, Name, Password, Case_sensitive );
     File.delete_info_on_closing:= True; -- Close will delete temp. dir tree
   end Open;
+
+  ------------------------------------------
+  -- Read procedure for Unzip_Stream_Type --
+  ------------------------------------------
 
   procedure Read
     (Stream : in out Unzip_Stream_Type;
@@ -250,7 +288,7 @@ package body UnZip.Streams is
     if Stream.state = end_of_zip then
       -- Zero transfer -> Last:= Item'First - 1, see RM 13.13.1(8)
       -- No End_Error here, T'Read will raise it: RM 13.13.2(37)
-      if Item'First > Stream_Element_Offset'First then 
+      if Item'First > Stream_Element_Offset'First then
         Last:= Item'First - 1;
         return;
       else
