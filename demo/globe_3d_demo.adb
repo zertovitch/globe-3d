@@ -131,6 +131,7 @@ procedure GLOBE_3D_Demo is
       half_fov_max_rads:= ArcTan(aspect * Tan(half_fov_max_rads));
     end if;
     ego.clipper.max_dot_product:= Sin(half_fov_max_rads);
+    ego.clipper.main_clipping:= (0,0, width-1, height-1);
     GLU.Perspective(
       fovy   => fovy,
       -- field of view angle (deg) in the y direction
@@ -153,9 +154,6 @@ procedure GLOBE_3D_Demo is
 
   forget_mouse: Natural:= 0;
   capturing_video: Boolean:= False;
-
-  -- Procedures passed to GLUT :
-  --   Window_Resize, Keyboard, Motion, Menu, Mouse, Display
 
   procedure Window_Resize( width, height: Integer ) is
   begin
@@ -224,6 +222,7 @@ procedure GLOBE_3D_Demo is
   procedure Load_Doom(name: String) is
     area_max: Natural:= 0;
     ls: G3D.Object_3D_array(1..1_000);
+    empty_level: exception;
   begin
     for i in ls'Range loop
       begin
@@ -245,6 +244,9 @@ procedure GLOBE_3D_Demo is
         null; -- Some custom levels like the Reims Cathedral have no BSP
     end;
     level_stuff:= new G3D.Object_3D_array'(ls(1..area_max));
+    if area_max = 0 then
+      raise empty_level;
+    end if;
   end Load_Doom;
 
   procedure Create_objects(load: Boolean; doom3_custom: String) is
@@ -487,7 +489,7 @@ procedure GLOBE_3D_Demo is
       G3D.IO.Load("Space station brick TWO",bri2);
       -- Relink both bricks:
       declare
-        bricks_map: Map_of_Visuals:= Map_of((p_Visual(bri1),p_Visual(bri2)));
+        bricks_map: constant Map_of_Visuals:= Map_of((p_Visual(bri1),p_Visual(bri2)));
       begin
         G3D.Rebuild_links(bri1.all,bricks_map,False,False);
         G3D.Rebuild_links(bri2.all,bricks_map,False,False);
@@ -586,8 +588,6 @@ procedure GLOBE_3D_Demo is
 
   detect_collisions: Boolean:= True;
 
-  drawn_state: G3D.Flip_state:= True;
-
   procedure Display_scene(
     o: in out G3D.Object_3D'Class;
     gc: Game_control.Command_set;
@@ -614,26 +614,13 @@ procedure GLOBE_3D_Demo is
     Enable( CULL_FACE );
     CullFace( BACK );
 
-    GL.Translate (
-      -ego.clipper.eye_position(0),
-      -ego.clipper.eye_position(1),
-      -ego.clipper.eye_position(2)
-    );
+    GL.Translate ( - ego.clipper.eye_position );
 
-    PushMatrix;
     ------------------------
     -- Display the object --
     ------------------------
-    G3D.Display(
-      o,
-      ( ego.clipper.eye_position,
-        ego.clipper.view_direction,
-        ego.clipper.max_dot_product,
-        (0,0,Integer(main_size_x)-1,Integer(main_size_y)-1)
-      ),
-      drawn_state
-    );
-    drawn_state:= not drawn_state;
+    PushMatrix;
+    G3D.Display( o, ego.clipper );
     PopMatrix;
 
     if technical_infos then
@@ -680,7 +667,7 @@ procedure GLOBE_3D_Demo is
           ". Area found: " & Boolean'Image(info_b_bool1) &
           ". BSP path: " & To_String(info_b_str1));
       end if;
-      Msg(100, "Collision detection: " & Boolean'Image(detect_collisions));
+      Msg(100, "Collision detection (F10): " & Boolean'Image(detect_collisions));
 
       if sec > 0.0 then
         Msg(140, "FPS: " & Integer'Image(Integer(1.0/sec)));
@@ -713,8 +700,10 @@ procedure GLOBE_3D_Demo is
   package SAA is new GLOBE_3D.Software_Anti_Aliasing(Graphic_display);
 
   type Smoothing_method is ( none, software, hardware );
+  -- hardware doesn't work (some code must be missing) and produces
+  -- a dotted display on Vista.
 
-  smoothing: constant Smoothing_method:= hardware;
+  smoothing: constant Smoothing_method:= none;
 
   procedure Fill_screen is
     use GL;
@@ -996,6 +985,9 @@ procedure GLOBE_3D_Demo is
     end if;
 
   end Main_Operations;
+
+  -- Procedures passed to GLUT here: Window_Resize, Menu, Main_Operations
+  -- GLUT.Devices handles: Keyboard, Motion, Mouse
 
   procedure Start_GLUTs is
     use GL,GLUT;
