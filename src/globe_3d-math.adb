@@ -144,7 +144,7 @@ package body GLOBE_3D.Math is
     r: Real;
 
       type Vector_4D is array (0..3) of gl.Double;
-      x_4D : Vector_4D := (x(0), x(1), x(2) , 1.0);
+      x_4D : constant Vector_4D := (x(0), x(1), x(2) , 1.0);
       Ax   : Vector_4D;
 
     -- banana skin: Matrix has range 1..3, Vector 0..2 (GL)
@@ -165,7 +165,7 @@ package body GLOBE_3D.Math is
   function "*"(A: Matrix_44; x: Vector_3D) return Vector_4D is
     r: Real;
 
-      x_4D : Vector_4D := (x(0), x(1), x(2) , 1.0);
+      x_4D : constant Vector_4D := (x(0), x(1), x(2) , 1.0);
       Ax   : Vector_4D;
 
     -- banana skin: Matrix has range 1..3, Vector 0..2 (GL)
@@ -281,9 +281,9 @@ package body GLOBE_3D.Math is
 
    function Look_at (eye, center, up : Vector_3D) return Matrix_33
    is
-      forward : Vector_3D := Normalized ((center (0) - eye (0),  center (1) - eye (1),  center (2) - eye (2)));
-      side    : Vector_3D := Normalized (forward * up);
-      new_up  : Vector_3D := side * forward;
+      forward : constant Vector_3D := Normalized ((center (0) - eye (0),  center (1) - eye (1),  center (2) - eye (2)));
+      side    : constant Vector_3D := Normalized (forward * up);
+      new_up  : constant Vector_3D := side * forward;
    begin
       return (( side    (0),    side    (1),    side    (2)),
               ( new_up  (0),    new_up  (1),    new_up  (2)),

@@ -264,12 +264,12 @@ package body GL.IO is
       end if;
 
       -- Image type:
-      --      1=8-bit palette style	
-      --      2=Direct [A]RGB image	
-      --      3=grayscale	
+      --      1=8-bit palette style
+      --      2=Direct [A]RGB image
+      --      3=grayscale
       --      9=RLE version of Type 1
-      --     10=RLE version of Type 2	
-      --     11=RLE version of Type 3	
+      --     10=RLE version of Type 2
+      --     11=RLE version of Type 3
 
       image_type:= GL.UByte'Pos(TGA_type(2));
       RLE:= image_Type >= 9;
@@ -464,7 +464,7 @@ package body GL.IO is
 
       fsz: U32;
       ih: U32;
-      w: U16;
+      w, dummy16: U16;
       n: U32;
       Str2:  String(1..2);
       Str4:  String(1..4);
@@ -516,7 +516,7 @@ package body GL.IO is
         Read_Intel(n);
         height:= Y_Loc(n);
         --   Pos= 27, skip two bytes.  Data is number of Bitmap planes.
-        Read_Intel(w); -- perform the skip
+        Read_Intel(dummy16); -- perform the skip
         --   Pos= 29, Number of bits per pixel
         --   Value 8, denoting 256 color, is expected
         Read_Intel(w);

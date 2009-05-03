@@ -144,7 +144,7 @@ package body GL.Math is
     r: Double;
 
       type Vector_4D is array (0..3) of gl.Double;
-      x_4D : Vector_4D := (x(0), x(1), x(2) , 1.0);
+      x_4D : constant Vector_4D := (x(0), x(1), x(2) , 1.0);
       Ax   : Vector_4D;
 
     -- banana skin: Matrix has range 1..3, Vector 0..2 (GL)
@@ -165,7 +165,7 @@ package body GL.Math is
   function "*"(A: Matrix_44; x: Double_Vector_3D) return Vector_4D is
     r: Double;
 
-      x_4D : Vector_4D := (x(0), x(1), x(2) , 1.0);
+      x_4D : constant Vector_4D := (x(0), x(1), x(2) , 1.0);
       Ax   : Vector_4D;
 
     -- banana skin: Matrix has range 1..3, Vector 0..2 (GL)
@@ -281,7 +281,7 @@ package body GL.Math is
 
    function Look_at (eye, center, up : Double_Vector_3D) return Matrix_33
    is
-      forward : Double_Vector_3D := Normalized ((center (0) - eye (0),  center (1) - eye (1),  center (2) - eye (2)));
+      forward : constant Double_Vector_3D := Normalized ((center (0) - eye (0),  center (1) - eye (1),  center (2) - eye (2)));
       side    : constant Double_Vector_3D := Normalized (forward * up);
       new_up  : constant Double_Vector_3D := side * forward;
    begin
