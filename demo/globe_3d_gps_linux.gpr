@@ -2,7 +2,7 @@ project Globe_3D_Gps_Linux is
 
    type Build_Mode_Type is
       ("Debug", "Fast", "Small");
-   Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
+   Build_Mode : Build_Mode_Type := external ("Build_Mode", "Small");
 
    for Main use ("GLOBE_3D_Demo.adb", "Mini.adb");
 
@@ -22,11 +22,11 @@ project Globe_3D_Gps_Linux is
    package Compiler is
       case Build_Mode is
          when "Small" =>
-            for Default_Switches ("ada") use ("-O2", "-s", "-gnatp", "-fno-strict-aliasing", "-gnatec../../demo/g3d_elim.pra");
+            for Default_Switches ("ada") use ("-Os", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-march=i386", "-ffunction-sections", "-fdata-sections", "-falign-jumps=0", "-falign-loops=0", "-falign-functions=0", "-mpreferred-stack-boundary=2", "-ffast-math", "-gnatec../../demo/g3d_elim.pra");
          when "Fast" =>
-            for Default_Switches ("ada") use ("-O2", "-gnatn", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-gnatp", "-fno-strict-aliasing", "-gnatec../../demo/g3d_elim.pra");
+            for Default_Switches ("ada") use ("-O2", "-gnatn", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers", "-fomit-frame-pointer", "-gnatec../../demo/g3d_elim.pra");
          when "Debug" =>
-            for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnatwkmpz", "-gnatVa", "-gnatecdebug.pra", "-gnatyhiknp", "-fno-strict-aliasing");
+            for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-gnatwkmpz", "-fno-strict-aliasing", "-g", "-gnatVa", "-gnatecdebug.pra", "-gnatyhiknp");
       end case;
    end Compiler;
 
@@ -37,7 +37,7 @@ project Globe_3D_Gps_Linux is
          when "Fast" =>
            for Default_Switches ("ada") use ("-lglut", "-lGLU", "-lGL", "-L/usr/X11R6/lib", "-lX11", "-lXi", "-lXext", "-lXmu", "-lm", "--LINK=g++", "-s", "-Wl,--gc-sections");
          when "Debug" =>
-           for Default_Switches ("ada") use ("-lglut", "-lGLU", "-lGL", "-L/usr/X11R6/lib", "-lX11", "-lXi", "-lXext", "-lXmu", "-lm", "--LINK=g++");
+           for Default_Switches ("ada") use ("-lglut", "-lGLU", "-lGL", "-L/usr/X11R6/lib", "-lX11", "-lXi", "-lXext", "-lXmu", "-lm", "--LINK=g++", "-g");
       end case;
    end Linker;
 
@@ -69,4 +69,3 @@ project Globe_3D_Gps_Linux is
    end Ide;
 
 end Globe_3D_Gps_Linux;
-

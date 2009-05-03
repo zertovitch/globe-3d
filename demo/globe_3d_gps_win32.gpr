@@ -4,38 +4,38 @@ project Globe_3D_Gps_Win32 is
       ("Debug", "Fast", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
    for Source_Dirs use (".", "..\bindings", "..\bindings\win32", "..\bindings\win32\gcc_fmt", "..\src\/**");
-   for Main use ("GLOBE_3D_Demo.adb");
    for Exec_Dir use ".";
+   for Main use ("GLOBE_3D_Demo.adb", "Mini.adb");
 
    case Build_Mode is
-
       when "Small" =>
          for Object_Dir use "..\obj\gnatsmal";
-
       when "Fast" =>
          for Object_Dir use "..\obj\gnatfast";
-
       when "Debug" =>
          for Object_Dir use "..\obj\gnatdebg";
    end case;
 
-   package Ide is
-      for Default_Switches ("adacontrol") use ("-F", "gnat_short");
-   end Ide;
+   package Binder is
 
-   package Builder is
-      for Default_Switches ("ada") use ("-j2");
-   end Builder;
+      case Build_Mode is
+         when "Small" =>
+         when "Fast" =>
+         when "Debug" =>
+            for Default_Switches ("ada") use ("-E");
+      end case;
+   end Binder;
 
-   package Naming is
-      for Specification_Suffix ("c") use ".h";
-      for Implementation_Suffix ("c") use ".c";
-      for Specification_Suffix ("c++") use ".hh";
-      for Implementation_Suffix ("c++") use ".cpp";
-      for Specification_Suffix ("changelog") use "changelog";
-      for Specification_Suffix ("project file") use ".gpr";
-      for Specification_Suffix ("python") use ".py";
-   end Naming;
+   package Compiler is
+      case Build_Mode is
+         when "Small" =>
+            for Default_Switches ("ada") use ("-Os", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-march=i386", "-ffunction-sections", "-fdata-sections", "-falign-jumps=0", "-falign-loops=0", "-falign-functions=0", "-mpreferred-stack-boundary=2", "-ffast-math", "-gnatec../../demo/g3d_elim.pra");
+         when "Fast" =>
+            for Default_Switches ("ada") use ("-O2", "-gnatn", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers", "-fomit-frame-pointer", "-gnatec../../demo/g3d_elim.pra");
+         when "Debug" =>
+            for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-gnatwkmpz", "-fno-strict-aliasing", "-g", "-gnatVa", "-gnatecdebug.pra", "-gnatyhiknp");
+      end case;
+   end Compiler;
 
    package Linker is
 
@@ -52,33 +52,22 @@ project Globe_3D_Gps_Win32 is
       end case;
    end Linker;
 
-   package Compiler is
+   package Naming is
+      for Specification_Suffix ("c") use ".h";
+      for Implementation_Suffix ("c") use ".c";
+      for Specification_Suffix ("c++") use ".hh";
+      for Implementation_Suffix ("c++") use ".cpp";
+      for Specification_Suffix ("changelog") use "changelog";
+      for Specification_Suffix ("project file") use ".gpr";
+      for Specification_Suffix ("python") use ".py";
+   end Naming;
 
-      case Build_Mode is
+   package Builder is
+      for Default_Switches ("ada") use ("-j2");
+   end Builder;
 
-         when "Small" =>
-            for Default_Switches ("ada") use ("-O2", "-s", "-gnatp", "-fno-strict-aliasing", "-gnatec..\..\demo\g3d_elim.pra");
-
-         when "Fast" =>
-            for Default_Switches ("ada") use ("-O2", "-gnatn", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-gnatp", "-fno-strict-aliasing", "-gnatec..\..\demo\g3d_elim.pra");
-
-         when "Debug" =>
-            for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnatwkmpz", "-gnatVa", "-gnatecdebug.pra", "-gnatyhiknp", "-fno-strict-aliasing");
-      end case;
-   end Compiler;
-
-   package Binder is
-
-      case Build_Mode is
-
-         when "Small" =>
-
-         when "Fast" =>
-
-         when "Debug" =>
-            for Default_Switches ("ada") use ("-E");
-      end case;
-   end Binder;
+   package Ide is
+      for Default_Switches ("adacontrol") use ("-F", "gnat_short");
+   end Ide;
 
 end Globe_3D_Gps_Win32;
-
