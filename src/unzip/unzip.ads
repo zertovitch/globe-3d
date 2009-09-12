@@ -53,9 +53,10 @@ with Ada.Calendar, Ada.Streams, Ada.Strings.Unbounded;
 package UnZip is
 
   type option is (
-    test_only,           -- test .zip file integrity, no write
-    junk_directories,    -- ignore directory info -> extract to current one
-    case_sensitive_match -- case sensitive name matching
+    test_only,            -- test .zip file integrity, no write
+    junk_directories,     -- ignore directory info -> extract to current one
+    case_sensitive_match, -- case sensitive name matching
+    extract_as_text       -- files will be written with native line endings
   );
 
   type Option_set is array( option ) of Boolean;
@@ -268,10 +269,15 @@ package UnZip is
 private
 
   type Write_mode is
-    ( write_to_file,
+    ( write_to_binary_file,
+      write_to_text_file,
       write_to_memory,
       just_test
     );
+
+  subtype Write_to_file is Write_mode
+    range write_to_binary_file..write_to_text_file;
+
   type p_Stream_Element_Array is access all Ada.Streams.Stream_Element_Array;
 
 end UnZip;
