@@ -5,7 +5,7 @@ echo.
 if not "%1"=="-r" goto fin
 rem
 echo ** Compile AFLEX (.l) file to Ada sources
-aflex.exe -i doom3.l
+aflex.exe -i -E doom3.l
 echo.
 gnatchop -w *.a
 del *.a

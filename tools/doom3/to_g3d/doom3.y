@@ -77,7 +77,12 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
          { Put_Line( Standard_Error, "Scanning Proc 4+ file (Quake 4)" ); }
          ;
 
-  mapProcFile_components: mapProcFile_component mapProcFile_components | ;
+  mapProcFile_components: 
+        mapProcFile_component 
+        mapProcFile_components 
+    | 
+        { Put_Line( Standard_Error, "End of Proc file. **" ); }
+    ;
 
   mapProcFile_component:
                   Model
@@ -193,7 +198,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
 
 
-               Surface_Indices
+               Surface_Indices_or_nothing
                '}'
                {
                  if consider_current_model then
@@ -254,6 +259,11 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                NUMBER NUMBER NUMBER NUMBER --          : Quake 4 - purpose ?
              |                             -- (nothing): Doom 3
              ;
+
+  Surface_Indices_or_nothing :
+              Surface_Indices
+            | -- No triangle at all (eotl.proc)! 
+            ;
 
   Surface_Indices :
                   -- List of triangles.
@@ -322,6 +332,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
                 shadowModel_t
                 '{'
                 D3String -- Name, like "_prelight_light_2"
+                { Put_Line( Standard_Error, "- shadow model (not used yet): " & YYText ); }
                 NUMBER -- numVerts
                 NUMBER -- noCaps
                 NUMBER -- noFrontCaps
@@ -471,10 +482,10 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
   BSP_nodes_block  :
                    nodes_t
-                   { Put_Line( Standard_Error, "- Binary Space Partition tree" ); }
+                   { Put( Standard_Error, "- Binary Space Partition tree" ); }
                    '{'
                    NUMBER -- numNodes
-                   {
+                   { Put_Line( Standard_Error, ", " & yytext & " nodes." );
 
 
 
@@ -492,6 +503,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
 
 
+                   { Put_Line( Standard_Error, "  BSP reading done." ); }
                    '}'
                    ;
 
@@ -522,6 +534,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
 
                       current_BSP_node:= current_BSP_node + 1;
+                      Put( Standard_Error, Integer'Image(current_BSP_node) & ASCII.CR );
 
                     }
                     bsp_plane_vector
@@ -588,8 +601,8 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 
 -- D3a
 
-with Doom3_Tokens, Doom3_Shift_Reduce, Doom3_Goto, Doom3_Help;
-use  Doom3_Tokens, Doom3_Shift_Reduce, Doom3_Goto, Doom3_Help;
+with Doom3_Tokens, Doom3_Shift_Reduce, Doom3_Goto, Doom3_Help, Doom3_IO;
+use  Doom3_Tokens, Doom3_Shift_Reduce, Doom3_Goto, Doom3_Help, Doom3_IO;
 
 with Doom3_DFA, YYroutines, YYerror;
 use  Doom3_DFA, YYroutines;
