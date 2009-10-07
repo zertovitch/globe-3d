@@ -38,6 +38,7 @@ del *.tga
 echo   ** Put: Original textures (d3tex.zip has contents of pak004.pk4, but flat directory)
 rem * Fast
 7z e -y -i@..\%1_textures_unzip_list.txt ..\d3tex.zip
+7z e -y -i@..\%1_textures_unzip_list.txt ..\q4tex.zip
 rem * Slow, but with standard unzip
 rem call ..\%1_textures_unzip1
 

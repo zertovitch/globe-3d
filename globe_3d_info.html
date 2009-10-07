@@ -8,6 +8,7 @@ The Copyright statement appears in GLOBE_3D.ads.
 <hr>
 <ol>
 <li><a href=#features>Quick <b>feature</b> list</a>
+<li><a href=#guide>A (too) short <b>guide</b> about how GLOBE_3D works</a>
 <li><a href=#demo>Navigating in 3D with the main <b>demo</b></a>
 <li><a href=#build>How to build the engine</a>
 <li><a href=#prog>Programming notes around GLOBE_3D</a>
@@ -35,13 +36,72 @@ The Copyright statement appears in GLOBE_3D.ads.
  <li>multiple area rendering with the portal technique, e.g. for large inner scenes
  <li>collision detection
  <li>binary space partition (BSP)
- <li>extruded surface generator
  <li>easy management of resources like textures, stored in .zip files
  <li>input-output of 3D objects or linked groups of objects
  <li>screenshots and video captures 
  <li>multi-view support
  <li>vectorized geometry support
+ <li>extruded surface generator
  </ul>
+ </p>
+<li>
+<a name=guide>
+<b><font face="Arial, Tahoma">A (too) short <b>guide</b> about how GLOBE_3D works</font></b>
+</a> 
+ <p>
+ <ol>
+  <li><b>What is GL / OpenGL</b>. 
+  GL, ``Graphics Library'', is a quasi-language allowing to render, among others,
+  3D forms on a 2D screen area
+  in a very simple way, without needing to know about the hardware and the operating system.
+  Despite a continuous development to catch the features of new graphic cards, GL was
+  so well designed from the beginning, that using the features of the original GL
+  version (~1992) deliver pictures of amazing realism - and of course a lot faster
+  and with a better resolution than then. In many respects, GL resembles to Ada: 
+  a clever design that avoids the momentaneous hardware or operating system constraints,
+  allowing to perfectly survive, along with the code developed in these languages,
+  to changes of hardware and systems.
+  
+  <li><b>Drawing with the plain GL / OpenGL</b>. 
+  You can summarize the steps to perform a rendering as:
+  <ol>
+    <li>Prepare the link between the computer and GL. GLUT does it in a totally portable way,
+	    but you have gateways between many GUI systems (Windows, GTk, X Window,...) and GL.
+		(see Start_GLUTs in the <tt>Mini.adb</tt> demo)
+	<li>Prepare the perspective, lighting, display modes of GL
+        (see Start_GLs in the <tt>Mini.adb</tt> demo)
+	<li>Display forms. For the 3D, it boils down to displaying a mesh of triangles (eventually rectangles).
+	    For displaying a single triangle, GL makes it extremely easy:
+		<ol>
+		  <li>GL.GL_Begin(GL.TRIANGLES);
+		  <li>GL.Vertex( vertex_1 ); GL.Vertex( vertex_2 ); GL.Vertex( vertex_3 );
+		  <li>GL.GL_End;
+		</ol>
+		Now, along with the second step, you may want also to pass a "quasi"
+		normal vector associated to vertices, to have nice
+		lighting, and also texture coordinates if you want an image "sticked" onto
+		your triangle. You can also, before the first step, mix colours to textures, and this
+		in the various modes of infography: diffuse, emissive, etc.
+		You can play with transparency.
+		It's where it begins to be complicated...
+  </ol>
+  <li><b>What GLOBE_3D does</b>. 
+      GLOBE_3D organizes and facilitates the display of 3D meshes.
+      Basically, it defines an object type, Object_3D, containing vertex coordinates, a list of
+	  faces referring to these vertices, and all informations about textures, colours,
+	  materials. That way, you prepare your objects, and once they are defined,
+	  all you need is to call GLOBE_3D.Display( my_object ). The management and loading of
+	  textures is done by GLOBE_3D altogether. All you need there is to name one or two zip files
+	  containing the textures (in TGA or BMP formats) and to give the texture names
+	  when defining the faces.
+  <li><b>Animation</b>. The animation is obtained by constantly redrawing the scene, with
+  a moving point of view and/or moving objects. Since the drawing begins with a black sheet,
+  drawing directly to the screen would give a disturbing flickering. It is why the double-buffer
+  technique is used: buffer 1 is being drawn while the other, buffer 2, is shown, and when the
+  drawing on buffer 1 is done, the buffers are swapped and buffer 2 will be drawn; and so on.
+  It doesn't matter if the scenes are drawn too often, it is visually disturbing only when
+  they appear in a to slow rythm (less than 24 images per second).
+ </ol>
  </p>
 <li>
 <b><font face="Arial, Tahoma">Navigating in 3D with the main GLOBE_3D Demo.</font></b>
@@ -123,8 +183,9 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
  <b><font face="Arial, Tahoma">How to <b>build</b> the project on various platforms and compilers:
  </font></b></a>
  <p>
-  The main demo, in directory ./demo, can serve as a prototype for your applications
-  using GLOBE_3D. That directory also contains various scripts (or so) for various systems.
+  The <tt>GLOBE_3D_Demo.adb</tt> or the much simpler <tt>Mini.adb</tt> demo, in directory <tt>./demo</tt>,
+  can serve as a prototype for your applications using GLOBE_3D.
+  That directory also contains various scripts (or so) for various systems.
   <ul>
    <li> <b>Windows</b>:
     <ul>
@@ -152,11 +213,13 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
      <li> <b>GNAT</b> compiler:<br>
          - [in GPS:] use the GLOBE_3D_GPS_Linux.gpr project file<br>
        or<br>
-         - use the makefile.linux
+         - use the makefile.linux, or run: <tt>gnatmake -PGLOBE_3D_GPS_Linux.gpr -XBuild_Mode=Small</tt>
     </ul>
-    Probably you'll look for [Free]GLUT, source or precompiled, more precisely
-    the library file lib[free]glut.so. See the <a href=#resources>Web Resources</a>
-    for links.
+    As a prerequisite, you need the following libraries to be installed: <b>FreeGLUT, Xi, Xext, Xmu</b>.
+    For example, on the Fedora distribution, and surely on most other Linux distributions,
+    the installation is pretty easy: search from the
+    software installer (Add/Remove software) the libraries mentioned above, select the "*-devel"
+    package and push the install button.
    <li> <b>Macintosh (Mac OS X)</b>:<br>
     You need first to install the X11 server; then
     you'd better to force lower case on file names: unzip -L globe_3d.zip;
@@ -215,7 +278,7 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
  </a>
  <p>
   In the <tt>./tools</tt> subdirectory, you find the following tools:
-  <ul>
+  <ol>
    <li> <tt>./tools/gmax</tt> contains a script, <b>max2ada.ms</b>, for the GMAX software, to convert a 3D model
         into a package capable of generating the equivalent GLOBE_3D object.
         To use it, run the script from GMAX, and use GMaxSLGRAB.exe to grab the Ada code
@@ -228,7 +291,7 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
     <ul>
      <li> <tt>./tools/doom3/to_ada</tt> contains a source translator, <b>d3a</b>, similar to the VRML one.
           The generated Ada code builds the level's objects and areas, connects the areas through
-          portals and build a BSP tree.
+          portals and builds a BSP tree.
           Its advantage is the one of having Ada source code for generating 3D worlds (no I/O or file
           format issues), but even a small level produces a huge Ada source that becomes a challenge to
           some compilers.
@@ -241,16 +304,19 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
           "<a href=http://www.google.com/search?q=Doom+3+Map>Doom 3 Map</a>" or
           "<a href=http://www.google.com/search?q=Quake+4+Map>Quake 4 map</a>"),
           extract the <tt>.pk4</tt> file, that is indeed a .zip file.
-          Then, put all textures in, say, <tt>mylevel.zip</tt>; store it
-          in the <tt>./tools/doom3/to_ada</tt>.
+          Then, put all textures in, say, <tt>mylevel.zip</tt>. 
+          That .zip file is supposed to have no directory structure (otherwise, you need to
+          have the same as in the .proc file and remove the "-j" option in d3g calls).
+          Store <tt>mylevel.zip</tt> in the <tt>./tools/doom3/to_d3g</tt>.
           In the same directory, put the .proc file, renamed if needed as
-          <tt>mylevel.proc</tt>.
-          If you have Doom 3, Quake 4, or any game of that family,
-          you may want to adjust the line with "pak004" in
-          <tt>procpack.bat</tt>. 
-          You also need the <a target=_blank href=http://www.info-zip.org/>zip and unzip</a> utilites.
+          <tt>mylevel.proc</tt> in order to have the same name.
+          If you have copies of Doom 3, Quake 4, or any game of that family,
+          you may want to adjust the line with "<tt>d3tex.zip</tt>" in
+          <tt>procpack.bat</tt>. The file <tt>d3tex.zip</tt> is supposed to contain
+          all the textures in the original game (in Doom 3, textures are in <tt>pak004.pk4</tt>).
+          You also need the <a target=_blank href=http://www.info-zip.org/>zip and unzip</a> utilities.
           When everything is ready, run "procpack mylevel".
-          You'll get an updated <tt>mylevel.zip</tt> with all textures,
+          You'll get an updated <tt>mylevel.zip</tt> with all needed textures,
           3D objects corresponding to areas and the BSP tree.
           <tt>GLOBE_3D_Demo -load=mylevel</tt> will then load the game level,
           and you can navigate in it...
@@ -260,6 +326,11 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
         for different parameter list. You find the result GL.ads in the <tt>./bindings</tt> subdirectory.
    <li> <b>check_tiling.htm</b>: a mini HTML file just to visually check if a texture is periodic enough.
   </ul>
+  Note: the conversion tools from vrml and doom3 above are based on
+  a grammar you may want to modify (the *.y and *.l files).
+  To that aim, you need the AYACC and AYFLEX tools. They are available in the SVN repository on GLOBE_3D
+  project site, as well as in the P2Ada project's archive (see Web resources).
+  
  </p>
  <li> 
  <a name=resources>
@@ -294,11 +365,15 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
    <li> The <b>FreeGLUT</b> project site
      <a target=_blank href=http://freeglut.sourceforge.net/>here</a>.
 
-   <li><b>GMax</b>, a free version of 3D Studio Max, <a target=_blank href=http://www.turbosquid.com/gmax>here</a>.
-   <li><b>TrueSpace</b>, free version <a target=_blank href=http://www.zdnet.de/downloads/prg/8/6/en10187286-wc.html>here</a>.
-   <li>A few models and textures sites:
+   <li> <b>NeHe</b>, an excellent OpenGL tutorial, <a target=_blank href=http://nehe.gamedev.net/>here</a>.
+
+   <li> <b>GMax</b>, a free version of 3D Studio Max, <a target=_blank href=http://www.turbosquid.com/gmax>here</a>.
+   <li> <b>TrueSpace</b>, free version <a target=_blank href=http://www.zdnet.de/downloads/prg/8/6/en10187286-wc.html>here</a>.
+   <li> A few models and textures sites:
          <a target=_blank href=http://www.turbosquid.com/gmax>Turbo Squid</a>,
          <a target=_blank href=http://scifi3d.theforce.net/>Sci-Fi 3D</a>
+   <li> The <b>P2Ada</b> project site, which contains up-to-date sources for the AYACC / AFLEX tools
+     <a target=_blank href=http://p2ada.sourceforge.net/>here</a>.
   </ul>
  </p>
 <li>
@@ -323,9 +398,8 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
    <li> Move reusable parts of the big demo to Game_Control or other packages (GLUT.Windows in the works)
    <li> Game_Control: add support for configuration files
    <li> 3D Studio / GMAX: see in the max2ada.ms file
-   <li> (demo) improve lightings, better calibrate mouse movements
-   <li> I/O: 1) include the pseudo-normal vectors on vertices 2) store texture name only if different
-   <li> possibility to impose custom pseudo-normal vectors on vertices
+   <li> (demos) improve lightings, better calibrate mouse movements
+   <li> I/O: store texture name only if different
    <li> implement sub-objects or neighour-objects (linked lists)
    <li> make a demo with <a target=_blank href=http://www.openalada.com/>OpenALAda</a>
         (sound/music).
@@ -338,6 +412,7 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
         probably a translation of the PasJPEG library to Ada (see
         <a target=_blank href=http://datacompression.info/JPEG.shtml>here</a>) with P2Ada
         would be fine
+   <li> add a facility for the <a target=_blank href=http://en.wikipedia.org/wiki/Vertigo_effect>Vertigo effect / Dolly zoom</a>
   </ul>
  </p>
 <li>
