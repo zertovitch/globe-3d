@@ -63,7 +63,7 @@ project Globe_3D_Gps_Win32 is
    end Naming;
 
    package Builder is
-      for Default_Switches ("ada") use ("-j2");
+      for Default_Switches ("ada") use ("-j2", "-C");
    end Builder;
 
    package Ide is

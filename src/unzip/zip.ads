@@ -36,13 +36,13 @@
 -- http://www.opensource.org/licenses/mit-license.php
 
 with Zip_Streams;
-with Ada.Streams.Stream_IO, Ada.Text_IO;
+with Ada.Streams.Stream_IO, Ada.Text_IO, Ada.Strings.Unbounded;
 with Interfaces;
 
 package Zip is
 
-  version   : constant String:= "33";
-  reference : constant String:= "18-Jun-2009";
+  version   : constant String:= "35";
+  reference : constant String:= "2-Nov-2009";
   web       : constant String:= "http://unzip-ada.sf.net/";
 
   --------------
@@ -74,9 +74,16 @@ package Zip is
     case_sensitive : in  Boolean:= False
   );
 
+
   Zip_file_Error,
   Zip_file_open_Error,
   Duplicate_name: exception;
+
+  -- Parameter Form added to *_IO.[Open|Create]
+  Form_For_IO_Open_N_Create : Ada.Strings.Unbounded.Unbounded_String
+    := Ada.Strings.Unbounded.Null_Unbounded_String;
+  -- See RM A.8.2: File Management
+  -- Example: "encoding=8bits"
 
   function Is_loaded( info: in Zip_info ) return Boolean;
 
@@ -207,14 +214,19 @@ package Zip is
 
   procedure BlockRead(
     file         : in     Ada.Streams.Stream_IO.File_Type;
-    buffer       :    out Zip.Byte_Buffer;
+    buffer       :    out Byte_Buffer;
     actually_read:    out Natural
   );
 
   procedure BlockRead(
-    file         : in     Zip_Streams.Zipstream_Class;
-    buffer       :    out Zip.Byte_Buffer;
+    stream       : in     Zip_Streams.Zipstream_Class;
+    buffer       :    out Byte_Buffer;
     actually_read:    out Natural
+  );
+
+  procedure BlockWrite(
+    stream: in out Ada.Streams.Root_Stream_Type'Class;
+    buffer: in     Byte_Buffer
   );
 
   -- This does the same as Ada 2005's Ada.Directories.Exists
@@ -234,7 +246,7 @@ package Zip is
 
   procedure Write_as_text(
     out_file :        Ada.Text_IO.File_Type;
-    buffer   :        Zip.Byte_Buffer;
+    buffer   :        Byte_Buffer;
     last_char: in out Character -- track line-ending characters between writes
   );
 
