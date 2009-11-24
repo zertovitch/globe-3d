@@ -3,6 +3,7 @@ with Zip.Headers;
 with Ada.Characters.Handling;
 with Ada.Unchecked_Deallocation;
 with Ada.Exceptions;
+with Ada.IO_Exceptions;
 
 package body Zip is
 
@@ -145,25 +146,36 @@ package body Zip is
     from           : in  Zip_Streams.Zipstream_Class;
     case_sensitive : in  Boolean:= False)
   is
-    procedure Insert( name: String;
-                      file_index: Ada.Streams.Stream_IO.Positive_Count;
-                      comp_size, uncomp_size: File_size_type;
-                      node: in out p_Dir_node ) is
+    procedure Insert(
+      name: String;
+      file_index : Ada.Streams.Stream_IO.Positive_Count;
+      comp_size,
+      uncomp_size: File_size_type;
+      crc_32     : Unsigned_32;
+      date_time  : Time;
+      method     : PKZip_method;
+      node       : in out p_Dir_node
+      )
+    is
     begin
       if node = null then
         node:= new Dir_node'
-          ( (name_len => name'Length,
-             left => null, right => null,
-             name => name,
-             file_index => file_index,
-             comp_size => comp_size,
-             uncomp_size => uncomp_size
+          ( (name_len    => name'Length,
+             left        => null,
+             right       => null,
+             name        => name,
+             file_index  => file_index,
+             comp_size   => comp_size,
+             uncomp_size => uncomp_size,
+             crc_32      => crc_32,
+             date_time   => date_time,
+             method      => method
              )
           );
       elsif name > node.name then
-        Insert( name, file_index, comp_size, uncomp_size, node.right );
+        Insert( name, file_index, comp_size, uncomp_size, crc_32, date_time, method, node.right );
       elsif name < node.name then
-        Insert( name, file_index, comp_size, uncomp_size, node.left );
+        Insert( name, file_index, comp_size, uncomp_size, crc_32, date_time, method, node.left );
       else
         raise Duplicate_name;
       end if;
@@ -209,6 +221,9 @@ package body Zip is
                  (1 + header.local_header_offset),
                 comp_size   => header.short_info.dd.compressed_size,
                 uncomp_size => header.short_info.dd.uncompressed_size,
+                crc_32      => header.short_info.dd.crc_32,
+                date_time   => header.short_info.file_timedate,
+                method      => Method_from_code(header.short_info.zip_type),
                 node        => p );
         -- Since the files are usually well ordered, the tree as inserted
         -- is very unbalanced; we need to rebalance it from time to time
@@ -340,6 +355,29 @@ package body Zip is
   begin
     Traverse(z.dir_binary_tree);
   end Traverse;
+
+  procedure Traverse_verbose( z: Zip_info ) is
+
+    procedure Traverse( p: p_Dir_node ) is
+    begin
+      if p /= null then
+        Traverse(p.left);
+        Action(
+          p.name,
+          Positive(p.file_index),
+          p.comp_size,
+          p.uncomp_size,
+          p.crc_32,
+          p.date_time,
+          p.method
+        );
+        Traverse(p.right);
+      end if;
+    end Traverse;
+
+  begin
+    Traverse(z.dir_binary_tree);
+  end Traverse_verbose;
 
   procedure Tree_stat(
     z        : in     Zip_info;
@@ -527,16 +565,12 @@ package body Zip is
 
   -- Workaround for the severe xxx'Read xxx'Write performance
   -- problems in the GNAT and ObjectAda compilers (as in 2009)
-  -- This possible if and only if Byte = Stream_Element and
-  -- arrays types are both packed.
-  workaround_possible: Boolean;
-
-  procedure Check_workaround is
-    test_a: constant Byte_Buffer(1..10):= (others => 0);
-    test_b: constant Ada.Streams.Stream_Element_Array(1..10):= (others => 0);
-  begin
-    workaround_possible:= test_a'Size = test_b'Size;
-  end Check_workaround;
+  -- This is possible if and only if Byte = Stream_Element and
+  -- arrays types are both packed the same way.
+  --
+  subtype Size_test_a is Byte_Buffer(1..16);
+  subtype Size_test_b is Ada.Streams.Stream_Element_Array(1..16);
+  workaround_possible: constant Boolean:= Size_test_a'Size = Size_test_b'Size;
 
   -- BlockRead - general-purpose procedure (nothing really specific
   -- to Zip / UnZip): reads either the whole buffer from a file, or
@@ -600,9 +634,22 @@ package body Zip is
     end if;
   end BlockRead;
 
+  procedure BlockRead(
+    stream : in     Zip_Streams.Zipstream_Class;
+    buffer :    out Byte_Buffer
+  )
+  is
+    actually_read: Natural;
+  begin
+    BlockRead(stream, buffer, actually_read);
+    if actually_read < buffer'Length then
+      raise Ada.IO_Exceptions.End_Error;
+    end if;
+  end BlockRead;
+
   procedure BlockWrite(
-    stream: in out Ada.Streams.Root_Stream_Type'Class;
-    buffer: in     Byte_Buffer
+    stream : in out Ada.Streams.Root_Stream_Type'Class;
+    buffer : in     Byte_Buffer
   )
   is
     use Ada.Streams;
@@ -704,6 +751,58 @@ package body Zip is
     end loop;
   end Write_as_text;
 
-begin
-  Check_workaround;
+  -------------------------------------------------------
+  -- Zip.Time = DOS Time. Valid through Year 2107, but --
+  -- still better than Ada95's Ada.Calendar's 2099 !   --
+  -------------------------------------------------------
+
+  function Convert(date : in Ada.Calendar.Time) return Zip.Time is
+    use Ada.Calendar;
+    year            : Year_Number;
+    month           : Month_Number;
+    day             : Day_Number;
+    seconds_day_dur : Day_Duration;
+    seconds_day     : Unsigned_32;
+    hours           : Unsigned_32;
+    minutes         : Unsigned_32;
+    seconds         : Unsigned_32;
+  begin
+    Split(date, year, month, day, seconds_day_dur);
+    if year < 1980 then -- avoid invalid DOS date
+      year:= 1980;
+    end if;
+    seconds_day:= Unsigned_32(seconds_day_dur);
+    hours:= seconds_day / 3600;
+    minutes:=  (seconds_day / 60) mod 60;
+    seconds:= seconds_day mod 60;
+    return
+      -- MSDN formula:
+        Unsigned_32( (year - 1980) * 512 + month * 32 + day ) * 65536 -- Date
+      +
+        hours * 2048 + minutes * 32 + seconds/2; -- Time
+  end Convert;
+
+  function Convert(date : in Zip.Time) return Ada.Calendar.Time is
+    d_date : constant Integer:= Integer(date  /  65536);
+    d_time : constant Integer:= Integer(date and 65535);
+    use Ada.Calendar;
+    year   : Year_Number;
+    month  : Month_Number;
+    day    : Day_Number;
+    hours  : Integer;
+    minutes: Integer;
+    seconds: Integer;
+  begin
+    year := 1980 + d_date / 512;
+    month:= (d_date / 32) mod 16;
+    day  := d_date mod 32;
+    hours   := d_time / 2048;
+    minutes := (d_time / 32) mod 64;
+    seconds := 2 * (d_time mod 32);
+    return Time_Of(
+      year, month, day,
+      Day_Duration(hours * 3600 + minutes * 60 + seconds)
+    );
+  end Convert;
+
 end Zip;

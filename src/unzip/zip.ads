@@ -36,13 +36,13 @@
 -- http://www.opensource.org/licenses/mit-license.php
 
 with Zip_Streams;
-with Ada.Streams.Stream_IO, Ada.Text_IO, Ada.Strings.Unbounded;
+with Ada.Calendar, Ada.Streams.Stream_IO, Ada.Text_IO, Ada.Strings.Unbounded;
 with Interfaces;
 
 package Zip is
 
-  version   : constant String:= "35";
-  reference : constant String:= "2-Nov-2009";
+  version   : constant String:= "36";
+  reference : constant String:= "21-Nov-2009";
   web       : constant String:= "http://unzip-ada.sf.net/";
 
   --------------
@@ -99,24 +99,10 @@ package Zip is
 
   Forgot_to_load_zip_info: exception;
 
-  -- Traverse a whole Zip_info directory in sorted order, giving the
-  -- name for each entry to an user-defined "Action" procedure.
-  generic
-    with procedure Action( name: String );
-  procedure Traverse( z: Zip_info );
-
-  -- Academic: see how well the name tree is balanced
-  procedure Tree_stat(
-    z        : in     Zip_info;
-    total    :    out Natural;
-    max_depth:    out Natural;
-    avg_depth:    out Float
-  );
-
-  ---------
-
   -- Data sizes in archive
   subtype File_size_type is Interfaces.Unsigned_32;
+
+  ---------
 
   -- Compression methods or formats in the "official" PKWARE Zip format.
   -- Details in appnote.txt, part V.J
@@ -134,7 +120,7 @@ package Zip is
      tokenize,
      deflate,   --   D
      deflate_e, --   D - Enhanced deflate
-     bzip2,
+     bzip2,     --   D
      lzma,
      ppmd,
      unknown
@@ -143,6 +129,41 @@ package Zip is
   -- Technical: translates the method code as set in zip archives
   function Method_from_code(x: Interfaces.Unsigned_16) return PKZip_method;
   function Method_from_code(x: Natural) return PKZip_method;
+
+  subtype Time is Interfaces.Unsigned_32; -- DOS format (appnote: part V., J.)
+  function Convert(date : in Ada.Calendar.Time) return Zip.Time;
+  function Convert(date : in Zip.Time) return Ada.Calendar.Time;
+
+  -- Traverse a whole Zip_info directory in sorted order, giving the
+  -- name for each entry to an user-defined "Action" procedure.
+  -- Concretely, you can process a whole Zip file that way, by extracting data
+  -- with Extract, or open a reader stream with UnZip.Streams.
+  -- See the Comp_Zip or Find_Zip tools as application examples.
+  generic
+    with procedure Action( name: String ); -- 'name' is compressed entry's name
+  procedure Traverse( z: Zip_info );
+
+  -- Same as Traverse, but Action gives also technical informations about the
+  -- compressed entry.
+  generic
+    with procedure Action(
+      name           : String; -- 'name' is compressed entry's name
+      file_index     : Positive;
+      comp_size      : File_size_type;
+      uncomp_size    : File_size_type;
+      crc_32         : Interfaces.Unsigned_32;
+      date_time      : Time;
+      method         : PKZip_method
+    );
+  procedure Traverse_verbose( z: Zip_info );
+
+  -- Academic: see how well the name tree is balanced
+  procedure Tree_stat(
+    z        : in     Zip_info;
+    total    :    out Natural;
+    max_depth:    out Natural;
+    avg_depth:    out Float
+  );
 
   --------------------------------------------------------------------------
   -- Offsets - various procedures giving 1-based indexes to local headers --
@@ -202,31 +223,47 @@ package Zip is
   -- Goodies - things used internally but that might be generally useful --
   -------------------------------------------------------------------------
 
-  -- General-purpose procedure (nothing really specific to Zip / UnZip):
-  -- reads either the whole buffer from a file, or if the end of the file
-  -- lays inbetween, a part of the buffer.
+  -- BlockRead: general-purpose procedure (nothing really specific to Zip /
+  -- UnZip): reads either the whole buffer from a file, or if the end of
+  -- the file lays inbetween, a part of the buffer.
   --
   -- The procedure's names and parameters match Borland Pascal / Delphi
 
   subtype Byte is Interfaces.Unsigned_8;
-  type Byte_Buffer is array(Integer range <>) of Byte;
+  type Byte_Buffer is array(Integer range <>) of aliased Byte;
   type p_Byte_Buffer is access Byte_Buffer;
 
   procedure BlockRead(
     file         : in     Ada.Streams.Stream_IO.File_Type;
     buffer       :    out Byte_Buffer;
     actually_read:    out Natural
+    -- = buffer'Length if no end of file before last buffer element
   );
 
+  -- Same for general streams
+  --
   procedure BlockRead(
     stream       : in     Zip_Streams.Zipstream_Class;
     buffer       :    out Byte_Buffer;
     actually_read:    out Natural
+    -- = buffer'Length if no end of stream before last buffer element
   );
 
+  -- Same, but instead of giving actually_read, raises End_Error if
+  -- the buffer cannot be fully read.
+  -- This mimics the 'Read stream attribute; can be a lot faster, depending
+  -- on the compiler's run-time library.
+  procedure BlockRead(
+    stream : in     Zip_Streams.Zipstream_Class;
+    buffer :    out Byte_Buffer
+  );
+
+  -- This mimics the 'Write stream attribute; can be a lot faster, depending
+  -- on the compiler's run-time library.
+  -- NB: here we can use the root stream type: no question of size, index,...
   procedure BlockWrite(
-    stream: in out Ada.Streams.Root_Stream_Type'Class;
-    buffer: in     Byte_Buffer
+    stream : in out Ada.Streams.Root_Stream_Type'Class;
+    buffer : in     Byte_Buffer
   );
 
   -- This does the same as Ada 2005's Ada.Directories.Exists
@@ -272,6 +309,9 @@ private
     file_index  : Ada.Streams.Stream_IO.Positive_Count;
     comp_size   : File_size_type;
     uncomp_size : File_size_type;
+    crc_32      : Interfaces.Unsigned_32;
+    date_time   : Time;
+    method      : PKZip_method;
   end record;
 
   type p_String is access String;

@@ -1,4 +1,4 @@
-with Zip.CRC, UnZip.Decompress.Huffman;
+with Zip.CRC, UnZip.Decompress.Huffman, BZip2;
 with Ada.Text_IO, Interfaces;
 with Ada.Streams.Stream_IO;
 
@@ -37,9 +37,10 @@ package body UnZip.Decompress is
 
     package UnZ_Glob is
       -- I/O Buffers
-      slide: Zip.Byte_Buffer( 0..wsize ); -- Sliding dictionary for unzipping
+      -- > Sliding dictionary for unzipping, and output buffer as well
+      slide: Zip.Byte_Buffer( 0..wsize );
       slide_index: Integer:= 0; -- Current Position in slide
-      -- Input buffer
+      -- > Input buffer
       inbuf: Zip.Byte_Buffer( 0 .. inbuf_size - 1 );
       inpos, readpos: Integer;  -- pos. in input buffer, pos. read from file
       compsize,            -- compressed size of file
@@ -57,59 +58,40 @@ package body UnZip.Decompress is
       out_txt_file: Ada.Text_IO.File_Type;
       last_char   : Character:= ' ';
 
-      -- Centralize buffer initialisations - 29-Jun-2001
       procedure Init_Buffers;
 
       package Decryption is
-
         procedure Set_mode( crypted: Boolean );
         function Get_mode return Boolean;
-
-        -- Initialize decryption keys, read and transform the 12-byte
-        -- encryption buffer (steps 1 and 2 of Appnote.txt) - 28-Jun-2001
-
         procedure Init( password: String; crc_check: Unsigned_32);
-
         procedure Decode( b: in out Unsigned_8 );
           pragma Inline(Decode);
-
       end Decryption;
 
-      -- **** Read raw byte ****
-      procedure Read_byte ( bt : out Unsigned_8 );
-        pragma Inline(Read_byte);
+      procedure Read_raw_byte ( bt : out Unsigned_8 );
+        pragma Inline(Read_raw_byte);
 
       package Bit_buffer is
-        -- Created 26-Jun-2003 - no more global K & B in Unz_Glob.
-
         procedure Init;
-
         -- Read at least n bits into the bit buffer, returns the n first bits
         function Read ( n: Natural ) return Integer;
           pragma Inline(Read);
-
         function Read_U32 ( n: Natural ) return Unsigned_32;
           pragma Inline(Read_U32);
-
         -- Inverts (NOT operator) the result before masking by n bits
         function Read_inverted ( n: Natural ) return Integer;
           pragma Inline(Read_inverted);
-
         -- Dump n bits no longer needed from the bit buffer
         procedure Dump ( n: Natural );
           pragma Inline(Dump);
-
         procedure Dump_to_byte_boundary;
-
         function Read_and_dump( n: Natural ) return Integer;
           pragma Inline(Read_and_dump);
         function Read_and_dump_U32( n: Natural ) return Unsigned_32;
           pragma Inline(Read_and_dump_U32);
-
       end Bit_buffer;
 
-      -- *************** Flush x bytes directly from slide to file *********
-      procedure Flush ( x: Natural );
+      procedure Flush ( x: Natural ); -- directly from slide to output stream
 
       procedure Flush_if_full(W: in out Integer; unflushed: in out Boolean);
         pragma Inline(Flush_if_full);
@@ -140,6 +122,7 @@ package body UnZip.Decompress is
       procedure Explode( literal_tree, slide_8_KB: Boolean );
       deflate_e_mode: Boolean:= False;
       procedure Inflate;
+      procedure Bunzip2; -- Nov-2009
     end UnZ_Meth;
 
     ------------------------------
@@ -160,8 +143,6 @@ package body UnZip.Decompress is
         Zip.CRC.Init( UnZ_Glob.crc32val );
         Bit_buffer.Init;
       end Init_Buffers;
-
-      -- ********************* fill inbuf from zip_file *********************
 
       procedure Read_buffer is
       begin
@@ -293,11 +274,11 @@ package body UnZip.Decompress is
 
       end Decryption;
 
-      procedure Read_byte ( bt : out Zip.Byte ) is
+      procedure Read_raw_byte ( bt : out Zip.Byte ) is
       begin
         Read_byte_no_decrypt( bt );
         Decryption.Decode(bt);
-      end Read_byte;
+      end Read_raw_byte;
 
       package body Bit_buffer is
         B : Unsigned_32;
@@ -314,7 +295,7 @@ package body UnZip.Decompress is
           bt: Zip.Byte;
         begin
           while K < n loop
-            Read_byte( bt );
+            Read_raw_byte( bt );
             B:= B or Shift_Left( Unsigned_32( bt ), K );
             K:= K + 8;
           end loop;
@@ -334,13 +315,13 @@ package body UnZip.Decompress is
         function Read_U32 ( n: Natural ) return Unsigned_32 is
         begin
           Need(n);
-          return B and (2**n - 1);
+          return B and (Shift_Left(1,n) - 1);
         end Read_U32;
 
         function Read_inverted ( n: Natural ) return Integer is
         begin
           Need(n);
-          return Integer((not B) and (2**n - 1));
+          return Integer((not B) and (Shift_Left(1,n) - 1));
         end Read_inverted;
 
         function Read ( n: Natural ) return Integer is
@@ -365,7 +346,6 @@ package body UnZip.Decompress is
         end Read_and_dump_U32;
 
       end Bit_buffer;
-      -- **************** Flush x bytes directly from slide to file *******
 
       procedure Flush ( x: Natural ) is
         use Zip, UnZip, Ada.Streams;
@@ -860,7 +840,7 @@ package body UnZip.Decompress is
         S: UnZip.File_size_type:= UnZ_Glob.uncompsize;
         -- number of bytes left to decompress
         unflushed: Boolean:= True;
-        maximum_AND_mask: constant Unsigned_32:= 2**(8-factor)-1;
+        maximum_AND_mask: constant Unsigned_32:= Shift_Left(1,8-factor) - 1;
 
         procedure Out_byte(b: Zip.Byte) is
         begin
@@ -963,12 +943,12 @@ package body UnZip.Decompress is
           Ada.Text_IO.Put_Line("Begin UnZ_Expl.Get_tree");
         end if;
 
-        UnZ_IO.Read_byte ( Bytebuf );
+        UnZ_IO.Read_raw_byte ( Bytebuf );
         I := Unsigned_32(Bytebuf) + 1;
         K := 0;
 
         loop
-          UnZ_IO.Read_byte ( Bytebuf );
+          UnZ_IO.Read_raw_byte ( Bytebuf );
           J := Unsigned_32(Bytebuf);
           B := ( J  and  16#0F# ) + 1;
           J := ( J  and  16#F0# ) / 16 + 1;
@@ -997,15 +977,12 @@ package body UnZip.Decompress is
         end if;
       end Get_Tree;
 
-      -- **************** exploding, method with 3 trees ******************
-
-      procedure Explode_Lit (
+      procedure Explode_Lit ( -- method with 3 trees
         Needed: Integer;
         Tb, Tl, Td : p_Table_list;
         Bb, Bl, Bd : Integer
       )
       is
-
         S       : Unsigned_32;
         E, N, D : Integer;
 
@@ -1114,9 +1091,7 @@ package body UnZip.Decompress is
         end if;
       end Explode_Lit;
 
-      -- **************** exploding, method with 2 trees ***************
-
-      procedure Explode_Nolit (
+      procedure Explode_Nolit ( -- method with 2 trees
           Needed: Integer;
           Tl, Td : p_Table_list;
           Bl, Bd : Integer
@@ -1210,8 +1185,6 @@ package body UnZip.Decompress is
         end if;
 
       end Explode_Nolit;
-
-      -- ****************************** explode ******************************
 
       procedure Explode( literal_tree, slide_8_KB: Boolean ) is
 
@@ -1320,7 +1293,7 @@ package body UnZip.Decompress is
                 HufT_free(Tb);
                 raise Zip.Zip_file_Error;
               end if;
-              -- ** Exploding, method: 8k slide, 3 trees **
+              -- Exploding, method: 8k slide, 3 trees
               Explode_Lit ( 7, Tb, Tl, Td, Bb, Bl, Bd );
             else
               HufT_build (
@@ -1332,7 +1305,7 @@ package body UnZip.Decompress is
                 HufT_free(Tb);
                 raise Zip.Zip_file_Error;
               end if;
-              -- ** Exploding, method: 4k slide, 3 trees **
+              -- Exploding, method: 4k slide, 3 trees
               Explode_Lit ( 6, Tb, Tl, Td, Bb, Bl, Bd );
             end if;
           exception
@@ -1385,7 +1358,7 @@ package body UnZip.Decompress is
                 HufT_free(Tl);
                 raise Zip.Zip_file_Error;
               end if;
-              -- ** Exploding, method: 8k slide, 2 trees **
+              -- Exploding, method: 8k slide, 2 trees
               Explode_Nolit( 7, Tl, Td, Bl, Bd );
             else
               HufT_build (
@@ -1396,7 +1369,7 @@ package body UnZip.Decompress is
                 HufT_free(Tl);
                 raise Zip.Zip_file_Error;
               end if;
-              -- ** Exploding, method: 4k slide, 2 trees **
+              -- Exploding, method: 4k slide, 2 trees
               Explode_Nolit( 6, Tl, Td, Bl, Bd );
             end if;
           exception
@@ -1411,11 +1384,6 @@ package body UnZip.Decompress is
       end Explode;
 
       --------[ Method: Copy stored ]--------
-
-      -- C code by info-zip group, translated to Pascal by Christian Ghisler
-      -- based on unz51g.zip
-
-      -- 13-Dec-2002: fixed bug preventing copying encrypted files
 
       procedure Copy_stored is
         size: constant UnZip.File_size_type:= UnZ_Glob.compsize;
@@ -1432,7 +1400,7 @@ package body UnZip.Decompress is
           end if;
           begin
             for I in 0 .. read_in-1 loop
-              UnZ_IO.Read_byte( UnZ_Glob.slide( Natural(I) ) );
+              UnZ_IO.Read_raw_byte( UnZ_Glob.slide( Natural(I) ) );
             end loop;
           exception
             when others=>
@@ -1448,9 +1416,7 @@ package body UnZip.Decompress is
         end loop;
       end Copy_stored;
 
-      -- Note from Pascal source:
-      -- C code by info-zip group, translated to pascal by Christian Ghisler
-      -- based on unz51g.zip
+      --------[ Method: Inflate ]--------
 
       procedure Inflate_Codes ( Tl, Td: p_Table_list; Bl, Bd: Integer ) is
         CTE    : p_HufT;       -- current table element
@@ -1529,13 +1495,11 @@ package body UnZip.Decompress is
         end if;
       end Inflate_Codes;
 
-      -- ************************ "decompress" stored block ***************
-
-      procedure Inflate_Stored is
+      procedure Inflate_stored_block is -- Actually, nothing to inflate
         N : Integer;
       begin
         if full_trace then
-          Ada.Text_IO.Put_Line("Begin Inflate_stored");
+          Ada.Text_IO.Put_Line("Begin Inflate_stored_block");
         end if;
         UnZ_IO.Bit_buffer.Dump_to_byte_boundary;
 
@@ -1556,9 +1520,9 @@ package body UnZip.Decompress is
           UnZ_IO.Flush_if_full(UnZ_Glob.slide_index);
         end loop;
         if full_trace then
-          Ada.Text_IO.Put_Line("End   Inflate_stored");
+          Ada.Text_IO.Put_Line("End   Inflate_stored_block");
         end if;
-      end Inflate_Stored;
+      end Inflate_stored_block;
 
       -- Copy lengths for literal codes 257..285
 
@@ -1587,9 +1551,7 @@ package body UnZip.Decompress is
 
       max_dist: Integer:= 29; -- changed to 31 for deflate_e
 
-      -- ********************** decompress fixed block ********************
-
-      procedure Inflate_Fixed is
+      procedure Inflate_fixed_block is
         Tl,                        -- literal/length code table
           Td : p_Table_list;            -- distance code table
         Bl, Bd : Integer;          -- lookup bits for tl/bd
@@ -1601,7 +1563,7 @@ package body UnZip.Decompress is
 
       begin
         if some_trace then
-          Ada.Text_IO.Put_Line("Begin Inflate_fixed");
+          Ada.Text_IO.Put_Line("Begin Inflate_fixed_block");
         end if;
 
         -- make a complete, but wrong code set
@@ -1639,13 +1601,11 @@ package body UnZip.Decompress is
         HufT_free ( Td );
 
         if some_trace then
-          Ada.Text_IO.Put_Line("End   Inflate_fixed");
+          Ada.Text_IO.Put_Line("End   Inflate_fixed_block");
         end if;
-      end Inflate_Fixed;
+      end Inflate_fixed_block;
 
-      -- ******************** decompress dynamic block **********************
-
-      procedure Inflate_Dynamic is
+      procedure Inflate_dynamic_block is
         bit_order : constant array ( 0..18 ) of Natural :=
          ( 16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15 );
 
@@ -1683,7 +1643,7 @@ package body UnZip.Decompress is
 
       begin
         if some_trace then
-          Ada.Text_IO.Put_Line("Begin Inflate_dynamic");
+          Ada.Text_IO.Put_Line("Begin Inflate_dynamic_block");
         end if;
 
         -- Read in table lengths
@@ -1798,27 +1758,23 @@ package body UnZip.Decompress is
         HufT_free ( Td );
 
         if some_trace then
-          Ada.Text_IO.Put_Line("End   Inflate_dynamic");
+          Ada.Text_IO.Put_Line("End   Inflate_dynamic_block");
         end if;
-      end Inflate_Dynamic;
-
-      -- ************************ decompress a block *************************
+      end Inflate_dynamic_block;
 
       procedure Inflate_Block( last_block: out Boolean ) is
       begin
         last_block:= Boolean'Val(UnZ_IO.Bit_buffer.Read_and_dump(1));
         case UnZ_IO.Bit_buffer.Read_and_dump(2) is -- Block type = 0,1,2,3
-          when 0 =>      Inflate_Stored;
-          when 1 =>      Inflate_Fixed;
-          when 2 =>      Inflate_Dynamic;
+          when 0 =>      Inflate_stored_block;
+          when 1 =>      Inflate_fixed_block;
+          when 2 =>      Inflate_dynamic_block;
           when others => raise Zip.Zip_file_Error; -- Bad block type (3)
         end case;
       end Inflate_Block;
 
-      -- ****************** decompress an inflated entry *********************
-
       procedure Inflate is
-        last_block: Boolean;
+        is_last_block: Boolean;
         blocks: Positive:= 1;
       begin
         if deflate_e_mode then
@@ -1827,8 +1783,8 @@ package body UnZip.Decompress is
           max_dist:= 31;
         end if;
         loop
-          Inflate_Block ( last_block );
-          exit when last_block;
+          Inflate_Block ( is_last_block );
+          exit when is_last_block;
           blocks:= blocks+1;
         end loop;
         UnZ_IO.Flush( UnZ_Glob.slide_index );
@@ -1838,16 +1794,46 @@ package body UnZip.Decompress is
         end if;
       end Inflate;
 
+      --------[ Method: BZip2 ]--------
+
+      procedure Bunzip2 is
+        type BZ_Buffer is array(Natural range <>) of Interfaces.Unsigned_8;
+        procedure Read( b: out BZ_Buffer ) is
+        begin
+          for i in b'Range loop
+            exit when UnZ_Glob.Zip_EOF;
+            UnZ_IO.Read_raw_byte(b(i));
+          end loop;
+        end Read;
+        procedure Write( b: in BZ_Buffer ) is
+        begin
+          for i in b'Range loop
+            UnZ_Glob.slide ( UnZ_Glob.slide_index ) := b(i);
+            UnZ_Glob.slide_index:= UnZ_Glob.slide_index + 1;
+            UnZ_IO.Flush_if_full(UnZ_Glob.slide_index);
+          end loop;
+        end Write;
+        package My_BZip2 is new BZip2
+          ( Buffer    => BZ_Buffer,
+            check_CRC => False, -- Already done by UnZ_IO
+            Read      => Read,
+            Write     => Write
+          );
+      begin
+        My_BZip2.Decompress;
+        UnZ_IO.Flush( UnZ_Glob.slide_index );
+      end Bunzip2;
+
     end UnZ_Meth;
 
     procedure Process(descriptor: out Zip.Headers.Data_descriptor)
     is
-      start: Integer; -- 3-Apr-2004:
+      start: Integer;
       b: Unsigned_8;
       dd_buffer: Zip.Byte_Buffer(1..30);
     begin
       UnZ_IO.Bit_buffer.Dump_to_byte_boundary;
-      UnZ_IO.Read_byte(b);
+      UnZ_IO.Read_raw_byte(b);
       if b = 75 then -- 'K' ('P' is before, Java/JAR bug!)
         dd_buffer(1):= 80;
         dd_buffer(2):= 75;
@@ -1857,7 +1843,7 @@ package body UnZip.Decompress is
         start:= 2;
       end if;
       for i in start..16 loop
-        UnZ_IO.Read_byte( dd_buffer(i) );
+        UnZ_IO.Read_raw_byte( dd_buffer(i) );
       end loop;
       Zip.Headers.Copy_and_check( dd_buffer, descriptor );
     end Process;
@@ -1936,6 +1922,7 @@ package body UnZip.Decompress is
         when deflate | deflate_e =>
           UnZ_Meth.deflate_e_mode:= format = deflate_e;
           UnZ_Meth.Inflate;
+        when Zip.bzip2 => UnZ_Meth.Bunzip2;
         when others =>
           raise Unsupported_method;
       end case;
