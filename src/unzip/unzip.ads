@@ -6,13 +6,13 @@
 
 -- UnZip
 --------
--- This library allows to uncompress deflated, enhanced deflated,
--- imploded, reduced, shrunk and stored files from a Zip file.
+-- This library allows to uncompress deflated, enhanced deflated, bzip2-ed,
+-- imploded, reduced, shrunk and stored streams from a Zip archive stream.
 --
 -- Pure Ada 95 code, 100% portable: OS-, CPU- and compiler- independent.
 
---  Ada translation & substantial rewriting by Gautier de Montmollin
---    Web: see the Zip.web constant
+--  Ada translation and substantial rewriting by Gautier de Montmollin
+--    On the web: see the Zip.web constant below.
 --  based on Pascal version 2.10 by Abimbola A Olowofoyeku,
 --    http://www.greatchief.plus.com/
 --  itself based on Pascal version by Christian Ghisler,
@@ -73,19 +73,26 @@ package UnZip is
   type Set_Time_Stamp_proc is access
     procedure (file_name: String; stamp: Ada.Calendar.Time);
 
+  -- Alternatively, you can use Zip.Time to set file time stamps
+  type Set_ZTime_Stamp_proc is access
+    procedure (file_name: String; stamp: Zip.Time);
+  -- NB: you can use Zip.Convert to change Ada.Calendar.Time from/to Zip.Time
+  --     or use our Split to avoid using Ada.Calendar at all.
+
   -- This is for modifying output file names (e.g. adding a
   -- work directory, modifying the archived path, etc.)
-  type compose_func is access function (File_Name : String) return String;
+  type Compose_func is access function (File_Name : String) return String;
 
   -- File System dependent settings
   type FS_routines_type is record
     Create_Path            : Create_Path_proc;
     Set_Time_Stamp         : Set_Time_Stamp_proc;
     Directory_Separator    : Character;
-    Compose_File_Name      : Compose_Func;
+    Compose_File_Name      : Compose_func;
+    Set_ZTime_Stamp        : Set_ZTime_Stamp_proc; -- alt. to Set_Time_Stamp
   end record;
 
-  null_routines: constant FS_routines_type:= (null,null,'\',null);
+  null_routines: constant FS_routines_type:= (null,null,'\',null,null);
 
 
   ----------------------------------
