@@ -395,6 +395,8 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
   (some items may go beyond the scope of graphics and GLOBE_3D):
  <p>
   <ul>
+   <li> GL.IO: apply buffering techniques from Zip-Ada to work around the performance bottlenecks
+          in Byte[_Array]'Read/'Write on GNAT (and to a lesser extent on ObjectAda)
    <li> Move reusable parts of the big demo to Game_Control or other packages (GLUT.Windows in the works)
    <li> Game_Control: add support for configuration files
    <li> 3D Studio / GMAX: see in the max2ada.ms file
