@@ -15,6 +15,17 @@ package body GL.IO is
 
   use Ada.Streams.Stream_IO;
 
+  -- Workaround for the severe xxx'Read xxx'Write performance
+  -- problems in the GNAT and ObjectAda compilers (as in 2009)
+  -- This is possible if and only if Byte = Stream_Element and
+  -- arrays types are both packed the same way.
+  --
+  subtype Size_test_a is Byte_Array(1..16);
+  subtype Size_test_b is Ada.Streams.Stream_Element_Array(1..16);
+  workaround_possible: constant Boolean:= Size_test_a'Size = Size_test_b'Size;
+
+  --
+
   type U8  is mod 2 ** 8;   for U8'Size  use 8;
   type U16 is mod 2 ** 16;  for U16'Size use 16;
   type U32 is mod 2 ** 32;  for U32'Size use 32;
@@ -113,7 +124,7 @@ package body GL.IO is
         tmp: GL.UByte;
 
       begin
-        if RLE_pixels_remaining <= 0 then -- load RLE code
+        if RLE_pixels_remaining = 0 then -- load RLE code
           GL.UByte'Read( s, tmp );
           Get_pixel;
           RLE_pixels_remaining:= GL.UByte'Pos(tmp and 16#7F#);
@@ -713,6 +724,7 @@ package body GL.IO is
     -- but has no type safety (cf GNAT Docs)
     pragma No_Strict_Aliasing(loc_pointer); -- recommended by GNAT 2005+
     pPicData: loc_pointer;
+    data_max: constant Integer:= width * height * 3 -1;
   begin
     pPicData:= Cvt(PicData(0)'Address);
     GL.ReadPixels(
@@ -722,7 +734,18 @@ package body GL.IO is
       GL.GL_UNSIGNED_BYTE,
       GL.pointer(pPicData)
     );
-    Temp_bitmap_type'Write(s, PicData(0..width * height * 3 -1) );
+    if workaround_possible then
+      declare
+        use Ada.Streams;
+        SE_Buffer   : Stream_Element_Array (0..Stream_Element_Offset(PicData'Last));
+        for SE_Buffer'Address use PicData'Address;
+        pragma Import (Ada, SE_Buffer);
+      begin
+        Ada.Streams.Write(s.all, SE_Buffer(0..Stream_Element_Offset(data_max)));
+      end;
+    else
+      Temp_bitmap_type'Write(s, PicData(0..data_max) );
+    end if;
   end Write_raw_BGR_frame;
 
   -------------------------------------------------------
