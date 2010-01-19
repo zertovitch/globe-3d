@@ -199,7 +199,7 @@ package body Vehic001 is
         );
 
     colour : GL.RGB_Color;
-    corr: Vector_3D:= (0.0,160.0,0.0);
+    corr: constant Vector_3D:= (0.0,160.0,0.0);
     face_0 : Face_type; -- takes defaults values
   begin
     face_0.skin    := colour_only;

@@ -15,49 +15,32 @@ package body GL.IO is
 
   use Ada.Streams.Stream_IO;
 
-  -- Workaround for the severe xxx'Read xxx'Write performance
-  -- problems in the GNAT and ObjectAda compilers (as in 2009)
-  -- This is possible if and only if Byte = Stream_Element and
-  -- arrays types are both packed the same way.
-  --
-  subtype Size_test_a is Byte_Array(1..16);
-  subtype Size_test_b is Ada.Streams.Stream_Element_Array(1..16);
-  workaround_possible: constant Boolean:= Size_test_a'Size = Size_test_b'Size;
-
-  --
-
   type U8  is mod 2 ** 8;   for U8'Size  use 8;
   type U16 is mod 2 ** 16;  for U16'Size use 16;
   type U32 is mod 2 ** 32;  for U32'Size use 32;
 
-  -- type I16 is range -2 ** 15 .. 2 ** 15 - 1; for I16'Size use 16;
   type I32 is range -2 ** 31 .. 2 ** 31 - 1; for I32'Size use 32;
 
+  not_yet_implemented : exception;
 
-   not_yet_implemented : exception;
+  function to_greyscale_Pixels (the_Image : in Image) return Byte_grid
+  is
+     the_Grid : Byte_Grid (1 .. the_Image.Height, 1 .. the_Image.Width);
+  begin
+     case the_Image.tex_pixel_Format is
+        when GL.LUMINANCE =>
 
+           for Row in the_Grid'range (1) loop
+              for Col in the_Grid'range (2) loop
+                 the_Grid (Row, Col) := the_Image.Data (the_Image.Width * (Row - 1) + Col - 1);
+              end loop;
+           end loop;
 
-   function to_greyscale_Pixels (the_Image : in Image) return Byte_grid
-   is
-      the_Grid : Byte_Grid (1 .. the_Image.Height, 1 .. the_Image.Width);
-   begin
-      case the_Image.tex_pixel_Format is
-         when GL.LUMINANCE =>
-
-            for Row in the_Grid'range (1) loop
-               for Col in the_Grid'range (2) loop
-                  the_Grid (Row, Col) := the_Image.Data (the_Image.Width * (Row - 1) + Col - 1);
-               end loop;
-            end loop;
-
-         when others =>
-            raise not_yet_implemented;       -- tbd: do these
-      end case;
-
-      return the_Grid;
-   end;
-
-
+        when others =>
+           raise not_yet_implemented;       -- tbd: do these
+     end case;
+     return the_Grid;
+  end;
 
   procedure Insert_into_GL(
               id             : Integer;
@@ -85,263 +68,336 @@ package body GL.IO is
   end Insert_into_GL;
 
 
+  -- Workaround for the severe xxx'Read xxx'Write performance
+  -- problems in the GNAT and ObjectAda compilers (as in 2009)
+  -- This is possible if and only if Byte = Stream_Element and
+  -- arrays types are both packed the same way.
+  --
+  subtype Size_test_a is Byte_Array(1..16);
+  subtype Size_test_b is Ada.Streams.Stream_Element_Array(1..16);
+  workaround_possible: constant Boolean:= Size_test_a'Size = Size_test_b'Size;
+  --
 
+  type Input_buffer is record
+    data       : Byte_Array(1..1024);
+    stm        : Stream_Access;
+    InBufIdx   : Positive;   --  Points to next char in buffer to be read
+    MaxInBufIdx: Natural;    --  Count of valid chars in input buffer
+    InputEoF   : Boolean;    --  End of file indicator
+  end record;
 
-
-
-   function to_TGA_Image (S : in  Ada.Streams.Stream_IO.Stream_Access      -- Input data stream
-                         ) return Image
-   is
-      the_Image : Image;
-
-      -- Run Length Encoding --
-      RLE: Boolean;
-      RLE_pixels_remaining: Natural:= 0;
-      pix_mem: Byte_array(1..4);
-      is_run_packet: Boolean;
-
-      procedure RLE_Pixel(iBits: Integer; pix: out Byte_array) is
-
-        procedure Get_pixel is
+  procedure Fill_Buffer(b: in out Input_buffer)
+  is
+    --
+    procedure BlockRead(
+      buffer       :    out Byte_Array;
+      actually_read:    out Natural
+    )
+    is
+      use Ada.Streams;
+      Last_Read: Stream_Element_Offset;
+    begin
+      if workaround_possible then
+        declare
+          SE_Buffer: Stream_Element_Array (1 .. buffer'Length);
+          -- direct mapping: buffer = SE_Buffer
+          for SE_Buffer'Address use buffer'Address;
+          pragma Import (Ada, SE_Buffer);
         begin
-          case iBits is
-            when 32 => -- BGRA
-              GL.UByte'Read( s, pix(pix'First+2) );
-              GL.UByte'Read( s, pix(pix'First+1) );
-              GL.UByte'Read( s, pix(pix'First  ) );
-              GL.UByte'Read( s, pix(pix'First+3) );
-            when 24 => -- BGR
-              GL.UByte'Read( s, pix(pix'First+2) );
-              GL.UByte'Read( s, pix(pix'First+1) );
-              GL.UByte'Read( s, pix(pix'First  ) );
-            when 8  => -- Grey
-              GL.UByte'Read( s, pix(pix'First  ) );
-            when others =>
-              null;
-          end case;
-        end Get_pixel;
-
-        tmp: GL.UByte;
-
-      begin
-        if RLE_pixels_remaining = 0 then -- load RLE code
-          GL.UByte'Read( s, tmp );
-          Get_pixel;
-          RLE_pixels_remaining:= GL.UByte'Pos(tmp and 16#7F#);
-          is_run_packet:= (tmp and 16#80#) /= 0;
-          if is_run_packet then
-            case iBits is
-              when 32 =>
-                pix_mem(1..4):= pix;
-              when 24 =>
-                pix_mem(1..3):= pix;
-              when 8  =>
-                pix_mem(1..1):= pix;
-              when others =>
-                null;
-            end case;
-          end if;
-        else
-          if is_run_packet then
-            case iBits is
-              when 32 =>
-                pix:= pix_mem(1..4);
-              when 24 =>
-                pix:= pix_mem(1..3);
-              when 8  =>
-                pix:= pix_mem(1..1);
-              when others =>
-                null;
-            end case;
-          else
-            Get_pixel;
-          end if;
-          RLE_pixels_remaining:= RLE_pixels_remaining - 1;
-        end if;
-      end RLE_Pixel;
-
-      --  =============
-      --  getRGBA
-
-      --  Reads in RGBA data for a 32bit image.
-      --  =============
-
-      procedure getRGBA ( buffer: out Byte_array ) is
-        i: Integer:= buffer'First;
-      begin
-        if RLE then
-          while i <= buffer'Last-3 loop
-            RLE_Pixel( 32, buffer(i..i+3) );
-            i:= i + 4;
+          Read(b.stm.all, SE_Buffer, Last_Read);
+          actually_read:= Natural(Last_Read);
+        end;
+      else
+        declare
+          SE_Buffer: Stream_Element_Array (1 .. buffer'Length);
+          -- need to copy array
+        begin
+          Read(b.stm.all, SE_Buffer, Last_Read);
+          actually_read:= Natural(Last_Read);
+          for i in buffer'Range loop
+            buffer(i):= Ubyte(SE_Buffer(Stream_Element_Offset(i-buffer'First)+SE_buffer'First));
           end loop;
-        else
-          while i <= buffer'Last-3 loop
-            -- TGA is stored in BGRA, make it RGBA
-            GL.UByte'Read( s, buffer(i+2) );
-            GL.UByte'Read( s, buffer(i+1) );
-            GL.UByte'Read( s, buffer(i  ) );
-            GL.UByte'Read( s, buffer(i+3) );
-            i:= i + 4;
-          end loop;
-        end if;
-        the_Image.tex_Format      := GL.RGBA;
-        the_Image.tex_pixel_Format:= GL.RGBA;
-      end getRGBA;
-
-      --  =============
-      --  getRGB
-
-      --  Reads in RGB data for a 24bit image.
-      --  =============
-
-      procedure getRGB ( buffer: out Byte_array ) is
-        i: Integer:= buffer'First;
-      begin
-        if RLE then
-          while i <= buffer'Last-2 loop
-            RLE_Pixel( 24, buffer(i..i+2) );
-            i:= i + 3;
-          end loop;
-        else
-          while i <= buffer'Last-2 loop
-            -- TGA is stored in BGR, make it RGB
-            GL.UByte'Read( s, buffer(i+2) );
-            GL.UByte'Read( s, buffer(i+1) );
-            GL.UByte'Read( s, buffer(i  ) );
-            i:= i + 3;
-          end loop;
-        end if;
-        the_Image.tex_Format      := GL.RGB;
-        the_Image.tex_pixel_Format:= GL.RGB;
-      end getRGB;
-
-      --  =============
-      --  getGray
-
-      --  Gets the grayscale image data.  Used as an alpha channel.
-      --  =============
-
-      procedure getGray ( buffer: out Byte_array ) is
-      begin
-        if RLE then
-          for b in buffer'range loop
-            RLE_Pixel( 8, buffer(b..b) );
-          end loop;
-        else
-          Byte_array'Read( s, buffer );
-        end if;
-        the_Image.tex_Format      := GL.LUMINANCE; -- ALPHA
-        the_Image.tex_pixel_Format:= GL.LUMINANCE;
-      end getGray;
-
-      --  =============
-      --  getData
-
-      --  Gets the image data for the specified bit depth.
-      --  =============
-
-      procedure getData ( iBits: Integer; buffer: out Byte_array ) is
-      begin
-        case iBits is
-          when 32 =>
-            getRGBA(buffer);
-            the_Image.blending_hint:= True;
-          when 24 =>
-            getRGB(buffer);
-            the_Image.blending_hint:= False;
-          when 8  =>
-            getGray(buffer);
-            the_Image.blending_hint:= True;
-          when others => null;
-        end case;
-      end getData;
-
-      TGA_type: Byte_Array(0..3);
-      info    : Byte_Array(0..5);
-      dummy   : Byte_Array(1..8);
-
-      imageBits: Integer;
-
-      image_type: Integer;
-
-   begin
-      Byte_Array'Read( s, TGA_type ); -- read in colormap info and image type
-      Byte_Array'Read( s, dummy );    -- seek past the header and useless info
-      Byte_Array'Read( s, info );
-
-      if TGA_type(1) /= GL.UByte'Val(0) then
-        raise TGA_Unsupported_Image_Type
-          with "TGA: palette not supported, please use BMP";
+        end;
       end if;
+    end BlockRead;
+    --
+  begin
+    BlockRead(
+      buffer        => b.data,
+      actually_read => b.MaxInBufIdx
+    );
+    b.InputEoF:= b.MaxInBufIdx = 0;
+    b.InBufIdx := 1;
+  end Fill_Buffer;
 
-      -- Image type:
-      --      1=8-bit palette style
-      --      2=Direct [A]RGB image
-      --      3=grayscale
-      --      9=RLE version of Type 1
-      --     10=RLE version of Type 2
-      --     11=RLE version of Type 3
-
-      image_type:= GL.UByte'Pos(TGA_type(2));
-      RLE:= image_Type >= 9;
-      if RLE then
-        image_type:= image_type - 8;
-        RLE_pixels_remaining:= 0;
+  procedure Get_Byte(buf: in out Input_buffer; by: out UByte) is
+    pragma Inline(Get_Byte);
+  begin
+    if buf.InBufIdx > buf.MaxInBufIdx then
+      Fill_Buffer(buf);
+      if buf.InputEoF then
+        raise End_Error;
       end if;
-      if image_type /= 2 and image_type /= 3 then
-        raise TGA_Unsupported_Image_Type
-          with "TGA type =" & Integer'Image(image_type);
-      end if;
+    end if;
+    by:= buf.data(buf.InBufIdx);
+    buf.InBufIdx:= buf.InBufIdx + 1;
+  end Get_Byte;
 
-      the_Image.Width  := GL.UByte'Pos(info(0)) + GL.UByte'Pos(info(1)) * 256;
-      the_Image.Height := GL.UByte'Pos(info(2)) + GL.UByte'Pos(info(3)) * 256;
-      imageBits   := GL.UByte'Pos(info(4));
+  function to_TGA_Image (S : in  Ada.Streams.Stream_IO.Stream_Access      -- Input data stream
+                        ) return Image
+  is
+     the_Image : Image;
+     stream_buf: Input_buffer;
 
-      the_Image.size := the_Image.Width * the_Image.Height;
+     -- Run Length Encoding --
+     RLE: Boolean;
+     RLE_pixels_remaining: Natural:= 0;
+     pix_mem: Byte_array(1..4);
+     is_run_packet: Boolean;
 
-      -- 30-Apr-2006: dimensions not power of two allowed, but discouraged in the docs.
-      --
-      --  -- make sure dimension is a power of 2
-      --  if not (checkSize (imageWidth)  and  checkSize (imageHeight)) then
-      --     raise TGA_BAD_DIMENSION;
-      --  end if;
+     procedure RLE_Pixel(iBits: Integer; pix: out Byte_array) is
 
-      -- make sure we are loading a supported TGA_type
-      if imageBits /= 32 and imageBits /= 24 and imageBits /= 8 then
-         raise TGA_Unsupported_BITS_per_pixel;
-      end if;
+       procedure Get_pixel is
+       begin
+         case iBits is
+           when 32 => -- BGRA
+             Get_Byte(stream_buf, pix(pix'First+2) );
+             Get_Byte(stream_buf, pix(pix'First+1) );
+             Get_Byte(stream_buf, pix(pix'First  ) );
+             Get_Byte(stream_buf, pix(pix'First+3) );
+           when 24 => -- BGR
+             Get_Byte(stream_buf, pix(pix'First+2) );
+             Get_Byte(stream_buf, pix(pix'First+1) );
+             Get_Byte(stream_buf, pix(pix'First  ) );
+           when 8  => -- Grey
+             Get_Byte(stream_buf, pix(pix'First  ) );
+           when others =>
+             null;
+         end case;
+       end Get_pixel;
 
-      -- Allocation
-      the_Image.Data:= new Byte_array(0..(imagebits/8)*the_Image.size-1);
-      getData (imageBits, the_Image.Data.all);
+       tmp: GL.UByte;
 
-      return the_Image;
-   end to_TGA_Image;
+     begin --  RLE_Pixel
+       if RLE_pixels_remaining = 0 then -- load RLE code
+         Get_Byte(stream_buf, tmp );
+         Get_pixel;
+         RLE_pixels_remaining:= GL.UByte'Pos(tmp and 16#7F#);
+         is_run_packet:= (tmp and 16#80#) /= 0;
+         if is_run_packet then
+           case iBits is
+             when 32 =>
+               pix_mem(1..4):= pix;
+             when 24 =>
+               pix_mem(1..3):= pix;
+             when 8  =>
+               pix_mem(1..1):= pix;
+             when others =>
+               null;
+           end case;
+         end if;
+       else
+         if is_run_packet then
+           case iBits is
+             when 32 =>
+               pix:= pix_mem(1..4);
+             when 24 =>
+               pix:= pix_mem(1..3);
+             when 8  =>
+               pix:= pix_mem(1..1);
+             when others =>
+               null;
+           end case;
+         else
+           Get_pixel;
+         end if;
+         RLE_pixels_remaining:= RLE_pixels_remaining - 1;
+       end if;
+     end RLE_Pixel;
+
+     --  =============
+     --  getRGBA
+
+     --  Reads in RGBA data for a 32bit image.
+     --  =============
+
+     procedure getRGBA ( buffer: out Byte_array ) is
+       i: Integer:= buffer'First;
+     begin
+       if RLE then
+         while i <= buffer'Last-3 loop
+           RLE_Pixel( 32, buffer(i..i+3) );
+           i:= i + 4;
+         end loop;
+       else
+         while i <= buffer'Last-3 loop
+           -- TGA is stored in BGRA, make it RGBA
+           Get_Byte(stream_buf, buffer(i+2) );
+           Get_Byte(stream_buf, buffer(i+1) );
+           Get_Byte(stream_buf, buffer(i  ) );
+           Get_Byte(stream_buf, buffer(i+3) );
+           i:= i + 4;
+         end loop;
+       end if;
+       the_Image.tex_Format      := GL.RGBA;
+       the_Image.tex_pixel_Format:= GL.RGBA;
+     end getRGBA;
+
+     --  =============
+     --  getRGB
+
+     --  Reads in RGB data for a 24bit image.
+     --  =============
+
+     procedure getRGB ( buffer: out Byte_array ) is
+       i: Integer:= buffer'First;
+     begin
+       if RLE then
+         while i <= buffer'Last-2 loop
+           RLE_Pixel( 24, buffer(i..i+2) );
+           i:= i + 3;
+         end loop;
+       else
+         while i <= buffer'Last-2 loop
+           -- TGA is stored in BGR, make it RGB
+           Get_Byte(stream_buf, buffer(i+2) );
+           Get_Byte(stream_buf, buffer(i+1) );
+           Get_Byte(stream_buf, buffer(i  ) );
+           i:= i + 3;
+         end loop;
+       end if;
+       the_Image.tex_Format      := GL.RGB;
+       the_Image.tex_pixel_Format:= GL.RGB;
+     end getRGB;
+
+     --  =============
+     --  getGray
+
+     --  Gets the grayscale image data.  Used as an alpha channel.
+     --  =============
+
+     procedure getGray ( buffer: out Byte_array ) is
+     begin
+       if RLE then
+         for b in buffer'range loop
+           RLE_Pixel( 8, buffer(b..b) );
+         end loop;
+       else
+         for b in buffer'range loop
+           Get_Byte(stream_buf, buffer(b) );
+         end loop;
+       end if;
+       the_Image.tex_Format      := GL.LUMINANCE; -- ALPHA
+       the_Image.tex_pixel_Format:= GL.LUMINANCE;
+     end getGray;
+
+     --  =============
+     --  getData
+
+     --  Gets the image data for the specified bit depth.
+     --  =============
+
+     procedure getData ( iBits: Integer; buffer: out Byte_array ) is
+     begin
+       stream_buf.stm:= S;
+       Fill_Buffer(stream_buf);
+       case iBits is
+         when 32 =>
+           getRGBA(buffer);
+           the_Image.blending_hint:= True;
+         when 24 =>
+           getRGB(buffer);
+           the_Image.blending_hint:= False;
+         when 8  =>
+           getGray(buffer);
+           the_Image.blending_hint:= True;
+         when others => null;
+       end case;
+     end getData;
+
+     TGA_type: Byte_Array(0..3);
+     info    : Byte_Array(0..5);
+     dummy   : Byte_Array(1..8);
+
+     imageBits: Integer;
+
+     image_type: Integer;
+
+  begin -- to_TGA_Image
+     Byte_Array'Read( s, TGA_type ); -- read in colormap info and image type
+     Byte_Array'Read( s, dummy );    -- seek past the header and useless info
+     Byte_Array'Read( s, info );
+
+     if TGA_type(1) /= GL.UByte'Val(0) then
+       raise TGA_Unsupported_Image_Type
+         with "TGA: palette not supported, please use BMP";
+     end if;
+
+     -- Image type:
+     --      1=8-bit palette style
+     --      2=Direct [A]RGB image
+     --      3=grayscale
+     --      9=RLE version of Type 1
+     --     10=RLE version of Type 2
+     --     11=RLE version of Type 3
+
+     image_type:= GL.UByte'Pos(TGA_type(2));
+     RLE:= image_Type >= 9;
+     if RLE then
+       image_type:= image_type - 8;
+       RLE_pixels_remaining:= 0;
+     end if;
+     if image_type /= 2 and image_type /= 3 then
+       raise TGA_Unsupported_Image_Type
+         with "TGA type =" & Integer'Image(image_type);
+     end if;
+
+     the_Image.Width  := GL.UByte'Pos(info(0)) + GL.UByte'Pos(info(1)) * 256;
+     the_Image.Height := GL.UByte'Pos(info(2)) + GL.UByte'Pos(info(3)) * 256;
+     imageBits   := GL.UByte'Pos(info(4));
+
+     the_Image.size := the_Image.Width * the_Image.Height;
+
+     -- 30-Apr-2006: dimensions not power of two allowed, but discouraged in the docs.
+     --
+     --  -- make sure dimension is a power of 2
+     --  if not (checkSize (imageWidth)  and  checkSize (imageHeight)) then
+     --     raise TGA_BAD_DIMENSION;
+     --  end if;
+
+     -- make sure we are loading a supported TGA_type
+     if imageBits /= 32 and imageBits /= 24 and imageBits /= 8 then
+        raise TGA_Unsupported_BITS_per_pixel;
+     end if;
+
+     -- Allocation
+     the_Image.Data:= new Byte_array(0..(imagebits/8)*the_Image.size-1);
+     getData (imageBits, the_Image.Data.all);
+
+     return the_Image;
+  end to_TGA_Image;
 
 
-
-   function to_TGA_Image (Filename : in  String      -- Input data filename
-                         ) return Image
-   is
-      f: File_Type;
-      the_Image : Image;
-   begin
-      begin
-         Open(f,in_file,Filename);
-      exception
-         when name_error => raise_exception(FILE_NOT_FOUND'Identity, " file name:" & Filename);
-      end;
-      the_Image := to_TGA_Image ( Stream(f) );
-      Close(f);
-      return the_Image;
-   exception
-      when e:others =>
-         Close(f);
-         raise_exception(Exception_Identity(e), " file name:" & Filename);
-         return the_Image;
-   end to_TGA_Image;
-
-
+  function to_TGA_Image (Filename : in  String      -- Input data filename
+                        ) return Image
+  is
+     f: File_Type;
+     the_Image : Image;
+  begin
+     begin
+        Open(f,in_file,Filename);
+     exception
+        when name_error => raise_exception(FILE_NOT_FOUND'Identity, " file name:" & Filename);
+     end;
+     the_Image := to_TGA_Image ( Stream(f) );
+     Close(f);
+     return the_Image;
+  exception
+     when e:others =>
+        Close(f);
+        raise_exception(Exception_Identity(e), " file name:" & Filename);
+        return the_Image;
+  end to_TGA_Image;
 
 
 
@@ -418,16 +474,15 @@ package body GL.IO is
   is
 
     imageData: Byte_Array_Ptr:= null;
+    stream_buf: Input_buffer;
 
     subtype Y_Loc is Natural range 0 .. 4095;
     subtype X_Loc is Natural range 0 .. 4095;
 
     -- 256-col types
 
-    type Byte is mod 2 ** 8;
-    for Byte'Size use 8;
-    subtype Color_Type is Byte;
-    subtype Color_Value is Byte range 0 .. 63;
+    subtype Color_Type is GL.UByte;
+    subtype Color_Value is Color_Type range 0 .. 63;
 
     type RGB_Color is
        record
@@ -489,12 +544,12 @@ package body GL.IO is
       procedure Read_Intel_x86_number(n: out Number);
 
       procedure Read_Intel_x86_number(n: out Number) is
-        b: Byte;
+        b: GL.UByte;
         m: Number:= 1;
       begin
         n:= 0;
         for i in 1..Number'Size/8 loop
-          Byte'Read(s,b);
+          GL.UByte'Read(s,b);
           n:= n + m * Number(b);
           m:= m * 256;
         end loop;
@@ -550,14 +605,14 @@ package body GL.IO is
      procedure Load_BMP_Palette (S         : Stream_Access;
                                  image_bits: in Integer;
                                  Palette   : out Color_Palette) is
-       d: Byte;
+       d: GL.UByte;
        mc: constant Color_Type:= (2**image_bits)-1;
      begin
        for DAC in 0..mc loop
-         Byte'Read(S,d); Palette(DAC).Blue  := Color_Value(d / 4);
-         Byte'Read(S,d); Palette(DAC).Green := Color_Value(d / 4);
-         Byte'Read(S,d); Palette(DAC).Red   := Color_Value(d / 4);
-         Byte'Read(S,d);
+         GL.UByte'Read(S,d); Palette(DAC).Blue  := Color_Value(d / 4);
+         GL.UByte'Read(S,d); Palette(DAC).Green := Color_Value(d / 4);
+         GL.UByte'Read(S,d); Palette(DAC).Red   := Color_Value(d / 4);
+         GL.UByte'Read(S,d);
        end loop;
      end Load_BMP_Palette;
 
@@ -569,52 +624,62 @@ package body GL.IO is
                               Buffer  : in out Byte_array;
                               BMP_bits: Integer;
                               Palette : Color_Palette) is
-       w: constant X_Loc:= width;
-       h: constant Y_Loc:= height;
-       Idx: Natural;
-       b01,b: Byte:= 0;
+       idx: Natural;
+       b01, b: GL.UByte:= 0;
        pair: Boolean:= True;
        bit: Natural range 0..7:= 0;
-       procedure Fill_palettized(x: X_Loc) is
-       pragma Inline(Fill_palettized);
+       --
+       x3: Natural; -- idx + x*3 (each pixel takes 3 bytes)
+       x3_max: Natural;
+       --
+       procedure Fill_palettized is
+         pragma Inline(Fill_palettized);
        begin
-         Buffer( idx + x*3     ):= UByte(Palette(b).Red  ) * 4;
-         Buffer( idx + x*3 + 1 ):= UByte(Palette(b).Green) * 4;
-         Buffer( idx + x*3 + 2 ):= UByte(Palette(b).Blue ) * 4;
+         Buffer( x3     ):= UByte(Palette(b).Red  ) * 4;
+         Buffer( x3 + 1 ):= UByte(Palette(b).Green) * 4;
+         Buffer( x3 + 2 ):= UByte(Palette(b).Blue ) * 4;
        end Fill_palettized;
+       --
     begin
-      for y in 0..h-1 loop
-        Idx:= y * width * 3; -- 24 bit
+      stream_buf.stm:= S;
+      Fill_Buffer(stream_buf);
+      for y in 0 .. height-1 loop
+        idx:= y * width * 3; -- GL destination picture is 24 bit
+        x3:= idx;
+        x3_max:= idx + (width-1)*3;
         case BMP_bits is
           when 1 => -- B/W
-            for x in 0 .. w-1 loop
+            while x3 <= x3_max loop
               if bit=0 then
-                Byte'Read(S, b01);
+                Get_Byte(stream_buf, b01);
               end if;
               b:= (b01 and 16#80#) / 16#80#;
-              Fill_palettized(x);
+              Fill_palettized;
               b01:= b01 * 2; -- cannot overflow.
               if bit=7 then
                 bit:= 0;
               else
                 bit:= bit + 1;
               end if;
+              x3:= x3 + 3;
             end loop;
-          when 4 =>
-            for x in 0 .. w-1 loop
+          when 4 => -- 16 colour image
+            while x3 <= x3_max loop
               if pair then
-                Byte'Read(S, b01);
+                Get_Byte(stream_buf, b01);
                 b:= (b01 and 16#F0#) / 16#10#;
               else
                 b:= (b01 and 16#0F#);
               end if;
               pair:= not pair;
-              Fill_palettized(x);
+              Fill_palettized;
+              x3:= x3 + 3;
             end loop;
-          when 8 =>
-            for x in 0 .. w-1 loop
-              Byte'Read(S, b);
-              Fill_palettized(x);
+          when 8 => -- 256 colour image
+            while x3 <= x3_max loop
+              Get_Byte(stream_buf, b);
+              Fill_palettized;
+              x3:= x3 + 3;
             end loop;
           when others =>
             null;

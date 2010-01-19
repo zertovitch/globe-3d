@@ -4,23 +4,26 @@
 --
 --                   This package provides currently:
 --
---                   * INPUT:
+--                   ******************************************************
+--                   * INPUT * from a file or a data stream, to a texture *
+--                   ******************************************************
 --
---                    - load a TGA image (RGA, RGBA, Grey) from a file or
---                        a data stream to a texture
---                    - load a BMP image (B&W, 16 colours indexed (palette),
---                        256 colours indexed) from a file or a data stream
---                        to a texture
+--                    - TGA image: RGA, RGBA, Grey
+--                    - BMP image: B&W, 16 colours indexed (palette),
+--                        256 colours indexed
 --
---                   * OUTPUT:
+--                   ***************************************************
+--                   * OUTPUT * from the GL active viewport, to a file *
+--                   ***************************************************
 --
---                    - save the current, active viewport to a BMP file
---                        i.e. a screenshot
---                    - capture a video of the current, active viewport
---                        to an AVI file
+--                    - BMP image: screenshot
+--                    - AVI video: video capture
 --
 ------------------------------------------------------------------------------
 -- Change log:
+--
+-- 19-Jan-2010 (GdM): using workaround to the slow attribute I/O issue (GNAT,OA);
+--                      buffered input; improvements on BMP
 --
 -- 26-May-2008 (GdM): added support for TGA images with RLE encoding
 --
@@ -29,7 +32,8 @@
 -- 10-May-2007 (GdM): screenshot and video capture
 --
 -- 13-Oct-2006 (GdM): new blending_hint out parameter, indicates possible
---                    blending/transparency
+--                      blending/transparency
+--
 -- 30-Apr-2006 (GdM): - added multi-format loaders
 --                    - dimensions not power of two allowed, but
 --                      discouraged in the docs.
