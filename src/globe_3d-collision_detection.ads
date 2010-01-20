@@ -42,12 +42,19 @@ package GLOBE_3D.Collision_detection is
     radius : Real;
   end record;
 
+  -- Collision between a ball, intending to do a step (vector), against
+  -- an object o. If there is a collision, step is reduced in length and
+  -- may change direction.
+  -- Typically, the ball's centre is the camera position and step is the camera's
+  -- move between two images. But the ball can be the abstraction of any moving
+  -- object, actor,...
+
   procedure Reaction(
     o           : Object_3D'Class;
     ball        : Ball_type;
     method      : Reaction_method;
     step        : in out Vector_3D; -- Whole step (in: desired, out: effective)
-    reacted     : out Real          -- in proportion to step
+    reacted     : out Real          -- reaction in proportion to step; in [0,1]
   );
 
   --

@@ -366,11 +366,6 @@ package body GLOBE_3D is
       end;
     end loop;
 
-    -- Calculate edge vectors.
-    --   Naive algorithm: for each point, scan all faces to see
-    --   if they are adjacent. It took #points * #faces steps.
-    --   -> better algorithm here: 2 * #points + 4 * #faces. (22-Jan-2006)
-
     declare
       use globe_3d.REF;
       max_Norm2 : Real := 0.0;
@@ -394,10 +389,14 @@ package body GLOBE_3D is
       o.bounds.sphere_Radius := sqRt (max_Norm2);
     end;
 
+    -- Calculate edge vectors.
+    --   Naive algorithm: for each point, scan all faces to see
+    --   if they are adjacent. It took #points * #faces steps.
+    --   -> better algorithm here: 2 * #points + 4 * #faces. (22-Jan-2006)
     for f in o.face'Range loop
       for p in o.face(f).P'Range loop
         pf:= o.face(f).P(p);
-        if o.face(f).P(p) /= 0 then
+        if pf /= 0 then
           adjacent_faces(pf):= adjacent_faces(pf) + 1;
           o.edge_vector(pf):= o.edge_vector(pf) + o.face_invariant(f).normal;
         end if;
@@ -651,8 +650,7 @@ package body GLOBE_3D is
 
   procedure Display(
     o          : in out Object_3D;
-    clip       : in     Clipping_data;
-    drawn_state: in     Flip_state:= False -- meaningful only with portals
+    clip       : in     Clipping_data
   )
   is
 
@@ -694,6 +692,7 @@ package body GLOBE_3D is
               non_empty_intersection:= True;
             end if;
             if non_empty_intersection then
+              -- Recursion here:
               Display_clipped(
                 o            => o.face(f).connecting.all,
                 clip_area    => intersection_clip_and_face,
@@ -716,17 +715,17 @@ package body GLOBE_3D is
       then
         for f in o.face'Range loop
           if o.face(f).connecting /= null and then
-             o.face(f).drawn_portal /= drawn_state
+             not o.face_invariant(f).portal_seen
              -- ^ prevents infinite recursion on rare cases where
              -- object A or B is not convex, and A and B see each other
              -- and the culling by clipping cannot stop the recursion
              -- (e.g. origin2.proc, tomb.proc)
              --
              -- NB: drawing [different parts of] the same object several times
-             -- is right, since portions can be seen through diffrent portals,
+             -- is right, since portions can be seen through different portals,
              -- but going more than once through the same portal is wrong
           then
-            o.face(f).drawn_portal := drawn_state;
+            o.face_invariant(f).portal_seen := True;
             Try_portal(f);
             -- ^ recursively calls Display_clipped for
             --   objects visible through face f.
@@ -760,10 +759,21 @@ package body GLOBE_3D is
       end if;
     end Display_clipped;
 
+    procedure Reset_portal_seen(o: in out Object_3D'Class) is
+    begin
+      for f in o.face'Range loop
+        if o.face_invariant(f).portal_seen then
+          o.face_invariant(f).portal_seen := False;
+          Reset_portal_seen(o.face(f).connecting.all);
+        end if;
+      end loop;
+    end Reset_portal_seen;
+
   begin
     info_b_ntl2:= 0; -- count amount of objects displayed, not distinct
     info_b_ntl3:= 0; -- records max depth
     Display_clipped( o, clip_area => clip.main_clipping, portal_depth => 0 );
+    Reset_portal_seen(o);
   end Display;
 
 

@@ -194,6 +194,9 @@ package body GLOBE_3D.Textures is
       Load_if_needed( zif, name );
       Traverse(zif);
       -- That's it!
+    exception
+      when Zip.Zip_file_open_error =>
+        null;
     end Register;
 
   begin
