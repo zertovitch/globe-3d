@@ -151,9 +151,9 @@ package GL.IO is
   TGA_Unsupported_Bits_per_pixel : exception;   -- image bits is not 8, 24 or 32
   TGA_Bad_Data                   : exception;   -- image data could not be loaded
 
-  ------------------------------------------------------------
-  -- Image of the current, active viewport (RGB BMP format) --
-  ------------------------------------------------------------
+  ---------------------------------------------------------------------------
+  -- Image ("screenshot") of the current, active viewport (RGB BMP format) --
+  ---------------------------------------------------------------------------
 
   procedure Screenshot( name: String );
 
@@ -166,5 +166,30 @@ package GL.IO is
   procedure Capture_frame; -- captures the current, active viewport.
 
   procedure Stop_capture;
+
+  --------------------------------------------------------------------------
+  -- An object-oriented stream buffering, initially for reading images to --
+  -- the GL system, but that may be useful elsewhere, hence its presence  --
+  -- in this package's specification                                      --
+  --------------------------------------------------------------------------
+  --
+  type Input_buffer is private;
+
+  procedure Attach_Stream(
+    b   : out Input_buffer;
+    stm : in Ada.Streams.Stream_IO.Stream_Access
+  );
+
+  procedure Fill_Buffer(b: in out Input_buffer);
+
+private
+
+  type Input_buffer is record
+    data       : Byte_Array(1..1024);
+    stm        : Ada.Streams.Stream_IO.Stream_Access;
+    InBufIdx   : Positive;   --  Points to next char in buffer to be read
+    MaxInBufIdx: Natural;    --  Count of valid chars in input buffer
+    InputEoF   : Boolean;    --  End of file indicator
+  end record;
 
 end GL.IO;

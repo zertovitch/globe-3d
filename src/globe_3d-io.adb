@@ -408,7 +408,7 @@ package body GLOBE_3D.IO is
       when Zip.File_name_not_found =>
         raise;
       when e:others =>
-        raise_exception(
+        Raise_Exception(
           Exception_Identity(e),
           Exception_Message(e) & " on " & animal & ": " & name_ext
         );
@@ -452,22 +452,18 @@ package body GLOBE_3D.IO is
     Close(f);
   end Load_file;
 
-  procedure Save_file(file_name: String; o: in Object_3D'class) is
+  procedure Save_file(file_name: String; o: in Object_3D'Class) is
     use Ada.Streams.Stream_IO;
     f: File_Type;
   begin
     Create(f, out_file, file_name);
-
---      if o in Object_3D'class then
-      Write(Stream(f), Object_3D (o));         -- endian-proof
---      else
---        Object_base'class'output (Stream(f), o); -- !! not yet endian-proof (tbd)
---      end if;
-
+    Write(Stream(f), Object_3D (o));
+    -- ^ endian-proof and floating-point hardware neutral;
+    --   using stream attribute would be machine-specific.
     Close(f);
   end Save_file;
 
-  procedure Save_file(o: in Object_3D'class) is
+  procedure Save_file(o: in Object_3D'Class) is
   begin
     Save_file(Trim(o.ID,right) & object_extension, o);
   end Save_file;
@@ -566,15 +562,11 @@ package body GLOBE_3D.IO is
       if ID = empty then
         return null;
       else
-        -- XX old linear search:
-        --  for i in referred_objects'Range loop
-        --    if referred_objects(i).ID = ID then
-        --      return referred_objects(i);
-        --    end if;
-        --  end loop;
-        return p_Object_3D(Visuals_Mapping.Element(
-          Visuals_Mapping.Map(referred),
-          Ada.Strings.Unbounded.To_Unbounded_String(ID))
+        return p_Object_3D(
+          Visuals_Mapping.Element(
+            Container => Visuals_Mapping.Map(referred),
+            Key       => Ada.Strings.Unbounded.To_Unbounded_String(ID)
+          )
         );
       end if;
     exception
@@ -614,6 +606,10 @@ package body GLOBE_3D.IO is
         return;
       end if;
       declare
+        -- We put all the new-born nodes into a farm with numbered boxes,
+        -- because only the numbers are stored in the BSP file.
+        -- Once the nodes are linked together through accesses (pointers),
+        -- we can forget the farm and let the tree float...
         farm: array (0..n) of p_BSP_Node;
       begin
         farm(0):= null;
@@ -625,16 +621,17 @@ package body GLOBE_3D.IO is
           farm(j).node_id:= Integer(j);
           Read_Intel(k);
           farm(j).front_child:= farm(k);
-          if k = 0 then
+          if k = 0 then -- it is a front leaf -> associate object
             Read_String(s, ID);
             farm(j).front_leaf:= Find_object(ID, tol);
           end if;
           Read_Intel(k);
           farm(j).back_child := farm(k);
-          if k = 0 then
+          if k = 0 then -- it is a back leaf -> associate object
             Read_String(s, ID);
             farm(j).back_leaf := Find_object(ID, tol);
           end if;
+          -- The node's geometric information (a plane):
           for ii in farm(j).normal'Range loop
             Read_Double(s, farm(j).normal(ii));
           end loop;
@@ -651,7 +648,6 @@ package body GLOBE_3D.IO is
         animal    => "BSP tree",
         Read      => Read
       );
-
 
   begin
     Load_Internal(name_in_resource, tree);

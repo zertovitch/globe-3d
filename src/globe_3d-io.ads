@@ -63,7 +63,16 @@ package GLOBE_3D.IO is
 
   procedure Load(name_in_resource: String; o: out p_Object_3D);
 
-  -- Allocate and read an BSP tree from a file
+  -- Allocate and read an BSP tree from a file.
+  --
+  -- The procedure uses the dictionary of objects in 'referred' to
+  -- put the right accesses to 3D visuals on the tree's leaves.
+  -- From the file, we know only the visuals' names.
+  --
+  -- So before loading the BSP tree, you need first to load all
+  -- visuals that are referred to in the BSP tree, and build a
+  -- dictionary (map). You can use the GLOBE_3D.Add procedure
+  -- to do that.
 
   procedure Load(
     name_in_resource: in  String;

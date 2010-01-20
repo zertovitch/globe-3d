@@ -78,13 +78,14 @@ package body GL.IO is
   workaround_possible: constant Boolean:= Size_test_a'Size = Size_test_b'Size;
   --
 
-  type Input_buffer is record
-    data       : Byte_Array(1..1024);
-    stm        : Stream_Access;
-    InBufIdx   : Positive;   --  Points to next char in buffer to be read
-    MaxInBufIdx: Natural;    --  Count of valid chars in input buffer
-    InputEoF   : Boolean;    --  End of file indicator
-  end record;
+  procedure Attach_Stream(
+    b   : out Input_buffer;
+    stm : in Ada.Streams.Stream_IO.Stream_Access
+  )
+  is
+  begin
+    b.stm:= stm;
+  end Attach_Stream;
 
   procedure Fill_Buffer(b: in out Input_buffer)
   is
@@ -105,7 +106,6 @@ package body GL.IO is
           pragma Import (Ada, SE_Buffer);
         begin
           Read(b.stm.all, SE_Buffer, Last_Read);
-          actually_read:= Natural(Last_Read);
         end;
       else
         declare
@@ -113,12 +113,12 @@ package body GL.IO is
           -- need to copy array
         begin
           Read(b.stm.all, SE_Buffer, Last_Read);
-          actually_read:= Natural(Last_Read);
           for i in buffer'Range loop
             buffer(i):= Ubyte(SE_Buffer(Stream_Element_Offset(i-buffer'First)+SE_buffer'First));
           end loop;
         end;
       end if;
+      actually_read:= Natural(Last_Read);
     end BlockRead;
     --
   begin
@@ -299,7 +299,7 @@ package body GL.IO is
 
      procedure getData ( iBits: Integer; buffer: out Byte_array ) is
      begin
-       stream_buf.stm:= S;
+       Attach_Stream(stream_buf, S);
        Fill_Buffer(stream_buf);
        case iBits is
          when 32 =>
@@ -641,7 +641,7 @@ package body GL.IO is
        end Fill_palettized;
        --
     begin
-      stream_buf.stm:= S;
+      Attach_Stream(stream_buf, S);
       Fill_Buffer(stream_buf);
       for y in 0 .. height-1 loop
         idx:= y * width * 3; -- GL destination picture is 24 bit
