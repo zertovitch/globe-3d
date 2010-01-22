@@ -78,15 +78,6 @@ package body GL.IO is
   workaround_possible: constant Boolean:= Size_test_a'Size = Size_test_b'Size;
   --
 
-  procedure Attach_Stream(
-    b   : out Input_buffer;
-    stm : in Ada.Streams.Stream_IO.Stream_Access
-  )
-  is
-  begin
-    b.stm:= stm;
-  end Attach_Stream;
-
   procedure Fill_Buffer(b: in out Input_buffer)
   is
     --
@@ -130,17 +121,27 @@ package body GL.IO is
     b.InBufIdx := 1;
   end Fill_Buffer;
 
-  procedure Get_Byte(buf: in out Input_buffer; by: out UByte) is
-    pragma Inline(Get_Byte);
+  procedure Attach_Stream(
+    b   : out Input_buffer;
+    stm : in Ada.Streams.Stream_IO.Stream_Access
+  )
+  is
   begin
-    if buf.InBufIdx > buf.MaxInBufIdx then
-      Fill_Buffer(buf);
-      if buf.InputEoF then
+    b.stm:= stm;
+    Fill_Buffer(b);
+  end Attach_Stream;
+
+  procedure Get_Byte(b: in out Input_buffer; byte: out UByte) is
+  pragma Inline(Get_Byte);
+  begin
+    if b.InBufIdx > b.MaxInBufIdx then
+      Fill_Buffer(b);
+      if b.InputEoF then
         raise End_Error;
       end if;
     end if;
-    by:= buf.data(buf.InBufIdx);
-    buf.InBufIdx:= buf.InBufIdx + 1;
+    byte:= b.data(b.InBufIdx);
+    b.InBufIdx:= b.InBufIdx + 1;
   end Get_Byte;
 
   function to_TGA_Image (S : in  Ada.Streams.Stream_IO.Stream_Access      -- Input data stream
@@ -300,7 +301,6 @@ package body GL.IO is
      procedure getData ( iBits: Integer; buffer: out Byte_array ) is
      begin
        Attach_Stream(stream_buf, S);
-       Fill_Buffer(stream_buf);
        case iBits is
          when 32 =>
            getRGBA(buffer);
@@ -642,7 +642,6 @@ package body GL.IO is
        --
     begin
       Attach_Stream(stream_buf, S);
-      Fill_Buffer(stream_buf);
       for y in 0 .. height-1 loop
         idx:= y * width * 3; -- GL destination picture is 24 bit
         x3:= idx;

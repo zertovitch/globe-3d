@@ -180,7 +180,8 @@ package GL.IO is
     stm : in Ada.Streams.Stream_IO.Stream_Access
   );
 
-  procedure Fill_Buffer(b: in out Input_buffer);
+  procedure Get_Byte(b: in out Input_buffer; byte: out UByte);
+  pragma Inline(Get_Byte);
 
 private
 

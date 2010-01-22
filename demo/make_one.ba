@@ -10,7 +10,7 @@ if "%1" == "" goto fin
 echo ----- Procedure to be built: %1
 echo.
 
-set scenario_324943981475=Small
+set scenario_324943981475=Fast
 
 echo -----------------------------------------------
 echo ---- Compile mode: %scenario_324943981475%

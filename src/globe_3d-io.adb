@@ -9,6 +9,7 @@ with Float_portable_binary_transfer;
 pragma Elaborate_All(Float_portable_binary_transfer);
 
 with GLOBE_3D.Textures;
+with GL.IO;
 
 package body GLOBE_3D.IO is
 
@@ -27,7 +28,7 @@ package body GLOBE_3D.IO is
     "GLOBE_3D Binary Space Partition File (" & BSP_extension & "). " &
     "Format version: 2-Apr-2008." & stop_type;
 
-  type U8  is mod 2 ** 8;   for U8'Size  use 8;
+  subtype U8 is GL.Ubyte;
   type U16 is mod 2 ** 16;  for U16'Size use 16;
   type U32 is mod 2 ** 32;  for U32'Size use 32;
 
@@ -49,34 +50,33 @@ package body GLOBE_3D.IO is
   function Cvt is new Ada.Unchecked_Conversion( U32, I32 );
 
   generic
-    s: Ada.Streams.Stream_IO.Stream_Access;
     type Number is mod <>;
-  procedure Read_Intel_x86_number(n: out Number);
+  procedure Read_Intel_x86_number(sb: in out GL.IO.Input_buffer; n: out Number);
 
-  procedure Read_Intel_x86_number(n: out Number) is
+  procedure Read_Intel_x86_number(sb: in out GL.IO.Input_buffer; n: out Number) is
     b: U8;
     m: Number:= 1;
     bytes: constant Integer:= Number'Size/8;
   begin
     n:= 0;
     for i in 1..bytes loop
-      U8'Read(s,b);
+      GL.IO.Get_Byte(sb,b);
       n:= n + m * Number(b);
       m:= m * 256;
     end loop;
   end Read_Intel_x86_number;
 
   procedure Read_Double(
-    s: Ada.Streams.Stream_IO.Stream_Access;
+    sb: in out GL.IO.Input_buffer;
     n: out GL.Double
   ) is
-    procedure Read_Intel is new Read_Intel_x86_number( s, U16 );
-    procedure Read_Intel is new Read_Intel_x86_number( s, U32 );
+    procedure Read_Intel is new Read_Intel_x86_number( U16 );
+    procedure Read_Intel is new Read_Intel_x86_number( U32 );
     m1,m2: U32; e: U16;
   begin
-    Read_Intel(m1);
-    Read_Intel(m2);
-    Read_Intel(e);
+    Read_Intel(sb, m1);
+    Read_Intel(sb, m2);
+    Read_Intel(sb, e);
     Merge(Cvt(m1),Cvt(m2),Cvt(e),n);
     -- Double is stored in two parts due to the absence of
     -- 64-bit integers on certain compilers (e.g. OA 8.2)
@@ -125,19 +125,22 @@ package body GLOBE_3D.IO is
   end Write_String;
 
   procedure Read_String(
-    s  : in  Ada.Streams.Stream_IO.Stream_Access;
+    sb: in out GL.IO.Input_buffer;
     str: out String
   )
   is
     l8: U8;
     l: Natural;
   begin
-    U8'Read(s,l8);
+    GL.IO.Get_Byte(sb,l8);
     l:= Natural(l8);
     if l > str'Length then
       raise Constraint_Error;
     end if;
-    String'Read(s,str(str'First..str'First+l-1));
+    for i in str'First .. str'First+l-1 loop
+      GL.IO.Get_Byte(sb,l8);
+      str(i):= Character'Val(l8);
+    end loop;
     str(str'First+l..str'Last):= (others => ' ');
   end Read_String;
 
@@ -151,14 +154,16 @@ package body GLOBE_3D.IO is
   )
   is
 
-    procedure Read_Intel is new Read_Intel_x86_number( s, U16 );
-    procedure Read_Intel is new Read_Intel_x86_number( s, U32 );
+    buf: GL.IO.Input_buffer;
+
+    procedure Read_Intel is new Read_Intel_x86_number( U16 );
+    procedure Read_Intel is new Read_Intel_x86_number( U32 );
 
     procedure Read_Float(n: out GL.Float) is
       m: U32; e: U16;
     begin
-      Read_Intel(m);
-      Read_Intel(e);
+      Read_Intel(buf, m);
+      Read_Intel(buf, e);
       Merge(Cvt(m),Cvt(e),n);
     end Read_Float;
 
@@ -172,15 +177,15 @@ package body GLOBE_3D.IO is
     procedure Read_Point_3D(p: out Point_3D) is
     begin
       for i in p'Range loop
-        Read_Double(s, p(i));
+        Read_Double(buf, p(i));
       end loop;
     end Read_Point_3D;
 
     procedure Read_Map_idx_pair_array(m: out Map_idx_pair_array) is
     begin
       for i in m'Range loop
-        Read_Double(s, m(i).U);
-        Read_Double(s, m(i).V);
+        Read_Double(buf, m(i).U);
+        Read_Double(buf, m(i).V);
       end loop;
     end Read_Map_idx_pair_array;
 
@@ -191,26 +196,26 @@ package body GLOBE_3D.IO is
     begin
       -- 1/ Points
       for i in face.p'Range loop
-        Read_Intel(v32);
+        Read_Intel(buf, v32);
         face.p(i):= Integer(v32);
       end loop;
       -- 2/ Portal connection: object name is stored;
       --    access must be found later
-      Read_String(s,face_invar.connect_name);
+      Read_String(buf,face_invar.connect_name);
       -- 3/ Skin
-      U8'Read(s,v8);
+      GL.IO.Get_Byte(buf,v8);
       face.skin:= skin_type'Val(v8);
       -- 4/ Mirror
-      U8'Read(s,v8);
+      GL.IO.Get_Byte(buf,v8);
       face.mirror:= Boolean'Val(v8);
       -- 5/ Alpha
-      Read_Double(s, face.alpha);
+      Read_Double(buf, face.alpha);
       -- 6/ Colour
       case face.skin is
         when colour_only | coloured_texture =>
-          Read_Double(s, face.colour.red);
-          Read_Double(s, face.colour.green);
-          Read_Double(s, face.colour.blue);
+          Read_Double(buf, face.colour.red);
+          Read_Double(buf, face.colour.green);
+          Read_Double(buf, face.colour.blue);
         when others =>
           null;
       end case;
@@ -227,12 +232,12 @@ package body GLOBE_3D.IO is
       end case;
       -- 8/ Texture: texture name is stored;
       --    id must be found later
-      Read_String(s, face_invar.texture_name);
-      U8'Read(s,v8);
+      Read_String(buf, face_invar.texture_name);
+      GL.IO.Get_Byte(buf,v8);
       face.whole_texture:= Boolean'Val(v8);
-      U8'Read(s,v8);
+      GL.IO.Get_Byte(buf,v8);
       face.repeat_U:= Positive'Val(v8);
-      U8'Read(s,v8);
+      GL.IO.Get_Byte(buf,v8);
       face.repeat_V:= Positive'Val(v8);
       if not face.whole_texture then
         Read_Map_idx_pair_array(face.texture_edge_map);
@@ -245,10 +250,11 @@ package body GLOBE_3D.IO is
     if test_signature /= signature_obj then
       raise Bad_data_format;
     end if;
-    Read_String(s,ID);
+    GL.IO.Attach_Stream(b => buf, stm => s);
+    Read_String(buf,ID);
     -- Read the object's dimensions, create object, read its contents
-    Read_Intel(mp32);
-    Read_Intel(mf32);
+    Read_Intel(buf, mp32);
+    Read_Intel(buf, mf32);
     o:= new Object_3D(Integer(mp32), Integer(mf32));
     o.ID:= ID;
     for p in o.point'Range loop
@@ -260,7 +266,7 @@ package body GLOBE_3D.IO is
     Read_Point_3D(o.centre);
     for i in Matrix_33'Range(1) loop
       for j in Matrix_33'Range(2) loop
-        Read_Double(s, o.rotation(i,j));
+        Read_Double(buf, o.rotation(i,j));
       end loop;
     end loop;
     -- !! sub-objects: skipped !!
@@ -589,7 +595,8 @@ package body GLOBE_3D.IO is
     )
     is
       use BSP;
-      procedure Read_Intel is new Read_Intel_x86_number( s, U32 );
+      buf: GL.IO.Input_buffer;
+      procedure Read_Intel is new Read_Intel_x86_number( U32 );
 
       test_signature: String(signature_bsp'Range);
       n, j, k: U32;
@@ -600,7 +607,8 @@ package body GLOBE_3D.IO is
       if test_signature /= signature_bsp then
         raise Bad_data_format;
       end if;
-      Read_Intel(n);
+      GL.IO.Attach_Stream(b => buf, stm => s);
+      Read_Intel(buf, n);
       if n < 1 then
         tree:= null;
         return;
@@ -617,25 +625,25 @@ package body GLOBE_3D.IO is
           farm(i):= new BSP_Node;
         end loop;
         for i in 1..n loop
-          Read_Intel(j); -- node_id
+          Read_Intel(buf, j); -- node_id
           farm(j).node_id:= Integer(j);
-          Read_Intel(k);
+          Read_Intel(buf, k);
           farm(j).front_child:= farm(k);
           if k = 0 then -- it is a front leaf -> associate object
-            Read_String(s, ID);
+            Read_String(buf, ID);
             farm(j).front_leaf:= Find_object(ID, tol);
           end if;
-          Read_Intel(k);
+          Read_Intel(buf, k);
           farm(j).back_child := farm(k);
           if k = 0 then -- it is a back leaf -> associate object
-            Read_String(s, ID);
+            Read_String(buf, ID);
             farm(j).back_leaf := Find_object(ID, tol);
           end if;
           -- The node's geometric information (a plane):
           for ii in farm(j).normal'Range loop
-            Read_Double(s, farm(j).normal(ii));
+            Read_Double(buf, farm(j).normal(ii));
           end loop;
-          Read_Double(s, farm(j).distance);
+          Read_Double(buf, farm(j).distance);
         end loop;
         tree:= farm(1);
       end;
