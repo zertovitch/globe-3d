@@ -78,6 +78,10 @@ package body GL.IO is
   workaround_possible: constant Boolean:= Size_test_a'Size = Size_test_b'Size;
   --
 
+  procedure Fill_Buffer(b: in out Input_buffer);
+  -- ^ Spec here to avoid in Get_Byte below (GNAT 2009): 
+  -- warning: call to subprogram with no separate spec prevents inlining
+
   procedure Fill_Buffer(b: in out Input_buffer)
   is
     --
@@ -132,7 +136,6 @@ package body GL.IO is
   end Attach_Stream;
 
   procedure Get_Byte(b: in out Input_buffer; byte: out UByte) is
-  pragma Inline(Get_Byte);
   begin
     if b.InBufIdx > b.MaxInBufIdx then
       Fill_Buffer(b);
