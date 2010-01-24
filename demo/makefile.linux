@@ -1,9 +1,18 @@
+# ***********
+# This makefile is an fixed version of an old one the was usually
+# distributed with GLOBE_3D. I'm not a makefile specialist, so it
+# works, but you'd better run simply:
+#   gnatmake -PGLOBE_3D_GPS_Linux.gpr -XBuild_Mode=Fast
+# You'd get object and library files at the right place, for instance.
+# Gautier
+# ***********
+#
 # Which Compiler to use
 #GNATMAKE=/usr/lib/gnat-3.15p/bin/gnatmake
 GNATMAKE=gnatmake #-gnatvy
 #
 # The list of computer software component for your project. 
-CSC_LIST=${shell find ${ROOT_DIRECTORY} -type d ! -path "*win32*" }
+CSC_LIST=${shell find .. -type d ! -path "*win32*" }
 #
 # Name of the main program (no extension)
 MAIN=globe_3d_demo
