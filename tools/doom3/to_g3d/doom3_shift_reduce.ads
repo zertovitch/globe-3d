@@ -92,7 +92,7 @@ package Doom3_Shift_Reduce is
 -- State  36
 ,( 2, 40),(-1,-3000)
 -- State  37
-,( 2, 42),(-1,-3000)
+,( 2, 42),(-1,-54)
 -- State  38
 ,(-1,-69)
 -- State  39

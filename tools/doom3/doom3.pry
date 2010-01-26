@@ -393,7 +393,7 @@ doom3: mapProcFile {Doom3_Help.YY_ACCEPT;} -- .proc file
 #end if;
                  interAreaPortals
                 |
-                 interAreaPortal
+                 -- can be empty (deimos.proc)
                 ;
 
   interAreaPortal :
