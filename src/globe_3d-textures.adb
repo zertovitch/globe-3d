@@ -29,10 +29,10 @@ package body GLOBE_3D.Textures is
   -----------------------------------
 
   package Texture_Name_Mapping is new Ada.Containers.Hashed_Maps
-         (Ada.Strings.Unbounded.Unbounded_String,
-          Image_id,
-          Ada.Strings.Unbounded.Hash,
-          equivalent_keys => Ada.Strings.Unbounded."=");
+     (Key_Type        => Ada.Strings.Unbounded.Unbounded_String,
+      Element_Type    => Image_id,
+      Hash            => Ada.Strings.Unbounded.Hash,
+      Equivalent_Keys => Ada.Strings.Unbounded."=");
 
   type Texture_2d_infos_type is record
     tex              : p_Texture_info_array;

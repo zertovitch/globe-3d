@@ -9,10 +9,7 @@ with GL.Errors,
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Exceptions;                    use Ada.Exceptions;
 with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
-
-with ada.text_io; use ada.text_io;
-
--- with ada.unchecked_Conversion;
+with Ada.Text_IO;                       use Ada.Text_IO;
 
 with System.Storage_Elements;
 with Ada.Containers.Generic_Array_Sort;
@@ -91,122 +88,92 @@ package body GLOBE_3D is
 
 
 
-   -- blending support
-   --
+  -- blending support
+  --
 
-   function Is_to_blend(m: GL.Double) return Boolean is
-      use GL, G3DM;
-    begin
-      return not Almost_zero(m-1.0);
-    end Is_to_blend;
-
-
-    function Is_to_blend(m: GL.Float) return Boolean is
-      use GL, G3DM;
-    begin
-      return not Almost_zero(m-1.0);
-    end Is_to_blend;
+  function Is_to_blend(m: GL.Double) return Boolean is
+     use GL, G3DM;
+  begin
+    return not Almost_zero(m-1.0);
+  end Is_to_blend;
 
 
-    function Is_to_blend(m: GL.Material_Float_vector) return Boolean is
-    begin
-      return Is_to_blend(m(3));
-    end Is_to_blend;
+  function Is_to_blend(m: GL.Float) return Boolean is
+    use GL, G3DM;
+  begin
+    return not Almost_zero(m-1.0);
+  end Is_to_blend;
 
 
-    function Is_to_blend(m: GL.Materials.Material_type) return Boolean  is
-    begin
-      return
-        Is_to_blend(m.ambient) or
-        Is_to_blend(m.diffuse) or
-        Is_to_blend(m.specular);
-        -- m.emission, m.shininess not relevant
-    end Is_to_blend;
+  function Is_to_blend(m: GL.Material_Float_vector) return Boolean is
+  begin
+    return Is_to_blend(m(3));
+  end Is_to_blend;
 
 
+  function Is_to_blend(m: GL.Materials.Material_type) return Boolean  is
+  begin
+    return
+      Is_to_blend(m.ambient) or
+      Is_to_blend(m.diffuse) or
+      Is_to_blend(m.specular);
+      -- m.emission, m.shininess not relevant
+  end Is_to_blend;
 
-   -- material support
-   --
+  -- material support
+  --
 
-   procedure Set_Material(m: GL.Materials.Material_type) is
-      use GL;
-   begin
-      Material(FRONT_AND_BACK, AMBIENT,   m.ambient);
-      Material(FRONT_AND_BACK, DIFFUSE,   m.diffuse);
-      Material(FRONT_AND_BACK, SPECULAR,  m.specular);
-      Material(FRONT_AND_BACK, EMISSION,  m.emission);
-      Material(FRONT_AND_BACK, SHININESS, m.shininess);
-   end Set_Material;
+  procedure Set_Material(m: GL.Materials.Material_type) is
+     use GL;
+  begin
+     Material(FRONT_AND_BACK, AMBIENT,   m.ambient);
+     Material(FRONT_AND_BACK, DIFFUSE,   m.diffuse);
+     Material(FRONT_AND_BACK, SPECULAR,  m.specular);
+     Material(FRONT_AND_BACK, EMISSION,  m.emission);
+     Material(FRONT_AND_BACK, SHININESS, m.shininess);
+  end Set_Material;
 
+  -- 'Visual'
+  --
 
+  procedure free (o     : in out p_Visual)
+  is
+     procedure deallocate is new ada.unchecked_deallocation (Visual'Class, p_Visual);
+  begin
+     destroy (o.all);
+     deallocate (o);
+  end free;
 
+  function skinned_Geometrys (o : in Visual) return gl.skinned_geometry.skinned_Geometrys
+  is
+  begin
+     return gl.skinned_geometry.null_skinned_Geometrys;
+  end skinned_Geometrys;
 
+  function Width  (o: in Visual'class) return Real
+  is
+  begin
+     return bounds (o).box.X_Extent.Max - bounds (o).box.X_Extent.Min;
+  end Width;
 
-   -- 'Visual'
-   --
-
-   procedure free (o     : in out p_Visual)
-   is
-      procedure deallocate is new ada.unchecked_deallocation (Visual'Class, p_Visual);
-   begin
-      destroy (o.all);
-      free (o);
-   end;
-
-
-
-
-
-   function skinned_Geometrys (o : in Visual) return gl.skinned_geometry.skinned_Geometrys
-   is
-   begin
-      return gl.skinned_geometry.null_skinned_Geometrys;
-   end;
-
-
-
-   function Width  (o: in Visual'class) return Real
-   is
-   begin
-      return bounds (o).box.X_Extent.Max - bounds (o).box.X_Extent.Min;
-   end;
-
-
-   function Height  (o: in Visual'class) return Real
-   is
-   begin
-      return bounds (o).box.Y_Extent.Max - bounds (o).box.Y_Extent.Min;
-   end;
+  function Height  (o: in Visual'class) return Real
+  is
+  begin
+     return bounds (o).box.Y_Extent.Max - bounds (o).box.Y_Extent.Min;
+  end Height;
 
 
-   function Depth  (o: in Visual'class) return Real
-   is
-   begin
-      return bounds (o).box.Z_Extent.Max - bounds (o).box.Z_Extent.Min;
-   end;
+  function Depth  (o: in Visual'class) return Real
+  is
+  begin
+     return bounds (o).box.Z_Extent.Max - bounds (o).box.Z_Extent.Min;
+  end Depth;
 
+  -- 'Object_3D'
+  --
 
-
-
-
-   -- 'Object_base'
-   --
-
---     function face_Count (o : in Object_base) return Natural
---     is
---     begin
---        return o.Max_faces;
---     end;
-
-
-
-
-
-   -- 'Object_3D'
-   --
-
-   -- object validation
-   --
+  -- object validation
+  --
 
   procedure Check_object(o: Object_3D) is
 
@@ -268,7 +235,6 @@ package body GLOBE_3D is
 
     N: Vector_3D;
     length_N : Real;
-
 
     procedure Calculate_face_invariants(
       fa:  in Face_type;
@@ -376,7 +342,7 @@ package body GLOBE_3D is
 
       for p in o.point'Range loop
         o.edge_vector(p)          := (0.0,0.0,0.0);
-        max_Norm2                 := Real'max (Norm2 (o.Point (p)),  max_Norm2);
+        max_Norm2                 := Real'Max (Norm2 (o.Point (p)),  max_Norm2);
 
         o.bounds.box.X_Extent.Min := Real'Min (o.bounds.box.X_Extent.Min,  o.Point (p)(0));  -- tbd: set extents and bounding sphere radius in
         o.bounds.box.X_Extent.Max := Real'Max (o.bounds.box.X_Extent.Max,  o.Point (p)(0));  --      common procedure for 'object_base' class.
@@ -454,10 +420,6 @@ package body GLOBE_3D is
 
   neutral_material_already_set: Boolean:= False;
 
-
-
-
-
   -------------
   -- Display --
   -------------
@@ -466,7 +428,7 @@ package body GLOBE_3D is
   -- Display only this object and not connected objects
   -- out: object will be initialized if not yet
 
-    procedure Display_face(fa: access Face_type; fi: in out Face_invariant_type) is
+    procedure Display_face(fa: Face_type; fi: in out Face_invariant_type) is
       use GL;
       blending_hint: Boolean;
 
@@ -609,22 +571,18 @@ package body GLOBE_3D is
     gl.bindBuffer    (gl.ARRAY_BUFFER, 0);             -- disable 'vertex buffer objects'
     gl.bindBuffer    (gl.ELEMENT_ARRAY_BUFFER, 0);     -- disable 'vertex buffer objects' indices
 
---      gl.disableClientState (gl.TEXTURE_COORD_ARRAY);
---      gl.disable    (ALPHA_TEST);
+    --      gl.disableClientState (gl.TEXTURE_COORD_ARRAY);
+    --      gl.disable    (ALPHA_TEST);
     gl.enable (Lighting);
 
 
     GL.PushMatrix; -- 26-May-2006: instead of rotating/translating back
     GL.Translate( o.centre );
     Multiply_GL_Matrix(o.rotation);
-    -- pre-30-May-2006:
-    --  GL.Rotate( o.auto_rotation(0), 1.0, 0.0, 0.0 );
-    --  GL.Rotate( o.auto_rotation(1), 0.0, 1.0, 0.0 );
-    --  GL.Rotate( o.auto_rotation(2), 0.0, 0.0, 1.0 );
 
     -- Display the object in its own frame of reference
     for f in o.face'Range loop
-       Display_face(o.face(f)'access, o.face_invariant(f));
+      Display_face(o.face(f), o.face_invariant(f));
     end loop;
 
     if show_normals then
@@ -641,11 +599,6 @@ package body GLOBE_3D is
 
     --  GL.Translate( -o.centre );
   end Display_one;
-
-
-
-
-
 
 
   procedure Display(
@@ -711,7 +664,7 @@ package body GLOBE_3D is
       -- a/ Display connected objects which are visible through o's faces
       --    This is where recursion happens
       if (not filter_portal_depth) or else -- filter_portal_depth: test/debug
-         portal_depth in 0..6
+         portal_depth <= 6
       then
         for f in o.face'Range loop
           if o.face(f).connecting /= null and then
@@ -776,157 +729,41 @@ package body GLOBE_3D is
     Reset_portal_seen(o);
   end Display;
 
+  procedure Destroy (o : in out Object_3D)
+  is
+  begin
+     raise Program_Error;
+  end Destroy;
 
---
---
---
---    procedure Display(
---      o    : in out Object_3D;
---      Camera : in     globe_3d.Camera'class
---    )
---    is
---
---      use GLOBE_3D.Portals;
---
---      procedure Display_clipped(
---        o            : in out Object_3D'Class;
---        clip_area    : in     Clipping_area;
---        portal_depth : in     Natural
---      )
---      is
---        procedure Try_portal(f: Positive) is
---          use G3DM, GL;
---          dp: Real;
---          plane_to_eye: Vector_3D; -- vector from any point in plane to the eye
---          bounding_of_face, intersection_clip_and_face: Clipping_area;
---          success, non_empty_intersection: Boolean;
---        begin
---          -- Culling #1: check if portal is in vield of view's "dead angle"
---          dp:= o.face_invariant(f).normal * Camera.clipper.view_direction;
---          if dp < Camera.clipper.max_dot_product then
---            -- Culling #2: check if we are on the right side of the portal
---            -- NB: ignores o.auto_rotation !
---            plane_to_eye:=
---              Camera.clipper.eye_position -
---              (o.point(o.face_invariant(f).P_compact(1))+o.centre)
---            ;
---            dp:= plane_to_eye * o.face_invariant(f).normal;
---            -- dp = signed distance to the plane
---            if dp > 0.0 then
---              -- Culling #3: clipping rectangle
---              Find_bounding_box( o, f, bounding_of_face, success );
---              if success then
---                Intersect( clip_area, bounding_of_face,
---                           intersection_clip_and_face, non_empty_intersection );
---              else
---                -- in doubt, draw with the present clipping
---                intersection_clip_and_face:= clip_area;
---                non_empty_intersection:= True;
---              end if;
---              if non_empty_intersection then
---                Display_clipped(
---                  o            => o.face(f).connecting.all,
---                  clip_area    => intersection_clip_and_face,
---                  portal_depth => portal_depth + 1
---                );
---              end if;
---            end if;
---          end if;
---        end Try_portal;
---
---      begin
---        if not o.pre_calculated then
---          Pre_calculate(o);
---        end if;
---        -- a/ Display connected objects which are visible through o's faces
---        if (not filter_portal_depth) or else -- filter_portal_depth: test/debug
---           portal_depth in 0..6
---        then
---          for f in o.face'Range loop
---            if o.face(f).connecting /= null then
---              Try_portal(f);
---            end if;
---          end loop;
---        end if;
---        -- b/ Display the object itself
---        if (not filter_portal_depth) or else -- filter_portal_depth: test/debug
---           (portal_depth = 1 or portal_depth = 5)
---        then
---          -- The graphical clipping (Scissor) gives various effects
---          -- - almost no speedup on the ATI Radeon 9600 Pro (hardware)
---          -- - factor: ~ Sqrt(clipped surface ratio) with software GL
---          if portal_depth > 0 then
---            GL.Enable(GL.SCISSOR_TEST);
---            GL.Scissor(
---              x      => GL.Int(clip_area.x1),
---              y      => GL.Int(clip_area.y1),
---              width  => GL.SizeI(clip_area.x2 - clip_area.x1+1),
---              height => GL.SizeI(clip_area.y2 - clip_area.y1+1)
---            );
---          else
---            GL.Disable(GL.SCISSOR_TEST);
---          end if;
---          info_b_ntl2:= info_b_ntl2 + 1;
---          Display_one(o);
---        end if;
---        if show_portals and then portal_depth > 0 then
---          Draw_boundary(Camera.clipper.main_clipping, clip_area);
---        end if;
---      end Display_clipped;
---
---    begin
---      info_b_ntl2:= 0; -- count amount of objects displayed, not distinct
---      Display_clipped( o, clip_area => Camera.clipper.main_clipping, portal_depth => 0 );
---    end Display;
+  procedure set_Alpha ( o    : in out Object_3D;   Alpha : in gl.Double)
+  is
+  begin
+     for f in o.face'Range loop
+        o.face (f).alpha := Alpha;
+     end loop;
+  end set_Alpha;
+
+  function is_Transparent (o : in Object_3D) return Boolean
+  is
+  begin
+     return False; -- !! tbd: do proper check in pre_calculate and cache result (ie check faces for transparency or portals)
+  end is_Transparent;
+
+  function face_Count (o : in Object_3D) return Natural
+  is
+  begin
+     return o.Max_faces;
+  end face_Count;
+
+  function  Bounds (o : in Object_3D) return gl.geometry.Bounds_record
+  is
+  begin
+     return o.Bounds;
+  end Bounds;
 
 
-
-   procedure destroy (o : in out Object_3D)
-   is
-   begin
-      null;
-   end;
-
-
-
-
-   procedure set_Alpha ( o    : in out Object_3D;   Alpha : in gl.Double)
-   is
-   begin
-      for f in o.face'Range loop
-         o.face (f).alpha := Alpha;
-      end loop;
-   end;
-
-
-
-   function  is_Transparent (o    : in Object_3D) return Boolean
-   is
-   begin
-      return True; -- tbd: do proper check in pre_calculate and cache result (ie check faces for transparency or portals)
-   end;
-
-
-
-   function face_Count (o : in Object_3D) return Natural
-   is
-   begin
-      return o.Max_faces;
-   end;
-
-
-
-   function  Bounds         (o : in Object_3D) return gl.geometry.Bounds_record
-   is
-   begin
-      return o.Bounds;
-   end;
-
-
-
-
-   -- Lighting support.
-   --
+  -- Lighting support.
+  --
 
   -- lights: array( Light_ident ) of Light_definition;
   light_defined: array( Light_ident ) of Boolean:= (others => False);
@@ -1115,8 +952,6 @@ package body GLOBE_3D is
   )
   is
   begin
---      ada.text_io.put_Line ("NAME: '" & name & "'");
-
     if name'Length > Ident'Length then raise Constraint_Error; end if;
     o.face_invariant(face).texture_name:= empty;
     o.face_invariant(face).texture_name(1..name'Length):= name;
@@ -1245,11 +1080,7 @@ package body GLOBE_3D is
 
 
       normalise (the_Planes);
-   end;
-
-
-
-
+   end set_frustum_planes;
 
    ----------------------------------------
    -- tbd: has been moved (for the moment) external to 'render' for performance, but this makes package task unsafe !
@@ -1299,18 +1130,18 @@ package body GLOBE_3D is
 
       -- separate Visuals
       --
-      for Each in the_Visuals'range loop
+      for Each in the_Visuals'Range loop
          declare
             the_Visual       : Visual'Class                          renames the_Visuals (Each).all;
             visual_Geometrys : gl.skinned_geometry.skinned_Geometrys renames skinned_Geometrys (the_visual);
          begin
             if is_transparent (the_Visual) then
                transparent_Count                    := transparent_Count + 1;
-               all_Transparents (transparent_Count) := the_Visual'access;
+               all_Transparents (transparent_Count) := the_Visual'Access;
             else
                for Each in visual_Geometrys'Range loop
                   geometry_Count                          := geometry_Count + 1;
-                  all_Geometrys (geometry_Count).Visual   := the_Visual'access;
+                  all_Geometrys (geometry_Count).Visual   := the_Visual'Access;
                   all_Geometrys (geometry_Count).Geometry := visual_Geometrys (Each);
                end loop;
 
@@ -1331,8 +1162,8 @@ package body GLOBE_3D is
             use gl.Geometry, System.Storage_Elements;
          begin
             if primitive_Id (L.Geometry.Geometry.all)  =  primitive_Id (R.Geometry.Geometry.all) then   -- tbd: find better naming scheme to avoid '.Geometry.Geometry.'
-               return to_Integer (L.Geometry.Skin.all'address)  <  to_Integer (R.Geometry.Skin.all'address); -- tbd: check this is safe/portable
-
+               return to_Integer (L.Geometry.Skin.all'Address)  <  to_Integer (R.Geometry.Skin.all'Address); -- tbd: check this is safe/portable
+               -- GdM: aaargh! remove that !!
             elsif primitive_Id (L.Geometry.Geometry.all)  <  primitive_Id (R.Geometry.Geometry.all) then
                return True;
 
@@ -1394,13 +1225,11 @@ package body GLOBE_3D is
       -- display all transparent visuals, sorted from far to near.
       --
       declare
-         use Math;
-
          function "<" (L, R : in globe_3d.p_Visual) return Boolean -- tbd : ugh move expensive calcs outside
          is
          begin
             return L.Centre_camera_space (2) < R.Centre_camera_space (2);  -- nb: in camera space, negative Z is forward, so use '<'.
-         end;
+         end "<";
 
          --procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
          procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,

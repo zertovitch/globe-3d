@@ -317,9 +317,6 @@ package GLOBE_3D is
 
 
 
-
-
-
   type Object_3D_list;
   type p_Object_3D_list is access Object_3D_list;
   type Object_3D_list is record
@@ -329,8 +326,6 @@ package GLOBE_3D is
 
   type Object_3D_array is array(Positive range <>) of p_Object_3D;
   type p_Object_3D_array is access Object_3D_array;
-
-
 
 
   -----------------------------------
@@ -420,9 +415,6 @@ package GLOBE_3D is
   -- "out" for o because object might be pre_calculated if not yet
 
 
-
-
-
   -- Abstract windowing management
   --
 
@@ -436,16 +428,14 @@ package GLOBE_3D is
 
 
 
-   procedure enable  (Self      : in out Window) is abstract;
-   procedure freshen (Self      : in out Window;
-                      time_Step : in     globe_3d.Real;
-                      Extras    : in     globe_3d.Visual_array := globe_3d.null_Visuals) is abstract;
+  procedure enable  (Self      : in out Window) is abstract;
+  procedure freshen (Self      : in out Window;
+                     time_Step : in     globe_3d.Real;
+                     Extras    : in     globe_3d.Visual_array := globe_3d.null_Visuals) is abstract;
 
 
-
-
-   -- Exceptions
-   --
+  -- Exceptions
+  --
 
   Missing_level_data : exception;
   Missing_global_data: exception;
@@ -559,33 +549,27 @@ private
 
   procedure Load_if_needed( zif: in out Zip.Zip_info; name: String);
 
+  -- General support functions available to child packages ...
+  --
 
+  -- blending support
+  --
+  function Is_to_blend (m: GL.Double)                  return Boolean;
+  function Is_to_blend (m: GL.Float)                   return Boolean;
+  function Is_to_blend (m: GL.Material_Float_vector)   return Boolean;
+  function Is_to_blend (m: GL.Materials.Material_type) return Boolean;
 
-   -- General support functions available to child packages ...
-   --
+  -- material support
+  --
+  procedure Set_Material (m: GL.Materials.Material_type);
 
-   -- blending support
-   --
-   function Is_to_blend (m: GL.Double)                  return Boolean;
-   function Is_to_blend (m: GL.Float)                   return Boolean;
-   function Is_to_blend (m: GL.Material_Float_vector)   return Boolean;
-   function Is_to_blend (m: GL.Materials.Material_type) return Boolean;
-
-   -- material support
-   --
-   procedure Set_Material (m: GL.Materials.Material_type);
-
---     -- normal support
---     --
---     procedure Add_Normal_of_3p (o             : in     Object_base'Class;
---                                 Pn0, Pn1, Pn2 : in     Integer;
---                                 N             : in out Vector_3D);
-
+  -- Maps of Visuals - quick dictionary search
+  --
   package Visuals_Mapping is new Ada.Containers.Hashed_Maps
-         (Ada.Strings.Unbounded.Unbounded_String,
-          p_Visual,
-          Ada.Strings.Unbounded.Hash,
-          equivalent_keys => Ada.Strings.Unbounded."=");
+     (Key_Type        => Ada.Strings.Unbounded.Unbounded_String,
+      Element_Type    => p_Visual,
+      Hash            => Ada.Strings.Unbounded.Hash,
+      Equivalent_Keys => Ada.Strings.Unbounded."=");
 
   type Map_of_Visuals is new Visuals_Mapping.Map with null record;
 

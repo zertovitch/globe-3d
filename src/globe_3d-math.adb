@@ -59,48 +59,35 @@ package body GLOBE_3D.Math is
   end Normalized;
 
 
+  -- Angles
+  --
 
-   -- Angles
-   --
+  function Angle (Point_1, Point_2, Point_3 : Vector_3D) return Real
+  is
+     Vector_1  : constant Vector_3D := Normalized (Point_1 - Point_2);
+     Vector_2  : constant Vector_3D := Normalized (Point_3 - Point_2);
+     Cos_Theta : constant Real      := Vector_1 * Vector_2;
+  begin
+     if cos_Theta >= 1.0 then
+        return ada.numerics.Pi;
+     else
+        return arcCos (cos_Theta);
+     end if;
+  end Angle;
 
+  function to_Degrees (Radians : Real) return Real
+  is
+     use ada.Numerics;
+  begin
+     return Radians * 180.0 / Pi;
+  end to_Degrees;
 
-   function Angle (Point_1, Point_2, Point_3 : Vector_3D) return Real
-   is
-      Vector_1  : constant Vector_3D := Normalized (Point_1 - Point_2);
-      Vector_2  : constant Vector_3D := Normalized (Point_3 - Point_2);
-      Cos_Theta : constant Real      := Vector_1 * Vector_2;
-   begin
-      if cos_Theta >= 1.0 then
-         return ada.numerics.Pi;
-      else
-         return arcCos (cos_Theta);
-      end if;
-   end;
-
-
-
-
-
-   function to_Degrees (Radians : Real) return Real
-   is
-      use ada.Numerics;
-   begin
-      return Radians * 180.0 / Pi;
-   end;
-
-
-
-
-   function to_Radians (Degrees : Real) return Real
-   is
-      use ada.Numerics;
-   begin
-      return Degrees * Pi / 180.0;
-   end;
-
-
-
-
+  function to_Radians (Degrees : Real) return Real
+  is
+     use ada.Numerics;
+  begin
+     return Degrees * Pi / 180.0;
+  end to_Radians;
 
   --------------
   -- Matrices --
@@ -258,40 +245,33 @@ package body GLOBE_3D.Math is
       ));
   end Look_at;
 
+  function sub_Matrix (Self : in Matrix;   start_Row, end_Row : in Positive;
+                                           start_Col, end_Col : in Positive) return Matrix
+  is
+     the_sub_Matrix : Matrix (1 .. end_Row - start_Row + 1,
+                              1 .. end_Col - start_Col + 1);
+  begin
+     for Row in the_sub_Matrix'Range (1) loop
+        for Col in the_sub_Matrix'Range (2) loop
+           the_sub_Matrix (Row, Col) := self (Row + start_Row - 1,
+                                              Col + start_Col - 1);
+        end loop;
+     end loop;
+
+     return the_sub_Matrix;
+  end sub_Matrix;
 
 
-
-   function sub_Matrix (Self : in Matrix;   start_Row, end_Row : in Positive;
-                                            start_Col, end_Col : in Positive) return Matrix
-   is
-      the_sub_Matrix : Matrix (1 .. end_Row - start_Row + 1,
-                               1 .. end_Col - start_Col + 1);
-   begin
-      for Row in the_sub_Matrix'range (1) loop
-         for Col in the_sub_Matrix'range (2) loop
-            the_sub_Matrix (Row, Col) := self (Row + start_Row - 1,
-                                               Col + start_Col - 1);
-         end loop;
-      end loop;
-
-      return the_sub_Matrix;
-   end;
-
-
-
-   function Look_at (eye, center, up : Vector_3D) return Matrix_33
-   is
-      forward : constant Vector_3D := Normalized ((center (0) - eye (0),  center (1) - eye (1),  center (2) - eye (2)));
-      side    : constant Vector_3D := Normalized (forward * up);
-      new_up  : constant Vector_3D := side * forward;
-   begin
-      return (( side    (0),    side    (1),    side    (2)),
-              ( new_up  (0),    new_up  (1),    new_up  (2)),
-              (-forward (0),   -forward (1),   -forward (2)));
-   end;
-
-
-
+  function Look_at (eye, center, up : Vector_3D) return Matrix_33
+  is
+     forward : constant Vector_3D := Normalized ((center (0) - eye (0),  center (1) - eye (1),  center (2) - eye (2)));
+     side    : constant Vector_3D := Normalized (forward * up);
+     new_up  : constant Vector_3D := side * forward;
+  begin
+     return (( side    (0),    side    (1),    side    (2)),
+             ( new_up  (0),    new_up  (1),    new_up  (2)),
+             (-forward (0),   -forward (1),   -forward (2)));
+  end Look_at;
 
 
   -- Following procedure is from Project Spandex, by Paul Nettle

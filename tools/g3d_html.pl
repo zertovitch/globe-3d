@@ -242,8 +242,8 @@ sub create_header
     $string .= "<table border=0><tr><td>
 <b><font face=arial>
 <a target=_top href=../index.htm>Back to...</a></font></b><td>
-<a target=_top href=../index.htm><img border=0 width=275 height=60 alt='GLOBE_3D' src=../g3d_logo.gif></a><td>
-<a target=_top href=../index.htm><IMG width=24 height=24 border=0 SRC=../backplat.gif></a></table>";
+<a target=_top href=../index.htm><img border=0 width=275 height=60 alt='GLOBE_3D' src=../g3d/g3d_logo.gif></a><td>
+<a target=_top href=../index.htm><IMG width=24 height=24 border=0 SRC=../g3d/backplat.gif></a></table>";
   }
   if ($adafile ne "")
   {
@@ -280,7 +280,7 @@ sub create_footer
   local ($adafile) = shift;
   local ($string) = "";
   $string = "</PRE>" if ($adafile ne "");
-  return $string . "<br><font color=#e3f0de>
+  return $string . "<br><font color=#f5e5b6>
   GLOBE_3D: Ada library for real-time 3D rendering.
   Ada programming.</font></BODY></HTML>\n";
 }
@@ -939,7 +939,7 @@ sub create_file_index
       {
 	if ($last_letter ne '')
 	{
-	  print INDEX_FILE "</UL><font color=#fef0de>Ada programming.</font></BODY></HTML>\n";
+	  print INDEX_FILE "</UL><font color=#fef0b5>Ada programming.</font></BODY></HTML>\n";
 	  close (INDEX_FILE);
 	}
 	$last_letter = &uppercases (substr ($_, 0, 1));
@@ -962,7 +962,7 @@ EOF
       ".htm TARGET=main>$_</A>\n";   ## Problem with TARGET when in no_frame mode!
     }
     
-    print INDEX_FILE "</UL><font color=#fef0de>Ada programming.</font></BODY></HTML>\n";
+    print INDEX_FILE "</UL><font color=#fef0b5>Ada programming.</font></BODY></HTML>\n";
     close INDEX_FILE;
   }
   else
@@ -1009,7 +1009,7 @@ sub create_function_index
       {
 	if ($last_letter ne '')
 	{
-	  print INDEX_FILE "</UL><font color=#fef0de>Ada programming.</font></BODY></HTML>\n";
+	  print INDEX_FILE "</UL><font color=#fef0b5>Ada programming.</font></BODY></HTML>\n";
 	  close (INDEX_FILE);
 	}
 	
@@ -1046,7 +1046,7 @@ EOF
       }
     }
     
-    print INDEX_FILE "</UL><font color=#fef0de>Ada programming.</font></BODY></HTML>\n";
+    print INDEX_FILE "</UL><font color=#fef0b5>Ada programming.</font></BODY></HTML>\n";
     close INDEX_FILE;
   }
   else
