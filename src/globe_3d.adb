@@ -325,6 +325,7 @@ package body GLOBE_3D is
           when invisible =>
             o.face_invariant(i).blending:= False;
         end case;
+        o.transparent:= o.transparent or o.face_invariant(i).blending;
       exception
         when zero_summed_normal =>
               raise_exception( zero_summed_normal'Identity,
@@ -729,36 +730,35 @@ package body GLOBE_3D is
     Reset_portal_seen(o);
   end Display;
 
-  procedure Destroy (o : in out Object_3D)
-  is
+  procedure Destroy (o : in out Object_3D) is
+    ol: p_Object_3D_list:= o.sub_objects;
   begin
-     raise Program_Error;
+    while ol /= null loop
+      Free(p_Visual(ol.objc));
+      ol:= ol.next;
+    end loop;
   end Destroy;
 
-  procedure set_Alpha ( o    : in out Object_3D;   Alpha : in gl.Double)
-  is
+  procedure set_Alpha(o: in out Object_3D; Alpha : in gl.Double) is
   begin
-     for f in o.face'Range loop
-        o.face (f).alpha := Alpha;
-     end loop;
+    for f in o.face'Range loop
+      o.face(f).alpha := Alpha;
+    end loop;
   end set_Alpha;
 
-  function is_Transparent (o : in Object_3D) return Boolean
-  is
+  function is_Transparent(o: in Object_3D) return Boolean is
   begin
-     return False; -- !! tbd: do proper check in pre_calculate and cache result (ie check faces for transparency or portals)
+    return o.transparent;
   end is_Transparent;
 
-  function face_Count (o : in Object_3D) return Natural
-  is
+  function face_Count(o: in Object_3D) return Natural is
   begin
-     return o.Max_faces;
+    return o.Max_faces;
   end face_Count;
 
-  function  Bounds (o : in Object_3D) return gl.geometry.Bounds_record
-  is
+  function  Bounds(o: in Object_3D) return gl.geometry.Bounds_record is
   begin
-     return o.Bounds;
+    return o.Bounds;
   end Bounds;
 
 
@@ -767,8 +767,6 @@ package body GLOBE_3D is
 
   -- lights: array( Light_ident ) of Light_definition;
   light_defined: array( Light_ident ) of Boolean:= (others => False);
-
-
 
   procedure Define(which: Light_ident; as: Light_definition) is
     id: constant GL.LightIDEnm:= GL.LightIDEnm'Val(which-1);

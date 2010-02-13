@@ -343,6 +343,7 @@ package GLOBE_3D is
     -- private:
     face_invariant : Face_invariant_array(1..Max_faces);
     bounds         : gl.geometry.Bounds_record;
+    transparent    : Boolean:= False;
   end record; -- Object_3D
 
 
