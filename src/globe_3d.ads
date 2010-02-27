@@ -149,7 +149,6 @@ package GLOBE_3D is
    type p_Camera is access all Camera'Class;
 
 
-   procedure set_frustum_Planes (Self : in out Camera'Class);
 
    -- 'Visual' class hierarchy
    --

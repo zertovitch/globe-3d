@@ -3,41 +3,58 @@ project Globe_3D_Gps_Linux is
    type Build_Mode_Type is
       ("Debug", "Fast", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
-
    for Main use ("GLOBE_3D_Demo.adb", "Mini.adb");
 
    case Build_Mode is
-      when "Small" =>
-         for Object_Dir use "../obj/gnatsmal";
-      when "Fast" =>
-         for Object_Dir use "../obj/gnatfast";
+
       when "Debug" =>
          for Object_Dir use "../obj/gnatdebg";
+         for Source_Dirs use (".", "../bindings", "../bindings/linux", "../src/**");
+         for Main use ("globe_3d_demo.adb");
+         for Exec_Dir use ".";
+
+      when "Fast" =>
+         for Object_Dir use "../obj/gnatfast";
+         for Source_Dirs use (".", "../bindings", "../bindings/linux", "../src//**");
+         for Main use ("globe_3d_demo.adb");
+         for Exec_Dir use ".";
+
+      when "Small" =>
+         for Object_Dir use "../obj/gnatsmal";
+         for Source_Dirs use (".", "../bindings", "../bindings/linux", "../src//**");
+         for Main use ("globe_3d_demo.adb");
+         for Exec_Dir use ".";
    end case;
 
-   for Source_Dirs use (".", "../bindings", "../bindings/linux", "../src//**");
-   for Main use ("globe_3d_demo.adb");
-   for Exec_Dir use ".";
-
    package Compiler is
+
       case Build_Mode is
-         when "Small" =>
-            for Default_Switches ("ada") use ("-Os", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-march=i386", "-ffunction-sections", "-fdata-sections", "-falign-jumps=0", "-falign-loops=0", "-falign-functions=0", "-mpreferred-stack-boundary=2", "-gnatec../../demo/g3d_elim.pra");
-         when "Fast" =>
-            for Default_Switches ("ada") use ("-O2", "-gnatn", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers", "-fomit-frame-pointer", "-gnatec../../demo/g3d_elim.pra");
+
          when "Debug" =>
             for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-gnatwkmpz", "-fno-strict-aliasing", "-g", "-gnatVa", "-gnatecdebug.pra", "-gnatyhiknp");
+
+         when "Fast" =>
+            for Default_Switches ("ada") use ("-O2", "-gnatn", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers", "-fomit-frame-pointer", 
+"-gnatec../../demo/g3d_elim.pra");
+
+         when "Small" =>
+            for Default_Switches ("ada") use ("-Os", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-march=i386", "-ffunction-sections", "-fdata-sections", "-falign-jumps=0", "-falign-loops=0", "-falign-functions=0", 
+"-mpreferred-stack-boundary=2", "-gnatec../../demo/g3d_elim.pra");
       end case;
    end Compiler;
 
    package Linker is
+
       case Build_Mode is
-         when "Small" =>
-           for Default_Switches ("ada") use ("-lglut", "-lGLU", "-lGL", "-L/usr/X11R6/lib", "-lX11", "-lXi", "-lXext", "-lXmu", "-lm", "--LINK=g++", "-s", "-Wl,--gc-sections");
-         when "Fast" =>
-           for Default_Switches ("ada") use ("-lglut", "-lGLU", "-lGL", "-L/usr/X11R6/lib", "-lX11", "-lXi", "-lXext", "-lXmu", "-lm", "--LINK=g++", "-s", "-Wl,--gc-sections");
+
          when "Debug" =>
-           for Default_Switches ("ada") use ("-lglut", "-lGLU", "-lGL", "-L/usr/X11R6/lib", "-lX11", "-lXi", "-lXext", "-lXmu", "-lm", "--LINK=g++", "-g");
+            for Default_Switches ("ada") use ("/usr/lib/libglut.a", "-lGLU", "-lGL", "-L/usr/X11R6/lib", "-lX11", "-lXi", "-lXext", "-lXmu", "-lm", "-g");
+
+         when "Fast" =>
+            for Default_Switches ("ada") use ("-lglut", "-lGLU", "-lGL", "-L/usr/X11R6/lib", "-lX11", "-lXi", "-lXext", "-lXmu", "-lm", "--LINK=g++", "-s", "-Wl,--gc-sections");
+
+         when "Small" =>
+            for Default_Switches ("ada") use ("-lglut", "-lGLU", "-lGL", "-L/usr/X11R6/lib", "-lX11", "-lXi", "-lXext", "-lXmu", "-lm", "--LINK=g++", "-s", "-Wl,--gc-sections");
       end case;
    end Linker;
 
@@ -56,11 +73,16 @@ project Globe_3D_Gps_Linux is
    end Builder;
 
    package Binder is
+
       case Build_Mode is
-         when "Small" =>
-         when "Fast" =>
+
          when "Debug" =>
             for Default_Switches ("ada") use ("-E");
+
+         when "Fast" =>
+
+         when "Small" =>
+
       end case;
    end Binder;
 
@@ -69,3 +91,4 @@ project Globe_3D_Gps_Linux is
    end Ide;
 
 end Globe_3D_Gps_Linux;
+
