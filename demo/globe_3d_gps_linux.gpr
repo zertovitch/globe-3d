@@ -48,7 +48,7 @@ project Globe_3D_Gps_Linux is
       case Build_Mode is
 
          when "Debug" =>
-            for Default_Switches ("ada") use ("/usr/lib/libglut.a", "-lGLU", "-lGL", "-L/usr/X11R6/lib", "-lX11", "-lXi", "-lXext", "-lXmu", "-lm", "-g");
+            for Default_Switches ("ada") use ("-lglut", "-lGLU", "-lGL", "-L/usr/X11R6/lib", "-lX11", "-lXi", "-lXext", "-lXmu", "-lm", "-g");
 
          when "Fast" =>
             for Default_Switches ("ada") use ("-lglut", "-lGLU", "-lGL", "-L/usr/X11R6/lib", "-lX11", "-lXi", "-lXext", "-lXmu", "-lm", "--LINK=g++", "-s", "-Wl,--gc-sections");
