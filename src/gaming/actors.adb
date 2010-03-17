@@ -86,15 +86,30 @@ package body Actors is
     time_step     : GLOBE_3D.Real
   )
   is
-    mat: Matrix_33:= ID_33;
+    incremental_rotation: Vector_3D := (0.0, 0.0, 0.0);
   begin
     Abstract_rotation(
       gc,gx,gy,
-      unitary_change, deceleration, mat, time_step,
+      unitary_change, deceleration, incremental_rotation, time_step,
       actor.rotation_speed
     );
-    actor.world_rotation:= mat * actor.world_rotation;
-    Re_Orthonormalize(actor.world_rotation);
+    actor.rotation:= actor.rotation + incremental_rotation;
+    if actor.compose_rotations then
+      actor.world_rotation:=
+        XYZ_rotation(incremental_rotation) * actor.world_rotation;
+      Re_Orthonormalize(actor.world_rotation);
+    else
+      declare
+        r: Vector_3D renames actor.rotation;
+        -- We need to turn around the axes in this order: Y, X, Z
+      begin
+        actor.world_rotation:=
+          XYZ_rotation(  0.0,  0.0, r(2) ) *  -- 3) turn around the nose
+          XYZ_rotation( r(0),  0.0,  0.0 ) *  -- 2) lift or lower the head
+          XYZ_rotation(  0.0, r(1),  0.0 )    -- 1) pivotate around the feet
+        ;
+      end;
+    end if;
   end Rotation;
 
   procedure Abstract_rotation(
@@ -102,7 +117,7 @@ package body Actors is
     gx,gy         : GLOBE_3D.Real;
     unitary_change: GLOBE_3D.Real;
     deceleration  : GLOBE_3D.Real;
-    matrix        : in out GLOBE_3D.Matrix_33;
+    vector        : in out GLOBE_3D.Vector_3D;
     time_step     : GLOBE_3D.Real;
     rotation_speed: in out GLOBE_3D.Vector_3D
   )
@@ -130,8 +145,28 @@ package body Actors is
     if gc( turn_vertical_graduated ) then
       rotation_speed(0):= rotation_speed(0) - gy * mouse_rotation;
     end if;
-    matrix:= matrix * XYZ_rotation(time_step * rotation_speed);
+    vector:= vector + time_step * rotation_speed;
     rotation_speed:= deceleration * rotation_speed;
+  end Abstract_rotation;
+
+  procedure Abstract_rotation(
+    gc            : Game_control.Command_set;
+    gx,gy         : GLOBE_3D.Real;
+    unitary_change: GLOBE_3D.Real;
+    deceleration  : GLOBE_3D.Real;
+    matrix        : in out GLOBE_3D.Matrix_33;
+    time_step     : GLOBE_3D.Real;
+    rotation_speed: in out GLOBE_3D.Vector_3D
+  )
+  is
+    incremental_rotation: Vector_3D := (0.0, 0.0, 0.0);
+  begin
+    Abstract_rotation(
+      gc, gx,gy,
+      unitary_change, deceleration, incremental_rotation, time_step,
+      rotation_speed
+    );
+    matrix:= matrix * XYZ_rotation(incremental_rotation);
   end Abstract_rotation;
 
 end Actors;

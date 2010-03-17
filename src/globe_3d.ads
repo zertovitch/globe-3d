@@ -129,6 +129,16 @@ package GLOBE_3D is
          world_Rotation      : Matrix_33 := Id_33;
          Speed               : Vector_3D := (0.0, 0.0, 0.0);
          rotation_Speed      : Vector_3D := (0.0, 0.0, 0.0);
+         compose_rotations   : Boolean:= True;
+         -- True: apply successive rotations from rotation_Speed directly
+         --       to world_Rotation. Good for totally free 3D movement, no gravity.
+         --       Drawback: rotations around x axis, then y, then x,... induce a
+         --       rotation around z (the nose) which is x rotated around y.
+         -- False: world_Rotation is set as XYZ_rotation of the rotation vector below;
+         --        x,y,z keep separate.
+         -- Cf implementation in the package Actors
+         rotation            : Vector_3D := (0.0, 0.0, 0.0);
+         -- ^ this vector is updated, whatever the state of 'compose_rotations'
 
          FOVy                : Real  := default_field_of_view_Angle;  -- field of view angle (deg) in the y direction
          Aspect              : Real;                                  -- x/y aspect ratio
@@ -149,6 +159,7 @@ package GLOBE_3D is
    type p_Camera is access all Camera'Class;
 
 
+   procedure set_frustum_Planes (Self : in out Camera'Class);
 
    -- 'Visual' class hierarchy
    --

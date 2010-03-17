@@ -132,6 +132,7 @@ procedure GLOBE_3D_Demo is
     end if;
     ego.clipper.max_dot_product:= Sin(half_fov_max_rads);
     ego.clipper.main_clipping:= (0,0, width-1, height-1);
+    ego.compose_rotations:= False; -- otherwise you get sea-sick!
     GLU.Perspective(
       fovy   => fovy,
       -- field of view angle (deg) in the y direction

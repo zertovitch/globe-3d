@@ -10,6 +10,10 @@ with Game_control, GLOBE_3D;
 
 package Actors is
 
+  ------------------
+  -- Translations --
+  ------------------
+
   procedure Translation(
     actor         : in out GLOBE_3D.Camera;
     gc            : Game_control.Command_set;
@@ -30,6 +34,10 @@ package Actors is
     time_step     : GLOBE_3D.Real
   );
 
+  ---------------
+  -- Rotations --
+  ---------------
+
   procedure Rotation(
     actor         : in out GLOBE_3D.Camera;
     gc            : Game_control.Command_set;
@@ -39,6 +47,18 @@ package Actors is
     time_step     : GLOBE_3D.Real
   );
 
+  -- Version with a vector of angles in radians
+  procedure Abstract_rotation(
+    gc            : Game_control.Command_set;
+    gx,gy         : GLOBE_3D.Real;
+    unitary_change: GLOBE_3D.Real;
+    deceleration  : GLOBE_3D.Real;
+    vector        : in out GLOBE_3D.Vector_3D;
+    time_step     : GLOBE_3D.Real;
+    rotation_speed: in out GLOBE_3D.Vector_3D
+  );
+
+  -- Version with a rotation matrix
   procedure Abstract_rotation(
     gc            : Game_control.Command_set;
     gx,gy         : GLOBE_3D.Real;
