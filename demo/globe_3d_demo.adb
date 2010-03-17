@@ -733,7 +733,7 @@ procedure GLOBE_3D_Demo is
   procedure Reset_eye is
   begin
     ego.clipper.eye_position:= ( 0.0, 0.0, 4.0 );
-    ego.world_rotation:= G3D.Id_33;
+    ego.rotation:= ( 0.0, 0.0, 0.0 );
   end Reset_eye;
 
   screenshot_count: Natural:= 0;
