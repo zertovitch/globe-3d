@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  File:            GLOBE_3D_Demo.adb
 --  Description:     A small demo for GLOBE_3D
---  Copyright (c) Gautier de Montmollin 2002, 2005, 2006, 2008
+--  Copyright (c) Gautier de Montmollin 2002, 2005, 2006, 2008, 2010
 ------------------------------------------------------------------------------
 
 with GL,
@@ -999,8 +999,8 @@ procedure GLOBE_3D_Demo is
       GLUT_options:= GLUT_options or GLUT.MULTISAMPLE;
     end if;
     InitDisplayMode( GLUT_options );
-    main_size_x:= 520;
-    main_size_y:= 420;
+    main_size_x:= 500;
+    main_size_y:= 360;
     --  -- Mini Web video:
     --  main_size_x:= 200;
     --  main_size_y:= 128;

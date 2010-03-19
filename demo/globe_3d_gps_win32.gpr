@@ -3,7 +3,7 @@ project Globe_3D_Gps_Win32 is
    type Build_Mode_Type is
       ("Debug", "Fast", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
-   for Source_Dirs use (".", "..\bindings", "..\bindings\win32", "..\bindings\win32\gcc_fmt", "..\src\/**");
+   for Source_Dirs use (".", "..\bindings", "..\bindings\win32", "..\bindings\win32\gcc_fmt", "..\src\/**", "..\tools\doom3", "..\tools\doom3\to_g3d");
    for Exec_Dir use ".";
    for Main use ("GLOBE_3D_Demo.adb", "Mini.adb");
 
@@ -31,7 +31,7 @@ project Globe_3D_Gps_Win32 is
          when "Small" =>
             for Default_Switches ("ada") use ("-Os", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-march=i386", "-ffunction-sections", "-falign-jumps=0", "-falign-loops=0", "-falign-functions=0", "-mpreferred-stack-boundary=2", "-gnatec../../demo/g3d_elim.pra");
          when "Fast" =>
-            for Default_Switches ("ada") use ("-O2", "-gnatn", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers", "-fomit-frame-pointer", "-gnatec../../demo/g3d_elim.pra");
+            for Default_Switches ("ada") use ("-O2", "-gnatn", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers");
          when "Debug" =>
             for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-gnatwkmpz", "-fno-strict-aliasing", "-g", "-gnatVa", "-gnatecdebug.pra", "-gnatyhiknp");
       end case;
