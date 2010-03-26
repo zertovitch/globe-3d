@@ -23,7 +23,7 @@ set opt_comp294572=Debug
 if "%1"=="-O" set opt_comp294572=Fast
 if "%1"=="-O" shift
 rem
-gnatmake -P..\..\..\demo\globe_3d_gps_win32.gpr -XBuild_Mode=%opt_comp294572% d3g.adb
+gnatmake -Pd3g.gpr -XBuild_Mode=%opt_comp294572% d3g.adb
 rem
 set opt_comp294572=
 :fin

@@ -1,23 +1,23 @@
 -- This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
--- for the GLOBE_3D ( http://sf.net/projects/lang-index/ ) demos
--- Build me with "gnatmake -P globe_3d_gps_win32.gpr", or open me with GPS
+-- for the D3G tool (Doom 3 to GLOBE_3D)
+-- Build me with "gnatmake -P d3g.gpr", or open me with GPS
 --
-project Globe_3D_Gps_Win32 is
+project D3G is
 
    type Build_Mode_Type is
       ("Debug", "Fast", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
-   for Source_Dirs use (".", "..\bindings", "..\bindings\win32", "..\bindings\win32\gcc_fmt", "..\src\/**");
+   for Source_Dirs use (".", "..", "..\..\..\bindings", "..\..\..\bindings\win32", "..\..\..\bindings\win32\gcc_fmt", "..\..\..\src\/**");
    for Exec_Dir use ".";
-   for Main use ("GLOBE_3D_Demo.adb", "Mini.adb");
+   for Main use ("D3G.adb");
 
    case Build_Mode is
       when "Small" =>
-         for Object_Dir use "..\obj\gnatsmal";
+         for Object_Dir use "..\..\..\obj\gnatsmal";
       when "Fast" =>
-         for Object_Dir use "..\obj\gnatfast";
+         for Object_Dir use "..\..\..\obj\gnatfast";
       when "Debug" =>
-         for Object_Dir use "..\obj\gnatdebg";
+         for Object_Dir use "..\..\..\obj\gnatdebg";
    end case;
 
    package Binder is
@@ -46,13 +46,13 @@ project Globe_3D_Gps_Win32 is
       case Build_Mode is
 
          when "Small" =>
-            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32", "-mwindows");
+            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "..\..\..\obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L..\..\..\obj/libwin32");
 
          when "Fast" =>
-            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32", "-mwindows");
+            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "..\..\..\obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L..\..\..\obj/libwin32");
 
          when "Debug" =>
-            for Default_Switches ("ada") use ("-g", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
+            for Default_Switches ("ada") use ("-g", "-lopengl32", "..\..\..\obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L..\..\..\obj/libwin32");
       end case;
    end Linker;
 
@@ -74,4 +74,4 @@ project Globe_3D_Gps_Win32 is
       for Default_Switches ("adacontrol") use ("-F", "gnat_short");
    end Ide;
 
-end Globe_3D_Gps_Win32;
+end D3G;

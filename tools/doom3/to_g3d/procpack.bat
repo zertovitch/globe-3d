@@ -7,7 +7,7 @@ rem ^ the .zip file may contain the .proc file, although useless for globe_3d
 if not exist %1.proc echo Processed map file "%1.proc" not found!
 if not exist %1.proc goto syntaxe
 
-call make_d3g
+call make_d3g -O
 
 echo.
 echo **************
