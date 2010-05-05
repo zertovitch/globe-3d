@@ -5,6 +5,7 @@
 WINDOWS_TARGET
 
 
+worka
 !!
 into_gl
 bind
@@ -14,7 +15,6 @@ warp
 special
 rotation_speed
 decel
-lightfv
 -- Begin compiler switches
 DEBUG <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?
@@ -26,8 +26,12 @@ debug debug_info true
 debug integer_overflow_check true
 debug stack_check false
 debug trace_back false
+debug all_validity_checks false
 debug strip_all_symbols false
 debug profiling false
+debug verbose_details false
+debug all_warnings true
+debug build_in_place false
 release o2 true
 release inlining true
 release unroll_loops true
@@ -36,8 +40,12 @@ release debug_info false
 release integer_overflow_check false
 release stack_check false
 release trace_back false
+release all_validity_checks false
 release strip_all_symbols true
 release profiling false
+release verbose_details false
+release all_warnings true
+release build_in_place false
 -- End compiler switches
 -- Begin Release mode commands
 -aI.. -aI..\..\bindings -aI..\..\bindings\win32 -aI..\unzip

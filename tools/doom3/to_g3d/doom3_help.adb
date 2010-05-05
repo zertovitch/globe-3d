@@ -162,9 +162,9 @@ package body Doom3_Help is
   type dir_node;
   type p_Dir_node is access Dir_node;
 
-  type Dir_node(name_len: natural) is record
+  type Dir_node(name_len: Natural) is record
     left, right : p_dir_node;
-    name        : string(1..name_len);
+    name        : String(1..name_len);
   end record;
 
   catalogue: p_Dir_node:= null;
@@ -393,9 +393,9 @@ package body Doom3_Help is
 
   procedure Set_current_surface_current_triangle is
     st: Surface renames surface_stack(surface_top);
-    w1: Integer:= st.d3_pt_to_pt(v1+1);
-    w2: Integer:= st.d3_pt_to_pt(v2+1);
-    w3: Integer:= st.d3_pt_to_pt(v3+1);
+    w1: constant Integer:= st.d3_pt_to_pt(v1+1);
+    w2: constant Integer:= st.d3_pt_to_pt(v2+1);
+    w3: constant Integer:= st.d3_pt_to_pt(v3+1);
     use GLOBE_3D.Math;
   begin
     if (v1=v2 or v2=v3 or v1=v3 or        -- <- original idx same

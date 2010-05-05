@@ -487,13 +487,12 @@ package body GL.IO is
     -- 256-col types
 
     subtype Color_Type is GL.UByte;
-    subtype Color_Value is Color_Type range 0 .. 63;
 
     type RGB_Color is
        record
-          Red   : Color_Value;
-          Green : Color_Value;
-          Blue  : Color_Value;
+          Red   : Color_Type;
+          Green : Color_Type;
+          Blue  : Color_Type;
        end record;
 
     type Color_Palette is array (Color_Type) of RGB_Color;
@@ -610,14 +609,14 @@ package body GL.IO is
      procedure Load_BMP_Palette (S         : Stream_Access;
                                  image_bits: in Integer;
                                  Palette   : out Color_Palette) is
-       d: GL.UByte;
+       dummy: GL.UByte;
        mc: constant Color_Type:= (2**image_bits)-1;
      begin
        for DAC in 0..mc loop
-         GL.UByte'Read(S,d); Palette(DAC).Blue  := Color_Value(d / 4);
-         GL.UByte'Read(S,d); Palette(DAC).Green := Color_Value(d / 4);
-         GL.UByte'Read(S,d); Palette(DAC).Red   := Color_Value(d / 4);
-         GL.UByte'Read(S,d);
+         GL.UByte'Read(S, Palette(DAC).Blue);
+         GL.UByte'Read(S, Palette(DAC).Green);
+         GL.UByte'Read(S, Palette(DAC).Red);
+         GL.UByte'Read(S, dummy);
        end loop;
      end Load_BMP_Palette;
 
@@ -640,9 +639,9 @@ package body GL.IO is
        procedure Fill_palettized is
          pragma Inline(Fill_palettized);
        begin
-         Buffer( x3     ):= UByte(Palette(b).Red  ) * 4;
-         Buffer( x3 + 1 ):= UByte(Palette(b).Green) * 4;
-         Buffer( x3 + 2 ):= UByte(Palette(b).Blue ) * 4;
+         Buffer( x3     ):= UByte(Palette(b).Red  );
+         Buffer( x3 + 1 ):= UByte(Palette(b).Green);
+         Buffer( x3 + 2 ):= UByte(Palette(b).Blue );
        end Fill_palettized;
        --
     begin

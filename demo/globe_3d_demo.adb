@@ -999,11 +999,8 @@ procedure GLOBE_3D_Demo is
       GLUT_options:= GLUT_options or GLUT.MULTISAMPLE;
     end if;
     InitDisplayMode( GLUT_options );
-    main_size_x:= 500;
-    main_size_y:= 360;
-    --  -- Mini Web video:
-    --  main_size_x:= 200;
-    --  main_size_y:= 128;
+    main_size_x:= 400;
+    main_size_y:= 300;
     InitWindowSize(Integer(main_size_x), Integer(main_size_y));
     InitWindowPosition(120, 120);
     if CreateWindow(
