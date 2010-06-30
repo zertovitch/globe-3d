@@ -792,7 +792,16 @@ package body GL.IO is
     -- but has no type safety (cf GNAT Docs)
     pragma No_Strict_Aliasing(loc_pointer); -- recommended by GNAT 2005+
     pPicData: loc_pointer;
-    data_max: constant Integer:= width * height * 3 -1;
+    -- 4-byte padding for .bmp/.avi formats
+    need_padding: constant Boolean:= width mod 4 /= 0;
+    padded_row_size: constant Positive:=
+      4 * Integer(Float'Ceiling(Float(width) * 3.0 / 4.0));
+    -- (in bytes)
+    row_size: constant Positive:= width * 3;
+    -- (in bytes)
+    data_max: constant Integer:= row_size * height - 1;
+    row_max: constant Integer:= row_size - 1;
+    idx: Natural:= 0;
   begin
     pPicData:= Cvt(PicData(0)'Address);
     GL.ReadPixels(
@@ -809,10 +818,33 @@ package body GL.IO is
         for SE_Buffer'Address use PicData'Address;
         pragma Import (Ada, SE_Buffer);
       begin
-        Ada.Streams.Write(s.all, SE_Buffer(0..Stream_Element_Offset(data_max)));
+        if need_padding then -- oh @*#!, this MS format needs 4-byte padding
+          for y in 1..height loop
+            Ada.Streams.Write(s.all, SE_Buffer(
+              Stream_Element_Offset(idx)..
+              Stream_Element_Offset(idx+row_max))
+            );
+            for extra in 1 .. padded_row_size - row_size loop
+              UByte'Write(s, 0);
+            end loop;
+            idx:= idx + row_size;
+          end loop;
+        else
+          Ada.Streams.Write(s.all, SE_Buffer(0..Stream_Element_Offset(data_max)));
+        end if;
       end;
     else
-      Temp_bitmap_type'Write(s, PicData(0..data_max) );
+      if need_padding then -- oh @*#!, this MS format needs 4-byte padding
+        for y in 1..height loop
+          Temp_bitmap_type'Write(s, PicData(idx..idx+row_max) );
+          for extra in 1 .. padded_row_size - row_size loop
+            UByte'Write(s, 0);
+          end loop;
+          idx:= idx + row_size;
+        end loop;
+      else
+        Temp_bitmap_type'Write(s, PicData(0..data_max) );
+      end if;
     end if;
   end Write_raw_BGR_frame;
 
@@ -828,8 +860,8 @@ package body GL.IO is
     type BITMAPFILEHEADER is record
       bfType     : U16;
       bfSize     : U32;
-      bfReserved1: U16;
-      bfReserved2: U16;
+      bfReserved1: U16:= 0;
+      bfReserved2: U16:= 0;
       bfOffBits  : U32;
     end record;
     pragma Pack(BITMAPFILEHEADER);
@@ -843,10 +875,10 @@ package body GL.IO is
       biBitCount     : U16;
       biCompression  : U32;
       biSizeImage    : U32;
-      biXPelsPerMeter: I32;
-      biYPelsPerMeter: I32;
-      biClrUsed      : U32;
-      biClrImportant : U32;
+      biXPelsPerMeter: I32:= 0;
+      biYPelsPerMeter: I32:= 0;
+      biClrUsed      : U32:= 0;
+      biClrImportant : U32:= 0;
     end record;
     pragma Pack(BITMAPINFOHEADER);
     for BITMAPINFOHEADER'Size use 8 * 40;
@@ -868,8 +900,6 @@ package body GL.IO is
     FileHeader.bfOffBits :=
       BITMAPINFOHEADER'Size / 8 +
       BITMAPFILEHEADER'Size / 8;
-    FileHeader.bfReserved1:= 0;
-    FileHeader.bfReserved2:= 0;
 
     --  Schreiben der Bitmap-Informationen
     FileInfo.biSize       := BITMAPINFOHEADER'Size / 8;
@@ -879,12 +909,11 @@ package body GL.IO is
     FileInfo.biBitCount   := 24;
     FileInfo.biCompression:= 0;
     FileInfo.biSizeImage  :=
-      U32(FileInfo.biWidth * FileInfo.biHeight) *
-      U32(FileInfo.biBitCount / 8);
-    FileInfo.biXPelsPerMeter:= 0;
-    FileInfo.biYPelsPerMeter:= 0;
-    FileInfo.biClrUsed      := 0;
-    FileInfo.biClrImportant := 0;
+      U32(
+        -- 4-byte padding for .bmp/.avi formats
+        4 * Integer(Float'Ceiling(Float(FileInfo.biWidth) * 3.0 / 4.0)) *
+        Integer(FileInfo.biHeight)
+      );
 
     --  Größenangabe auch in den Header übernehmen
     FileHeader.bfSize := FileHeader.bfOffBits + FileInfo.biSizeImage;
@@ -945,8 +974,9 @@ package body GL.IO is
     -- Written 1st time to take place (but # of frames unknown)
     -- Written 2nd time for setting # of frames, sizes, etc.
     --
-    calc_bmp_size: constant U32:= U32(((width)) * height * 3);
-    -- !! stuff to multiple of 4 !!
+    padded_row_size: constant Positive:=
+      4 * Integer(Float'Ceiling(Float(width) * 3.0 / 4.0));
+    calc_bmp_size: constant U32:= U32(padded_row_size * height);
     index_size: constant U32:= U32(frames)*16;
     movie_size: constant U32:= 4 + U32(frames)*(calc_bmp_size+8);
     second_list_size: constant U32:= 4+64+48;
