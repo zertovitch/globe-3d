@@ -334,8 +334,10 @@ package body GL.IO is
      Byte_Array'Read( s, info );
 
      if TGA_type(1) /= GL.UByte'Val(0) then
-       raise TGA_Unsupported_Image_Type
-         with "TGA: palette not supported, please use BMP";
+       Raise_Exception(
+         TGA_Unsupported_Image_Type'Identity,
+         "TGA: palette not supported, please use BMP"
+       );
      end if;
 
      -- Image type:
@@ -353,8 +355,10 @@ package body GL.IO is
        RLE_pixels_remaining:= 0;
      end if;
      if image_type /= 2 and image_type /= 3 then
-       raise TGA_Unsupported_Image_Type
-         with "TGA type =" & Integer'Image(image_type);
+       Raise_Exception(
+         TGA_Unsupported_Image_Type'Identity,
+         "TGA type =" & Integer'Image(image_type)
+       );
      end if;
 
      the_Image.Width  := GL.UByte'Pos(info(0)) + GL.UByte'Pos(info(1)) * 256;
@@ -392,7 +396,7 @@ package body GL.IO is
      begin
         Open(f,in_file,Filename);
      exception
-        when name_error => raise_exception(FILE_NOT_FOUND'Identity, " file name:" & Filename);
+        when name_error => Raise_Exception(FILE_NOT_FOUND'Identity, " file name:" & Filename);
      end;
      the_Image := to_TGA_Image ( Stream(f) );
      Close(f);
@@ -781,8 +785,16 @@ package body GL.IO is
   end Write_Intel_x86_number;
 
   procedure Write_raw_BGR_frame(s: Stream_Access; width, height: Natural) is
+    -- 4-byte padding for .bmp/.avi formats is the same as GL's default
+    -- padding: see glPixelStore, GL_[UN]PACK_ALIGNMENT = 4 as initial value.
+    -- http://www.opengl.org/sdk/docs/man/xhtml/glPixelStore.xml
+    --
+    padded_row_size: constant Positive:=
+      4 * Integer(Float'Ceiling(Float(width) * 3.0 / 4.0));
+    -- (in bytes)
+    --
     type Temp_bitmap_type is array(Natural range <>) of aliased GL.Ubyte;
-    PicData: Temp_bitmap_type(0..(width+4) * (height+4) * 3 - 1);
+    PicData: Temp_bitmap_type(0..(padded_row_size+4) * (height+4) - 1);
     -- No dynamic allocation needed!
     -- The "+4" are there to avoid parity address problems when GL writes
     -- to the buffer.
@@ -792,16 +804,7 @@ package body GL.IO is
     -- but has no type safety (cf GNAT Docs)
     pragma No_Strict_Aliasing(loc_pointer); -- recommended by GNAT 2005+
     pPicData: loc_pointer;
-    -- 4-byte padding for .bmp/.avi formats
-    need_padding: constant Boolean:= width mod 4 /= 0;
-    padded_row_size: constant Positive:=
-      4 * Integer(Float'Ceiling(Float(width) * 3.0 / 4.0));
-    -- (in bytes)
-    row_size: constant Positive:= width * 3;
-    -- (in bytes)
-    data_max: constant Integer:= row_size * height - 1;
-    row_max: constant Integer:= row_size - 1;
-    idx: Natural:= 0;
+    data_max: constant Integer:= padded_row_size * height - 1;
   begin
     pPicData:= Cvt(PicData(0)'Address);
     GL.ReadPixels(
@@ -818,33 +821,10 @@ package body GL.IO is
         for SE_Buffer'Address use PicData'Address;
         pragma Import (Ada, SE_Buffer);
       begin
-        if need_padding then -- oh @*#!, this MS format needs 4-byte padding
-          for y in 1..height loop
-            Ada.Streams.Write(s.all, SE_Buffer(
-              Stream_Element_Offset(idx)..
-              Stream_Element_Offset(idx+row_max))
-            );
-            for extra in 1 .. padded_row_size - row_size loop
-              UByte'Write(s, 0);
-            end loop;
-            idx:= idx + row_size;
-          end loop;
-        else
-          Ada.Streams.Write(s.all, SE_Buffer(0..Stream_Element_Offset(data_max)));
-        end if;
+        Ada.Streams.Write(s.all, SE_Buffer(0..Stream_Element_Offset(data_max)));
       end;
     else
-      if need_padding then -- oh @*#!, this MS format needs 4-byte padding
-        for y in 1..height loop
-          Temp_bitmap_type'Write(s, PicData(idx..idx+row_max) );
-          for extra in 1 .. padded_row_size - row_size loop
-            UByte'Write(s, 0);
-          end loop;
-          idx:= idx + row_size;
-        end loop;
-      else
-        Temp_bitmap_type'Write(s, PicData(0..data_max) );
-      end if;
+      Temp_bitmap_type'Write(s, PicData(0..data_max) );
     end if;
   end Write_raw_BGR_frame;
 
