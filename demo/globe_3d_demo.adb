@@ -244,10 +244,20 @@ procedure GLOBE_3D_Demo is
       when G3D.Missing_object =>
         null; -- Some custom levels like the Reims Cathedral have no BSP
     end;
-    level_stuff:= new G3D.Object_3D_array'(ls(1..area_max));
     if area_max = 0 then
-      raise empty_level;
+      -- Perhaps just one object to display
+      -- In this case we have only the name, no area counter
+      -- E.g. a319.g3d inside of a319.zip
+      begin
+        G3D.IO.Load(name, ls(1));
+        area_max:= 1;
+        G3D.Add(level_map, G3D.p_Visual(ls(1))); -- add to dictionary
+      exception
+        when G3D.Missing_object =>
+          raise empty_level;
+      end;
     end if;
+    level_stuff:= new G3D.Object_3D_array'(ls(1..area_max));
   end Load_Doom;
 
   procedure Create_objects(load: Boolean; doom3_custom: String) is
@@ -772,7 +782,11 @@ procedure GLOBE_3D_Demo is
 
     function Can_be_rotated return Boolean is
     begin
-      return beast /= bri_idx and beast /= level_idx;
+      -- Block object rotation if we have several objects
+      return not (
+        beast = bri_idx or
+        (beast = level_idx and level_stuff'Length > 1)
+      );
     end Can_be_rotated;
 
     elaps, time_now: Integer;
