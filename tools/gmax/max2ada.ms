@@ -44,7 +44,7 @@
         if (j == undefined) then
         ( if first_bitmap then (if decl then format ";\n") else format ",\n"
           format "    %" bitmap_name
-          if assoc then format " => Texture_id'Pos(%)" bitmap_name
+          if assoc then format " => Texture_enum'Pos(%)" bitmap_name
           bitmap_names = bitmap_names + ";" + bitmap_name
           first_bitmap = false
         )
@@ -521,12 +521,22 @@
     format "  end Create;\n" 
     format "\n"
     format "end %;\n" gmax_scene
+    format "-- Test procedure, which creates the model from the package's Ada code\n"
+    format "-- and saves it as a .g3d object file (more practical).\n"
+    format "--\n"
+    format "-- Automatically written by max2ada.ms .\n"
+    format "--\n"
+    format "with GLOBE_3D.IO, GLOBE_3D.Textures; use GLOBE_3D, GLOBE_3D.IO, GLOBE_3D.Textures;\n"
+    format "with %; -- The package containing the GMAX model's data\n" gmax_scene
     format "procedure example is\n" 
     format "  type Texture_enum is (\n" 
     bitmap_names = ""
     first_bitmap = true
     list_bitmaps false false
-    format "  );\nbegin\n  -- code chunk:\n" 
+    format "  );\n  gmax: GLOBE_3D.p_Object_3D;\nbegin\n  -- code chunk:\n" 
+    format "  Set_global_data_name(\"%.zip\"); -- You put in that .zip file all texture bitmaps, in .bmp or .tga format\n" gmax_scene
+    format "  Textures.Register_textures_from_resources;\n"
+    format "  --\n"
     format "  %.Create(\n" gmax_scene
     format "    object => gmax,\n"
     format "    scale  => 1.0,\n"
@@ -534,7 +544,14 @@
     bitmap_names = ""
     first_bitmap = true
     list_bitmaps true false
-    format "  );\nend example;\n" 
+    format "  );\n" 
+    format "  --\n" 
+    format "  Set_name(gmax.all, \"%\");\n" gmax_scene
+    format "  Save_file(gmax.all);\n"
+    format "  -- ^ Save the \"%.g3d\" object, might be more practical than the Ada source.\n" gmax_scene
+    format "  --   For instance (to give an idea), if you include it into the \"%.zip\" file,\n" gmax_scene
+    format "  --   you can also view the textured object with \"GLOBE_3D_Demo.exe -load=%\".\n" gmax_scene
+    format "end example;\n" 
     format "\n" 
     flushStringStream 
   ) 
