@@ -346,7 +346,6 @@ procedure GLOBE_3D_Demo is
       metal_surface => Texture_id("fdmetal1"),
       bumped_blue   => Texture_id("bleubosl")
     );
-
     Pre_calculate(vhc_002.all);
 
     Icosahedron.Create(
@@ -640,7 +639,7 @@ procedure GLOBE_3D_Demo is
       GLUT_2D.Text_output( (0.0,1.0,0.0),"y", GLUT_2D.Times_Roman_24 );
       GLUT_2D.Text_output( (0.0,0.0,1.0),"z", GLUT_2D.Times_Roman_24 );
 
-      Msg(10, "Name (Space key for next object/scene): " & Get_name(o) &
+      Msg(10, "Press Space for next object/scene. Name: " & Get_name(o) &
         " points:" & Integer'Image(o.max_points) &
         " faces:"  & Integer'Image(o.max_faces));
       Msg(20, "Run mode (Shift): " &
@@ -1008,8 +1007,8 @@ procedure GLOBE_3D_Demo is
       GLUT_options:= GLUT_options or GLUT.MULTISAMPLE;
     end if;
     InitDisplayMode( GLUT_options );
-    main_size_x:= 400;
-    main_size_y:= 300;
+    main_size_x:= 500;
+    main_size_y:= 400;
     InitWindowSize(Integer(main_size_x), Integer(main_size_y));
     InitWindowPosition(120, 120);
     if CreateWindow(
