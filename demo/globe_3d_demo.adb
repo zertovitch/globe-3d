@@ -132,7 +132,6 @@ procedure GLOBE_3D_Demo is
     end if;
     ego.clipper.max_dot_product:= Sin(half_fov_max_rads);
     ego.clipper.main_clipping:= (0,0, width-1, height-1);
-    ego.compose_rotations:= False; -- otherwise you get sea-sick!
     GLU.Perspective(
       fovy   => fovy,
       -- field of view angle (deg) in the y direction
@@ -261,7 +260,7 @@ procedure GLOBE_3D_Demo is
   end Load_Doom;
 
   procedure Create_objects(load: Boolean; doom3_custom: String) is
-    t: constant:= 1.0;
+    t: constant:= 20.0;
     f2: Natural;
     use GL, G3D, G3D.Textures;
 
@@ -289,7 +288,7 @@ procedure GLOBE_3D_Demo is
   begin
     -- Basic cube
     cube:= new G3D.Object_3D( Max_points=> 8, Max_faces=> 6 );
-    cube.centre:= (0.0,0.0,0.0);
+    cube.centre:= (0.0,0.0, -4.0 - 3.0*t);
     cube.point:=
       ( (-t,-t,-t), (-t, t,-t), ( t, t,-t), ( t,-t,-t),
         (-t,-t, t), (-t, t, t), ( t, t, t), ( t,-t, t));
@@ -318,7 +317,7 @@ procedure GLOBE_3D_Demo is
     Set_name(cube_tri.all,"Triangular Cube !");
 
     -- Also a cube with half-faces, but playing with colour/texture
-    cube_bico:= new G3D.Object_3D'Class'(cube_tri.all);
+    cube_bico:= new G3D.Object_3D'Class'(cube_tri.all); -- cloning
     Set_name(cube_bico.all,"Technicolor");
     for f in cube_bico.face'Range loop
       if f mod 2 = 0 then
@@ -328,17 +327,17 @@ procedure GLOBE_3D_Demo is
 
     X29.Create(
       object => x29_plane,
-      scale  => 1.0,
-      centre => (0.0,0.0,-17.0)
+      scale  => 10.0,
+      centre => (0.0,0.0,-170.0)
     );
 
-    -- Space vehicles
+    -- Space vehicle 1
     Vehic001.Create(
       object => vhc_001,
-      scale  => 0.5,
-      centre => (0.0,0.0,-25.0)
+      scale  => 4.0,
+      centre => (0.0,0.0,-180.0)
     );
-
+    -- Space vehicle 2
     Vehic002.Create(
       object => vhc_002,
       scale  => 100.0,
@@ -352,32 +351,45 @@ procedure GLOBE_3D_Demo is
 
     Icosahedron.Create(
       object => ico,
-      scale  => 0.6,
-      centre => (0.0,0.0,0.0),
+      scale  => 12.0,
+      centre => (0.0,0.0,-60.0),
       alpha  => 0.8,
       polyball => False
     );
 
     Icosahedron.Create(
       object => icos,
-      scale  => 0.6,
-      centre => (0.0,0.0,0.0),
+      scale  => 12.0,
+      centre => ico.centre,
       alpha  => 0.5,
       polyball => True
     );
+    for i in icos.face'Range loop
+      icos.face(i).skin:= material_only;
+      case (i-1) / 20 is
+        -- Non-transparent things
+        when  1 => icos.face(i).material:= GL.Materials.Brass;
+        when  2 => icos.face(i).material:= GL.Materials.Bronze;
+        when  3 => icos.face(i).material:= GL.Materials.Copper;
+        when  4 => icos.face(i).material:= GL.Materials.Polished_Copper;
+        when  5 => icos.face(i).material:= GL.Materials.Gold;
+        when  6 => icos.face(i).material:= GL.Materials.Polished_Bronze;
+        -- Transparent things (Nabokov!)
+        when  7 => icos.face(i).material:= GL.Materials.Pewter;
+        when  8 => icos.face(i).material:= GL.Materials.Pearl;
+        when  9 => icos.face(i).material:= GL.Materials.Obsidian;
+        when 10 => icos.face(i).material:= GL.Materials.Jade;
+        when 11 => icos.face(i).material:= GL.Materials.Emerald;
+        when  0 => icos.face(i).material:= GL.Materials.Ruby;
+        when others => null;
+      end case;
+    end loop;
 
-    --  VRML_scene.Create(
-    --    object => vrml,
-    --    scale  => 0.05,
-    --    centre => (0.0,0.0,-50.0)
-    --  );
-
-    -- Pre_calculate(vrml.all);
-
+    -- Dreadnought space ship modeled with GMax
     Dreadnought.Create(
       object => dreadnought_ship,
       scale  => 0.065,
-      centre => (0.0,-250.0,-500.0),
+      centre => (0.0, -250.0, -700.0),
       alum_001 => Texture_id("alum_001"),
       alum_002 => Texture_id("alum_002"),
       grumnoir => Texture_id("grumnoir"),
@@ -387,11 +399,11 @@ procedure GLOBE_3D_Demo is
 
     Extruded_surface.Create(
       object     => extrude_test_1,
-      scale      => 20.0,
-      centre     => (-8.0,-8.0,-20.0),
-      grid       => 40,
+      scale      => 400.0,
+      centre     => (-160.0,-160.0,-300.0),
+      grid       => 57,
       surface    => Extruded_surface.square,
-      max_u3     => 0.2,
+      max_u3     => 0.15,
       iterations => 100,
       hor_tex    => Texture_id("spacity1"),
       ver_tex    => Texture_id("spacity1"),
@@ -435,10 +447,10 @@ procedure GLOBE_3D_Demo is
 
     Planet.Create(
       object   => globe,
-      scale    => 10.0,
-      centre   => (0.0,0.0,-50.0),
+      scale    => 200.0,
+      centre   => (0.0,0.0,-800.0),
       mercator => Texture_id("earth_map"),
-      parts    => 45
+      parts    => 47
     );
     Set_name(globe.all,"The Earth !");
     Pre_calculate(globe.all);
@@ -456,27 +468,6 @@ procedure GLOBE_3D_Demo is
       centre => (0.0,0.0,-25.0)
     );
     Pre_calculate(liss.all);
-
-    for i in icos.face'Range loop
-      icos.face(i).skin:= material_only;
-      case (i-1) / 20 is
-        -- Non-transparent things
-        when  1 => icos.face(i).material:= GL.Materials.Brass;
-        when  2 => icos.face(i).material:= GL.Materials.Bronze;
-        when  3 => icos.face(i).material:= GL.Materials.Copper;
-        when  4 => icos.face(i).material:= GL.Materials.Polished_Copper;
-        when  5 => icos.face(i).material:= GL.Materials.Gold;
-        when  6 => icos.face(i).material:= GL.Materials.Polished_Bronze;
-        -- Transparent things (Nabokov!)
-        when  7 => icos.face(i).material:= GL.Materials.Pewter;
-        when  8 => icos.face(i).material:= GL.Materials.Pearl;
-        when  9 => icos.face(i).material:= GL.Materials.Obsidian;
-        when 10 => icos.face(i).material:= GL.Materials.Jade;
-        when 11 => icos.face(i).material:= GL.Materials.Emerald;
-        when  0 => icos.face(i).material:= GL.Materials.Ruby;
-        when others => null;
-      end case;
-    end loop;
 
     --
     -- Load a Doom 3 level from .g3d/.bsp files
@@ -649,9 +640,9 @@ procedure GLOBE_3D_Demo is
       GLUT_2D.Text_output( (0.0,1.0,0.0),"y", GLUT_2D.Times_Roman_24 );
       GLUT_2D.Text_output( (0.0,0.0,1.0),"z", GLUT_2D.Times_Roman_24 );
 
-      Msg(10, "Name (Space key for next object or scene): " & Get_name(o) &
-        " # of points" & Integer'Image(o.max_points) &
-        " # of faces"  & Integer'Image(o.max_faces));
+      Msg(10, "Name (Space key for next object/scene): " & Get_name(o) &
+        " points:" & Integer'Image(o.max_points) &
+        " faces:"  & Integer'Image(o.max_faces));
       Msg(20, "Run mode (Shift): " &
         Boolean'Image(gc( Game_control.run_mode )));
       Msg(30, "Slide mode (Alt): " &
@@ -744,6 +735,7 @@ procedure GLOBE_3D_Demo is
   begin
     ego.clipper.eye_position:= ( 0.0, 0.0, 4.0 );
     ego.rotation:= ( 0.0, 0.0, 0.0 );
+    ego.world_rotation:= G3D.Id_33;
   end Reset_eye;
 
   screenshot_count: Natural:= 0;
@@ -870,6 +862,9 @@ procedure GLOBE_3D_Demo is
     if gc(toggle_10) then
       detect_collisions:= not detect_collisions;
     end if;
+
+    ego.compose_rotations:= Can_be_rotated;
+    -- ^ otherwise you get sea-sick when walking!...
 
     -------------------------------------
     -- Rotating they eye or the object --
@@ -1058,10 +1053,11 @@ procedure GLOBE_3D_Demo is
 
   type Switch_Type is (
     load, -- load some scenes from .g3d files stored in the GLOBE_3D
-          --        resource files, instead of rebuilding them (default)
+          --        resource files, instead of rebuilding them (default).
+          --  Additionally,
           --   "-load=mylevel" sets "mylevel.zip" as level resource;
-          --   from that resource, loads mylevel_$_area#.g3d with #=1,2,3...
-          --   and loads mylevel.bsp.
+          --   from that resource, the demo loads the mylevel_$_area#.g3d
+          --   objects with #=1,2,3..., and loads mylevel.bsp.
     dump  -- dump all objects of the demo to .g3d files
   );
 
