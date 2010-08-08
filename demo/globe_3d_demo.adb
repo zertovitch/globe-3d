@@ -26,7 +26,8 @@ with Actors, Game_control;
 -- 3D models --
 ---------------
 
-with Vehic001, Vehic002, X29,
+with Vehic001, Vehic002,
+     A319, X29,
      Brick, Icosahedron,
      SkotKnot, Lissajous,
      Planet,
@@ -207,6 +208,7 @@ procedure GLOBE_3D_Demo is
   -- gmax,
   knot, liss,
   globe,
+  a319_plane,
   x29_plane,
   vhc_001, vhc_002,
   dreadnought_ship,
@@ -325,6 +327,13 @@ procedure GLOBE_3D_Demo is
       end if;
     end loop;
 
+    -- Plane: Airbus A319
+    A319.Create(
+      object => a319_plane,
+      scale  => 20.0,
+      centre => (0.0,0.0,-796.0)
+    );
+    -- Plane: X29 prototype
     X29.Create(
       object => x29_plane,
       scale  => 10.0,
@@ -553,10 +562,11 @@ procedure GLOBE_3D_Demo is
       extrude_test_1, borg_star,
       -- vrml,
       dreadnought_ship,
-      cube, cube_tri, cube_bico,
-      ico, icos,
+      a319_plane,
       x29_plane,
       vhc_001, vhc_002,
+      cube, cube_tri, cube_bico,
+      ico, icos,
       knot, liss,
       bri1
     );
