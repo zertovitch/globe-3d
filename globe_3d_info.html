@@ -221,16 +221,22 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
     software installer (Add/Remove software) the libraries mentioned above, select the "*-devel"
     package and push the install button.
    <li> <b>Macintosh (Mac OS X)</b>:<br>
-    You need first to install the X11 server; then
-    you'd better to force lower case on file names: unzip -L globe_3d.zip;
-    for the Ada files (*.ad*), the "-a" or "-aa" option may be useful to ensure you get
-    the correct end-of-line codes.
+You need first to install the X11 server within your Mac installation DVD; then you'd better to force 
+lower case on file names and to ensure you get the correct end-of-line codes: 
+unzip -La globe_3d_xx.zip; (don't use -aa option).
+Then build FreeGlut, see instructions in obj/libmac. 
     <br>
     <ul>
      <li> <b>GNAT</b> compiler:<br>
          - [in GPS:] use the GLOBE_3D_GPS_Darwin.gpr project file<br>
        or<br>
          - gnatmake -P globe_3d_gps_darwin.gpr
+     <li>
+Execution:<br>
+- export DYLD_LIBRARY_PATH=../obj/libmac/lib<br>
+- ./globe_3d_demo<br>
+or<br>
+- ./mini<br>
     </ul>
    <li> <b>Other systems</b>:<br>
     Should be fine, just need GL,GLU,(Free)GLUT.

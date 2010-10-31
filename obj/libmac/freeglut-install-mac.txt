@@ -1,0 +1,25 @@
+Instructions to install FreeGlut on Mac OS X
+
+1) Mac OS X 10.4
+
+A specific link is needed by FreeGlut:
+$ cd /usr/include ; sudo ln -s /usr/X11R6/include/GL .
+
+Go to globe_3d/obj/libmac directory
+Download FreeGlut from http://sourceforge.net/projects/freeglut/files/freeglut/freeglut-2.4.0.tar.gz/download
+$ tar xzf freeglut-2.4.0.tar.gz 
+$ cd freeglut-2.4.0
+$ ./configure --prefix=`pwd`/.. --x-includes=/usr/X11R6/include --x-libraries=/usr/X11R6/lib
+$ make CFLAGS=-Wno-error
+$ make install
+
+
+2) Mac OS X 10.6
+
+Go to globe_3d/obj/libmac directory
+Download FreeGlut from http://sourceforge.net/projects/freeglut/files/freeglut/freeglut-2.6.0.tar.gz/download
+$ tar xzf freeglut-2.6.0.tar.gz 
+$ cd freeglut-2.6.0
+$ ./configure --prefix=`pwd`/.. --x-includes=/usr/X11/include --x-libraries=/usr/X11/lib
+$ make
+$ make install
