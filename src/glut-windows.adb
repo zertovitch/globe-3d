@@ -274,21 +274,6 @@ package body glut.Windows is
       end case;
    end Menu;
 
-
-
-
-
-   procedure Dump_objects (Self : Window) is
-   begin
-      for i in self.Objects'Range loop
-         G3D.IO.Save_file (g3d.Object_3d (self.Objects (i).all));
-      end loop;
-   end Dump_objects;
-
-
-
-
-
    procedure Display_status (Self : in out Window;
                              sec  : globe_3d.Real)
    is

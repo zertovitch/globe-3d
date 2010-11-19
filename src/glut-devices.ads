@@ -37,15 +37,13 @@ package GLUT.Devices is
 
    type p_Keyboard is access all Keyboard;
 
+   default_Keyboard : aliased Keyboard;
 
    function Strike_once( c: Character;
-                         keyboard : access devices.Keyboard) return Boolean;
+                         kb : access Keyboard:= default_Keyboard'access) return Boolean;
 
    function Strike_once( special: Integer;
-                         keyboard : access devices.Keyboard) return Boolean;
-
-
-   default_Keyboard : aliased Keyboard;
+                         kb : access Keyboard:= default_Keyboard'access) return Boolean;
 
 
 

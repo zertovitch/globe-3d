@@ -6,8 +6,7 @@ with Interfaces;
 with GLUT.Windows;              use GLUT.Windows;
 with Ada.Characters.Handling;   use Ada.Characters.Handling;
 with System;
-with ada.unchecked_Conversion;
-with GLOBE_3D;
+with Ada.Unchecked_Conversion;
 
 package body GLUT.Devices is
 
@@ -104,7 +103,6 @@ package body GLUT.Devices is
 
   function current_Mouse return p_Mouse
   is
-     use globe_3d;
      the_current_Window : constant windows.Window_view := current_Window;
   begin
      if the_current_Window = null then
@@ -169,18 +167,18 @@ package body GLUT.Devices is
    --
 
   function Strike_once( c: Character;
-                        keyboard : access devices.Keyboard) return Boolean
+                        kb : access Keyboard:= default_Keyboard'access) return Boolean
   is
   begin
-    if keyboard.normal_set(c) then
-      if keyboard.normal_set_mem(c) then
+    if kb.normal_set(c) then
+      if kb.normal_set_mem(c) then
         return False; -- already a reported strike
       else
-        keyboard.normal_set_mem(c):= True; -- key is now recorded as pressed
+        kb.normal_set_mem(c):= True; -- key is now recorded as pressed
         return True;
       end if;
     else
-      keyboard.normal_set_mem(c):= False; -- unpressed -> next strike allowed
+      kb.normal_set_mem(c):= False; -- unpressed -> next strike allowed
       return False;
     end if;
   end Strike_once;
@@ -189,21 +187,21 @@ package body GLUT.Devices is
 
 
   function Strike_once( special: Integer;
-                       Keyboard : access devices.Keyboard) return Boolean
+                        kb : access Keyboard:= default_Keyboard'access) return Boolean
   is
   begin
     if special not in Special_key_set'Range then
       return False;
     else
-      if Keyboard.special_set(special) then
-        if Keyboard.special_set_mem(special) then
+      if kb.special_set(special) then
+        if kb.special_set_mem(special) then
           return False; -- already a reported strike
         else
-          Keyboard.special_set_mem(special):= True; -- key is now recorded as pressed
+          kb.special_set_mem(special):= True; -- key is now recorded as pressed
           return True;
         end if;
       else
-        Keyboard.special_set_mem(special):= False; -- unpressed -> next strike allowed
+        kb.special_set_mem(special):= False; -- unpressed -> next strike allowed
         return False;
       end if;
     end if;
