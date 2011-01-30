@@ -10,7 +10,7 @@
 
 with GL.Buffer.vertex;
 with GL.Buffer.indices;
-with ada.unchecked_Deallocation;
+-- with ada.unchecked_Deallocation;
 
 
 

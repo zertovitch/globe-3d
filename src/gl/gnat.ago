@@ -1,20 +1,20 @@
--gnatf -aI.. -aI..\..\bindings -aI..\..\bindings\win32 -aI..\unzip
+-gnatf -gnat2005 -aI.. -aI..\..\bindings -aI..\..\bindings\win32 -aI..\unzip
 -i -aO..\..\obj\gnatdebg -largs -lopengl32 -lglew32 -lglu32 -L../../obj/libwin32
 
 
 WINDOWS_TARGET
 
 
+avi
+riff
+raise_exce
+raw_
+raise_e
+exc
+data_max
 worka
-!!
-into_gl
-bind
-bind_
-null_unbou
-warp
-special
-rotation_speed
-decel
+perf
+rle
 -- Begin compiler switches
 DEBUG <- active (current) build mode
 FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?

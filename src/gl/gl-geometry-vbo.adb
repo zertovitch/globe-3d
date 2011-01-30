@@ -8,8 +8,8 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with Ada.Numerics.Generic_Elementary_functions;
-with Ada.Text_IO; use Ada.Text_IO;
+-- with Ada.Numerics.Generic_Elementary_functions;
+-- with Ada.Text_IO; use Ada.Text_IO;
 
 
 
@@ -74,18 +74,22 @@ package body gl.Geometry.VBO is
 
 
 
+   --  Modified by zheng, 2011.1.20
    function Vertices (Self : in     vbo_Geometry) return gl.geometry.Vertex_array
    is
+      self_buf: aliased vbo_Geometry:=self;
    begin
-      return self.Vertices.get;
+      return self_buf.Vertices.get;
    end;
 
 
 
 
+   --  Modified by zheng, 2011.1.20
    function Indices (Self : in     vbo_Geometry) return gl.geometry.vertex_Id_array
    is
-      gl_Indices : vertex_Id_array := self.Indices.get;
+      self_buf: aliased vbo_Geometry:=self;
+      gl_Indices : vertex_Id_array := self_buf.Indices.get;
    begin
       increment (gl_Indices);
       return gl_Indices;
