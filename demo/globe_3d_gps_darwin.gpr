@@ -1,7 +1,7 @@
 project Globe_3D_Gps_Darwin is
 
    for Object_Dir use "../obj/gnatdebg";
-   for Source_Dirs use (".", "../bindings", "../bindings/linux", "../src//**");
+   for Source_Dirs use (".", "../bindings", "../src/**", "../bindings/macosx");
    for Main use ("globe_3d_demo.adb", "mini.adb");
    for Exec_Dir use ".";
 
@@ -10,7 +10,6 @@ project Globe_3D_Gps_Darwin is
    end Binder;
 
    package Builder is
-      for Executable ("globe_3d_demo.adb") use "";
    end Builder;
 
    package Naming is
@@ -24,13 +23,13 @@ project Globe_3D_Gps_Darwin is
    end Naming;
 
    package Linker is
-      for Default_Switches ("ada") use ("-g", "-bind_at_load", "../obj/libmac/lib/libglut.dylib", "/System/Library/Frameworks/OpenGL.framework/Libraries/libGL.dylib", 
-"/System/Library/Frameworks/OpenGL.framework/Libraries/libGLU.dylib", "-L/usr/X11R6/lib", "-lX11", "-lXi", "-lXmu", "-lXext", "-lm");
+      for Default_Switches ("ada") use ("-g", "-bind_at_load", "-framework", "/GLUT", "/System/Library/Frameworks/OpenGL.framework/Libraries/libGL.dylib", 
+"/System/Library/Frameworks/OpenGL.framework/Libraries/libGLU.dylib", "-lm");
    end Linker;
 
    package Compiler is
-      for Default_Switches ("ada") use ("-gnatf", "-gnato", "-fstack-check", "-gnatE", "-g", "-gnatwk", "-gnatwm", "-gnatwp", "-gnatwz", "-gnatVc", "-gnatVf", "-gnatVi", "-gnatVm", "-gnatVo", "-gnatVr", "-gnatVs", "-gnatVt", "-gnatyh", 
-"-gnatyi", "-gnatyk", "-gnatyn", "-gnatyp", "-gnat05");
+      for Default_Switches ("ada") use ("-gnatf", "-gnato", "-fstack-check", "-gnatE", "-g", "-gnatwkmpz", "-gnatVcfimorst", "-gnatyhiknp", "-gnat05");
    end Compiler;
 
 end Globe_3D_Gps_Darwin;
+
