@@ -23,27 +23,6 @@ package body GLOBE_3D is
   package G3DM renames GLOBE_3D.Math;
 
 
-  --
-  package List_Id_Generator is
-    function New_List_Id return List_Ids;
-  private
-    Available_List_Id : List_Ids := List_Ids'First;
-  end List_Id_Generator;
-
-
-  package body List_Id_Generator is
-
-    function New_List_Id return List_Ids is
-
-    begin
-      Available_List_Id := Available_List_Id + 1;
-      return Available_List_Id - 1;
-    end New_List_Id;
-
-  end List_Id_Generator;
-
-  --
-
   function Image( r: Real ) return String is
     s: String(1..10);
   begin
@@ -763,41 +742,42 @@ package body GLOBE_3D is
     GL.Translate( o.centre );
     Multiply_GL_Matrix(o.rotation);
 
-      -- List preparation phase
-      case o.List_Status is
-         when No_list | Is_List => null;
+    -- List preparation phase
+    case o.List_Status is
+      when No_list | Is_List =>
+        null;
 
-         when Generate_List =>
-            o.List_Id := List_Id_Generator.New_List_Id;
-            GL.NewList (GL.uint (o.List_Id), COMPILE_AND_EXECUTE);
-      end case;
+      when Generate_List =>
+        o.List_Id := Integer(GL.GenLists(1));
+        GL.NewList (GL.uint (o.List_Id), COMPILE_AND_EXECUTE);
+    end case;
 
-      -- Execution phase
-      case o.List_Status is
-         when No_list =>
-            for f in o.face'Range loop
-               Display_face(o.face(f), o.face_invariant(f));
-            end loop;
-         when Generate_List =>
-            for f in o.face'Range loop
-               Display_face_optimized.Display_face(f = o.face'First, o.face(f), o.face_invariant(f));
-            end loop;
+    -- Execution phase
+    case o.List_Status is
+      when No_list =>
+        for f in o.face'Range loop
+          Display_face(o.face(f), o.face_invariant(f));
+        end loop;
+      when Generate_List =>
+        for f in o.face'Range loop
+          Display_face_optimized.Display_face(f = o.face'First, o.face(f), o.face_invariant(f));
+        end loop;
 
-         when Is_List => GL.CallList (GL.uint (o.List_Id));
-      end case;
+      when Is_List => GL.CallList (GL.uint (o.List_Id));
+    end case;
 
-      -- Close list
-      case o.List_Status is
-         when No_list | Is_List => null;
+    -- Close list
+    case o.List_Status is
+      when No_list | Is_List => null;
 
-         when Generate_List  =>
-            GL.EndList;
-            if GL.GetError = OUT_OF_MEMORY then
-               o.List_Status := No_List;
-            else
-               o.List_Status := Is_List;
-            end if;
-      end case;
+      when Generate_List  =>
+        GL.EndList;
+        if GL.GetError = OUT_OF_MEMORY then
+          o.List_Status := No_List;
+        else
+          o.List_Status := Is_List;
+        end if;
+    end case;
 
     if show_normals then
       GL.Disable( GL.LIGHTING );

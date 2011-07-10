@@ -397,7 +397,6 @@ pragma Eliminate (GL, GetColorTableParameterfvEXT);
 pragma Eliminate (GL, GetColorTableEXT);
 pragma Eliminate (GL, GetClipPlane);
 pragma Eliminate (GL, GetBooleanv);
-pragma Eliminate (GL, GenLists);
 pragma Eliminate (GL, Frustum);
 pragma Eliminate (GL, FrontFace);
 pragma Eliminate (GL, Fogiv);
