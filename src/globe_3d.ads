@@ -29,6 +29,27 @@
 
 -------------------------------------------------------------------------
 
+--
+-- Added "List_status" and "List_Id" to the Object_3D.
+-- by default the Display_One routine will now generate a GL command list
+-- instead of sending the command each time explicitely.
+-- To disable this feature, set Object_3D.List_Status to "No_List".
+-- If memory is not sufficient to hold a list, the Display_One routine will
+-- automatically default back to "No_List".
+--
+-- Uwe R. Zimmer, July 2011
+--
+--
+-- Added an alternative
+-- display face routine which is optimized to produce a shorter list
+-- of GL commands. Runs slower then the original Display face routine
+-- yet needs to be executed only once.
+--
+-- Uwe R. Zimmer, July 2011
+--
+
+
+
 with GL,
      GL.Geometry,
      GL.Frustums,
@@ -340,19 +361,34 @@ package GLOBE_3D is
   -- Now: the Object_3D definition --
   -----------------------------------
 
-  type Object_3D (Max_points, Max_faces: Integer) is new Visual with record
-    point          : Point_3D_array  (1..Max_points);  -- vertices
-    edge_vector    : Vector_3D_array (1..Max_points);  -- normals for lighting
-    face           : Face_array(1..Max_faces);
-    sub_objects    : p_Object_3D_list:= null;
-    -- List of objects to be drawn AFTER the
-    -- object itself e.g., things inside a room
-    pre_calculated : Boolean:= False;
-    -- private:
-    face_invariant : Face_invariant_array(1..Max_faces);
-    bounds         : gl.geometry.Bounds_record;
-    transparent    : Boolean:= False;
-  end record; -- Object_3D
+   type List_Cases  is (No_List, Generate_List, Is_List);
+   subtype List_Ids is Positive;
+
+   --
+   -- Added "List_status" and "List_Id" to the Object_3D.
+   -- by default the Display_One routine will now generate a GL command list
+   -- instead of sending the command each time explicitely.
+   -- To disable this feature, set Object_3D.List_Status to "No_List".
+   -- If memory is not sufficient to hold a list, the Display_One routine will
+   -- automatically default back to "No_List".
+   --
+   -- Uwe R. Zimmer, July 2011
+   --
+   type Object_3D (Max_points, Max_faces: Integer) is new Visual with record
+      point          : Point_3D_array  (1..Max_points);  -- vertices
+      edge_vector    : Vector_3D_array (1..Max_points);  -- normals for lighting
+      face           : Face_array(1..Max_faces);
+      sub_objects    : p_Object_3D_list:= null;
+      -- List of objects to be drawn AFTER the
+      -- object itself e.g., things inside a room
+      pre_calculated : Boolean:= False;
+      List_Status    : List_Cases := Generate_List;
+      -- private:
+      List_Id        : List_Ids;
+      face_invariant : Face_invariant_array(1..Max_faces);
+      bounds         : gl.geometry.Bounds_record;
+      transparent    : Boolean:= False;
+   end record; -- Object_3D
 
 
   procedure destroy        (o : in out Object_3D);
