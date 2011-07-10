@@ -588,117 +588,6 @@ package body GLOBE_3D is
 
     end Display_face_optimized;
 
-    --
-
-    procedure Display_face (fa: Face_type; fi: in out Face_invariant_type) is
-      use GL;
-      blending_hint: Boolean;
-
-    begin -- Display_face
-      if fa.skin = invisible then
-        return;
-      end if;
-
-      --------------
-      -- Material --
-      --------------
-
-      case fa.skin is
-        when material_only | material_texture =>
-          Disable(COLOR_MATERIAL);
-          Set_Material(fa.material);
-          neutral_material_already_set:= False;
-        when others =>
-          -- Avoid setting again and again the neutral material
-          if not neutral_material_already_set then
-            Set_Material(GL.Materials.neutral_material);
-            neutral_material_already_set:= True;
-          end if;
-      end case;
-
-      ------------
-      -- Colour --
-      ------------
-
-      case fa.skin is
-        when material_only | material_texture =>
-          null; -- done above
-        when colour_only | coloured_texture =>
-          Enable(COLOR_MATERIAL);
-          ColorMaterial(FRONT_AND_BACK, AMBIENT_AND_DIFFUSE);
-          Color(
-            red   => fa.colour.red,
-            green => fa.colour.green,
-            blue  => fa.colour.blue,
-            alpha => fa.alpha
-          );
-        when texture_only =>
-          Disable(COLOR_MATERIAL);
-        when invisible =>
-          null;
-      end case;
-
-      -------------
-      -- Texture --
-      -------------
-
-      case fa.skin is
-        when texture_only | coloured_texture | material_texture =>
-          Enable( TEXTURE_2D );
-          G3DT.Check_2D_texture(fa.texture, blending_hint);
-          GL.BindTexture( GL.TEXTURE_2D, GL.Uint(Image_id'Pos(fa.texture)+1) );
-          -- ^ superfluous ?!!
-          if blending_hint then
-            fi.blending:= True;
-            -- 13-Oct-2006: override decision made at Pre_calculate
-            -- if texture data contains an alpha layer
-          end if;
-        when colour_only | material_only =>
-          Disable( TEXTURE_2D );
-        when invisible =>
-          null;
-      end case;
-
-      -----------------------------
-      -- Blending / transparency --
-      -----------------------------
-
-      if fi.blending then
-        Enable( BLEND ); -- See 4.1.7 Blending
-        BlendFunc( sfactor => SRC_ALPHA,
-                   dfactor => ONE_MINUS_SRC_ALPHA );
-        -- Disable( DEPTH_TEST );
-        -- Disable( CULL_FACE );
-      else
-        Disable( BLEND );
-        -- Enable( DEPTH_TEST );
-        -- Enable( CULL_FACE );
-        -- CullFace( BACK );
-      end if;
-
-      -------------
-      -- Drawing --
-      -------------
-
-      case fi.last_edge is
-        when 3 => GL_Begin( TRIANGLES );
-        when 4 => GL_Begin( QUADS );
-      end case;
-
-      for i in 1..fi.last_edge loop
-        if is_textured(fa.skin) then
-          TexCoord(fi.UV_extrema(i).U, fi.UV_extrema(i).V);
-        end if;
-        Normal(o.edge_vector(fi.P_compact(i)));
-        Vertex(o.point(fi.P_compact(i)));
-      end loop;
-
-      GL_End;
-
-    end Display_face;
-
-
-
     procedure Display_normals is
       use GL,G3DM;
       C: Vector_3D;
@@ -756,7 +645,9 @@ package body GLOBE_3D is
     case o.List_Status is
       when No_list =>
         for f in o.face'Range loop
-          Display_face(o.face(f), o.face_invariant(f));
+          Display_face_optimized.Display_face(True, o.face(f), o.face_invariant(f));
+          -- We mimic the old Display_face with redundant color, material, etc.
+          -- instructions by passing True for First_Face.
         end loop;
       when Generate_List =>
         for f in o.face'Range loop

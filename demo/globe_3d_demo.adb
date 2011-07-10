@@ -651,7 +651,8 @@ procedure GLOBE_3D_Demo is
 
       Msg(10, "Press Space for next object/scene. Name: " & Get_name(o) &
         " points:" & Integer'Image(o.max_points) &
-        " faces:"  & Integer'Image(o.max_faces));
+        " faces:"  & Integer'Image(o.max_faces) &
+        ' ' & List_Cases'Image(o.List_Status));
       Msg(20, "Run mode (Shift): " &
         Boolean'Image(gc( Game_control.run_mode )));
       Msg(30, "Slide mode (Alt): " &
