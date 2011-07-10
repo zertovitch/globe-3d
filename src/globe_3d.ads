@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GLOBE_3D - GL-based, real-time, 3D engine
 --
---  Copyright (c) Gautier de Montmollin 2001..2008
+--  Copyright (c) Gautier de Montmollin 2001..2011
 --  SWITZERLAND
 --  Copyright (c) Rod Kay 2006..2008
 --  AUSTRALIA
@@ -361,8 +361,8 @@ package GLOBE_3D is
   -- Now: the Object_3D definition --
   -----------------------------------
 
-   type List_Cases  is (No_List, Generate_List, Is_List);
-   subtype List_Ids is Positive;
+  type List_Cases  is (No_List, Generate_List, Is_List);
+  subtype List_Ids is Positive;
 
    --
    -- Added "List_status" and "List_Id" to the Object_3D.
@@ -374,21 +374,21 @@ package GLOBE_3D is
    --
    -- Uwe R. Zimmer, July 2011
    --
-   type Object_3D (Max_points, Max_faces: Integer) is new Visual with record
-      point          : Point_3D_array  (1..Max_points);  -- vertices
-      edge_vector    : Vector_3D_array (1..Max_points);  -- normals for lighting
-      face           : Face_array(1..Max_faces);
-      sub_objects    : p_Object_3D_list:= null;
-      -- List of objects to be drawn AFTER the
-      -- object itself e.g., things inside a room
-      pre_calculated : Boolean:= False;
-      List_Status    : List_Cases := Generate_List;
-      -- private:
-      List_Id        : List_Ids;
-      face_invariant : Face_invariant_array(1..Max_faces);
-      bounds         : gl.geometry.Bounds_record;
-      transparent    : Boolean:= False;
-   end record; -- Object_3D
+  type Object_3D (Max_points, Max_faces: Integer) is new Visual with record
+    point          : Point_3D_array  (1..Max_points);  -- vertices
+    edge_vector    : Vector_3D_array (1..Max_points);  -- normals for lighting
+    face           : Face_array(1..Max_faces);
+    sub_objects    : p_Object_3D_list:= null;
+    -- List of objects to be drawn AFTER the
+    -- object itself e.g., things inside a room
+    pre_calculated : Boolean:= False;
+    List_Status    : List_Cases := Generate_List;
+    -- private:
+    List_Id        : List_Ids;
+    face_invariant : Face_invariant_array(1..Max_faces);
+    bounds         : gl.geometry.Bounds_record;
+    transparent    : Boolean:= False;
+  end record; -- Object_3D
 
 
   procedure destroy        (o : in out Object_3D);

@@ -23,26 +23,26 @@ package body GLOBE_3D is
   package G3DM renames GLOBE_3D.Math;
 
 
-   --
-   package List_Id_Generator is
-      function New_List_Id return List_Ids;
-   private
-      Available_List_Id : List_Ids := List_Ids'First;
-   end List_Id_Generator;
+  --
+  package List_Id_Generator is
+    function New_List_Id return List_Ids;
+  private
+    Available_List_Id : List_Ids := List_Ids'First;
+  end List_Id_Generator;
 
 
-   package body List_Id_Generator is
+  package body List_Id_Generator is
 
-      function New_List_Id return List_Ids is
+    function New_List_Id return List_Ids is
 
-      begin
-         Available_List_Id := Available_List_Id + 1;
-         return Available_List_Id - 1;
-      end New_List_Id;
+    begin
+      Available_List_Id := Available_List_Id + 1;
+      return Available_List_Id - 1;
+    end New_List_Id;
 
-   end List_Id_Generator;
+  end List_Id_Generator;
 
-   --
+  --
 
   function Image( r: Real ) return String is
     s: String(1..10);
@@ -451,165 +451,165 @@ package body GLOBE_3D is
   -- Display only this object and not connected objects
   -- out: object will be initialized if not yet
 
-      --
+    --
 
-      --
-      -- Display face routine which is optimized to produce a shorter list
-      -- of GL commands. Runs slower then the original Display face routine
-      -- yet needs to be executed only once.
-      --
-      -- Uwe R. Zimmer, July 2011
-      --
-      package Display_face_optimized is
-         procedure Display_face (First_Face : Boolean; fa: Face_type; fi: in out Face_invariant_type);
-      private
-         Previous_face           : Face_type;
-         Previous_face_Invariant : Face_invariant_type;
-      end Display_face_optimized;
+    --
+    -- Display face routine which is optimized to produce a shorter list
+    -- of GL commands. Runs slower then the original Display face routine
+    -- yet needs to be executed only once.
+    --
+    -- Uwe R. Zimmer, July 2011
+    --
+    package Display_face_optimized is
+      procedure Display_face (First_Face : Boolean; fa: Face_type; fi: in out Face_invariant_type);
+    private
+      Previous_face           : Face_type;
+      Previous_face_Invariant : Face_invariant_type;
+    end Display_face_optimized;
 
-      package body Display_face_optimized is
+    package body Display_face_optimized is
 
-         use GL.Materials;
+      use GL.Materials;
 
-         procedure Display_face (First_Face : Boolean; fa: Face_type; fi: in out Face_invariant_type) is
+      procedure Display_face (First_Face : Boolean; fa: Face_type; fi: in out Face_invariant_type) is
 
-            use GL;
-            blending_hint: Boolean;
+        use GL;
+        blending_hint: Boolean;
 
-         begin -- Display_face
+      begin -- Display_face
 
-            if fa.skin = invisible then
-               Previous_face           := fa;
-               Previous_face_Invariant := fi;
-               return;
-            end if;
+        if fa.skin = invisible then
+          Previous_face           := fa;
+          Previous_face_Invariant := fi;
+          return;
+        end if;
 
-            --------------
-            -- Material --
-            --------------
+        --------------
+        -- Material --
+        --------------
 
-            if First_Face
-              or else Previous_face.skin = invisible
-              or else fa.skin /= Previous_face.skin
-              or else (fa.skin = Previous_face.skin
-                      and then fa.material /= Previous_face.material) then
-               case fa.skin is
-                  when material_only | material_texture =>
-                     Disable(COLOR_MATERIAL);
-                     Set_Material(fa.material);
-                  when others =>
-                     Set_Material(GL.Materials.neutral_material);
-               end case;
-            end if;
+        if First_Face
+          or else Previous_face.skin = invisible
+          or else fa.skin /= Previous_face.skin
+          or else (fa.skin = Previous_face.skin
+                   and then fa.material /= Previous_face.material) then
+          case fa.skin is
+            when material_only | material_texture =>
+              Disable(COLOR_MATERIAL);
+              Set_Material(fa.material);
+            when others =>
+              Set_Material(GL.Materials.neutral_material);
+          end case;
+        end if;
 
-            ------------
-            -- Colour --
-            ------------
+        ------------
+        -- Colour --
+        ------------
 
-            if First_Face
-              or else Previous_face.skin = invisible
-              or else fa.skin /= Previous_face.skin
-              or else (fa.skin = Previous_face.skin
-                       and then (fa.colour /= Previous_face.colour
-                                 or else fa.alpha /= Previous_face.alpha)) then
-               case fa.skin is
-                  when material_only | material_texture =>
-                     null; -- done above
-                  when colour_only | coloured_texture =>
-                     Enable(COLOR_MATERIAL);
-                     ColorMaterial(FRONT_AND_BACK, AMBIENT_AND_DIFFUSE);
-                     Color(
-                           red   => fa.colour.red,
-                           green => fa.colour.green,
-                           blue  => fa.colour.blue,
-                           alpha => fa.alpha
-                          );
-                  when texture_only =>
-                     Disable(COLOR_MATERIAL);
-                  when invisible =>
-                     null;
-               end case;
-            end if;
+        if First_Face
+          or else Previous_face.skin = invisible
+          or else fa.skin /= Previous_face.skin
+          or else (fa.skin = Previous_face.skin
+                   and then (fa.colour /= Previous_face.colour
+                             or else fa.alpha /= Previous_face.alpha)) then
+          case fa.skin is
+            when material_only | material_texture =>
+              null; -- done above
+            when colour_only | coloured_texture =>
+              Enable(COLOR_MATERIAL);
+              ColorMaterial(FRONT_AND_BACK, AMBIENT_AND_DIFFUSE);
+              Color(
+                    red   => fa.colour.red,
+                    green => fa.colour.green,
+                    blue  => fa.colour.blue,
+                    alpha => fa.alpha
+                   );
+            when texture_only =>
+              Disable(COLOR_MATERIAL);
+            when invisible =>
+              null;
+          end case;
+        end if;
 
-            -------------
-            -- Texture --
-            -------------
+        -------------
+        -- Texture --
+        -------------
 
-            if is_textured(fa.skin) then
-              G3DT.Check_2D_texture(fa.texture, blending_hint);
-              if blending_hint then
-                fi.blending:= True;
-                -- 13-Oct-2006: override the decision made at Pre_calculate.
-                -- If texture data contains an alpha layer, we switch
-                -- on transparency.
-              end if;
-            end if;
+        if is_textured(fa.skin) then
+          G3DT.Check_2D_texture(fa.texture, blending_hint);
+          if blending_hint then
+            fi.blending:= True;
+            -- 13-Oct-2006: override the decision made at Pre_calculate.
+            -- If texture data contains an alpha layer, we switch
+            -- on transparency.
+          end if;
+        end if;
 
 
-            if First_Face
-              or else Previous_face.skin = invisible
-              or else fa.skin /= Previous_face.skin
-              or else (fa.skin = Previous_face.skin
-                      and then fa.texture /= Previous_face.texture) then
-               case fa.skin is
-                  when texture_only | coloured_texture | material_texture =>
-                     Enable( TEXTURE_2D );
-                     GL.BindTexture( GL.TEXTURE_2D, GL.Uint(Image_id'Pos(fa.texture)+1) );
-                     -- ^ superfluous ?!!
-                  when colour_only | material_only =>
-                     Disable( TEXTURE_2D );
-                  when invisible =>
-                     null;
-               end case;
-            end if;
+        if First_Face
+          or else Previous_face.skin = invisible
+          or else fa.skin /= Previous_face.skin
+          or else (fa.skin = Previous_face.skin
+                   and then fa.texture /= Previous_face.texture) then
+          case fa.skin is
+            when texture_only | coloured_texture | material_texture =>
+              Enable( TEXTURE_2D );
+              GL.BindTexture( GL.TEXTURE_2D, GL.Uint(Image_id'Pos(fa.texture)+1) );
+              -- ^ superfluous ?!!
+            when colour_only | material_only =>
+              Disable( TEXTURE_2D );
+            when invisible =>
+              null;
+          end case;
+        end if;
 
-            -----------------------------
-            -- Blending / transparency --
-            -----------------------------
+        -----------------------------
+        -- Blending / transparency --
+        -----------------------------
 
-            if First_Face
-              or else Previous_face.skin = invisible
-              or else fi.blending /= Previous_face_Invariant.blending then
-               if fi.blending then
-                  Enable( BLEND ); -- See 4.1.7 Blending
-                  BlendFunc( sfactor => SRC_ALPHA,
-                            dfactor => ONE_MINUS_SRC_ALPHA );
-                  -- Disable( DEPTH_TEST );
-                  -- Disable( CULL_FACE );
-               else
-                  Disable( BLEND );
-                  -- Enable( DEPTH_TEST );
-                  -- Enable( CULL_FACE );
-                  -- CullFace( BACK );
-               end if;
-            end if;
+        if First_Face
+          or else Previous_face.skin = invisible
+          or else fi.blending /= Previous_face_Invariant.blending then
+          if fi.blending then
+            Enable( BLEND ); -- See 4.1.7 Blending
+            BlendFunc( sfactor => SRC_ALPHA,
+                      dfactor => ONE_MINUS_SRC_ALPHA );
+            -- Disable( DEPTH_TEST );
+            -- Disable( CULL_FACE );
+          else
+            Disable( BLEND );
+            -- Enable( DEPTH_TEST );
+            -- Enable( CULL_FACE );
+            -- CullFace( BACK );
+          end if;
+        end if;
 
-            -------------
-            -- Drawing --
-            -------------
+        -------------
+        -- Drawing --
+        -------------
 
-            case fi.last_edge is
-               when 3 => GL_Begin( TRIANGLES );
-               when 4 => GL_Begin( QUADS );
-            end case;
+        case fi.last_edge is
+          when 3 => GL_Begin( TRIANGLES );
+          when 4 => GL_Begin( QUADS );
+        end case;
 
-            for i in 1..fi.last_edge loop
-               if is_textured(fa.skin) then
-                  TexCoord(fi.UV_extrema(i).U, fi.UV_extrema(i).V);
-               end if;
-               Normal(o.edge_vector(fi.P_compact(i)));
-               Vertex(o.point(fi.P_compact(i)));
-            end loop;
+        for i in 1..fi.last_edge loop
+          if is_textured(fa.skin) then
+            TexCoord(fi.UV_extrema(i).U, fi.UV_extrema(i).V);
+          end if;
+          Normal(o.edge_vector(fi.P_compact(i)));
+          Vertex(o.point(fi.P_compact(i)));
+        end loop;
 
-            GL_End;
+        GL_End;
 
-            Previous_face           := fa;
-            Previous_face_Invariant := fi;
-         end Display_face;
+        Previous_face           := fa;
+        Previous_face_Invariant := fi;
+      end Display_face;
 
-      end Display_face_optimized;
+    end Display_face_optimized;
 
-      --
+    --
 
     procedure Display_face (fa: Face_type; fi: in out Face_invariant_type) is
       use GL;
