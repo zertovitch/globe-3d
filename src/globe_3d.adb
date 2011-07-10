@@ -535,6 +535,17 @@ package body GLOBE_3D is
             -- Texture --
             -------------
 
+            if is_textured(fa.skin) then
+              G3DT.Check_2D_texture(fa.texture, blending_hint);
+              if blending_hint then
+                fi.blending:= True;
+                -- 13-Oct-2006: override the decision made at Pre_calculate.
+                -- If texture data contains an alpha layer, we switch
+                -- on transparency.
+              end if;
+            end if;
+
+
             if First_Face
               or else Previous_face.skin = invisible
               or else fa.skin /= Previous_face.skin
@@ -543,14 +554,8 @@ package body GLOBE_3D is
                case fa.skin is
                   when texture_only | coloured_texture | material_texture =>
                      Enable( TEXTURE_2D );
-                     G3DT.Check_2D_texture(fa.texture, blending_hint);
                      GL.BindTexture( GL.TEXTURE_2D, GL.Uint(Image_id'Pos(fa.texture)+1) );
                      -- ^ superfluous ?!!
-                     if blending_hint then
-                        fi.blending:= True;
-                        -- 13-Oct-2006: override decision made at Pre_calculate
-                        -- if texture data contains an alpha layer
-                     end if;
                   when colour_only | material_only =>
                      Disable( TEXTURE_2D );
                   when invisible =>
