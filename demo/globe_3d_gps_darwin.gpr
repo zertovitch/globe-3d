@@ -1,3 +1,7 @@
+-- This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
+-- for the GLOBE_3D ( http://sf.net/projects/globe3d/ ) demos
+-- Build me with "gnatmake -P globe_3d_gps_darwin.gpr", or open me with GPS
+--
 project Globe_3D_Gps_Darwin is
 
    for Object_Dir use "../obj/gnatdebg";
@@ -10,6 +14,7 @@ project Globe_3D_Gps_Darwin is
    end Binder;
 
    package Builder is
+      for Default_Switches ("ada") use ("-j2", "-C"); -- -j2: We assume at least a Dual-Core machine building this project
    end Builder;
 
    package Naming is
