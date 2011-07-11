@@ -7,8 +7,8 @@ project Globe_3D_Gps_Linux is
    type Build_Mode_Type is
       ("Debug", "Fast", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
-   for Source_Dirs use (".", "../bindings", "../bindings/linux", "../src//**");
-   for Main use ("globe_3d_demo.adb", "mini.adb");
+   for Source_Dirs use (".", "../bindings", "../bindings/linux", "../src//**", "../tools");
+   for Main use ("globe_3d_demo.adb", "mini.adb", "get_gl_info.adb", "gl_overloader.adb");
    for Exec_Dir use ".";
 
    case Build_Mode is

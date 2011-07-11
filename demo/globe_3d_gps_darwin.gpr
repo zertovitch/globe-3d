@@ -5,8 +5,8 @@
 project Globe_3D_Gps_Darwin is
 
    for Object_Dir use "../obj/gnatdebg";
-   for Source_Dirs use (".", "../bindings", "../src/**", "../bindings/macosx");
-   for Main use ("globe_3d_demo.adb", "mini.adb");
+   for Source_Dirs use (".", "../bindings", "../src/**", "../bindings/macosx", "../tools");
+   for Main use ("globe_3d_demo.adb", "mini.adb", "get_gl_info.adb", "gl_overloader.adb");
    for Exec_Dir use ".";
 
    package Binder is

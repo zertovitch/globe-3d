@@ -4,7 +4,7 @@ with Ada.Text_IO; use Ada.Text_IO;
 procedure Get_GL_Info is
   f: File_Type;
   use GL, GLUT;
-  GLUT_options: GLUT.Unsigned:=
+  GLUT_options: constant GLUT.Unsigned:=
     GLUT.DOUBLE or GLUT.RGB or GLUT.DEPTH or GLUT.MULTISAMPLE;
   procedure Put_Split(s: String) is
   begin
@@ -31,7 +31,7 @@ begin
     end if;
     Put_Line(f, "]");
   end loop;
-  Put(f,"GLUT.Get(WINDOW_NUM_SAMPLES):" & 
+  Put(f,"GLUT.Get(WINDOW_NUM_SAMPLES):" &
       Integer'Image(GLUT.Get(GLUT.WINDOW_NUM_SAMPLES)));
   Close(f);
 end Get_GL_Info;
