@@ -27,10 +27,11 @@ with Actors, Game_control;
 ---------------
 
 with Vehic001, Vehic002,
-     A319, X29,
+     X29,
      Brick, Icosahedron,
      SkotKnot, Lissajous,
      Planet,
+     A319,
      Dreadnought,
      --  VRML_scene,
      --  gmax_scene,
@@ -328,11 +329,14 @@ procedure GLOBE_3D_Demo is
     end loop;
 
     -- Plane: Airbus A319
+    --
     A319.Create(
       object => a319_plane,
       scale  => 20.0,
       centre => (0.0,0.0,-796.0)
     );
+    -- G3D.IO.Load("A319", a319_plane);
+
     -- Plane: X29 prototype
     X29.Create(
       object => x29_plane,
@@ -403,6 +407,8 @@ procedure GLOBE_3D_Demo is
       grumnoir => Texture_id("grumnoir"),
       tole_001 => Texture_id("tole_001")
     );
+    Set_name(dreadnought_ship.all, "Dreadnought");
+    -- G3D.IO.Load("Dreadnought", dreadnought_ship);
     Pre_calculate(dreadnought_ship.all);
 
     Extruded_surface.Create(

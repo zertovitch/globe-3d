@@ -115,9 +115,10 @@ package body GLOBE_3D.Textures is
   end Check_2D_texture;
 
   procedure Check_2D_texture(id: Image_id) is
-    junk: Boolean;
+    junk_blending_hint: Boolean;
+    pragma Warnings(off, junk_blending_hint);
   begin
-    Check_2D_texture(id,junk);
+    Check_2D_texture(id,junk_blending_hint);
   end Check_2D_texture;
 
   procedure Check_all_textures is
