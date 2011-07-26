@@ -1,5 +1,7 @@
 -- Change log:
 
+-- GdM: 26-Jul-2011: using System.Address_To_Access_Conversions
+
 -- GdM: 28-Nov-2005: replaced Unrestricted_Access with Address
 --                   since Unrestricted_Access is GNAT-Specific
 
@@ -9,7 +11,6 @@
 --                    * removing of pointers and
 --                      "...4f" -style suffixes in progress
 
-with Ada.Unchecked_Conversion, System;
 with Interfaces.C.Strings;
 with GL.Extended;
 
@@ -34,19 +35,17 @@ package body GL is
     Materialfv(face, pname, params_copy(0)'Unchecked_Access);
   end Material;
 
-  function Cvt is new Ada.Unchecked_Conversion(System.Address,DoublePtr);
-  -- This method is functionally identical as GNAT's Unrestricted_Access
-  -- but has no type safety (cf GNAT Docs)
-  pragma No_Strict_Aliasing(DoublePtr); -- recommended by GNAT 2005
 
   procedure Vertex (v: Double_vector_3D) is
   begin
-    Vertex3dv(Cvt(v(0)'Address));
+    Vertex3dv(A2A_double.To_Pointer(v(0)'Address));
+    -- This method is functionally identical
+    -- to using GNAT's 'Unrestricted_Access
   end Vertex;
 
   procedure Normal (v: Double_vector_3D) is
   begin
-    Normal3dv(Cvt(v(0)'Address));
+    Normal3dv(A2A_double.To_Pointer(v(0)'Address));
   end Normal;
 
   procedure Translate (v: Double_vector_3D) is
@@ -56,12 +55,12 @@ package body GL is
 
   procedure Color(v: RGB_Color) is
   begin
-    Color3dv(Cvt(v.red'Address));
+    Color3dv(A2A_double.To_Pointer(v.red'Address));
   end Color;
 
   procedure Color(v: RGBA_Color) is
   begin
-    Color4dv(Cvt(v.red'Address));
+    Color4dv(A2A_double.To_Pointer(v.red'Address));
   end Color;
 
   function GetString (name: StringEnm) return String is

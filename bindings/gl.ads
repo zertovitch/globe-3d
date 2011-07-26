@@ -1,6 +1,8 @@
 --#-#-#-#-----------------
 -- Change log:
--- GM : 2008: GL 1.5 items moved to GL.Extended ('cause of Windows :-( )
+--
+-- GdM: 2011: using System.Address_To_Access_Conversions instead of Ada.Unchecked_Conversion
+-- GdM: 2008: GL 1.5 items moved to GL.Extended ('cause of Windows :-( )
 -- RK : 2007: added CLAMP_TO_EDGE and CLAMP_TO_BORDER for texturing.
 -- RK : 2007: added positive_uInt
 -- RK : 2007: renamed 'intPtr' to 'intPointer' and added correct openGL intPtr type (which is a 'ptrdiff_t')
@@ -59,6 +61,7 @@
 
 with Interfaces.C;
 with Ada.Unchecked_Conversion;
+with System.Address_To_Access_Conversions;
 
 package GL is
 
@@ -128,6 +131,7 @@ package GL is
 
   type positive_uInt is new gl.uInt range 1 .. gl.uInt'Last;
 
+  package A2A_double is new System.Address_To_Access_Conversions(double);
 
   -- Pointer types
   type GL_BooleanPtr is access all GL_Boolean;
@@ -139,7 +143,7 @@ package GL is
   type uintPtr    is access all uint;
   type floatPtr   is access all GL.float;
   type clampfPtr  is access all clampf;
-  type doublePtr  is access all double;
+  subtype doublePtr is A2A_double.Object_Pointer;
 
   subtype sizeiPtr is Interfaces.C.ptrdiff_t;   -- used for pointer arithmetic
   subtype intPtr   is Interfaces.C.ptrdiff_t;
@@ -159,7 +163,7 @@ package GL is
    type color_access is access all GL.RGB_Color;
    function to_Pointer is new ada.unchecked_Conversion (color_access, gl.Pointer);
 
-   type double_access is access all GL.Double;
+   subtype double_access is doublePtr;
    function to_Pointer is new ada.unchecked_Conversion (double_access, gl.Pointer);
 
    type natural_access is access all Natural;
@@ -1646,6 +1650,7 @@ package GL is
      SMOOTH                                  => 16#1D01#
   );
   for ShadeModeEnm'Size use GL.enum'Size;
+
 
   procedure ShadeModel (mode: ShadeModeEnm);
 
