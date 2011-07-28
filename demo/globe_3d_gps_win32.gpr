@@ -8,7 +8,7 @@ project Globe_3D_Gps_Win32 is
       ("Debug", "Fast", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
    for Source_Dirs use (".", "../bindings", "../bindings/win32", "../bindings/win32/gcc_fmt", "../src//**", "../tools");
-   for Main use ("GLOBE_3D_Demo.adb", "Mini.adb", "get_gl_info.adb", "gl_overloader.adb");
+   for Main use ("GLOBE_3D_Demo.adb", "Mini.adb", "g3dem_tb.ads", "get_gl_info.adb", "gl_overloader.adb");
    for Exec_Dir use ".";
 
    case Build_Mode is
