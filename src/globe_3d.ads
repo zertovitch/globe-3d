@@ -73,11 +73,17 @@ package GLOBE_3D is
 
   empty: constant Ident:= (others=> ' ');
 
-  -- Set the name of Zip archives containing the data
-  -- If an item is not found in the level data, it is
-  -- searched in the global one
+  -- Set the name of Zip archives containing the data.
+  --
+  -- If an item is not found in the level (local) data, it is
+  -- searched in the global data. The idea is to set the global
+  -- data once in the execution of the program, and change the local data
+  -- open context change (e.g., in a game, a change of level).
   procedure Set_level_data_name(s: String);
+  procedure Set_local_data_name(s: String) renames Set_level_data_name;
   procedure Set_global_data_name(s: String);
+
+  data_file_not_found: exception;
 
   -- List of textures ID's, correspond to files in
   -- the archives and to GL's "names"

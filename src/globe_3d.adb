@@ -934,6 +934,9 @@ package body GLOBE_3D is
     end if;
     -- ^ Possible resource name change -> need this, will be reloaded on next use
     level_data_name:= Ada.Strings.Unbounded.To_Unbounded_String(s);
+    if not Zip.Exists(s) then
+      raise data_file_not_found with s;
+    end if;
   end Set_level_data_name;
 
   procedure Set_global_data_name(s: String) is
@@ -943,6 +946,9 @@ package body GLOBE_3D is
     end if;
     -- ^ Possible resource name change -> need this, will be reloaded on next use
     global_data_name:= Ada.Strings.Unbounded.To_Unbounded_String(s);
+    if not Zip.Exists(s) then
+      raise data_file_not_found with s;
+    end if;
   end Set_global_data_name;
 
   procedure Set_name(o: in out Visual'class; new_name: String) is

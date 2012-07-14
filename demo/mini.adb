@@ -276,7 +276,7 @@ procedure Mini is
   end Start_GLs;
 
 begin
-  G3D.Set_global_data_name("G3Demo_Global_Resources.zip");
+  G3D.Set_global_data_name("g3demo_global_resources.zip");
   --
   G3D.Textures.Register_textures_from_resources;
 

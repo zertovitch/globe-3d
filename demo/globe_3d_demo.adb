@@ -1103,8 +1103,8 @@ procedure GLOBE_3D_Demo is
 
 begin
   Get_arguments;
-  G3D.Set_global_data_name("G3Demo_Global_Resources.zip");
-  G3D.Set_level_data_name("G3Demo_Level_Resources.zip");
+  G3D.Set_global_data_name("g3demo_global_resources.zip");
+  G3D.Set_level_data_name("g3demo_level_resources.zip");
   --
   G3D.Textures.Register_textures_from_resources;
 
