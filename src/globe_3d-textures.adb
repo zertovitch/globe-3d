@@ -177,14 +177,16 @@ package body GLOBE_3D.Textures is
   procedure Register_textures_from_resources is
 
     procedure Register( zif: in out Zip.Zip_info; name: String ) is
+      --
       procedure Action( name: String ) is
         dummy: Image_id;
-        ext: constant String:= name(name'Last-3..name'Last);
+        ext: constant String:= To_Upper(name(name'Last-3..name'Last));
       begin
         if ext = ".BMP" or ext = ".TGA" then
           Add_texture_name(name(name'First..name'Last-4), dummy);
         end if;
       end Action;
+      --
       procedure Traverse is new Zip.Traverse(Action);
     begin
       Load_if_needed( zif, name );
