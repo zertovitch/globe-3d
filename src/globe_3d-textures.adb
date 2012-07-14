@@ -224,7 +224,8 @@ package body GLOBE_3D.Textures is
   end Texture_name;
 
   function Texture_ID( name: String ) return Image_ID is
-    up_name: constant String:= To_Upper(Trim(name,both));
+    trimmed: constant String:= Trim(name,both);
+    up_name: constant String:= To_Upper(trimmed);
   begin
     return Texture_Name_Mapping.Element(
             texture_2d_infos.map,
@@ -232,7 +233,15 @@ package body GLOBE_3D.Textures is
   exception
     when Constraint_Error =>
       raise Undefined_texture_name with
-        " Texture: " & Trim(name,both) & ", searched as " & up_name;
+        "Texture: " & trimmed & ", searched as " & up_name & "." &
+        ASCII.CR & ASCII.LF &
+        "Check data files:" &
+        ASCII.CR & ASCII.LF &
+        ' ' & To_String(global_data_name) &
+        ASCII.CR & ASCII.LF &
+        ' ' & To_String(level_data_name) & '.' &
+        ASCII.CR & ASCII.LF &
+        "Check calls of Add_texture_name or Associate_textures.";
   end Texture_ID;
 
 end GLOBE_3D.Textures;

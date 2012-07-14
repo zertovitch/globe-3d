@@ -927,7 +927,7 @@ package body GLOBE_3D is
     end if;
   end Load_if_needed;
 
-  procedure Set_level_data_name(s: String) is
+  procedure Set_local_data_name(s: String) is
   begin
     if Zip.Is_loaded( zif_level ) then
       Zip.Delete( zif_level );
@@ -937,7 +937,7 @@ package body GLOBE_3D is
     if not Zip.Exists(s) then
       raise data_file_not_found with s;
     end if;
-  end Set_level_data_name;
+  end Set_local_data_name;
 
   procedure Set_global_data_name(s: String) is
   begin
