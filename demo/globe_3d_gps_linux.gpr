@@ -49,9 +49,11 @@ project Globe_3D_Gps_Linux is
    package Binder is
       case Build_Mode is
          when "Debug" =>
-            for Default_Switches ("ada") use ("-E");
+            for Default_Switches ("ada") use ("-static", "-E");
          when "Fast" =>
+            for Default_Switches ("ada") use ("-static");
          when "Small" =>
+            for Default_Switches ("ada") use ("-static");
       end case;
    end Binder;
 

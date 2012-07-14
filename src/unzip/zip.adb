@@ -4,6 +4,7 @@ with Ada.Characters.Handling;
 with Ada.Unchecked_Deallocation;
 with Ada.Exceptions;
 with Ada.IO_Exceptions;
+with Ada.Strings.Fixed;
 
 package body Zip is
 
@@ -147,35 +148,39 @@ package body Zip is
     case_sensitive : in  Boolean:= False)
   is
     procedure Insert(
-      name: String;
-      file_index : Ada.Streams.Stream_IO.Positive_Count;
+      dico_name        : String; -- UPPER if case-insensitive search
+      file_name        : String;
+      file_index       : Ada.Streams.Stream_IO.Positive_Count;
       comp_size,
-      uncomp_size: File_size_type;
-      crc_32     : Unsigned_32;
-      date_time  : Time;
-      method     : PKZip_method;
-      node       : in out p_Dir_node
+      uncomp_size      : File_size_type;
+      crc_32           : Unsigned_32;
+      date_time        : Time;
+      method           : PKZip_method;
+      unicode_file_name: Boolean;
+      node             : in out p_Dir_node
       )
     is
     begin
       if node = null then
         node:= new Dir_node'
-          ( (name_len    => name'Length,
-             left        => null,
-             right       => null,
-             name        => name,
-             file_index  => file_index,
-             comp_size   => comp_size,
-             uncomp_size => uncomp_size,
-             crc_32      => crc_32,
-             date_time   => date_time,
-             method      => method
+          ( (name_len          => file_name'Length,
+             left              => null,
+             right             => null,
+             dico_name         => dico_name,
+             file_name         => file_name,
+             file_index        => file_index,
+             comp_size         => comp_size,
+             uncomp_size       => uncomp_size,
+             crc_32            => crc_32,
+             date_time         => date_time,
+             method            => method,
+             unicode_file_name => unicode_file_name
              )
           );
-      elsif name > node.name then
-        Insert( name, file_index, comp_size, uncomp_size, crc_32, date_time, method, node.right );
-      elsif name < node.name then
-        Insert( name, file_index, comp_size, uncomp_size, crc_32, date_time, method, node.left );
+      elsif dico_name > node.dico_name then
+        Insert( dico_name, file_name, file_index, comp_size, uncomp_size, crc_32, date_time, method, unicode_file_name, node.right );
+      elsif dico_name < node.dico_name then
+        Insert( dico_name, file_name, file_index, comp_size, uncomp_size, crc_32, date_time, method, unicode_file_name, node.left );
       else
         raise Duplicate_name;
       end if;
@@ -187,19 +192,23 @@ package body Zip is
     zip_info_already_loaded: exception;
     main_comment: p_String;
     use Ada.Streams, Ada.Streams.Stream_IO;
-
   begin -- Load Zip_info
     if info.loaded then
       raise zip_info_already_loaded;
     end if; -- 15-Apr-2002
     Zip.Headers.Load(from, the_end);
-    -- We take the opportunity to read the comment
+    -- We take the opportunity to read the main comment, which is right
+    -- after the end-of-central-directory block.
     main_comment:= new String(1..Integer(the_end.main_comment_length));
     String'Read(from, main_comment.all);
     -- Process central directory:
     Zip_Streams.Set_Index(
-        from, Positive(1 +
-            Ada.Streams.Stream_IO.Count(the_end.central_dir_offset)));
+      from,
+      Positive(
+        1 +
+        the_end.offset_shifting + the_end.central_dir_offset
+      )
+    );
 
     for i in 1..the_end.total_entries loop
       Zip.Headers.Read_and_check(from, header );
@@ -207,6 +216,7 @@ package body Zip is
         this_name: String(1..Natural(header.short_info.filename_length));
       begin
         String'Read(from, this_name);
+        -- Skip extra field and entry comment.
         Zip_Streams.Set_Index(
           from, Positive (
           Ada.Streams.Stream_IO.Count(Zip_Streams.Index( from )) +
@@ -216,14 +226,18 @@ package body Zip is
           ))
         );
         -- Now the whole i_th central directory entry is behind
-        Insert( name        => Normalize(this_name,case_sensitive),
-               file_index  => Ada.Streams.Stream_IO.Count
-                 (1 + header.local_header_offset),
+        Insert( dico_name   => Normalize(this_name, case_sensitive),
+                file_name   => Normalize(this_name, True),
+                file_index  => Ada.Streams.Stream_IO.Count
+                 (1 + header.local_header_offset + the_end.offset_shifting),
                 comp_size   => header.short_info.dd.compressed_size,
                 uncomp_size => header.short_info.dd.uncompressed_size,
                 crc_32      => header.short_info.dd.crc_32,
                 date_time   => header.short_info.file_timedate,
                 method      => Method_from_code(header.short_info.zip_type),
+                unicode_file_name =>
+                  (header.short_info.bit_flag and
+                   Zip.Headers.Language_Encoding_Flag_Bit) /= 0,
                 node        => p );
         -- Since the files are usually well ordered, the tree as inserted
         -- is very unbalanced; we need to rebalance it from time to time
@@ -251,14 +265,14 @@ package body Zip is
 
   procedure Load
    (info           : out Zip_info;
-    from           : in  String;
+    from           : in  String; -- Zip file name
     case_sensitive : in  Boolean:= False)
   is
     use Zip_Streams;
-    MyStream   : aliased ZipFile_Stream;
+    MyStream   : aliased File_Zipstream;
     StreamFile : constant Zipstream_Class:= MyStream'Unchecked_Access;
   begin
-    SetName (StreamFile, from);
+    Set_Name (StreamFile, from);
     begin
       Open (MyStream, Ada.Streams.Stream_IO.In_File);
     exception
@@ -347,7 +361,7 @@ package body Zip is
     begin
       if p /= null then
         Traverse(p.left);
-        Action(p.name);
+        Action(p.file_name);
         Traverse(p.right);
       end if;
     end Traverse;
@@ -363,13 +377,14 @@ package body Zip is
       if p /= null then
         Traverse(p.left);
         Action(
-          p.name,
+          p.file_name,
           Positive(p.file_index),
           p.comp_size,
           p.uncomp_size,
           p.crc_32,
           p.date_time,
-          p.method
+          p.method,
+          p.unicode_file_name
         );
         Traverse(p.right);
       end if;
@@ -435,8 +450,7 @@ package body Zip is
   begin
     Zip.Headers.Load(file, the_end);
     Set_Index(
-        file, Positive (1 + Ada.Streams.Stream_IO.Count
-          (the_end.central_dir_offset))
+      file, Positive (1 + the_end.offset_shifting + the_end.central_dir_offset)
     );
 
     min_offset:= the_end.central_dir_offset; -- will be lowered
@@ -449,10 +463,10 @@ package body Zip is
          end;
 
       Set_Index( file, Index( file ) +
-             Positive (Ada.Streams.Stream_IO.Count
+             Positive
                ( header.short_info.filename_length +
                header.short_info.extra_field_length +
-               header.comment_length ))      );
+               header.comment_length )      );
       -- Now the whole i_th central directory entry is behind
 
       if header.local_header_offset < min_offset then
@@ -460,7 +474,7 @@ package body Zip is
       end if;
     end loop;
 
-    file_index:= Positive (Ada.Streams.Stream_IO.Count(1 + min_offset));
+    file_index:= Positive (1 + min_offset + the_end.offset_shifting);
 
   end Find_first_offset;
 
@@ -481,8 +495,7 @@ package body Zip is
     use Ada.Streams, Ada.Streams.Stream_IO, Zip_Streams;
   begin
     Zip.Headers.Load(file, the_end);
-    Set_Index(file, Positive(1 + Ada.Streams.Stream_IO.Count
-      (the_end.central_dir_offset)));
+    Set_Index(file, Positive(1 + the_end.central_dir_offset + the_end.offset_shifting));
     for i in 1..the_end.total_entries loop
       declare
          TempStream : constant Zipstream_Class := file;
@@ -501,8 +514,7 @@ package body Zip is
         if Normalize(this_name,case_sensitive) =
            Normalize(name,case_sensitive) then
           -- Name found in central directory !
-               file_index := Positive (Ada.Streams.Stream_IO.Count
-                                       (1 + header.local_header_offset));
+          file_index := Positive (1 + header.local_header_offset + the_end.offset_shifting);
           comp_size  := File_size_type(header.short_info.dd.compressed_size);
           uncomp_size:= File_size_type(header.short_info.dd.uncompressed_size);
           return;
@@ -524,15 +536,15 @@ package body Zip is
   )
   is
     aux: p_Dir_node:= info.dir_binary_tree;
-    up_name: String:= Normalize(name,case_sensitive);
+    up_name: String:= Normalize(name, case_sensitive);
   begin
     if not info.loaded then
       raise Forgot_to_load_zip_info;
     end if;
     while aux /= null loop
-      if up_name > aux.name then
+      if up_name > aux.dico_name then
         aux:= aux.right;
-      elsif up_name < aux.name then
+      elsif up_name < aux.dico_name then
         aux:= aux.left;
       else  -- file found !
         file_index := aux.file_index;
@@ -566,11 +578,13 @@ package body Zip is
   -- Workaround for the severe xxx'Read xxx'Write performance
   -- problems in the GNAT and ObjectAda compilers (as in 2009)
   -- This is possible if and only if Byte = Stream_Element and
-  -- arrays types are both packed the same way.
+  -- arrays types are both packed and aligned the same way.
   --
-  subtype Size_test_a is Byte_Buffer(1..16);
-  subtype Size_test_b is Ada.Streams.Stream_Element_Array(1..16);
-  workaround_possible: constant Boolean:= Size_test_a'Size = Size_test_b'Size;
+  subtype Size_test_a is Byte_Buffer(1..19);
+  subtype Size_test_b is Ada.Streams.Stream_Element_Array(1..19);
+  workaround_possible: constant Boolean:=
+    Size_test_a'Size = Size_test_b'Size and
+    Size_test_a'Alignment = Size_test_b'Alignment;
 
   -- BlockRead - general-purpose procedure (nothing really specific
   -- to Zip / UnZip): reads either the whole buffer from a file, or
@@ -696,15 +710,20 @@ package body Zip is
   -- Just there as helper for Ada 95 only systems
   --
   function Exists(name:String) return Boolean is
-    use Ada.Text_IO;
+    use Ada.Text_IO, Ada.Strings.Fixed;
     f: File_Type;
   begin
+    if Index(name, "*") > 0 then
+      return False;
+    end if;
     Open(f,In_File,name, Form => Ada.Strings.Unbounded.To_String (Form_For_IO_Open_N_Create));
     Close(f);
     return True;
   exception
     when Name_Error =>
-      return False;
+      return False; -- The file cannot exist !
+    when Use_Error =>
+      return True;  -- The file exist and is already opened !
   end Exists;
 
   procedure Put_Multi_Line(

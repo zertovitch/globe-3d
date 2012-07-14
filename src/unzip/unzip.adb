@@ -79,14 +79,17 @@ package body UnZip is
         -- Not only the name, also a path.
         -- In that case, we may need to create parts of the path.
         declare
-          c: constant Character:=
-            file_system_routines.Directory_Separator;
+          Directory_Separator: constant Character:= '/';
+          -- The '/' separator is also recognized by Windows' routines,
+          -- so we can just use it as a standard. See the discussion started
+          -- in July 2010 in the Ada Comment mailing list about it
+          -- for the 2012 standard.
           path: String:= composed_name(composed_name'First..idx-1);
         begin
           -- Set the file separator recognized by the O.S.
           for i in path'Range loop
             if path(i)='\' or path(i)='/' then
-              path(i):= c;
+              path(i):= Directory_Separator;
             end if;
           end loop;
           file_system_routines.Create_Path( path );
@@ -235,7 +238,7 @@ package body UnZip is
       true_packed_size:= true_packed_size - 12;
     end if;
 
-    if name_from_header then
+    if name_from_header then -- Name from local header is used as output name
       the_name_len:= Natural(local_header.filename_length);
       String'Read(zip_file, the_name(1..the_name_len));
       if not data_descriptor_after_data then
@@ -245,7 +248,10 @@ package body UnZip is
           File_size_type(local_header.dd.uncompressed_size)
         );
       end if;
-      if the_name_len = 0 or else the_name( the_name_len ) = '/' then
+      if the_name_len = 0 or else
+        (the_name( the_name_len ) = '/' or
+         the_name( the_name_len ) = '\' )
+      then
         -- This is a directory name (12-feb-2000)
         skip_this_file:= True;
       elsif actual_mode in Write_to_file then
@@ -253,7 +259,7 @@ package body UnZip is
       else -- only informational, no need for interaction
         Set_outfile(the_name(1..the_name_len));
       end if;
-    else
+    else -- Output name is given: out_name
       if not data_descriptor_after_data then
         Inform_User(
           out_name,
@@ -261,7 +267,13 @@ package body UnZip is
           File_size_type(local_header.dd.uncompressed_size)
         );
       end if;
-      if actual_mode in Write_to_file then
+      if out_name'Length = 0 or else
+        (out_name( out_name'Last ) = '/' or
+         out_name( out_name'Last ) = '\' )
+      then
+        -- This is a directory name, so do not write anything (30-Jan-2012).
+        skip_this_file:= True;
+      elsif actual_mode in Write_to_file then
         Set_outfile_interactive(out_name);
       else -- only informational, no need for interaction
         Set_outfile(out_name);
@@ -441,7 +453,7 @@ package body UnZip is
                 )
    is
     use Zip, Zip_Streams;
-    MyStream     : aliased ZipFile_Stream;
+    MyStream     : aliased File_Zipstream;
                    -- was Unbounded_Stream & file->buffer copy in v.26
     zip_file     : constant Zipstream_Class := MyStream'Unchecked_Access;
     header_index : Positive;
@@ -452,7 +464,7 @@ package body UnZip is
     if feedback = null then
       current_user_attitude:= yes_to_all; -- non-interactive
     end if;
-    SetName (zip_file, from);
+    Set_Name (zip_file, from);
     Open (MyStream, In_File);
     Zip.Find_offset(
       zip_file,
@@ -489,7 +501,7 @@ package body UnZip is
                 )
   is
     use Zip, Zip_Streams;
-    MyStream     : aliased ZipFile_Stream;
+    MyStream     : aliased File_Zipstream;
                    -- was Unbounded_Stream & file->buffer copy in v.26
     zip_file     : constant Zipstream_Class := MyStream'Unchecked_Access;
     header_index : Positive;
@@ -500,7 +512,7 @@ package body UnZip is
     if feedback = null then
       current_user_attitude:= yes_to_all; -- non-interactive
     end if;
-    SetName (zip_file, from);
+    Set_Name (zip_file, from);
     Open (MyStream, In_File);
     Zip.Find_offset(
       zip_file,
@@ -535,7 +547,7 @@ package body UnZip is
                 )
   is
     use Zip, Zip_Streams;
-    MyStream     : aliased ZipFile_Stream;
+    MyStream     : aliased File_Zipstream;
                    -- was Unbounded_Stream & file->buffer copy in v.26
     zip_file     : constant Zipstream_Class := MyStream'Unchecked_Access;
     header_index : Positive;
@@ -544,7 +556,7 @@ package body UnZip is
     if feedback = null then
       current_user_attitude:= yes_to_all; -- non-interactive
     end if;
-    SetName (zip_file, from);
+    Set_Name (zip_file, from);
     Open (MyStream, In_File);
     Zip.Find_first_offset(zip_file, header_index); -- >= 13-May-2001
     -- We simply unzip everything sequentially, until the end:
@@ -623,13 +635,13 @@ package body UnZip is
     uncomp_size  : File_size_type;
     work_password: Unbounded_String:= To_Unbounded_String(password);
     use Zip, Zip_Streams;
-    MyStream     : aliased ZipFile_Stream;
+    MyStream     : aliased File_Zipstream;
     input_stream : Zipstream_Class;
     use_a_file   : constant Boolean:= Zip.Zip_stream(from) = null;
   begin
     if use_a_file then
       input_stream:= MyStream'Unchecked_Access;
-      SetName (input_stream , Zip.Zip_name(from));
+      Set_Name (input_stream , Zip.Zip_name(from));
       Open (MyStream, Ada.Streams.Stream_IO.In_File);
     else -- use the given stream
       input_stream:= Zip.Zip_stream(from);
@@ -678,13 +690,13 @@ package body UnZip is
     uncomp_size  : File_size_type;
     work_password: Unbounded_String:= To_Unbounded_String(password);
     use Zip, Zip_Streams;
-    MyStream     : aliased ZipFile_Stream;
+    MyStream     : aliased File_Zipstream;
     input_stream : Zipstream_Class;
     use_a_file   : constant Boolean:= Zip.Zip_stream(from) = null;
   begin
     if use_a_file then
       input_stream:= MyStream'Unchecked_Access;
-      SetName (input_stream , Zip.Zip_name(from));
+      Set_Name (input_stream , Zip.Zip_name(from));
       Open (MyStream, Ada.Streams.Stream_IO.In_File);
     else -- use the given stream
       input_stream:= Zip.Zip_stream(from);
