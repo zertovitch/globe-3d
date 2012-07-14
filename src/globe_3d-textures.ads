@@ -4,17 +4,23 @@ package GLOBE_3D.Textures is
   --
   --   an image <-> a number (Image_ID)
   --
-  -- To complete this and facilitate things, GLOBE_3D adds:
+  -- To complete this, and facilitate things, GLOBE_3D adds the
+  -- following associations:
   --
   --   a number (Image_ID) ->
   --      a record (Texture_info) with an image name
   --      and whether the image was already stored into GL
+  --      (images can be loaded on first use, or preloaded)
   --      and other infos
+  --
   --   an image name -> a number (Image_ID)
+  --
+  -- Names are case insensitive!
 
   ------------------------------------------------------------------------
   -- Here are three ways of registering the texture names that GLOBE_3D --
-  -- will find on the resource files.                                   --
+  -- will find in the resource files. You can use any mix of these      --
+  -- methods at your convenience.                                       --
   ------------------------------------------------------------------------
 
   --------------------------------------------
@@ -35,9 +41,13 @@ package GLOBE_3D.Textures is
   -- For "real life" programs which don't know of the data.
   -- Allows subdirectories in resource ('/' or '\' in names)
   -- and a flexible management.
+  --
   -- The texture name list is obtained by traversing the directory of
   -- both .zip data resource files, searching for images (anyway, the
   -- textures are read from there!).
+  --
+  -- The zip name(s) must be set first with
+  -- GLOBE_3D.Set_level_data_name, GLOBE_3D.Set_global_data_name
 
   procedure Register_textures_from_resources;
 
@@ -46,16 +56,16 @@ package GLOBE_3D.Textures is
   ------------------------------------------------------------
   --
   -- For test or demo programs.
-  -- Easy, reliable, but: static, hard-coded and diallowing a
+  -- Easy, reliable, but: static, hard-coded and disallowing a
   -- directory structure.
 
   generic
     type Texture_enum is (<>);
   procedure Associate_textures;
 
-  --------------------------------------------------------------------------
-  -- Once that texture names are registered, you have the following tools --
-  --------------------------------------------------------------------------
+  ---------------------------------------------------------------------
+  -- When texture names are registered, you have the following tools --
+  ---------------------------------------------------------------------
 
   -- - Recall a texture's ID - you need it to define objects' faces.
   function Texture_ID( name: String ) return Image_ID;

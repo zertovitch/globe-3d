@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GLOBE_3D - GL-based, real-time, 3D engine
 --
---  Copyright (c) Gautier de Montmollin 2001..2011
+--  Copyright (c) Gautier de Montmollin 2001..2012
 --  SWITZERLAND
 --  Copyright (c) Rod Kay 2006..2008
 --  AUSTRALIA
@@ -42,7 +42,7 @@
 --
 -- Added an alternative
 -- display face routine which is optimized to produce a shorter list
--- of GL commands. Runs slower then the original Display face routine
+-- of GL commands. Runs slower than the original Display face routine
 -- yet needs to be executed only once.
 --
 -- Uwe R. Zimmer, July 2011
@@ -67,7 +67,10 @@ with Ada.Strings.Unbounded.Hash;
 
 package GLOBE_3D is
 
-  subtype Ident is String(1..40); -- for naming things
+  subtype Ident is String(1..40);
+  -- Identifiers for naming things (textures, objects, ...)
+  -- Identifiers are case insensitive and stored as UPPER_CASE
+
   empty: constant Ident:= (others=> ' ');
 
   -- Set the name of Zip archives containing the data

@@ -128,12 +128,6 @@ package body GLOBE_3D.Textures is
     end loop;
   end Check_all_textures;
 
-  --  procedure Bind_2D_texture (id: Image_id; blending_hint: out Boolean) is
-  --  begin
-  --    Check_2D_texture(id, blending_hint);
-  --    GL.BindTexture( GL.TEXTURE_2D, GL.Uint(Image_id'Pos(id)+1) );
-  --  end Bind_2D_texture;
-
   procedure Reset_textures is
   begin
     if texture_2d_infos.tex /= null then
@@ -144,6 +138,8 @@ package body GLOBE_3D.Textures is
 
   procedure Add_texture_name( name: String; id: out Image_id ) is
     new_tab: p_Texture_info_array;
+    up_name: constant String:= To_Upper(name);
+    -- Convention: UPPER_CASE for identifiers
     n_id: Ident:= empty;
     pos: Texture_Name_Mapping.Cursor;
     success: Boolean;
@@ -159,23 +155,22 @@ package body GLOBE_3D.Textures is
       texture_2d_infos.tex:= new_tab;
     end if;
     id:= texture_2d_infos.last_entry_in_use + 1;
-    for i in name'Range loop
-      n_id(n_id'First + i - name'First):= name(i);
+    for i in up_name'Range loop
+      n_id(n_id'First + i - up_name'First):= up_name(i);
     end loop;
-    n_id:= To_Upper(n_id);
     texture_2d_infos.tex(id).name:= n_id;
     texture_2d_infos.last_entry_in_use:=
-    Image_ID'Max(texture_2d_infos.last_entry_in_use, id);
+      Image_ID'Max(texture_2d_infos.last_entry_in_use, id);
     -- Feed the name dictionary with the new name:
     Texture_Name_Mapping.Insert(
       texture_2d_infos.map,
-      Ada.Strings.Unbounded.To_Unbounded_String(name),
+      Ada.Strings.Unbounded.To_Unbounded_String(up_name),
       id,
       pos,
       success
     );
     if not success then -- A.18.4. 45/2
-      raise Duplicate_name with name;
+      raise Duplicate_name with name & ", already stored as " & up_name;
     end if;
   end Add_texture_name;
 
@@ -229,14 +224,15 @@ package body GLOBE_3D.Textures is
   end Texture_name;
 
   function Texture_ID( name: String ) return Image_ID is
-    up_name: constant String:= To_Upper(name);
+    up_name: constant String:= To_Upper(Trim(name,both));
   begin
     return Texture_Name_Mapping.Element(
             texture_2d_infos.map,
-            Ada.Strings.Unbounded.To_Unbounded_String(Trim(up_name,both)));
+            Ada.Strings.Unbounded.To_Unbounded_String(up_name));
   exception
     when Constraint_Error =>
-      raise Undefined_texture_name with " Texture: [" & Trim(name,both) & ']';
+      raise Undefined_texture_name with
+        " Texture: " & Trim(name,both) & ", searched as " & up_name;
   end Texture_ID;
 
 end GLOBE_3D.Textures;
