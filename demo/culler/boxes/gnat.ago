@@ -1,0 +1,51 @@
+-gnatyebfhkanp -aI../../../src -aI../../../src/culler -aI../../../src/objects -aI../../../src/gl -aI../../../src/unzip -aI../../../src/models -aI../../../src/gaming  -aI../../../bindings -aI../../../bindings/win32 -aI../../../bindings/win32/gcc_fmt -gnatf -gnato -gnatwa -gnatVa -gnatecdebug.pra -Iobj/gnatdebg -aI../../../ada05_proxy
+-i -aO../../../obj/gnatdebg -bargs -E -g -largs -lopengl32 ../../../obj/libwin32/glee.o -lglu32 -lfreeglut -L../../../obj/libwin32
+
+
+WINDOWS_TARGET
+
+
+mini
+30
+strea
+bsp
+trim
+for next
+mem_rot
+skpan
+value
+-load
+-- Begin compiler switches
+RELEASE <- active (current) build mode
+FALSE <- are gcc/gnatmake/main/target-dir of Release := these from Debug mode ?
+debug o2 false
+debug inlining false
+debug unroll_loops false
+debug suppress_all_checks false
+debug debug_info true
+debug integer_overflow_check true
+debug stack_check false
+debug trace_back false
+debug strip_all_symbols false
+debug profiling false
+release o2 true
+release inlining true
+release unroll_loops true
+release suppress_all_checks true
+release debug_info false
+release integer_overflow_check false
+release stack_check false
+release trace_back false
+release strip_all_symbols true
+release profiling false
+-- End compiler switches
+-- Begin Release mode commands
+-aI../../../src -aI../../../src/gl -aI../../../src/culler -aI../../../src/objects -aI../../../src/unzip -aI../../../src/models -aI../../../src/gaming -aI../../../bindings -aI../../../bindings/win32 -aI../../../bindings/win32/gcc_fmt -gnatwp -Iobj/gnatopti -aI../../../ada05_proxy
+-i -aO../../../obj/gnatsmal -bargs -E -g -largs -lopengl32 ../../../obj/libwin32/glee.o -lglu32 -lfreeglut -L../../../obj/libwin32 -mwindows -s
+
+
+-- End Release mode commands
+-- Begin run options
+prompt_arguments false
+ad_trace_back false
+-- End run options
