@@ -215,11 +215,17 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
        or<br>
          - use the makefile.linux, or run: <tt>gnatmake -PGLOBE_3D_GPS_Linux.gpr -XBuild_Mode=Fast</tt>
     </ul>
-    As a prerequisite, you need the following libraries to be installed: <b>FreeGLUT, Xi, Xext, Xmu</b>.
-    For example, on the Fedora distribution, and surely on most other Linux distributions,
+    As a prerequisite, you need some libraries to be installed.
+    When building a GLOBE_3D project, the linker will tell you what is eventually missing.
+    These libraries might be (see the linker section in the .gpr file for an up-to-date list):
+    <b>GLU, GLUT or FreeGLUT, Xi, Xext, Xmu</b>.
+    For example, on the Ubuntu and Fedora distributions, and surely on most other Linux distributions,
     the installation is pretty easy: search from the
-    software installer (Add/Remove software) the libraries mentioned above, select the "*-devel"
-    package and push the install button.
+    software installer (Add/Remove software, or the package manager) the libraries mentioned above,
+    select the "lib*-dev" or "lib*-devel"
+    package (e.g., libxi-dev) and push the install button. 
+    NB: for FreeGLUT the name might be something like freeglut3-dev (no "lib" in front).
+    Don't try to rename library components or add symbolic links, you might end up with a version mess.
    <li> <b>Macintosh (Mac OS X)</b>:<br>
 You need first to install the X11 server within your Mac installation DVD; then you'd better to force 
 lower case on file names and to ensure you get the correct end-of-line codes: 
