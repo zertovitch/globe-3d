@@ -190,7 +190,7 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
    <li> <b>Windows</b>:
     <ul>
      <li> <b>GNAT</b> compiler:<br>
-         - [in GPS:] open the GLOBE_3D_GPS_Win32.gpr project file, then press F4.<br>
+         - [in GPS:] open the GLOBE_3D_Win32.gpr project file, then press F4.<br>
        or<br>
          - [in AdaGIDE:] open GLOBE_3D_Demo.adb, then press F3.<br>
        or<br>
@@ -211,9 +211,9 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
     <br>
     <ul>
      <li> <b>GNAT</b> compiler:<br>
-         - [in GPS:] use the GLOBE_3D_GPS_Linux.gpr project file<br>
+         - [in GPS:] use the GLOBE_3D_Linux.gpr project file<br>
        or<br>
-         - use the makefile.linux, or run: <tt>gnatmake -PGLOBE_3D_GPS_Linux.gpr -XBuild_Mode=Fast</tt>
+         - use the makefile.linux, or run: <tt>gnatmake -PGLOBE_3D_Linux.gpr -XBuild_Mode=Fast</tt>
     </ul>
     As a prerequisite, you need some libraries to be installed.
     When building a GLOBE_3D project, the linker will tell you what is eventually missing.
@@ -234,9 +234,9 @@ Then build FreeGlut, see instructions in obj/libmac.
     <br>
     <ul>
      <li> <b>GNAT</b> compiler:<br>
-         - [in GPS:] use the GLOBE_3D_GPS_Darwin.gpr project file<br>
+         - [in GPS:] use the GLOBE_3D_Darwin.gpr project file<br>
        or<br>
-         - gnatmake -P globe_3d_gps_darwin.gpr
+         - gnatmake -P globe_3d_darwin.gpr
      <li>
 Execution:<br>
 - export DYLD_LIBRARY_PATH=../obj/libmac/lib<br>

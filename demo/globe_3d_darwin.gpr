@@ -2,7 +2,7 @@
 -- for the GLOBE_3D ( http://sf.net/projects/globe3d/ ) demos
 -- Build me with "gnatmake -P globe_3d_gps_darwin.gpr", or open me with GPS
 --
-project Globe_3D_Gps_Darwin is
+project GLOBE_3D_Darwin is
 
    for Object_Dir use "../obj/gnatdebg";
    for Source_Dirs use (".", "../bindings", "../src/**", "../bindings/macosx", "../tools");
@@ -17,16 +17,6 @@ project Globe_3D_Gps_Darwin is
       for Default_Switches ("ada") use ("-j2", "-C"); -- -j2: We assume at least a Dual-Core machine building this project
    end Builder;
 
-   package Naming is
-      for Specification_Suffix ("c") use ".h";
-      for Implementation_Suffix ("c") use ".c";
-      for Specification_Suffix ("c++") use ".hh";
-      for Implementation_Suffix ("c++") use ".cpp";
-      for Specification_Suffix ("changelog") use "changelog";
-      for Specification_Suffix ("project file") use ".gpr";
-      for Specification_Suffix ("python") use ".py";
-   end Naming;
-
    package Linker is
       for Default_Switches ("ada") use ("-g", "-bind_at_load", "-framework", "/GLUT", "/System/Library/Frameworks/OpenGL.framework/Libraries/libGL.dylib", 
 "/System/Library/Frameworks/OpenGL.framework/Libraries/libGLU.dylib", "-lm");
@@ -36,5 +26,5 @@ project Globe_3D_Gps_Darwin is
       for Default_Switches ("ada") use ("-gnatf", "-gnato", "-fstack-check", "-gnatE", "-g", "-gnatwkmpz", "-gnatVcfimorst", "-gnatyhiknp", "-gnat05");
    end Compiler;
 
-end Globe_3D_Gps_Darwin;
+end GLOBE_3D_Darwin;
 

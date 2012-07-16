@@ -1,23 +1,25 @@
 -- This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
 -- for the GLOBE_3D ( http://sf.net/projects/globe3d/ ) demos
--- Build me with "gnatmake -P globe_3d_gps_win32.gpr", or open me with GPS
+-- Build me with "gnatmake -P globe_3d_win32.gpr", or open me with GPS
 --
-project Globe_3D_Gps_Win32 is
+project GLOBE_3D_Win32 is
 
    type Build_Mode_Type is
       ("Debug", "Fast", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
    for Source_Dirs use (".", "../bindings", "../bindings/win32", "../bindings/win32/gcc_fmt", "../src//**", "../tools");
-   for Main use ("GLOBE_3D_Demo.adb", "Mini.adb", "g3dem_tb.ads", "get_gl_info.adb", "gl_overloader.adb");
    for Exec_Dir use ".";
 
    case Build_Mode is
       when "Debug" =>
          for Object_Dir use "../obj/gnatdebg";
+         for Main use ("G3Dem_TB.ads", "Mini.adb", "get_gl_info.adb", "gl_overloader.adb");
       when "Fast" =>
          for Object_Dir use "../obj/gnatfast";
+         for Main use ("GLOBE_3D_Demo.adb", "Mini.adb");
       when "Small" =>
          for Object_Dir use "../obj/gnatsmal";
+         for Main use ("GLOBE_3D_Demo.adb", "Mini.adb");
    end case;
 
    package Builder is
@@ -55,19 +57,9 @@ project Globe_3D_Gps_Win32 is
       end case;
    end Binder;
 
-   package Naming is
-      for Specification_Suffix ("c") use ".h";
-      for Implementation_Suffix ("c") use ".c";
-      for Specification_Suffix ("c++") use ".hh";
-      for Implementation_Suffix ("c++") use ".cpp";
-      for Specification_Suffix ("changelog") use "changelog";
-      for Specification_Suffix ("project file") use ".gpr";
-      for Specification_Suffix ("python") use ".py";
-   end Naming;
-
    package Ide is
       for Default_Switches ("adacontrol") use ("-F", "gnat_short");
    end Ide;
 
-end Globe_3D_Gps_Win32;
+end GLOBE_3D_Win32;
 
