@@ -23,14 +23,14 @@ project GLOBE_3D_Linux is
    end case;
 
    package Builder is
-      for Default_Switches ("ada") use ("-j2", "-C");
       case Build_Mode is
          when "Debug" =>
             for Default_Switches ("ada") use ("-j2", "-C");
          when "Fast" =>
             for Default_Switches ("ada") use ("-j2", "-C");
          when "Small" =>
-            for Default_Switches ("ada") use ("-j2", "-C", "-o globe_3d_demo_linux");
+            for Default_Switches ("ada") use ("-j2", "-C");
+            --  gnatmake's "-o globe_3d_demo_linux" wrongly passed to compiler
       end case;
    end Builder;
 
