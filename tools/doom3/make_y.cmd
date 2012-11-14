@@ -1,10 +1,10 @@
 @echo off
 echo.
-echo make_y: option -r write doom3.y files from doom3.pry
+echo make_y: option -r writes doom3.y files from doom3.pry
 echo.
 if not "%1"=="-r" goto fin
 
-echo ** Generating Doom3.y files
+echo ** Generating Doom3.y files in their "to-G3D-files" and "to-Ada-sources" flavors
 echo.
 
 attrib -R /S *.y

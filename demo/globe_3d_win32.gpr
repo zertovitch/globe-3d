@@ -31,7 +31,7 @@ project GLOBE_3D_Win32 is
          when "Debug" =>
             for Default_Switches ("ada") use ("-gnat05", "-gnato", "-fno-inline", "-fstack-check", "-gnatwkmpz", "-fno-strict-aliasing", "-g", "-gnatVa", "-gnatecdebug.pra", "-gnatyhiknp");
          when "Fast" =>
-            for Default_Switches ("ada") use ("-gnat05", "-O2", "-gnatn", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers", "-gnatec../../demo/g3d_elim.pra");
+            for Default_Switches ("ada") use ("-gnat05", "-O2", "-gnatn", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-fipa-cp-clone", "-fgcse-after-reload", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers", "-ftree-vectorize", "-mfpmath=sse", "-msse3", "-gnatec../../demo/g3d_elim.pra");
          when "Small" =>
             for Default_Switches ("ada") use ("-gnat05", "-Os", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-fno-inline", "-march=i386", "-ffunction-sections", "-falign-jumps=0", "-falign-loops=0", "-falign-functions=0", "-mpreferred-stack-boundary=2", "-gnatec../../demo/g3d_elim.pra");
       end case;

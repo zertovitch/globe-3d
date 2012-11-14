@@ -68,11 +68,10 @@ package Zip is
   -- Load from a stream
 
   procedure Load(
-    info           : out Zip_info;
-    from           : in  Zip_Streams.Zipstream_Class;
-    case_sensitive : in  Boolean:= False
+    info           :    out Zip_info;
+    from           : in out Zip_Streams.Root_Zipstream_Type'Class;
+    case_sensitive : in     Boolean:= False
   );
-
 
   Zip_file_Error,
   Zip_file_open_Error,
@@ -90,7 +89,7 @@ package Zip is
 
   function Zip_comment( info: in Zip_info ) return String;
 
-  function Zip_stream( info: in Zip_info ) return Zip_Streams.Zipstream_Class;
+  function Zip_stream( info: in Zip_info ) return Zip_Streams.Zipstream_Class_Access;
 
   function Entries( info: in Zip_info ) return Natural;
 
@@ -156,7 +155,8 @@ package Zip is
       crc_32           : Interfaces.Unsigned_32;
       date_time        : Time;
       method           : PKZip_method;
-      unicode_file_name: Boolean
+      unicode_file_name: Boolean;
+      read_only        : Boolean
     );
   procedure Traverse_verbose( z: Zip_info );
 
@@ -175,14 +175,14 @@ package Zip is
   -- Find 1st offset in a Zip stream
 
   procedure Find_first_offset(
-    file           : in     Zip_Streams.Zipstream_Class;
+    file           : in out Zip_Streams.Root_Zipstream_Type'Class;
     file_index     :    out Positive );
 
   -- Find offset of a certain compressed file
   -- in a Zip file (file opened and kept open)
 
   procedure Find_offset(
-    file           : in     Zip_Streams.Zipstream_Class;
+    file           : in out Zip_Streams.Root_Zipstream_Type'Class;
     name           : in     String;
     case_sensitive : in     Boolean;
     file_index     :    out Positive;
@@ -202,6 +202,13 @@ package Zip is
   );
 
   File_name_not_found: exception;
+
+  function Exists(
+    info           : in     Zip_info;
+    name           : in     String;
+    case_sensitive : in     Boolean
+  )
+  return Boolean;
 
   procedure Get_sizes(
     info           : in     Zip_info;
@@ -223,7 +230,8 @@ package Zip is
     );
 
   -------------------------------------------------------------------------
-  -- Goodies - things used internally but that might be generally useful --
+  -- Goodies - things used internally by Zip-Ada but are not bound to    --
+  -- Zip archive purposes and that might be generally useful.            --
   -------------------------------------------------------------------------
 
   -- BlockRead: general-purpose procedure (nothing really specific to Zip /
@@ -246,7 +254,7 @@ package Zip is
   -- Same for general streams
   --
   procedure BlockRead(
-    stream       : in     Zip_Streams.Zipstream_Class;
+    stream       : in out Zip_Streams.Root_Zipstream_Type'Class;
     buffer       :    out Byte_Buffer;
     actually_read:    out Natural
     -- = buffer'Length if no end of stream before last buffer element
@@ -257,7 +265,7 @@ package Zip is
   -- This mimics the 'Read stream attribute; can be a lot faster, depending
   -- on the compiler's run-time library.
   procedure BlockRead(
-    stream : in     Zip_Streams.Zipstream_Class;
+    stream : in out Zip_Streams.Root_Zipstream_Type'Class;
     buffer :    out Byte_Buffer
   );
 
@@ -269,13 +277,29 @@ package Zip is
     buffer : in     Byte_Buffer
   );
 
+  -- Copy a chunk from a stream into another one, using a temporary buffer
+  procedure Copy_chunk (
+    from       : in out Zip_Streams.Root_Zipstream_Type'Class;
+    into       : in out Ada.Streams.Root_Stream_Type'Class;
+    bytes      : Natural;
+    buffer_size: Positive:= 1024*1024;
+    Feedback   : Feedback_proc:= null
+  );
+
+  -- Copy a whole file into a stream, using a temporary buffer
+  procedure Copy_file(
+    file_name  : String;
+    into       : in out Ada.Streams.Root_Stream_Type'Class;
+    buffer_size: Positive:= 1024*1024
+  );
+
   -- This does the same as Ada 2005's Ada.Directories.Exists
   -- Just there as helper for Ada 95 only systems
   --
   function Exists(name:String) return Boolean;
 
-  -- Write a string containing line endings (possible from another system)
-  --   into a text file, with the correct native line endings.
+  -- Write a string containing line endings (possibly from another system)
+  --   into a text file, with the "correct", native line endings.
   --   Works for displaying/saving correctly
   --   CR&LF (DOS/Win), LF (UNIX), CR (Mac OS < 9)
   --
@@ -294,8 +318,8 @@ package Zip is
   -- Information about this package - e.g. for an "about" box --
   --------------------------------------------------------------
 
-  version   : constant String:= "43-pre";
-  reference : constant String:= "14-Jul-2012";
+  version   : constant String:= "44";
+  reference : constant String:= "3-Nov-2012";
   web       : constant String:= "http://unzip-ada.sf.net/";
   -- hopefully the latest version is at that URL...  ---^
 
@@ -326,6 +350,7 @@ private
     date_time        : Time;
     method           : PKZip_method;
     unicode_file_name: Boolean;
+    read_only        : Boolean; -- TBD: attributes of most supported systems
   end record;
 
   type p_String is access String;
@@ -333,7 +358,7 @@ private
   type Zip_info is record
     loaded          : Boolean:= False;
     zip_file_name   : p_String;        -- a file name...
-    zip_input_stream: Zip_Streams.Zipstream_Class; -- ...or an input stream
+    zip_input_stream: Zip_Streams.Zipstream_Class_Access; -- ...or an input stream
     -- ^ when not null, we use this and not zip_file_name
     dir_binary_tree : p_Dir_node;
     total_entries   : Natural;

@@ -16,7 +16,7 @@ echo -----------------------------------------------
 echo ---- Compile mode: %scenario_324943981475%
 echo -----------------------------------------------
 
-gnatmake -PGLOBE_3D_GPS_Win32.gpr %1.adb -d -XBuild_Mode=%scenario_324943981475%
+gnatmake -PGLOBE_3D_Win32.gpr %1.adb -d -XBuild_Mode=%scenario_324943981475%
 
 set scenario_324943981475=
 

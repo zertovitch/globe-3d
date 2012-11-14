@@ -9,52 +9,67 @@
 with Zip;
 package body Zip_Streams is
 
-   procedure Set_Name (S: access Root_Zipstream_Type; Name: String) is
+   procedure Set_Name (S: in out Root_Zipstream_Type; Name: String) is
    begin
       S.Name := To_Unbounded_String(Name);
    end Set_Name;
 
-   function Get_Name (S: access Root_Zipstream_Type) return String is
+   function Get_Name (S: in Root_Zipstream_Type) return String is
    begin
       return To_String(S.Name);
    end Get_Name;
 
-   procedure Set_Time (S: access Root_Zipstream_Type; Modification_Time: Time) is
+   procedure Set_Time (S: in out Root_Zipstream_Type; Modification_Time: Time) is
    begin
       S.Modification_Time := Modification_Time;
    end Set_Time;
 
-   function Get_Time (S: access Root_Zipstream_Type) return Time is
+   function Get_Time (S: in Root_Zipstream_Type) return Time is
    begin
       return S.Modification_Time;
    end Get_Time;
 
-   procedure Set_Time(S : Zipstream_Class;
+   -- Ada.Calendar versions
+
+   procedure Set_Time(S : out Root_Zipstream_Type'Class;
                       Modification_Time : Ada.Calendar.Time) is
    begin
      Set_Time(S, Calendar.Convert(Modification_Time));
    end Set_Time;
 
-   function Get_Time(S : Zipstream_Class)
+   function Get_Time(S : in Root_Zipstream_Type'Class)
                      return Ada.Calendar.Time is
    begin
      return Calendar.Convert(Get_Time(S));
    end Get_Time;
 
-   procedure Set_Unicode_Name_Flag (S     : access Root_Zipstream_Type;
+   procedure Set_Unicode_Name_Flag (S     : out Root_Zipstream_Type;
                                     Value : in Boolean)
    is
    begin
-     S.all.Is_Unicode_Name := Value;
+     S.Is_Unicode_Name := Value;
    end;
 
-   function Is_Unicode_Name(S : access Root_Zipstream_Type)
+   function Is_Unicode_Name(S : in Root_Zipstream_Type)
                             return Boolean
    is
    begin
-     return S.all.Is_Unicode_Name;
+     return S.Is_Unicode_Name;
    end;
 
+   procedure Set_Read_Only_Flag (S     : out Root_Zipstream_Type;
+                                 Value : in Boolean)
+   is
+   begin
+     S.Is_Read_Only := Value;
+   end Set_Read_Only_Flag;
+
+   function Is_Read_only(S : in Root_Zipstream_Type)
+                         return Boolean
+   is
+   begin
+     return S.Is_Read_Only;
+   end Is_Read_Only;
 
    ---------------------------------------------------------------------
    -- Unbounded_Stream: stream based on an in-memory Unbounded_String --
@@ -134,7 +149,7 @@ package body Zip_Streams is
      end loop;
    end Write;
 
-   procedure Set_Index (S : access Memory_Zipstream; To : Positive) is
+   procedure Set_Index (S : in out Memory_Zipstream; To : Positive) is
      I, chunk_size: Integer;
    begin
      if To > Length(S.Unb) then
@@ -149,17 +164,17 @@ package body Zip_Streams is
      S.Loc := To;
    end Set_Index;
 
-   function Size (S : access Memory_Zipstream) return Integer is
+   function Size (S : in Memory_Zipstream) return Integer is
    begin
       return Length(S.Unb);
    end Size;
 
-   function Index (S : access Memory_Zipstream) return Integer is
+   function Index (S : in Memory_Zipstream) return Integer is
    begin
       return S.Loc;
    end Index;
 
-   function End_Of_Stream (S : access Memory_Zipstream) return Boolean is
+   function End_Of_Stream (S : in Memory_Zipstream) return Boolean is
    begin
       if Size(S) < Index(S) then
          return True;
@@ -167,7 +182,6 @@ package body Zip_Streams is
          return False;
       end if;
    end End_Of_Stream;
-
 
    --------------------------------------------
    -- File_Zipstream: stream based on a file --
@@ -205,22 +219,22 @@ package body Zip_Streams is
       Ada.Streams.Stream_IO.Write( Stream.File, Item);
    end Write;
 
-   procedure Set_Index (S : access File_Zipstream; To : Positive) is
+   procedure Set_Index (S : in out File_Zipstream; To : Positive) is
    begin
       Ada.Streams.Stream_IO.Set_Index ( S.File, Positive_Count(To));
    end Set_Index;
 
-   function Size (S : access File_Zipstream) return Integer is
+   function Size (S : in File_Zipstream) return Integer is
    begin
       return Integer (Ada.Streams.Stream_IO.Size(S.File));
    end Size;
 
-   function Index (S : access File_Zipstream) return Integer is
+   function Index (S : in File_Zipstream) return Integer is
    begin
       return Integer (Ada.Streams.Stream_IO.Index(S.File));
    end Index;
 
-   function End_Of_Stream (S : access File_Zipstream) return Boolean is
+   function End_Of_Stream (S : in File_Zipstream) return Boolean is
    begin
       return Ada.Streams.Stream_IO.End_Of_File(S.File);
    end End_Of_Stream;

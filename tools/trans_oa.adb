@@ -1,4 +1,4 @@
--- Modified on purpose, to:
+--   Normalize by ADALOG, modified on purpose, to:
 --
 -- - reduce # of lines to test compilation with the ObjectAda 7.2.2 special
 --   edition (limited # of lines) 

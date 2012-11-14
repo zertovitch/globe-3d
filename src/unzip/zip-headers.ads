@@ -13,6 +13,11 @@
 
 -- Change log:
 -- ==========
+--
+-- 30-Oct-2012: GdM: Removed all profiles using Zip_Streams' objects
+--                      with accesses (cf 25-Oct's modifications)
+-- 25-Oct-2012: GdM: Some procedures using Zip_Streams' objects also with
+--                    pointer-free profiles (no more 'access' or access type)
 -- 16-Nov-2009: GdM: Replaced Ada.Calendar.Time by Zip.Time in headers, due to
 --                   perf. issues in some run-times' Ada.Calendar.Time_Of
 
@@ -44,14 +49,14 @@ package Zip.Headers is
   );
 
   procedure Read_and_check(
-    stream        : in     Zipstream_Class;
+    stream        : in out Root_Zipstream_Type'Class;
     the_data_desc :    out Data_descriptor
   );
 
   bad_data_descriptor: exception;
 
   procedure Write(
-    stream        : in     Zipstream_Class;
+    stream        : in out Root_Zipstream_Type'Class;
     the_data_desc : in     Data_descriptor
   );
 
@@ -75,15 +80,15 @@ package Zip.Headers is
   local_header_length: constant:= 30;
 
   procedure Read_and_check(
-    stream : in  Zipstream_Class;
-    header : out Local_File_Header
+    stream : in out Root_Zipstream_Type'Class;
+    header :    out Local_File_Header
   );
 
   bad_local_header: exception;
 
-  procedure Write(
-    stream : in Zipstream_Class;
-    header : in Local_File_Header
+  procedure Write (
+    stream : in out Root_Zipstream_Type'Class;
+    header : in     Local_File_Header
   );
 
   -------------------------------------------------------
@@ -114,14 +119,14 @@ package Zip.Headers is
   central_header_length: constant:= 46;
 
   procedure Read_and_check(
-    stream : in     Zipstream_Class;
+    stream : in out Root_Zipstream_Type'Class;
     header :    out Central_File_Header
   );
 
   bad_central_header: exception;
 
   procedure Write(
-    stream : in     Zipstream_Class;
+    stream : in out Root_Zipstream_Type'Class;
     header : in     Central_File_Header
   );
 
@@ -159,7 +164,7 @@ package Zip.Headers is
   );
 
   procedure Read_and_check(
-    stream  : in     Zipstream_Class;
+    stream  : in out Root_Zipstream_Type'Class;
     the_end :    out End_of_Central_Dir
   );
 
@@ -168,12 +173,12 @@ package Zip.Headers is
   -- A bit more elaborated: from an open file (not a stream),
   -- find the End-of-Central-dir and load it; keep the file open.
   procedure Load(
-    stream : in     Zipstream_Class;
-    the_end:    out End_of_Central_Dir
-    );
+    stream  : in out Root_Zipstream_Type'Class;
+    the_end :    out End_of_Central_Dir
+  );
 
   procedure Write(
-    stream  : in     Zipstream_Class;
+    stream  : in out Root_Zipstream_Type'Class;
     the_end : in     End_of_Central_Dir
   );
 
