@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  File:            GLOBE_3D_Demo.adb
 --  Description:     A small demo for GLOBE_3D
---  Copyright (c) Gautier de Montmollin 2002, 2005, 2006, 2008, 2010
+--  Copyright (c) Gautier de Montmollin 2002, 2005, 2006, 2008, 2010, 2014
 ------------------------------------------------------------------------------
 
 with GL,
@@ -562,11 +562,11 @@ procedure GLOBE_3D_Demo is
 
     -- Whole 3D zoo:
     bestiaire:= new Object_3D_array'(
-      level_stuff(level_stuff'First),
+      level_stuff(level_stuff'First), -- starting area in the DOOM 3 level is the first area
       globe,
       sierp,
-      extrude_test_1, borg_star,
-      -- vrml,
+      extrude_test_1,
+      borg_star,
       dreadnought_ship,
       a319_plane,
       x29_plane,
@@ -577,8 +577,11 @@ procedure GLOBE_3D_Demo is
       bri1
     );
 
-    level_idx:= bestiaire'First;
-    bri_idx:= bestiaire'Last;
+    -- Indices in the 3D zoo area where object accesses may change depending where the camera is:
+    level_idx:= bestiaire'First; -- this is the index of the DOOM 3 level
+    bri_idx:= bestiaire'Last;    -- this is the index of the pair of cubes
+
+    -- We start with the first object:
     beast:= bestiaire'First;
 
     --  -- Not necessary, just for testing new objects

@@ -23,6 +23,7 @@ package Actors is
     time_step     : GLOBE_3D.Real
   );
 
+  -- Limiting modifies a translation step, e.g. due to collision detection.
   generic
     with procedure Limiting(step: in out GLOBE_3D.Vector_3D);
   procedure Limited_Translation(

@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GLOBE_3D.Collision_detection
 --
---  Copyright (c) Gautier de Montmollin 1999..2008
+--  Copyright (c) Gautier de Montmollin 1999..2014
 --  SWITZERLAND
 --
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -29,6 +29,8 @@
 
 with GLOBE_3D.Math;                     use GLOBE_3D.Math;
 with GLOBE_3D.Options;
+
+-- with Ada.Text_IO;                       use Ada.Text_IO; -- for debugging
 
 package body GLOBE_3D.Collision_detection is
 
@@ -97,6 +99,8 @@ package body GLOBE_3D.Collision_detection is
           raise Not_one_normal with " norm = " & Real'Image(nn);
         end if;
       end if;
+      --  put_line("step=" & step(0)'img & ' ' & step(1)'img & ' ' & step(2)'img);
+      --  put_line("   n=" & n(0)'img & ' ' & n(1)'img & ' ' & n(2)'img);
       if step * n < 0.0 then
         P_face:= o.point(o.Face_invariant(face).P_compact(1)) + o.Centre;
         -- ^ any point on the face, to measure distance to face's plane.
