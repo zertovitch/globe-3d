@@ -37,7 +37,7 @@ project D3G is
          when "Fast" =>
             for Default_Switches ("ada") use ("-gnat05", "-O2", "-gnatn", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers");
          when "Debug" =>
-            for Default_Switches ("ada") use ("-gnat05", "-gnato", "-fstack-check", "-gnatwkmpz", "-fno-strict-aliasing", "-g", "-gnatVa", "-gnatecdebug.pra", "-gnatyhiknp");
+            for Default_Switches ("ada") use ("-gnat05", "-gnato", "-fstack-check", "-gnatwkmpz", "-fno-strict-aliasing", "-g", "-gnatVa", "-gnatecdebug.pra");
       end case;
    end Compiler;
 

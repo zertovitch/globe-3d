@@ -579,7 +579,7 @@ package body Doom3_Help is
             Max_faces  => f +   m.portals_to_be_added
           );
           -- Clone common part:
-          Visual(new_obj.all)          := Visual(m.obj.all);
+          new_obj.ID                   := m.obj.ID;
           new_obj.point(1..p)          := m.obj.point;
           new_obj.face(1..f)           := m.obj.face;
           new_obj.face_invariant(1..f) := m.obj.face_invariant;

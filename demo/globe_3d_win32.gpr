@@ -30,7 +30,7 @@ project GLOBE_3D_Win32 is
    package Compiler is
       case Build_Mode is
          when "Debug" =>
-            for Default_Switches ("ada") use ("-gnat05", "-gnato", "-fno-inline", "-fstack-check", "-gnatwkmpz", "-fno-strict-aliasing", "-g", "-gnatVcdeimoprst", "-gnatecdebug.pra", "-gnatyhiknp");
+            for Default_Switches ("ada") use ("-gnat05", "-gnato", "-fno-inline", "-fstack-check", "-gnatwkmpz", "-fno-strict-aliasing", "-g", "-gnatVcdeimoprst", "-gnatecdebug.pra", "-gnatyhknp");
 			-- -gnatV*: turn off floating point validity check, seems to give false positives on a scalar product for collision detection
          when "Fast" =>
             for Default_Switches ("ada") use ("-gnat05", "-O2", "-gnatn", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-fipa-cp-clone", "-fgcse-after-reload", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers", "-ftree-vectorize", "-mfpmath=sse", "-msse3", "-gnatec../../demo/g3d_elim.pra");
