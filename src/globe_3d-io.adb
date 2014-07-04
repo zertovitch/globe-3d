@@ -408,7 +408,7 @@ package body GLOBE_3D.IO is
     begin -- Try
       Load_if_needed( zif, name );
       Open( fobj, zif, name_ext );
-      Read( Stream(fobj), a );
+      Read( Ada.Streams.Stream_IO.Stream_Access(Stream(fobj)), a );
       Close( fobj );
     exception
       when Zip.File_name_not_found =>

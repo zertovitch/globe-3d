@@ -3,6 +3,7 @@
 --
 -- The Zip_Streams package defines an abstract stream
 -- type, Root_Zipstream_Type, with name, time and an index for random access.
+-- Zip_Streams can be used as such, independently of the Zip-Ada library.
 -- In addition, this package provides two ready-to-use derivations:
 --
 --   - Memory_Zipstream, for using in-memory streaming
@@ -12,6 +13,8 @@
 -- Change log:
 -- ==========
 --
+--  5-Jul-2013: GdM: Added proper types for stream sizes and index
+-- 20-Nov-2012: GdM: Added Is_Open method for File_Zipstream
 -- 30-Oct-2012: GdM/NB: - Removed method profiles with 'access' as
 --                          overriding some methods with 'access' and some without
 --                          at different inheritance levels may be dangerous
@@ -31,9 +34,11 @@
 
 with Ada.Streams;           use Ada.Streams;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Ada.Streams.Stream_IO; use Ada.Streams.Stream_IO;
+with Ada.Streams.Stream_IO;
 
 with Ada.Calendar, Interfaces;
+
+with System;
 
 package Zip_Streams is
 
@@ -51,15 +56,24 @@ package Zip_Streams is
    type Root_Zipstream_Type is abstract new Ada.Streams.Root_Stream_Type with private;
    type Zipstream_Class_Access is access all Root_Zipstream_Type'Class;
 
+   min_bits: constant:= Integer'Max(32, System.Word_Size);
+   -- 13.3(8): A word is the largest amount of storage that can be
+   -- conveniently and efficiently manipulated by the hardware,
+   -- given the implementation's run-time model.
+
+   type ZS_Size_Type is mod 2**min_bits;
+
+   subtype ZS_Index_Type is ZS_Size_Type range 1..ZS_Size_Type'Last;
+
    -- Set the index on the stream
    procedure Set_Index (S : in out Root_Zipstream_Type;
-                        To : Positive) is abstract;
+                        To : ZS_Index_Type) is abstract;
 
    -- returns the index of the stream
-   function Index (S : in Root_Zipstream_Type) return Integer is abstract;
+   function Index (S : in Root_Zipstream_Type) return ZS_Index_Type is abstract;
 
    -- returns the Size of the stream
-   function Size (S : in Root_Zipstream_Type) return Integer is abstract;
+   function Size (S : in Root_Zipstream_Type) return ZS_Size_Type is abstract;
 
    -- this procedure sets the name of the stream
    procedure Set_Name(S : in out Root_Zipstream_Type; Name : String);
@@ -102,7 +116,7 @@ package Zip_Streams is
       return Boolean is abstract;
 
    ---------------------------------------------------------------------
-   -- Unbounded_Stream: stream based on an in-memory Unbounded_String --
+   -- Memory_Zipstream: stream based on an in-memory Unbounded_String --
    ---------------------------------------------------------------------
    type Memory_Zipstream is new Root_Zipstream_Type with private;
    subtype Unbounded_Stream is Memory_Zipstream;
@@ -122,6 +136,8 @@ package Zip_Streams is
    subtype ZipFile_Stream is File_Zipstream;
    pragma Obsolescent (ZipFile_Stream);
 
+   type File_Mode is new Ada.Streams.Stream_IO.File_Mode;
+
    -- Open the File_Zipstream
    -- PRE: Str.Name must be set
    procedure Open (Str : in out File_Zipstream; Mode : File_Mode);
@@ -132,6 +148,9 @@ package Zip_Streams is
 
    -- Close the File_Zipstream
    procedure Close (Str : in out File_Zipstream);
+
+   -- Is the File_Zipstream open ?
+   function Is_Open (Str : in File_Zipstream) return Boolean;
 
    --------------------------
    -- Routines around Time --
@@ -161,7 +180,16 @@ package Zip_Streams is
          Day     : Day_Number;
          Seconds : Day_Duration := 0.0) return Time;
       --
+      function ">"  (Left, Right : Time) return Boolean;
+      --
+      Time_Error : exception;
    end Calendar;
+
+  -- Parameter Form added to *_IO.[Open|Create]
+  Form_For_IO_Open_and_Create : Ada.Strings.Unbounded.Unbounded_String
+    := Ada.Strings.Unbounded.Null_Unbounded_String;
+  -- See RM A.8.2: File Management
+  -- Example: "encoding=8bits", "encoding=utf8"
 
 private
 
@@ -198,13 +226,13 @@ private
       Item   : Stream_Element_Array);
 
    -- Set the index on the stream
-   procedure Set_Index (S : in out Memory_Zipstream; To : Positive);
+   procedure Set_Index (S : in out Memory_Zipstream; To : ZS_Index_Type);
 
    -- returns the index of the stream
-   function Index (S : in Memory_Zipstream) return Integer;
+   function Index (S : in Memory_Zipstream) return ZS_Index_Type;
 
    -- returns the Size of the stream
-   function Size (S : in Memory_Zipstream) return Integer;
+   function Size (S : in Memory_Zipstream) return ZS_Size_Type;
 
    -- returns true if the index is at the end of the stream
    function End_Of_Stream (S : in Memory_Zipstream) return Boolean;
@@ -213,7 +241,7 @@ private
    -- File_Zipstream spec
    type File_Zipstream is new Root_Zipstream_Type with
       record
-         File : File_Type;
+         File : Ada.Streams.Stream_IO.File_Type;
       end record;
    -- Read data from the stream.
    procedure Read
@@ -228,13 +256,13 @@ private
       Item   : Stream_Element_Array);
 
    -- Set the index on the stream
-   procedure Set_Index (S : in out File_Zipstream; To : Positive);
+   procedure Set_Index (S : in out File_Zipstream; To : ZS_Index_Type);
 
    -- returns the index of the stream
-   function Index (S : in File_Zipstream) return Integer;
+   function Index (S : in File_Zipstream) return ZS_Index_Type;
 
    -- returns the Size of the stream
-   function Size (S : in File_Zipstream) return Integer;
+   function Size (S : in File_Zipstream) return ZS_Size_Type;
 
    -- returns true if the index is at the end of the stream
    function End_Of_Stream (S : in File_Zipstream) return Boolean;

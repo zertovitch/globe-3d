@@ -6,6 +6,7 @@ with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 with Ada.Containers.Hashed_Maps;
+with Ada.Streams.Stream_IO;
 with Ada.Strings.Unbounded.Hash;
 
 package body GLOBE_3D.Textures is
@@ -61,7 +62,10 @@ package body GLOBE_3D.Textures is
       procedure Try_a_type(tex_name_ext: String; format: GL.IO.Supported_format) is
       begin
         Open( ftex, zif, tex_name_ext );
-        GL.IO.Load( Stream(ftex), format, Image_id'Pos(id)+1, blending_hint );
+        GL.IO.Load(
+          Ada.Streams.Stream_IO.Stream_Access(Stream(ftex)),
+          format, Image_id'Pos(id)+1, blending_hint
+        );
         Close( ftex );
       exception
         when Zip.File_name_not_found =>

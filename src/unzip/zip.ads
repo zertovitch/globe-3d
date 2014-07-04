@@ -15,7 +15,7 @@
 
 -- Legal licensing note:
 
---  Copyright (c) 1999..2012 Gautier de Montmollin
+--  Copyright (c) 1999..2014 Gautier de Montmollin
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
 --  of this software and associated documentation files (the "Software"), to deal
@@ -39,7 +39,7 @@
 -- http://www.opensource.org/licenses/mit-license.php
 
 with Zip_Streams;
-with Ada.Calendar, Ada.Streams.Stream_IO, Ada.Text_IO, Ada.Strings.Unbounded;
+with Ada.Calendar, Ada.Streams.Stream_IO, Ada.Text_IO;
 with Interfaces;
 
 package Zip is
@@ -77,12 +77,6 @@ package Zip is
   Zip_file_open_Error,
   Duplicate_name: exception;
 
-  -- Parameter Form added to *_IO.[Open|Create]
-  Form_For_IO_Open_N_Create : Ada.Strings.Unbounded.Unbounded_String
-    := Ada.Strings.Unbounded.Null_Unbounded_String;
-  -- See RM A.8.2: File Management
-  -- Example: "encoding=8bits"
-
   function Is_loaded( info: in Zip_info ) return Boolean;
 
   function Zip_name( info: in Zip_info ) return String;
@@ -104,8 +98,8 @@ package Zip is
 
   -- Compression methods or formats in the "official" PKWARE Zip format.
   -- Details in appnote.txt, part V.J
-  --   C: supported for compressing
-  --   D: supported for decompressing
+  --   C: supported by Zip-Ada for compressing
+  --   D: supported by Zip-Ada for decompressing
 
   type PKZip_method is
    ( store,     -- C,D
@@ -116,13 +110,15 @@ package Zip is
      reduce_4,  -- C,D
      implode,   --   D
      tokenize,
-     deflate,   --   D
+     deflate,   -- C,D
      deflate_e, --   D - Enhanced deflate
      bzip2,     --   D
-     lzma,
+     lzma,      --   D
      ppmd,
      unknown
    );
+
+  subtype reduce is PKZip_method range reduce_1..reduce_4;
 
   -- Technical: translates the method code as set in zip archives
   function Method_from_code(x: Interfaces.Unsigned_16) return PKZip_method;
@@ -135,6 +131,16 @@ package Zip is
   function Convert(date : in Time) return Ada.Calendar.Time
     renames Zip_Streams.Calendar.Convert;
 
+  -- Entry names within Zip archives are encoded either with
+  --    * the IBM PC (the one with a monochrome screen, only text mode)'s
+  --        character set: IBM 437
+  -- or
+  --    * Unicode UTF-8
+  --
+  -- Documentation: PKWARE's Appnote.txt, APPENDIX D - Language Encoding (EFS)
+
+  type Zip_name_encoding is (IBM_437, UTF_8);
+
   -- Traverse a whole Zip_info directory in sorted order, giving the
   -- name for each entry to an user-defined "Action" procedure.
   -- Concretely, you can process a whole Zip file that way, by extracting data
@@ -144,19 +150,31 @@ package Zip is
     with procedure Action( name: String ); -- 'name' is compressed entry's name
   procedure Traverse( z: Zip_info );
 
-  -- Same as Traverse, but Action gives also technical informations about the
-  -- compressed entry.
+  -- Same as Traverse, but Action gives also full name information.
+  -- The pair (name, name_encoding) allows for an unambiguous Unicode
+  -- name decoding. See the AZip project for an implementation.
+  generic
+    with procedure Action(
+      name          : String; -- 'name' is compressed entry's name
+      name_encoding : Zip_name_encoding
+    );
+  procedure Traverse_Unicode( z: Zip_info );
+
+  -- Same as Traverse, but Action gives also full technical informations
+  -- about the compressed entry.
   generic
     with procedure Action(
       name             : String; -- 'name' is compressed entry's name
-      file_index       : Positive;
+      file_index       : Zip_Streams.ZS_Index_Type;
       comp_size        : File_size_type;
       uncomp_size      : File_size_type;
       crc_32           : Interfaces.Unsigned_32;
       date_time        : Time;
       method           : PKZip_method;
-      unicode_file_name: Boolean;
-      read_only        : Boolean
+      name_encoding    : Zip_name_encoding;
+      read_only        : Boolean;
+      encrypted_2_x    : Boolean; -- PKZip 2.x encryption
+      user_code        : in out Integer
     );
   procedure Traverse_verbose( z: Zip_info );
 
@@ -176,7 +194,7 @@ package Zip is
 
   procedure Find_first_offset(
     file           : in out Zip_Streams.Root_Zipstream_Type'Class;
-    file_index     :    out Positive );
+    file_index     :    out Zip_Streams.ZS_Index_Type );
 
   -- Find offset of a certain compressed file
   -- in a Zip file (file opened and kept open)
@@ -185,9 +203,10 @@ package Zip is
     file           : in out Zip_Streams.Root_Zipstream_Type'Class;
     name           : in     String;
     case_sensitive : in     Boolean;
-    file_index     :    out Positive;
+    file_index     :    out Zip_Streams.ZS_Index_Type;
     comp_size      :    out File_size_type;
-    uncomp_size    :    out File_size_type
+    uncomp_size    :    out File_size_type;
+    crc_32         :    out Interfaces.Unsigned_32
   );
 
   -- Find offset of a certain compressed file in a Zip_info data
@@ -195,25 +214,35 @@ package Zip is
   procedure Find_offset(
     info           : in     Zip_info;
     name           : in     String;
-    case_sensitive : in     Boolean;
-    file_index     :    out Ada.Streams.Stream_IO.Positive_Count;
+    name_encoding  :    out Zip_name_encoding;
+    file_index     :    out Zip_Streams.ZS_Index_Type;
     comp_size      :    out File_size_type;
-    uncomp_size    :    out File_size_type
+    uncomp_size    :    out File_size_type;
+    crc_32         :    out Interfaces.Unsigned_32
   );
 
   File_name_not_found: exception;
 
-  function Exists(
-    info           : in     Zip_info;
-    name           : in     String;
-    case_sensitive : in     Boolean
+  function Exists(info: Zip_info; name: String) return Boolean;
+
+  -- User code: any information e.g. as a result of a string search,
+  -- archive comparison, archive update, recompression,...
+
+  procedure Set_user_code(
+    info           : in Zip_info;
+    name           : in String;
+    code           : in Integer
+  );
+
+  function User_code(
+    info           : in Zip_info;
+    name           : in String
   )
-  return Boolean;
+  return Integer;
 
   procedure Get_sizes(
     info           : in     Zip_info;
     name           : in     String;
-    case_sensitive : in     Boolean;
     comp_size      :    out File_size_type;
     uncomp_size    :    out File_size_type
   );
@@ -318,8 +347,8 @@ package Zip is
   -- Information about this package - e.g. for an "about" box --
   --------------------------------------------------------------
 
-  version   : constant String:= "44";
-  reference : constant String:= "3-Nov-2012";
+  version   : constant String:= "47";
+  reference : constant String:= "28-Jun-2014";
   web       : constant String:= "http://unzip-ada.sf.net/";
   -- hopefully the latest version is at that URL...  ---^
 
@@ -343,20 +372,23 @@ private
     left, right      : p_Dir_node;
     dico_name        : String(1..name_len); -- UPPER if case-insensitive search
     file_name        : String(1..name_len);
-    file_index       : Ada.Streams.Stream_IO.Positive_Count;
+    file_index       : Zip_Streams.ZS_Index_Type;
     comp_size        : File_size_type;
     uncomp_size      : File_size_type;
     crc_32           : Interfaces.Unsigned_32;
     date_time        : Time;
     method           : PKZip_method;
-    unicode_file_name: Boolean;
+    name_encoding    : Zip_name_encoding;
     read_only        : Boolean; -- TBD: attributes of most supported systems
+    encrypted_2_x    : Boolean;
+    user_code        : Integer;
   end record;
 
   type p_String is access String;
 
   type Zip_info is record
     loaded          : Boolean:= False;
+    case_sensitive  : Boolean;
     zip_file_name   : p_String;        -- a file name...
     zip_input_stream: Zip_Streams.Zipstream_Class_Access; -- ...or an input stream
     -- ^ when not null, we use this and not zip_file_name
