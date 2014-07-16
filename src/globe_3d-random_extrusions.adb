@@ -195,7 +195,8 @@ package body GLOBE_3D.Random_extrusions is
         -- Now the funny part: the vertical faces!
         --
         if iterations > 0 and -- <- possible to generate no extrusion at all!
-           e1 > 0 and e2 > 0 then
+           e1 > 0 and e2 > 0
+        then
           --
           --    seen from above:    _|_|_ yb
           -- -> southern neighbour  _|_|_ ya

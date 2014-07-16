@@ -370,7 +370,8 @@ package body GLOBE_3D is
         end if;
       end loop;
       if is_textured(o.face(f).skin) and then
-         not Textures.Valid_texture_ID(o.face(f).texture) then
+         not Textures.Valid_texture_ID(o.face(f).texture)
+      then
         raise_exception(Textures.Undefined_texture_ID'Identity,
            Trim(o.id, right) &
            " face="   & Integer'Image(f) &
@@ -471,7 +472,8 @@ package body GLOBE_3D is
           or else Previous_face.skin = invisible
           or else fa.skin /= Previous_face.skin
           or else (fa.skin = Previous_face.skin
-                   and then fa.material /= Previous_face.material) then
+                   and then fa.material /= Previous_face.material)
+        then
           case fa.skin is
             when material_only | material_texture =>
               Disable(COLOR_MATERIAL);
@@ -490,7 +492,8 @@ package body GLOBE_3D is
           or else fa.skin /= Previous_face.skin
           or else (fa.skin = Previous_face.skin
                    and then (fa.colour /= Previous_face.colour
-                             or else fa.alpha /= Previous_face.alpha)) then
+                             or else fa.alpha /= Previous_face.alpha))
+        then
           case fa.skin is
             when material_only | material_texture =>
               null; -- done above
@@ -529,7 +532,8 @@ package body GLOBE_3D is
           or else Previous_face.skin = invisible
           or else fa.skin /= Previous_face.skin
           or else (fa.skin = Previous_face.skin
-                   and then fa.texture /= Previous_face.texture) then
+                   and then fa.texture /= Previous_face.texture)
+        then
           case fa.skin is
             when texture_only | coloured_texture | material_texture =>
               Enable( TEXTURE_2D );
@@ -548,7 +552,8 @@ package body GLOBE_3D is
 
         if First_Face
           or else Previous_face.skin = invisible
-          or else fi.blending /= Previous_face_Invariant.blending then
+          or else fi.blending /= Previous_face_Invariant.blending
+        then
           if fi.blending then
             Enable( BLEND ); -- See 4.1.7 Blending
             BlendFunc( sfactor => SRC_ALPHA,

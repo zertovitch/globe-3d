@@ -102,7 +102,8 @@ package body Game_control is
     end if;
 
     if warp_mouse and then
-       (abs(Mouse.mx-size_x/2) > size_x/4 or abs(Mouse.my-size_y/2) > size_y/4) then
+       (abs(Mouse.mx-size_x/2) > size_x/4 or abs(Mouse.my-size_y/2) > size_y/4)
+    then
       Mouse.oldx:= size_x/2;
       Mouse.oldy:= size_y/2;
       GLUT.WarpPointer(Mouse.oldx, Mouse.oldy);

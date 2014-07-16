@@ -1034,7 +1034,8 @@ procedure GLOBE_3D_Demo is
     if CreateWindow(
       "GLOBE_3D / Demo_1 / Extra Debug = " &
       Boolean'Image(G3D.Options.Is_debug_mode)
-    ) = 0 then
+    ) = 0
+    then
       raise GLUT_Problem;
     end if;
     ReshapeFunc(      Window_Resize'Address        );

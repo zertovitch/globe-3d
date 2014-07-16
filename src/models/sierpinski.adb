@@ -88,7 +88,8 @@ package body Sierpinski is
     begin
       if i > Extended_side_range'Last or
          j > Extended_side_range'Last or
-         k > Extended_side_range'Last then
+         k > Extended_side_range'Last
+      then
         return;
       end if;
       for s in Index_stack'Range loop
