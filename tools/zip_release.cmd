@@ -5,8 +5,6 @@ rem
 rem Have a compiled globe_3d_demo_linux in the ../demo directory.
 rem Then run this.
 
-pause
-
 del *.bak
 cd ..
 cd demo
@@ -42,9 +40,5 @@ zip -9 -r GLOBE_3D.zip GLOBE_3D\*
 deflopt GLOBE_3D.zip
 rem DeflOpt also removes bogus Zip entries with directory names
 
-pause
-
 call lowcase_and_rezip.cmd
-
-pause
 
