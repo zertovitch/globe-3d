@@ -39,4 +39,12 @@ cd ..
 
 zip -9 -r GLOBE_3D.zip GLOBE_3D\*
 
+deflopt GLOBE_3D.zip
+rem DeflOpt also removes bogus Zip entries with directory names
+
 pause
+
+call lowcase_and_rezip.cmd
+
+pause
+
