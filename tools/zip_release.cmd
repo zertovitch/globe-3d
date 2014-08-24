@@ -1,4 +1,18 @@
+rem For a clean packaging...
+rem
+rem svn co http://svn.code.sf.net/p/globe3d/code GLOBE_3D
+rem
+rem Have a compiled globe_3d_demo_linux in the ../demo directory.
+rem Then run this.
+
+pause
+
 del *.bak
+cd ..
+cd demo
+call make_all
+cd ..
+cd tools
 
 call upx_the_demo
 
@@ -23,11 +37,6 @@ cd ..
 cd ..
 cd ..
 
-rem ren globe3d GLOBE_3D
-rem We prefer with '_', the package & project name
-rem Then, svn checkout with '_' and everything is fine ;-)
 zip -9 -r GLOBE_3D.zip GLOBE_3D\*
-rem ren globe_3d globe3d
-deflopt GLOBE_3D.zip
 
 pause
