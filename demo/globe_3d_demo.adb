@@ -1027,8 +1027,8 @@ procedure GLOBE_3D_Demo is
       GLUT_options:= GLUT_options or GLUT.MULTISAMPLE;
     end if;
     InitDisplayMode( GLUT_options );
-    main_size_x:= 500;
-    main_size_y:= 400;
+    main_size_x:= 1280; -- 854;  --  YouTube recommended sizes, for 16/9
+    main_size_y:= 720;  -- 480;  --  YouTube recommended sizes, for 16/9
     InitWindowSize(Integer(main_size_x), Integer(main_size_y));
     InitWindowPosition(120, 120);
     if CreateWindow(
