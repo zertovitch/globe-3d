@@ -16,7 +16,7 @@ package Brick is
 
   type Cubic_Face_index is array(Cubic_Face_count) of Positive;
 
-  type Cubic_Face_texture is array(Cubic_Face_count) of GLOBE_3D.Image_id;
+  type Cubic_Face_texture is array(Cubic_Face_count) of GLOBE_3D.Image_ID;
 
   procedure Create(
     object : in out GLOBE_3D.p_Object_3D;

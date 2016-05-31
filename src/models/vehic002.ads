@@ -14,7 +14,7 @@ package Vehic002 is
     centre:        GLOBE_3D.Point_3D;
     metal_door,
     metal_surface,
-    bumped_blue  : GLOBE_3D.Image_id
+    bumped_blue  : GLOBE_3D.Image_ID
   );
 
 end Vehic002;

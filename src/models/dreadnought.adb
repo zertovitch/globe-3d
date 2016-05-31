@@ -1300,10 +1300,10 @@ package body Dreadnought is
    others =>    ((0.0,0.0), (0.0,0.0), (0.0,0.0), (0.0,0.0))  ); -- End of all texture maps
   type Material_info is record
     skin    : Skin_type;    -- here: material_only or material_texture
-    image   : Image_id;
+    image   : Image_ID;
     offset  : Map_idx_pair;
     tiling  : Map_idx_pair;
-    material: gl.materials.Material_type;
+    material: GL.Materials.Material_type;
   end record;
   type Material_info_array is array(Positive range <>) of Material_info;
   procedure Create(
@@ -1515,10 +1515,10 @@ package body Dreadnought is
       if face_0.skin = material_texture then
         for i in face_0.texture_edge_map'Range loop
           face_0.texture_edge_map(i):=
-            (0.5+(face_texture_info(f)(i).u-0.5+face_material_info(mat_id).offset.u)*
-                 face_material_info(mat_id).tiling.u,
-             0.5+(face_texture_info(f)(i).v-0.5+face_material_info(mat_id).offset.v)*
-                 face_material_info(mat_id).tiling.v);
+            (0.5+(face_texture_info(f)(i).U-0.5+face_material_info(mat_id).offset.U)*
+                 face_material_info(mat_id).tiling.U,
+             0.5+(face_texture_info(f)(i).V-0.5+face_material_info(mat_id).offset.V)*
+                 face_material_info(mat_id).tiling.V);
         end loop;
       end if;
       object.face( f ):= face_0;

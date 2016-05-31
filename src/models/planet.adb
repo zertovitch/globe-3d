@@ -8,7 +8,7 @@ package body Planet is
     object  : in out GLOBE_3D.p_Object_3D;
     scale   :        GLOBE_3D.Real;
     centre  :        GLOBE_3D.Point_3D;
-    mercator:        GLOBE_3D.Image_id;
+    mercator:        GLOBE_3D.Image_ID;
     parts   :        Positive:= 30
   )
   is
@@ -16,8 +16,8 @@ package body Planet is
     n: constant Positive:= parts;
     step_i     : constant Real:= 1.0 / Real(n);
     step_j     : constant Real:= 1.0 / Real(n-1);
-    step_psi   : constant Real:= pi * step_j;
-    step_theta : constant Real:= 2.0 * pi * step_i;
+    step_psi   : constant Real:= Pi * step_j;
+    step_theta : constant Real:= 2.0 * Pi * step_i;
     psi, theta, sin_psi: Real;
     k: Positive;
     face_0 : Face_type; -- takes defaults values
@@ -45,8 +45,8 @@ package body Planet is
       for i in 0..n-1 loop
         theta := Real(i) * step_theta;
         psi   := Real(j) * step_psi;
-        sin_psi:= sin(psi);
-        object.point(k):= scale * (sin_psi * cos(theta), sin_psi * sin(theta), -cos(psi));
+        sin_psi:= Sin(psi);
+        object.point(k):= scale * (sin_psi * Cos(theta), sin_psi * Sin(theta), -Cos(psi));
         -- phi [from North pole] = pi - psi; sin phi = sin psi; cos phi = -cos psi
         k:= k + 1;
       end loop;

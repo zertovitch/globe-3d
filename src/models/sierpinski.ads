@@ -3,7 +3,7 @@ with GLOBE_3D;
 package Sierpinski is
 
   type Cubic_Face_count is new Integer range 1..6;
-  type Cubic_Face_texture is array(Cubic_Face_count) of GLOBE_3D.Image_id;
+  type Cubic_Face_texture is array(Cubic_Face_count) of GLOBE_3D.Image_ID;
 
   procedure Create_Cube(
     object       : in out GLOBE_3D.p_Object_3D;

@@ -32,10 +32,10 @@ package body Extruded_surface is
     case surface is
       when square => x:= scale * u;
       when sphere =>
-        theta:= 2.0 * pi * u(0);
-        phi:= pi * (1.0 - u(1));
-        sin_phi:= sin(phi);
-        x:= scale * (1.0 + u(2)) * (sin_phi * cos(theta), sin_phi * sin(theta), cos(phi));
+        theta:= 2.0 * Pi * u(0);
+        phi:= Pi * (1.0 - u(1));
+        sin_phi:= Sin(phi);
+        x:= scale * (1.0 + u(2)) * (sin_phi * Cos(theta), sin_phi * Sin(theta), Cos(phi));
     end case;
   end Geo;
 
