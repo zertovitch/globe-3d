@@ -2,16 +2,16 @@ with Ada.Unchecked_Conversion, System;
 
 package body GLU is
 
-  type loc_DoublePtr is new GL.DoublePtr;
+  type loc_DoublePtr is new GL.doublePtr;
 
-  pragma No_Strict_Aliasing(DoubleMatrixPtr);
-  pragma No_Strict_Aliasing(ViewPortRecPtr);
+  pragma No_Strict_Aliasing(doubleMatrixPtr);
+  pragma No_Strict_Aliasing(viewPortRecPtr);
   pragma No_Strict_Aliasing(loc_DoublePtr);
   -- recommended by GNAT 2005
 
   procedure Get (pname : GL.ParameterNameEnm;
                  params: out doubleMatrix) is
-    function Cvt is new Ada.Unchecked_Conversion(System.Address,DoubleMatrixPtr);
+    function Cvt is new Ada.Unchecked_Conversion(System.Address,doubleMatrixPtr);
     -- This method is functionally identical as GNAT's Unrestricted_Access
     -- but has no type safety (cf GNAT Docs)
   begin
@@ -21,23 +21,22 @@ package body GLU is
   procedure Get (params: out viewPortRec) is
     function Cvt is new Ada.Unchecked_Conversion(System.Address,viewPortRecPtr);
   begin
-    Get(GL.VIEWPORT, Cvt(params.x'Address));
+    Get(GL.VIEWPORT, Cvt(params.X'Address));
   end Get;
 
-
-  procedure Project (objx       : GL.double;
-                     objy       : GL.double;
-                     objz       : GL.double;
+  procedure Project (objx       : GL.Double;
+                     objy       : GL.Double;
+                     objz       : GL.Double;
                      modelMatrix: doubleMatrix;
                      projMatrix : doubleMatrix;
                      viewport   : viewPortRec;
-                     winx       : out GL.double;
-                     winy       : out GL.double;
-                     winz       : out GL.double;
+                     winx       : out GL.Double;
+                     winy       : out GL.Double;
+                     winz       : out GL.Double;
                      result     : out Boolean )
   is
-    function CvV is new Ada.Unchecked_Conversion(System.Address,ViewPortRecPtr);
-    function CvM is new Ada.Unchecked_Conversion(System.Address,DoubleMatrixPtr);
+    function CvV is new Ada.Unchecked_Conversion(System.Address,viewPortRecPtr);
+    function CvM is new Ada.Unchecked_Conversion(System.Address,doubleMatrixPtr);
     function Cvt is new Ada.Unchecked_Conversion(System.Address,loc_DoublePtr);
     wx,wy,wz: GL.Double;
     use GL;
@@ -48,9 +47,9 @@ package body GLU is
       CvM(modelMatrix'Address),
       CvM(projMatrix'Address),
       CvV(viewport'Address),
-      GL.DoublePtr(Cvt(wx'Address)),
-      GL.DoublePtr(Cvt(wy'Address)),
-      GL.DoublePtr(Cvt(wz'Address))
+      GL.doublePtr(Cvt(wx'Address)),
+      GL.doublePtr(Cvt(wy'Address)),
+      GL.doublePtr(Cvt(wz'Address))
     )
     =
       GL.GL_Boolean'Pos(GL.GL_TRUE);
@@ -60,4 +59,3 @@ package body GLU is
   end Project;
 
 end GLU;
-

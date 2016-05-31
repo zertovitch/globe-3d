@@ -29,7 +29,7 @@ package body GLOBE_3D.Stars_sky is
     int: Real;
     use GL, REF, GLOBE_3D.Math;
 
-    function Amas return real is -- expected tendencies: keep near or go far
+    function Amas return Real is -- expected tendencies: keep near or go far
       r: Real;
     begin
       r:= Real(Random(seed));
@@ -45,11 +45,11 @@ package body GLOBE_3D.Stars_sky is
     for i in 1..num_stars loop
       v:= XYZ_rotation( Amas, Amas, Amas ) * v;
       pnt(i):= v;
-      int:= Real(random(seed)) * 0.3;
+      int:= Real(Random(seed)) * 0.3;
       col(i):= (
-        int+0.15*Real(random(seed)),
-        int+0.12*Real(random(seed)),
-        int+0.12*Real(random(seed))
+        int+0.15*Real(Random(seed)),
+        int+0.12*Real(Random(seed)),
+        int+0.12*Real(Random(seed))
       );
     end loop;
   end Reset;

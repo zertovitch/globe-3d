@@ -20,7 +20,7 @@ begin
   GLUT.Init;
   GLUT.InitDisplayMode( GLUT_options );
   if GLUT.CreateWindow( "Test" ) = 0 then return; end if;
-  Create(f, out_file,"gl_info.txt");
+  Create(f, Out_File,"gl_info.txt");
   Put_Line(f,"GL.GetString:");
   for i in GL.StringEnm loop
     Put(f, "  " & GL.StringEnm'Image(i) & ": [");

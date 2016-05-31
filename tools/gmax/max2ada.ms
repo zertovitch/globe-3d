@@ -6,7 +6,7 @@
 -- Once the script is run, start GMaxSLGRAB.exe, save the
 -- text somewhere and the split it into Ada sources (gnatchop x.txt)
 --
--- Copyright (c) Gautier de Montmollin 2008..2010
+-- Copyright (c) Gautier de Montmollin 2008 .. 2016
 -- Same license as GLOBE_3D
 --
 -- Quote from the help (about strings): "MAX Script, is-dead-funky"  :-)
@@ -463,7 +463,7 @@
     -- * Array with all materials:
     format "  type Material_info is record\n"
     format "    skin    : Skin_type;    -- here: material_only or material_texture\n"
-    format "    image   : Image_id;\n"
+    format "    image   : Image_ID;\n"
     format "    offset  : Map_idx_pair;\n"
     format "    tiling  : Map_idx_pair;\n"
     format "    material: GL.Materials.Material_type;\n"
@@ -510,10 +510,10 @@
     format "      if is_textured(face_0.skin) then\n"
     format "        for i in face_0.texture_edge_map'Range loop\n"
     format "          face_0.texture_edge_map(i):=\n"
-    format "            (0.5+(face_texture_info(f)(i).u-0.5+face_material_info(mat_id).offset.u)*\n"
-    format "                 face_material_info(mat_id).tiling.u,\n"
-    format "             0.5+(face_texture_info(f)(i).v-0.5+face_material_info(mat_id).offset.v)*\n"
-    format "                 face_material_info(mat_id).tiling.v);\n"
+    format "            (0.5+(face_texture_info(f)(i).u-0.5+face_material_info(mat_id).offset.U)*\n"
+    format "                 face_material_info(mat_id).tiling.U,\n"
+    format "             0.5+(face_texture_info(f)(i).v-0.5+face_material_info(mat_id).offset.V)*\n"
+    format "                 face_material_info(mat_id).tiling.V);\n"
     format "        end loop;\n"
     format "      end if;\n"
     format "      object.face( f ):= face_0;\n"

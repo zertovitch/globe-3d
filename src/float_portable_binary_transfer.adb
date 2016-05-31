@@ -62,4 +62,3 @@ package body Float_portable_binary_transfer is
   end Merge;
 
 end Float_portable_binary_transfer;
-

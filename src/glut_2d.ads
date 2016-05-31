@@ -27,14 +27,14 @@ package GLUT_2D is
   procedure Text_output(
     x,y         : GL.Int;
     main_size_x,
-    main_size_y : GL.SizeI;
+    main_size_y : GL.Sizei;
     s           : String;
     font        : Font_type
   );
 
   -- Text output from 3D coordinates
   procedure Text_output(
-    p    : GL.Double_vector_3D;
+    p    : GL.Double_Vector_3D;
     s    : String;
     font : Font_type
   );
@@ -49,7 +49,7 @@ package GLUT_2D is
     size_x,
     size_y      : GL.Int;
     main_size_x,
-    main_size_y : GL.SizeI
+    main_size_y : GL.Sizei
   );
 
 end GLUT_2D;

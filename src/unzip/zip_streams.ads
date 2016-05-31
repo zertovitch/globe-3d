@@ -237,7 +237,6 @@ private
    -- returns true if the index is at the end of the stream
    function End_Of_Stream (S : in Memory_Zipstream) return Boolean;
 
-
    -- File_Zipstream spec
    type File_Zipstream is new Root_Zipstream_Type with
       record

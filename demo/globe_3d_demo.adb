@@ -65,7 +65,7 @@ procedure GLOBE_3D_Demo is
 
   GLUT_Problem: exception;
 
-  main_size_x, main_size_y: GL.SizeI;
+  main_size_x, main_size_y: GL.Sizei;
 
   foggy: constant Boolean:= False;
 
@@ -116,7 +116,7 @@ procedure GLOBE_3D_Demo is
     Disable( DEPTH_TEST );
   end Clear_modes;
 
-  deg2rad   : constant:= pi / 180.0;
+  deg2rad   : constant:= Pi / 180.0;
 
   ego: G3D.Camera;
 
@@ -124,14 +124,14 @@ procedure GLOBE_3D_Demo is
     use GL, G3D, G3D.REF;
     aspect, half_fov_max_rads, fovy: Real;
   begin
-    Viewport(0, 0, sizei(width), sizei(height));
+    Viewport(0, 0, Sizei(width), Sizei(height));
     MatrixMode( PROJECTION );
     LoadIdentity;
     aspect:= GL.Double(width) / GL.Double(height);
-    fovy:= ego.FOVy;
+    fovy:= ego.FoVy;
     half_fov_max_rads:= 0.5 * fovy * deg2rad;
     if aspect > 1.0 then -- x side angle broader than y side angle
-      half_fov_max_rads:= ArcTan(aspect * Tan(half_fov_max_rads));
+      half_fov_max_rads:= Arctan(aspect * Tan(half_fov_max_rads));
     end if;
     ego.clipper.max_dot_product:= Sin(half_fov_max_rads);
     ego.clipper.main_clipping:= (0,0, width-1, height-1);
@@ -163,8 +163,8 @@ procedure GLOBE_3D_Demo is
     if capturing_video then
       GL.IO.Stop_capture;
     end if;
-    main_size_x:= GL.sizei(width);
-    main_size_y:= GL.sizei(height);
+    main_size_x:= GL.Sizei(width);
+    main_size_y:= GL.Sizei(height);
     forget_mouse:= 5;
     Reset_for_3D( Integer(main_size_x), Integer(main_size_y ));
   end Window_Resize;
@@ -357,9 +357,9 @@ procedure GLOBE_3D_Demo is
       object => vhc_002,
       scale  => 100.0,
       centre => (80.0,0.0,-70.0),
-      metal_door    => Texture_id("portmet1"),
-      metal_surface => Texture_id("fdmetal1"),
-      bumped_blue   => Texture_id("bleubosl")
+      metal_door    => Texture_ID("portmet1"),
+      metal_surface => Texture_ID("fdmetal1"),
+      bumped_blue   => Texture_ID("bleubosl")
     );
     Pre_calculate(vhc_002.all);
 
@@ -404,10 +404,10 @@ procedure GLOBE_3D_Demo is
       object => dreadnought_ship,
       scale  => 0.065,
       centre => (0.0, -250.0, -700.0),
-      alum_001 => Texture_id("alum_001"),
-      alum_002 => Texture_id("alum_002"),
-      grumnoir => Texture_id("grumnoir"),
-      tole_001 => Texture_id("tole_001")
+      alum_001 => Texture_ID("alum_001"),
+      alum_002 => Texture_ID("alum_002"),
+      grumnoir => Texture_ID("grumnoir"),
+      tole_001 => Texture_ID("tole_001")
     );
     Set_name(dreadnought_ship.all, "Dreadnought");
     -- G3D.IO.Load("Dreadnought", dreadnought_ship);
@@ -421,8 +421,8 @@ procedure GLOBE_3D_Demo is
       surface    => Extruded_surface.square,
       max_u3     => 0.15,
       iterations => 100,
-      hor_tex    => Texture_id("spacity1"),
-      ver_tex    => Texture_id("spacity1"),
+      hor_tex    => Texture_ID("spacity1"),
+      ver_tex    => Texture_ID("spacity1"),
       tiling_hu  => 1,
       tiling_hv  => 1,
       tiling_vu  => 2,
@@ -438,8 +438,8 @@ procedure GLOBE_3D_Demo is
       surface    => Extruded_surface.sphere,
       max_u3     => 0.03,
       iterations => 2000,
-      hor_tex    => Texture_id("alum_001"),
-      ver_tex    => Texture_id("spacity1"),
+      hor_tex    => Texture_ID("alum_001"),
+      ver_tex    => Texture_ID("spacity1"),
       tiling_hu  => 30, -- ~ 2 * v-tiling
       tiling_hv  => 15,
       tiling_vu  => 31, -- should be ~ 2*pi* v-tiling
@@ -451,12 +451,12 @@ procedure GLOBE_3D_Demo is
       object  => sierp,
       scale   => 200.0,
       centre  => (0.0,0.0,-300.0),
-      texture => (Texture_id("face1"),
-                  Texture_id("face2"),
-                  Texture_id("face3"),
-                  Texture_id("face4"),
-                  Texture_id("face5"),
-                  Texture_id("face6")),
+      texture => (Texture_ID("face1"),
+                  Texture_ID("face2"),
+                  Texture_ID("face3"),
+                  Texture_ID("face4"),
+                  Texture_ID("face5"),
+                  Texture_ID("face6")),
       tiled   => False,
       fractal_level => 2
     );
@@ -465,7 +465,7 @@ procedure GLOBE_3D_Demo is
       object   => globe,
       scale    => 200.0,
       centre   => (0.0,0.0,-800.0),
-      mercator => Texture_id("earth_map"),
+      mercator => Texture_ID("earth_map"),
       parts    => 47
     );
     Set_name(globe.all,"The Earth !");
@@ -540,12 +540,12 @@ procedure GLOBE_3D_Demo is
         kind    => Brick.cube,
         opening => (5 => True, others=> False),
         portal  => portal1,
-        texture => (Texture_id("face1"),
-                    Texture_id("face2"),
-                    Texture_id("face3"),
-                    Texture_id("face4"),
-                    Texture_id("face5"),
-                    Texture_id("face6"))
+        texture => (Texture_ID("face1"),
+                    Texture_ID("face2"),
+                    Texture_ID("face3"),
+                    Texture_ID("face4"),
+                    Texture_ID("face5"),
+                    Texture_ID("face6"))
       );
       Set_name(bri1.all,"Space station brick ONE");
 
@@ -556,7 +556,7 @@ procedure GLOBE_3D_Demo is
         kind    => Brick.cube,
         opening => (5|6 => True, others=> False),
         portal  => portal2,
-        texture => (others => Texture_id("alum_002"))
+        texture => (others => Texture_ID("alum_002"))
       );
       Set_name(bri2.all,"Space station brick TWO");
 
@@ -676,8 +676,8 @@ procedure GLOBE_3D_Demo is
       GLUT_2D.Text_output( (0.0,0.0,1.0),"z", GLUT_2D.Times_Roman_24 );
 
       Msg(10, "Press Space for next object/scene. Name: " & Get_name(o) &
-        " points:" & Integer'Image(o.max_points) &
-        " faces:"  & Integer'Image(o.max_faces) &
+        " points:" & Integer'Image(o.Max_points) &
+        " faces:"  & Integer'Image(o.Max_faces) &
         ' ' & List_Cases'Image(o.List_Status));
       Msg(20, "Run mode (Shift): " &
         Boolean'Image(gc( Game_control.run_mode )));
@@ -748,7 +748,7 @@ procedure GLOBE_3D_Demo is
   begin
     case smoothing is
       when software =>
-        SAA.Set_Quality(SAA.Q3);
+        SAA.Set_quality(SAA.Q3);
         for SAA_Phase in 1..SAA.Anti_Alias_phases loop
           SAA.Display_with_Anti_Aliasing(SAA_Phase);
         end loop;
@@ -963,7 +963,7 @@ procedure GLOBE_3D_Demo is
       end;
     end if;
 
-    Ego.clipper.view_direction:= Transpose(Ego.world_rotation) * (0.0,0.0,-1.0);
+    ego.clipper.view_direction:= Transpose(ego.world_rotation) * (0.0,0.0,-1.0);
 
     frontal_light.position:= (
       GL.Float(ego.clipper.eye_position(0)),
@@ -1030,7 +1030,7 @@ procedure GLOBE_3D_Demo is
       seconds_video:= seconds_video + Long_Float(seconds);
     end if;
 
-  end Main_Operations;
+  end Main_operations;
 
   -- Procedures passed to GLUT here: Window_Resize, Menu, Main_Operations
   -- GLUT.Devices handles: Keyboard, Motion, Mouse
@@ -1070,7 +1070,7 @@ procedure GLOBE_3D_Demo is
 
   procedure Start_GLs is
     use GL;
-    fog_colour: GL.Light_Float_vector:= (0.2,0.2,0.2,0.1);
+    fog_colour: GL.Light_Float_Vector:= (0.2,0.2,0.2,0.1);
   begin
     Clear_modes;
     Prepare_demo_lighting(0.9);

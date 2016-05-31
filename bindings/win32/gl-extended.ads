@@ -10,35 +10,33 @@ with GL;
 
 package GL.Extended is
 
-  procedure GenBuffers (n       : in GL.SizeI;
+  procedure GenBuffers (n       : in GL.Sizei;
                         buffers : in GL.uintPtr);
 
-  procedure DeleteBuffers (n       : in GL.SizeI;
+  procedure DeleteBuffers (n       : in GL.Sizei;
                            buffers : in GL.uintPtr);
 
   procedure BindBuffer (target : in GL.VBO_Target;
-                        buffer : in gl.uInt);
+                        buffer : in GL.Uint);
 
-  procedure BufferData (target : in GL.vbo_Target;
-                        size   : in GL.SizeIPtr;
-                        data   : in GL.Pointer;
+  procedure BufferData (target : in GL.VBO_Target;
+                        size   : in GL.sizeiPtr;
+                        data   : in GL.pointer;
                         usage  : in GL.VBO_Usage);
 
-  procedure BufferSubData (target : in GL.vbo_Target;
+  procedure BufferSubData (target : in GL.VBO_Target;
                            offset : in GL.intPtr;
-                           size   : in GL.SizeIPtr;
-                           data   : in GL.Pointer);
+                           size   : in GL.sizeiPtr;
+                           data   : in GL.pointer);
 
-  function MapBuffer   (target : in GL.vbo_Target;
-                        Policy : in GL.Access_Policy) return gl.Pointer;
+  function MapBuffer   (target : in GL.VBO_Target;
+                        Policy : in GL.Access_Policy) return GL.pointer;
 
-  function UnmapBuffer (target : in GL.vbo_Target) return GL.GL_Boolean;
+  function UnmapBuffer (target : in GL.VBO_Target) return GL.GL_Boolean;
 
-
-  procedure GetBufferParameter (target : in GL.vbo_Target;
+  procedure GetBufferParameter (target : in GL.VBO_Target;
                                 value  : in GL.Buffer_Parameter;
                                 data   : in GL.intPointer);
-
 
   -- vertex buffer object imports (GL 1.5)
   --

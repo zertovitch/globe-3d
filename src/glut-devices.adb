@@ -10,47 +10,39 @@ with Ada.Unchecked_Conversion;
 
 package body GLUT.Devices is
 
-
    -- current_Window : - for accessing the current GLUT window
    --                  - used by GLUT callbacks to determine the Window to which a callback event relates.
    --
 
-   function current_Window return windows.Window_view
+   function current_Window return Windows.Window_view
    is
-      function to_Window is new ada.unchecked_Conversion (system.Address, windows.Window_view);
+      function to_Window is new Ada.Unchecked_Conversion (System.Address, Windows.Window_view);
    begin
-      return to_Window (glut.getWindowData);
+      return to_Window (GLUT.GetWindowData);
    end;
-
-
 
    -- Keyboard
    --
 
    function current_Keyboard return p_Keyboard
    is
-      the_current_Window : constant windows.Window_view := current_Window;
+      the_current_Window : constant Windows.Window_view := current_Window;
    begin
       if the_current_Window = null then
-         return default_Keyboard'access;
+         return default_Keyboard'Access;
       else
-         return glut.windows.Keyboard (the_current_Window);
+         return GLUT.Windows.Keyboard (the_current_Window);
       end if;
    end;
-
-
-
 
   procedure Affect_modif_key( modif_code: Integer ) is
     use Interfaces;
     m: constant Unsigned_32:= Unsigned_32( modif_code );
   begin
-    current_Keyboard.modif_set( GLUT.Active_shift ):= (m and GLUT.Active_shift) /= 0;
-    current_Keyboard.modif_set( GLUT.Active_ctrl  ):= (m and GLUT.Active_ctrl) /= 0;
-    current_Keyboard.modif_set( GLUT.Active_alt   ):= (m and GLUT.Active_alt) /= 0;
+    current_Keyboard.modif_set( GLUT.ACTIVE_SHIFT ):= (m and GLUT.ACTIVE_SHIFT) /= 0;
+    current_Keyboard.modif_set( GLUT.ACTIVE_CTRL  ):= (m and GLUT.ACTIVE_CTRL) /= 0;
+    current_Keyboard.modif_set( GLUT.ACTIVE_ALT   ):= (m and GLUT.ACTIVE_ALT) /= 0;
   end Affect_modif_key;
-
-
 
   procedure Update_modifier_keys is
   begin
@@ -59,10 +51,6 @@ package body GLUT.Devices is
     --  to determine the state of modifier keys
     --  when the keystroke generating the callback occurred.
   end Update_modifier_keys;
-
-
-
-
 
   -- GLUT Callback procedures --
 
@@ -86,7 +74,7 @@ package body GLUT.Devices is
     if x=y then null; end if; -- bogus (anti-warning)
     current_Keyboard.special_set( k ):= True;  -- key k is pressed
     Update_modifier_keys;
-  end Special_Key;
+  end Special_key;
 
   procedure Special_key_up( k: Integer; x,y: Integer ) is
   begin
@@ -95,24 +83,19 @@ package body GLUT.Devices is
     Update_modifier_keys;
   end Special_key_up;
 
-
-
-
    -- Mouse
    --
 
   function current_Mouse return p_Mouse
   is
-     the_current_Window : constant windows.Window_view := current_Window;
+     the_current_Window : constant Windows.Window_view := current_Window;
   begin
      if the_current_Window = null then
-        return default_Mouse'access;
+        return default_Mouse'Access;
      else
-        return glut.windows.Mouse (the_current_Window);
+        return GLUT.Windows.Mouse (the_current_Window);
      end if;
   end;
-
-
 
   procedure Mouse_Event( button, state, x,y: Integer ) is
   -- When a user presses and releases mouse buttons in the window,
@@ -142,8 +125,6 @@ package body GLUT.Devices is
     current_Mouse.my:= y;
   end Passive_Motion;
 
-
-
    -- Initialize
    --
 
@@ -160,14 +141,11 @@ package body GLUT.Devices is
     PassiveMotionFunc( Passive_Motion'Address        );
   end Initialize;
 
-
-
-
    -- User input management
    --
 
   function Strike_once( c: Character;
-                        kb : access Keyboard:= default_Keyboard'access) return Boolean
+                        kb : access Keyboard:= default_Keyboard'Access) return Boolean
   is
   begin
     if kb.normal_set(c) then
@@ -183,11 +161,8 @@ package body GLUT.Devices is
     end if;
   end Strike_once;
 
-
-
-
   function Strike_once( special: Integer;
-                        kb : access Keyboard:= default_Keyboard'access) return Boolean
+                        kb : access Keyboard:= default_Keyboard'Access) return Boolean
   is
   begin
     if special not in Special_key_set'Range then
@@ -206,6 +181,5 @@ package body GLUT.Devices is
       end if;
     end if;
   end Strike_once;
-
 
 end GLUT.Devices;

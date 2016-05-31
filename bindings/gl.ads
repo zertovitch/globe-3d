@@ -86,7 +86,6 @@ package GL is
   MESA_WINDOW_POS             : constant := 1;
   MESA_RESIZE_BUFFERS         : constant := 1;
 
-
   CURRENT_BIT                 : constant := 16#00000001#;
   POINT_BIT                   : constant := 16#00000002#;
   LINE_BIT                    : constant := 16#00000004#;
@@ -129,31 +128,31 @@ package GL is
   type Double        is new C.double;          -- double precision float
   type Clampd        is new C.double;          -- double precision float in [0,1]
 
-  type positive_uInt is new gl.uInt range 1 .. gl.uInt'Last;
+  type positive_uInt is new GL.Uint range 1 .. GL.Uint'Last;
 
   package A2A_double is new System.Address_To_Access_Conversions(double);
 
   -- Pointer types
   type GL_BooleanPtr is access all GL_Boolean;
-  type bytePtr    is access all byte;
-  type shortPtr   is access all short;
-  type intPointer is access all int;
-  type ubytePtr   is access all ubyte;
-  type ushortPtr  is access all ushort;
-  type uintPtr    is access all uint;
-  type floatPtr   is access all GL.float;
-  type clampfPtr  is access all clampf;
+  type bytePtr    is access all Byte;
+  type shortPtr   is access all Short;
+  type intPointer is access all Int;
+  type ubytePtr   is access all Ubyte;
+  type ushortPtr  is access all Ushort;
+  type uintPtr    is access all Uint;
+  type floatPtr   is access all GL.Float;
+  type clampfPtr  is access all Clampf;
   subtype doublePtr is A2A_double.Object_Pointer;
 
   subtype sizeiPtr is Interfaces.C.ptrdiff_t;   -- used for pointer arithmetic
   subtype intPtr   is Interfaces.C.ptrdiff_t;
 
-  type pointer   is access all ubyte;  -- our substitute for "void *"
+  type pointer   is access all Ubyte;  -- our substitute for "void *"
 
   -- Vectors
-  type Light_Float_vector    is array(0..3) of aliased GL.Float;
+  type Light_Float_Vector    is array(0..3) of aliased GL.Float;
   type Material_Float_vector is array(0..3) of aliased GL.Float;
-  type Double_vector_3D      is array(0..2) of aliased GL.Double;
+  type Double_Vector_3D      is array(0..2) of aliased GL.Double;
 
   type RGB_Color  is record red, green, blue       : GL.Double; end record;
   type RGBA_Color is record red, green, blue, alpha: GL.Double; end record;
@@ -161,26 +160,25 @@ package GL is
    -- conversions to gl.Pointer
 
    type color_access is access all GL.RGB_Color;
-   function to_Pointer is new ada.unchecked_Conversion (color_access, gl.Pointer);
+   function to_Pointer is new Ada.Unchecked_Conversion (color_access, GL.pointer);
 
    subtype double_access is doublePtr;
-   function to_Pointer is new ada.unchecked_Conversion (double_access, gl.Pointer);
+   function to_Pointer is new Ada.Unchecked_Conversion (double_access, GL.pointer);
 
    type natural_access is access all Natural;
-   function to_Pointer is new ada.unchecked_Conversion (natural_access, gl.Pointer);
+   function to_Pointer is new Ada.Unchecked_Conversion (natural_access, GL.pointer);
 
-   function to_Pointer is new ada.unchecked_Conversion (uIntPtr, gl.Pointer);
-   function to_Pointer is new ada.unchecked_Conversion (uShortPtr,  gl.Pointer);
+   function to_Pointer is new Ada.Unchecked_Conversion (uintPtr, GL.pointer);
+   function to_Pointer is new Ada.Unchecked_Conversion (ushortPtr,  GL.pointer);
 
   ------------------------------------------------------------------------------
 
   -- GL.enum is used only for sizing of the real enumeration types
-  type enum is new c.unsigned;
+  type enum is new C.unsigned;
 
   -- The boolean constants
   GL_FALSE                       : constant GL_Boolean := GL_Boolean'Val (0);
   GL_TRUE                        : constant GL_Boolean := GL_Boolean'Val (1);
-
 
   -- Get pointer values
   type GetPointerEnm is
@@ -210,7 +208,6 @@ package GL is
   procedure GetPointerv (pname : GetPointerEnm;
                            params: GL.pointer);
 
-
   -- Alpha, stencil, and depth tests
   type FuncEnm is
   (
@@ -237,14 +234,13 @@ package GL is
   for FuncEnm'Size use GL.enum'Size;
 
   procedure AlphaFunc (func: FuncEnm;
-                       ref : GL.clampf);
+                       ref : GL.Clampf);
 
   procedure DepthFunc (func: FuncEnm);
 
   procedure StencilFunc (func: FuncEnm;
-                         ref : GL.int;
-                         mask: GL.uint);
-
+                         ref : GL.Int;
+                         mask: GL.Uint);
 
   -- Stencil operations
   type StencilOpEnm is
@@ -270,7 +266,6 @@ package GL is
   procedure StencilOp (fail : StencilOpEnm;
                        zfail: StencilOpEnm;
                        zpass: StencilOpEnm);
-
 
   -- Blending functions
   type BlendSrcEnm is
@@ -356,11 +351,10 @@ package GL is
 
   procedure BlendEquationEXT (mode: BlendEquationEnm);
 
-  procedure BlendColorEXT (red  : GL.clampf;
-                           green: GL.clampf;
-                           blue : GL.clampf;
-                           alpha: GL.clampf);
-
+  procedure BlendColorEXT (red  : GL.Clampf;
+                           green: GL.Clampf;
+                           blue : GL.Clampf;
+                           alpha: GL.Clampf);
 
   -- Locic operation function
   type LogicOpEnm is
@@ -405,7 +399,6 @@ package GL is
 
   procedure LogicOp (opcode: LogicOpEnm);
 
-
   -- Face culling
   type FaceEnm is
   (
@@ -424,7 +417,6 @@ package GL is
 
   procedure CullFace (mode: FaceEnm);
 
-
   -- Polygon orientation
   type OrientationEnm is
   (
@@ -439,7 +431,6 @@ package GL is
   for OrientationEnm'Size use GL.enum'Size;
 
   procedure FrontFace (mode: OrientationEnm);
-
 
   -- Polygon mode
   type PolygonModeEnm is
@@ -458,7 +449,6 @@ package GL is
 
   procedure PolygonMode (face: FaceEnm;
                          mode: PolygonModeEnm);
-
 
   -- Clipping plane operations
   type ClipPlaneEnm is
@@ -486,7 +476,6 @@ package GL is
 
   procedure GetClipPlane (plane   : ClipPlaneEnm;
                           equation: GL.doublePtr);
-
 
   -- Buffer selection
   type DrawBufferEnm is
@@ -560,7 +549,6 @@ package GL is
   for ReadBufferEnm'Size use GL.enum'Size;
 
   procedure ReadBuffer (mode: ReadBufferEnm);
-
 
   -- Server-side capabilities
   type ServerCapabilityEnm is
@@ -720,7 +708,6 @@ package GL is
   function IsEnabled (cap: ServerCapabilityEnm)
   return GL_Boolean;
 
-
   -- Client state
   type ClientCapabilityEnm is
   (
@@ -745,7 +732,6 @@ package GL is
   procedure EnableClientState (cap: ClientCapabilityEnm);
 
   procedure DisableClientState (cap: ClientCapabilityEnm);
-
 
   -- Parameter fetches
   type ParameterNameEnm is
@@ -1212,7 +1198,6 @@ package GL is
   procedure GetIntegerv (pname : ParameterNameEnm;
                            params: GL.intPointer);
 
-
   -- Render mode
   type RenderModeEnm is
   (
@@ -1229,8 +1214,7 @@ package GL is
   for RenderModeEnm'Size use GL.enum'Size;
 
   function RenderMode(mode: RenderModeEnm)
-  return GL.int;
-
+  return GL.Int;
 
   -- Error information
   type ErrorEnm is
@@ -1257,7 +1241,6 @@ package GL is
 
   function GetError
   return ErrorEnm;
-
 
   -- Connection description
   type StringEnm is
@@ -1315,7 +1298,6 @@ package GL is
   procedure Hint (target: HintEnm;
                     mode  : HintModeEnm);
 
-
   -- Accumulation buffer
   type AccumEnm is
   (
@@ -1336,8 +1318,7 @@ package GL is
   for AccumEnm'Size use GL.enum'Size;
 
   procedure Accum (op   : AccumEnm;
-                   value: GL.float);
-
+                   value: GL.Float);
 
   -- Matrix mode
   type MatrixModeEnm is
@@ -1355,7 +1336,6 @@ package GL is
   for MatrixModeEnm'Size use GL.enum'Size;
 
   procedure MatrixMode (mode: MatrixModeEnm);
-
 
   -- Display liststype ListModeEnm is
   type ListModeEnm is
@@ -1398,26 +1378,25 @@ package GL is
   );
   for OffsetTypeEnm'Size use GL.enum'Size;
 
-  function IsList (list: GL.uint) return GL_Boolean;
+  function IsList (list: GL.Uint) return GL_Boolean;
 
-  procedure DeleteLists (list : GL.uint;
-                         c_range: GL.sizei);
+  procedure DeleteLists (list : GL.Uint;
+                         c_range: GL.Sizei);
 
-  function GenLists (c_range: GL.sizei) return GL.uint;
+  function GenLists (c_range: GL.Sizei) return GL.Uint;
 
-  procedure NewList (list: GL.uint;
+  procedure NewList (list: GL.Uint;
                      mode: ListModeEnm);
 
   procedure EndList;
 
-  procedure CallList (list: GL.uint);
+  procedure CallList (list: GL.Uint);
 
-  procedure CallLists (n     : GL.sizei;
+  procedure CallLists (n     : GL.Sizei;
                        c_type: OffsetTypeEnm;
                        lists : GL.pointer);
 
-  procedure ListBase (base: GL.uint);
-
+  procedure ListBase (base: GL.Uint);
 
   -- Object definition
   type ObjectTypeEnm is
@@ -1451,7 +1430,6 @@ package GL is
   procedure GL_Begin (mode: ObjectTypeEnm);
 
   procedure GL_End;
-
 
   -- Vertex arrays and related
   type VertexTypeEnm is
@@ -1596,47 +1574,46 @@ package GL is
   );
   for InterleaveFormatEnm'Size use GL.enum'Size;
 
-  procedure VertexPointer (size  : GL.int;
+  procedure VertexPointer (size  : GL.Int;
                            c_type: VertexTypeEnm;
-                           stride: GL.sizei;
+                           stride: GL.Sizei;
                            ptr   : GL.pointer);
 
   procedure NormalPointer (c_type: NormalTypeEnm;
-                           stride: GL.sizei;
+                           stride: GL.Sizei;
                            ptr   : GL.pointer);
 
-  procedure ColorPointer (size  : GL.int;
+  procedure ColorPointer (size  : GL.Int;
                           c_type: ColorTypeEnm;
-                          stride: GL.sizei;
+                          stride: GL.Sizei;
                           ptr   : GL.pointer);
 
   procedure IndexPointer (c_type: IndexTypeEnm;
-                          stride: GL.sizei;
+                          stride: GL.Sizei;
                           ptr   : GL.pointer);
 
-  procedure TexCoordPointer (size  : GL.int;
+  procedure TexCoordPointer (size  : GL.Int;
                              c_type: TexCoordTypeEnm;
-                             stride: GL.sizei;
+                             stride: GL.Sizei;
                              ptr   : GL.pointer);
 
-  procedure EdgeFlagPointer (stride: GL.sizei;
+  procedure EdgeFlagPointer (stride: GL.Sizei;
                              ptr   : GL_BooleanPtr);
 
-  procedure ArrayElement (i: GL.int);
+  procedure ArrayElement (i: GL.Int);
 
   procedure DrawArrays (mode : ObjectTypeEnm;
-                        first: GL.int;
-                        count: GL.sizei);
+                        first: GL.Int;
+                        count: GL.Sizei);
 
   procedure DrawElements (mode   : ObjectTypeEnm;
-                          count  : GL.sizei;
+                          count  : GL.Sizei;
                           c_type : ArrayIndexTypeEnm;
                           indices: GL.pointer);
 
   procedure interleavedArrays (format : InterleaveFormatEnm;
-                               stride : GL.sizei;
+                               stride : GL.Sizei;
                                pointer: GL.pointer);
-
 
   -- Shading model
   type ShadeModeEnm is
@@ -1651,9 +1628,7 @@ package GL is
   );
   for ShadeModeEnm'Size use GL.enum'Size;
 
-
   procedure ShadeModel (mode: ShadeModeEnm);
-
 
   -- Lighting
   type LightIDEnm is
@@ -1754,15 +1729,15 @@ package GL is
 
   procedure Light (light: LightIDEnm;
                    pname: LightParameterEnm;
-                   param: GL.float);
+                   param: GL.Float);
 
   procedure Lighti (light: LightIDEnm;
                     pname: LightParameterEnm;
-                    param: GL.int);
+                    param: GL.Int);
 
   procedure Light (light : LightIDEnm;
                    pname : LightParameterVEnm;
-                   params: Light_Float_vector);
+                   params: Light_Float_Vector);
 
   procedure Lightiv (light : LightIDEnm;
                        pname : LightParameterVEnm;
@@ -1777,17 +1752,16 @@ package GL is
                           params: GL.intPointer);
 
   procedure LightModelf (pname: LightModelEnm;
-                           param: GL.float);
+                           param: GL.Float);
 
   procedure LightModeli (pname: LightModelEnm;
-                           param: GL.int);
+                           param: GL.Int);
 
   procedure LightModelfv (pname : LightModelVEnm;
                             params: floatPtr);
 
   procedure LightModeliv (pname : LightModelVEnm;
                             params: GL.intPointer);
-
 
   -- Materials
   type MaterialParameterEnm is
@@ -1862,11 +1836,11 @@ package GL is
 
   procedure Material (face : FaceEnm;
                       pname: MaterialParameterEnm;
-                      param: GL.float);
+                      param: GL.Float);
 
   procedure Materiali (face : FaceEnm;
                          pname: MaterialParameterEnm;
-                         param: GL.int);
+                         param: GL.Int);
 
   procedure Material (face  : FaceEnm;
                       pname : MaterialParameterVEnm;
@@ -1886,7 +1860,6 @@ package GL is
 
   procedure ColorMaterial (face: FaceEnm;
                              mode: ColorMaterialEnm);
-
 
   -- Pixel stuff
   type PixelStorageEnm is
@@ -2057,31 +2030,31 @@ package GL is
   );
   for PixelCopyTypeEnm'Size use GL.enum'Size;
 
-  procedure PixelZoom (xfactor: GL.float;
-                         yfactor: GL.float);
+  procedure PixelZoom (xfactor: GL.Float;
+                         yfactor: GL.Float);
 
   procedure PixelStoref (pname: PixelStorageEnm;
-                           param: GL.float);
+                           param: GL.Float);
 
   procedure PixelStore (pname: PixelStorageEnm;
-                        param: GL.int);
+                        param: GL.Int);
 
   procedure PixelTransferf (pname: PixelTransferEnm;
-                              param: GL.float);
+                              param: GL.Float);
 
   procedure PixelTransferi (pname: PixelTransferEnm;
-                              param: GL.int);
+                              param: GL.Int);
 
   procedure PixelMapfv (map    : PixelMapEnm;
-                          mapsize: GL.int;
+                          mapsize: GL.Int;
                           values : floatPtr);
 
   procedure PixelMapuiv (map    : PixelMapEnm;
-                           mapsize: GL.int;
+                           mapsize: GL.Int;
                            values : GL.uintPtr);
 
   procedure PixelMapusv (map    : PixelMapEnm;
-                           mapsize: GL.int;
+                           mapsize: GL.Int;
                            values : ushortPtr);
 
   procedure GetPixelMapfv (map   : PixelMapEnm;
@@ -2093,26 +2066,25 @@ package GL is
   procedure GetPixelMapusv (map   : PixelMapEnm;
                               values: ushortPtr);
 
-  procedure ReadPixels (x     : GL.int;
-                          y     : GL.int;
-                          width : GL.sizei;
-                          height: GL.sizei;
+  procedure ReadPixels (x     : GL.Int;
+                          y     : GL.Int;
+                          width : GL.Sizei;
+                          height: GL.Sizei;
                           format: PixelFormatEnm;
                           c_type: PixelDataTypeEnm;
                           pixels: GL.pointer);
 
-  procedure DrawPixels (width : GL.sizei;
-                          height: GL.sizei;
+  procedure DrawPixels (width : GL.Sizei;
+                          height: GL.Sizei;
                           format: PixelFormatEnm;
                           c_type: PixelDataTypeEnm;
                           pixels: GL.pointer);
 
-  procedure CopyPixels (x     : GL.int;
-                          y     : GL.int;
-                          width : GL.sizei;
-                          height: GL.sizei;
+  procedure CopyPixels (x     : GL.Int;
+                          y     : GL.Int;
+                          width : GL.Sizei;
+                          height: GL.Sizei;
                           c_type: PixelCopyTypeEnm);
-
 
   -- Texturing
   type TexCoordEnm is
@@ -2529,15 +2501,15 @@ package GL is
 
   procedure TexGend (coord: TexCoordEnm;
                      pname: TexParameterEnm;
-                     param: GL.double);
+                     param: GL.Double);
 
   procedure TexGenf (coord: TexCoordEnm;
                      pname: TexParameterEnm;
-                     param: GL.float);
+                     param: GL.Float);
 
   procedure TexGeni (coord: TexCoordEnm;
                      pname: TexParameterEnm;
-                     param: GL.int);
+                     param: GL.Int);
 
   procedure TexGendv (coord : TexCoordEnm;
                       pname : TexParameterVEnm;
@@ -2565,11 +2537,11 @@ package GL is
 
   procedure TexEnvf (target: TexEnvEnm;
                      pname : TexEnvParameterEnm;
-                     param : GL.float);
+                     param : GL.Float);
 
   procedure TexEnv (target: TexEnvEnm;
                     pname : TexEnvParameterEnm;
-                    param : GL.int);
+                    param : GL.Int);
 
   procedure TexEnvfv (target: TexEnvEnm;
                       pname : TexEnvParameterVEnm;
@@ -2589,11 +2561,11 @@ package GL is
 
   procedure TexParameterf (target: TargetTexEnm;
                            pname : TexParamEnm;
-                           param : GL.float);
+                           param : GL.Float);
 
   procedure TexParameter (target: TargetTexEnm;
                           pname : TexParamEnm;
-                          param : GL.int);
+                          param : GL.Int);
 
   procedure TexParameterfv (target: TargetTexEnm;
                             pname : TexParamVEnm;
@@ -2612,145 +2584,144 @@ package GL is
                                  params: GL.intPointer);
 
   procedure GetTexLevelParameterfv (target: TargetTexLevelEnm;
-                                    level : GL.int;
+                                    level : GL.Int;
                                     pname : TexLevelParameterEnm;
                                     params: floatPtr);
 
   procedure GetTexLevelParameteriv (target: TargetTexLevelEnm;
-                                    level : GL.int;
+                                    level : GL.Int;
                                     pname : TexLevelParameterEnm;
                                     params: GL.intPointer);
 
   procedure TexImage1D (target        : TargetTex1DEnm;
-                        level         : GL.int;
+                        level         : GL.Int;
                         internalFormat: TexFormatEnm;
-                        width         : GL.sizei;
-                        border        : GL.int;
+                        width         : GL.Sizei;
+                        border        : GL.Int;
                         format        : TexPixelFormatEnm;
                         c_type        : PixelDataTypeEnm;
                         pixels        : GL.pointer);
 
   procedure TexImage2D (target        : TargetTex2DEnm;
-                        level         : GL.int;
+                        level         : GL.Int;
                         internalFormat: TexFormatEnm;
-                        width         : GL.sizei;
-                        height        : GL.sizei;
-                        border        : GL.int;
+                        width         : GL.Sizei;
+                        height        : GL.Sizei;
+                        border        : GL.Int;
                         format        : TexPixelFormatEnm;
                         c_type        : PixelDataTypeEnm;
                         pixels        : GL.pointer);
 
   procedure GetTexImage (target: TargetTexEnm;
-                         level : GL.int;
+                         level : GL.Int;
                          format: TexImageFormatEnm;
                          c_type: PixelDataTypeEnm;
                          pixels: GL.pointer);
 
-  procedure GenTextures (n       : GL.sizei;
+  procedure GenTextures (n       : GL.Sizei;
                          textures: GL.uintPtr);
 
-  procedure DeleteTextures (n       : GL.sizei;
+  procedure DeleteTextures (n       : GL.Sizei;
                             textures: GL.uintPtr);
 
   procedure BindTexture (target : TargetTexEnm;
-                         texture: GL.uint);
+                         texture: GL.Uint);
 
-  procedure PrioritizeTextures (n         : GL.sizei;
+  procedure PrioritizeTextures (n         : GL.Sizei;
                                 textures  : GL.uintPtr;
                                 priorities: GL.clampfPtr);
 
-  function AreTexturesResident (n         : GL.sizei;
+  function AreTexturesResident (n         : GL.Sizei;
                                 textures  : GL.uintPtr;
                                 residences: GL_BooleanPtr)
   return GL_Boolean;
 
-  function IsTexture (texture: GL.uint)
+  function IsTexture (texture: GL.Uint)
   return GL_Boolean;
 
   procedure TexSubImage1D (target : TargetTex1DOnlyEnm;
-                           level  : GL.int;
-                           xoffset: GL.int;
-                           width  : GL.sizei;
+                           level  : GL.Int;
+                           xoffset: GL.Int;
+                           width  : GL.Sizei;
                            format : TexPixelFormatEnm;
                            c_type : PixelDataTypeEnm;
                            pixels : GL.pointer);
 
   procedure TexSubImage2D (target : TargetTex2DOnlyEnm;
-                           level  : GL.int;
-                           xoffset: GL.int;
-                           yoffset: GL.int;
-                           width  : GL.sizei;
-                           height : GL.sizei;
+                           level  : GL.Int;
+                           xoffset: GL.Int;
+                           yoffset: GL.Int;
+                           width  : GL.Sizei;
+                           height : GL.Sizei;
                            format : TexPixelFormatEnm;
                            c_type : PixelDataTypeEnm;
                            pixels : GL.pointer);
 
   procedure CopyTexImage1D (target        : TargetTex1DOnlyEnm;
-                            level         : GL.int;
+                            level         : GL.Int;
                             internalformat: TexFormatEnm;
-                            x             : GL.int;
-                            y             : GL.int;
-                            width         : GL.sizei;
-                            border        : GL.int);
+                            x             : GL.Int;
+                            y             : GL.Int;
+                            width         : GL.Sizei;
+                            border        : GL.Int);
 
   procedure CopyTexImage2D (target        : TargetTex2DOnlyEnm;
-                            level         : GL.int;
+                            level         : GL.Int;
                             internalformat: TexFormatEnm;
-                            x             : GL.int;
-                            y             : GL.int;
-                            width         : GL.sizei;
-                            height        : GL.sizei;
-                            border        : GL.int);
+                            x             : GL.Int;
+                            y             : GL.Int;
+                            width         : GL.Sizei;
+                            height        : GL.Sizei;
+                            border        : GL.Int);
 
   procedure CopyTexSubImage1D (target : TargetTex1DOnlyEnm;
-                               level  : GL.int;
-                               xoffset: GL.int;
-                               x      : GL.int;
-                               y      : GL.int;
-                               width  : GL.sizei);
+                               level  : GL.Int;
+                               xoffset: GL.Int;
+                               x      : GL.Int;
+                               y      : GL.Int;
+                               width  : GL.Sizei);
 
   procedure CopyTexSubImage2D (target : TargetTex2DOnlyEnm;
-                               level  : GL.int;
-                               xoffset: GL.int;
-                               yoffset: GL.int;
-                               x      : GL.int;
-                               y      : GL.int;
-                               width  : GL.sizei;
-                               height : GL.sizei);
+                               level  : GL.Int;
+                               xoffset: GL.Int;
+                               yoffset: GL.Int;
+                               x      : GL.Int;
+                               y      : GL.Int;
+                               width  : GL.Sizei;
+                               height : GL.Sizei);
 
   procedure TexImage3DEXT (target        : TargetTex3DEnm;
-                           level         : GL.int;
+                           level         : GL.Int;
                            internalFormat: TexPixelFormatEnm;
-                           width         : GL.sizei;
-                           height        : GL.sizei;
-                           depth         : GL.sizei;
-                           border        : GL.int;
+                           width         : GL.Sizei;
+                           height        : GL.Sizei;
+                           depth         : GL.Sizei;
+                           border        : GL.Int;
                            format        : TexPixelFormatEnm;
                            c_type        : PixelDataTypeEnm;
                            pixels        : GL.pointer);
 
   procedure TexSubImage3DEXT (target : TargetTex3DOnlyEnm;
-                              level  : GL.int;
-                              xoffset: GL.int;
-                              yoffset: GL.int;
-                              zoffset: GL.int;
-                              width  : GL.sizei;
-                              height : GL.sizei;
-                              depth  : GL.sizei;
+                              level  : GL.Int;
+                              xoffset: GL.Int;
+                              yoffset: GL.Int;
+                              zoffset: GL.Int;
+                              width  : GL.Sizei;
+                              height : GL.Sizei;
+                              depth  : GL.Sizei;
                               format : TexPixelFormatEnm;
                               c_type : PixelDataTypeEnm;
                               pixels : GL.pointer);
 
   procedure CopyTexSubImage3DEXT (target : TargetTex3DOnlyEnm;
-                                  level  : GL.int;
-                                  xoffset: GL.int;
-                                  yoffset: GL.int;
-                                  zoffset: GL.int;
-                                  x      : GL.int;
-                                  y      : GL.int;
-                                  width  : GL.sizei;
-                                  height : GL.sizei);
-
+                                  level  : GL.Int;
+                                  xoffset: GL.Int;
+                                  yoffset: GL.Int;
+                                  zoffset: GL.Int;
+                                  x      : GL.Int;
+                                  y      : GL.Int;
+                                  width  : GL.Sizei;
+                                  height : GL.Sizei);
 
   -- Evaluators
   type Map1TargetEnm is
@@ -2890,39 +2861,39 @@ package GL is
   for Mesh2ModeEnm'Size use GL.enum'Size;
 
   procedure Map1d (target: Map1TargetEnm;
-                   u1    : GL.double;
-                   u2    : GL.double;
-                   stride: GL.int;
-                   order : GL.int;
+                   u1    : GL.Double;
+                   u2    : GL.Double;
+                   stride: GL.Int;
+                   order : GL.Int;
                    points: GL.doublePtr);
 
   procedure Map1f (target: Map1TargetEnm;
-                   u1    : GL.float;
-                   u2    : GL.float;
-                   stride: GL.int;
-                   order : GL.int;
+                   u1    : GL.Float;
+                   u2    : GL.Float;
+                   stride: GL.Int;
+                   order : GL.Int;
                    points: floatPtr);
 
   procedure Map2d (target : Map2TargetEnm;
-                   u1     : GL.double;
-                   u2     : GL.double;
-                   ustride: GL.int;
-                   uorder : GL.int;
-                   v1     : GL.double;
-                   v2     : GL.double;
-                   vstride: GL.int;
-                   vorder : GL.int;
+                   u1     : GL.Double;
+                   u2     : GL.Double;
+                   ustride: GL.Int;
+                   uorder : GL.Int;
+                   v1     : GL.Double;
+                   v2     : GL.Double;
+                   vstride: GL.Int;
+                   vorder : GL.Int;
                    points : GL.doublePtr);
 
   procedure Map2f (target : Map2TargetEnm;
-                   u1     : GL.float;
-                   u2     : GL.float;
-                   ustride: GL.int;
-                   uorder : GL.int;
-                   v1     : GL.float;
-                   v2     : GL.float;
-                   vstride: GL.int;
-                   vorder : GL.int;
+                   u1     : GL.Float;
+                   u2     : GL.Float;
+                   ustride: GL.Int;
+                   uorder : GL.Int;
+                   v1     : GL.Float;
+                   v2     : GL.Float;
+                   vstride: GL.Int;
+                   vorder : GL.Int;
                    points : floatPtr);
 
   procedure GetMapdv (target: MapTargetEnm;
@@ -2937,60 +2908,60 @@ package GL is
                       query : MapQueryEnm;
                       v     : GL.intPointer);
 
-  procedure EvalPoint1 (i: GL.int);
+  procedure EvalPoint1 (i: GL.Int);
 
-  procedure EvalPoint2 (i: GL.int;
-                        j: GL.int);
+  procedure EvalPoint2 (i: GL.Int;
+                        j: GL.Int);
 
   procedure EvalMesh1 (mode: Mesh1ModeEnm;
-                       i1  : GL.int;
-                       i2  : GL.int);
+                       i1  : GL.Int;
+                       i2  : GL.Int);
 
   procedure EvalMesh2 (mode: Mesh2ModeEnm;
-                       i1  : GL.int;
-                       i2  : GL.int;
-                       j1  : GL.int;
-                       j2  : GL.int);
+                       i1  : GL.Int;
+                       i2  : GL.Int;
+                       j1  : GL.Int;
+                       j2  : GL.Int);
 
-  procedure EvalCoord1d (u: GL.double);
+  procedure EvalCoord1d (u: GL.Double);
 
-  procedure EvalCoord1f (u: GL.float);
+  procedure EvalCoord1f (u: GL.Float);
 
   procedure EvalCoord1dv (u: GL.doublePtr);
 
   procedure EvalCoord1fv (u: floatPtr);
 
-  procedure EvalCoord2d (u: GL.double;
-                         v: GL.double);
+  procedure EvalCoord2d (u: GL.Double;
+                         v: GL.Double);
 
-  procedure EvalCoord2f (u: GL.float;
-                         v: GL.float);
+  procedure EvalCoord2f (u: GL.Float;
+                         v: GL.Float);
 
   procedure EvalCoord2dv (u: GL.doublePtr);
 
   procedure EvalCoord2fv (u: floatPtr);
 
-  procedure MapGrid1d (un: GL.int;
-                       u1: GL.double;
-                       u2: GL.double);
+  procedure MapGrid1d (un: GL.Int;
+                       u1: GL.Double;
+                       u2: GL.Double);
 
-  procedure MapGrid1f (un: GL.int;
-                       u1: GL.float;
-                       u2: GL.float);
+  procedure MapGrid1f (un: GL.Int;
+                       u1: GL.Float;
+                       u2: GL.Float);
 
-  procedure MapGrid2d (un: GL.int;
-                       u1: GL.double;
-                       u2: GL.double;
-                       vn: GL.int;
-                       v1: GL.double;
-                       v2: GL.double);
+  procedure MapGrid2d (un: GL.Int;
+                       u1: GL.Double;
+                       u2: GL.Double;
+                       vn: GL.Int;
+                       v1: GL.Double;
+                       v2: GL.Double);
 
-  procedure MapGrid2f (un: GL.int;
-                       u1: GL.float;
-                       u2: GL.float;
-                       vn: GL.int;
-                       v1: GL.float;
-                       v2: GL.float);
+  procedure MapGrid2f (un: GL.Int;
+                       u1: GL.Float;
+                       u2: GL.Float;
+                       vn: GL.Int;
+                       v1: GL.Float;
+                       v2: GL.Float);
 
   -- Fog
   type FogParameterEnm is
@@ -3038,17 +3009,16 @@ package GL is
   -- EXP1: original was EXP, confused with the Exp function (29-May-2006)
 
   procedure Fogf (pname: FogParameterEnm;
-                  param: GL.float);
+                  param: GL.Float);
 
   procedure Fogi (pname: FogParameterEnm;
-                  param: GL.int);
+                  param: GL.Int);
 
   procedure Fogfv (pname : FogParameterVEnm;
                    params: floatPtr);
 
   procedure Fogiv (pname : FogParameterVEnm;
                    params: GL.intPointer);
-
 
   -- Feedback
   type FeedbackModeEnm is
@@ -3081,12 +3051,11 @@ package GL is
   FEEDBACK_BUFFER_SIZE        : constant := 16#0DF1#;
   FEEDBACK_BUFFER_TYPE        : constant := 16#0DF2#;
 
-  procedure FeedbackBuffer (size  : GL.sizei;
+  procedure FeedbackBuffer (size  : GL.Sizei;
                             c_type: FeedbackModeEnm;
                             buffer: floatPtr);
 
-  procedure PassThrough (token: GL.float);
-
+  procedure PassThrough (token: GL.Float);
 
   -- Color tables (extension)
   type ColorTableTargetEnm is
@@ -3155,14 +3124,14 @@ package GL is
 
   procedure ColorTableEXT (target        : ColorTableTargetEnm;
                              internalformat: TexFormatEnm;
-                             width         : GL.sizei;
+                             width         : GL.Sizei;
                              format        : TexPixelFormatEnm;
                              c_type        : PixelDataTypeEnm;
                              table         : GL.pointer);
 
   procedure ColorSubTableEXT (target: ColorTableTargetEnm;
-                                start : GL.sizei;
-                                count : GL.sizei;
+                                start : GL.Sizei;
+                                count : GL.Sizei;
                                 format: TexPixelFormatEnm;
                                 c_type: PixelDataTypeEnm;
                                 data  : GL.pointer);
@@ -3179,7 +3148,6 @@ package GL is
   procedure GetColorTableParameterivEXT (target: GetColorTableTargetEnm;
                                            pname : ColorTableParameterEnm;
                                            params: GL.intPointer);
-
 
   -- Point parameters (extension)
   type PointParameterEnm is
@@ -3213,32 +3181,30 @@ package GL is
   for PointParameterVEnm'Size use GL.enum'Size;
 
   procedure PointParameterfEXT (pname: PointParameterEnm;
-                                  param: GL.float);
+                                  param: GL.Float);
 
   procedure PointParameterfvEXT (pname : PointParameterVEnm;
                                    params: floatPtr);
 
-
   -- Clears
-  procedure ClearIndex (c: GL.float);
+  procedure ClearIndex (c: GL.Float);
 
-  procedure ClearColor (red  : GL.clampf;
-                          green: GL.clampf;
-                          blue : GL.clampf;
-                          alpha: GL.clampf);
+  procedure ClearColor (red  : GL.Clampf;
+                          green: GL.Clampf;
+                          blue : GL.Clampf;
+                          alpha: GL.Clampf);
 
-  procedure Clear (mask: bitfield);
+  procedure Clear (mask: Bitfield);
 
-  procedure ClearDepth (depth: GL.clampd);
+  procedure ClearDepth (depth: GL.Clampd);
 
-  procedure ClearAccum (red  : GL.float;
-                          green: GL.float;
-                          blue : GL.float;
-                          alpha: GL.float);
-
+  procedure ClearAccum (red  : GL.Float;
+                          green: GL.Float;
+                          blue : GL.Float;
+                          alpha: GL.Float);
 
   -- Masks
-  procedure IndexMask (mask: GL.uint);
+  procedure IndexMask (mask: GL.Uint);
 
   procedure ColorMask (red  : GL_Boolean;
                          green: GL_Boolean;
@@ -3246,15 +3212,15 @@ package GL is
                          alpha: GL_Boolean);
 
   -- Drawing parameters
-  procedure PointSize (size: GL.float);
+  procedure PointSize (size: GL.Float);
 
-  procedure LineWidth (width: GL.float);
+  procedure LineWidth (width: GL.Float);
 
-  procedure LineStipple (factor : GL.int;
-                           pattern: GL.ushort);
+  procedure LineStipple (factor : GL.Int;
+                           pattern: GL.Ushort);
 
-  procedure PolygonOffset (factor: GL.float;
-                             units : GL.float);
+  procedure PolygonOffset (factor: GL.Float;
+                             units : GL.Float);
 
   procedure PolygonStipple (mask: ubytePtr);
 
@@ -3264,21 +3230,19 @@ package GL is
 
   procedure EdgeFlagv (flag: GL_BooleanPtr);
 
-  procedure Scissor (x     : GL.int;
-                       y     : GL.int;
-                       width : GL.sizei;
-                       height: GL.sizei);
-
+  procedure Scissor (x     : GL.Int;
+                       y     : GL.Int;
+                       width : GL.Sizei;
+                       height: GL.Sizei);
 
   -- Atribute stacks
-  procedure PushAttrib (mask: bitfield);
+  procedure PushAttrib (mask: Bitfield);
 
   procedure PopAttrib;
 
-  procedure PushClientAttrib (mask: bitfield);
+  procedure PushClientAttrib (mask: Bitfield);
 
   procedure PopClientAttrib;
-
 
   -- Pipeline control
   procedure Finish;
@@ -3287,30 +3251,28 @@ package GL is
 
   procedure DepthMask (flag: GL_Boolean);
 
-  procedure DepthRange (near_val: GL.clampd;
-                          far_val : GL.clampd);
-
+  procedure DepthRange (near_val: GL.Clampd;
+                          far_val : GL.Clampd);
 
   -- Projections
-  procedure Ortho (left    : GL.double;
-                   right   : GL.double;
-                   bottom  : GL.double;
-                   top     : GL.double;
-                   near_val: GL.double;
-                   far_val : GL.double);
+  procedure Ortho (left    : GL.Double;
+                   right   : GL.Double;
+                   bottom  : GL.Double;
+                   top     : GL.Double;
+                   near_val: GL.Double;
+                   far_val : GL.Double);
 
-  procedure Frustum (left    : GL.double;
-                     right   : GL.double;
-                     bottom  : GL.double;
-                     top     : GL.double;
-                     near_val: GL.double;
-                     far_val : GL.double);
+  procedure Frustum (left    : GL.Double;
+                     right   : GL.Double;
+                     bottom  : GL.Double;
+                     top     : GL.Double;
+                     near_val: GL.Double;
+                     far_val : GL.Double);
 
-  procedure Viewport (x     : GL.int;
-                      y     : GL.int;
-                      width : GL.sizei;
-                      height: GL.sizei);
-
+  procedure Viewport (x     : GL.Int;
+                      y     : GL.Int;
+                      width : GL.Sizei;
+                      height: GL.Sizei);
 
   -- Matrix stacks
   procedure PushMatrix;
@@ -3327,46 +3289,45 @@ package GL is
 
   procedure MultMatrixf (m: floatPtr);
 
-
   -- Transformations
-  procedure Rotate (angle: GL.double;
-                    x    : GL.double;
-                    y    : GL.double;
-                    z    : GL.double);
+  procedure Rotate (angle: GL.Double;
+                    x    : GL.Double;
+                    y    : GL.Double;
+                    z    : GL.Double);
 
-  procedure Rotate_f (angle: GL.float;
-                      x    : GL.float;
-                      y    : GL.float;
-                      z    : GL.float);
+  procedure Rotate_f (angle: GL.Float;
+                      x    : GL.Float;
+                      y    : GL.Float;
+                      z    : GL.Float);
 
-  procedure Scale (x,y,z: GL.double);
-  procedure Scale_f (x,y,z: GL.float);
+  procedure Scale (x,y,z: GL.Double);
+  procedure Scale_f (x,y,z: GL.Float);
 
-  procedure Translate (x,y,z: GL.double);
-  procedure Translate_f (x,y,z: GL.float);
-  procedure Translate (v: Double_vector_3D);
+  procedure Translate (x,y,z: GL.Double);
+  procedure Translate_f (x,y,z: GL.Float);
+  procedure Translate (v: Double_Vector_3D);
   pragma Inline(Translate);
 
   -- Specify vertices
-  procedure Vertex (x,y: GL.double);
-  procedure Vertex_f (x,y: GL.float);
+  procedure Vertex (x,y: GL.Double);
+  procedure Vertex_f (x,y: GL.Float);
 
-  procedure Vertex (x,y: GL.int);
-  procedure Vertex_s (x,y: GL.short);
+  procedure Vertex (x,y: GL.Int);
+  procedure Vertex_s (x,y: GL.Short);
 
-  procedure Vertex (x,y,z: GL.double);
-  procedure Vertex_f (x,y,z: GL.float);
+  procedure Vertex (x,y,z: GL.Double);
+  procedure Vertex_f (x,y,z: GL.Float);
 
-  procedure Vertex (x,y,z: GL.int);
-  procedure Vertex_s (x,y,z: GL.short);
+  procedure Vertex (x,y,z: GL.Int);
+  procedure Vertex_s (x,y,z: GL.Short);
 
-  procedure Vertex (x,y,z,w: GL.double);
-  procedure Vertex_f (x,y,z,w: GL.float);
+  procedure Vertex (x,y,z,w: GL.Double);
+  procedure Vertex_f (x,y,z,w: GL.Float);
 
-  procedure Vertex (x,y,z,w: GL.int);
-  procedure Vertex_s (x,y,z,w: GL.short);
+  procedure Vertex (x,y,z,w: GL.Int);
+  procedure Vertex_s (x,y,z,w: GL.Short);
 
-  procedure Vertex (v: Double_vector_3D);
+  procedure Vertex (v: Double_Vector_3D);
   pragma Inline(Vertex);
 
   procedure Vertex2dv (v: GL.doublePtr);
@@ -3393,16 +3354,15 @@ package GL is
 
   procedure Vertex4sv (v: GL.shortPtr);
 
-
   -- Specify normal vectors
 
-  procedure Normal (x,y,z: GL.double);
-  procedure Normal_f (x,y,z: GL.float);
-  procedure Normal (x,y,z: GL.int);
-  procedure Normal_b (x,y,z: GL.byte);
-  procedure Normal_s (x,y,z: GL.short);
+  procedure Normal (x,y,z: GL.Double);
+  procedure Normal_f (x,y,z: GL.Float);
+  procedure Normal (x,y,z: GL.Int);
+  procedure Normal_b (x,y,z: GL.Byte);
+  procedure Normal_s (x,y,z: GL.Short);
 
-  procedure Normal (v: Double_vector_3D);
+  procedure Normal (v: Double_Vector_3D);
   pragma Inline(Normal);
 
   procedure Normal3bv (v: GL.bytePtr);
@@ -3415,17 +3375,16 @@ package GL is
 
   procedure Normal3sv (v: GL.shortPtr);
 
-
   -- Indexed color
-  procedure Indexd (c: GL.double);
+  procedure Indexd (c: GL.Double);
 
-  procedure Indexf (c: GL.float);
+  procedure Indexf (c: GL.Float);
 
-  procedure Indexi (c: GL.int);
+  procedure Indexi (c: GL.Int);
 
-  procedure Indexs (c: GL.short);
+  procedure Indexs (c: GL.Short);
 
-  procedure Indexub (c: GL.ubyte);
+  procedure Indexub (c: GL.Ubyte);
 
   procedure Indexdv (c: GL.doublePtr);
 
@@ -3437,53 +3396,52 @@ package GL is
 
   procedure Indexubv (c: ubytePtr);
 
-
   -- Component color
-  procedure Color3b (red  : GL.byte;
-                       green: GL.byte;
-                       blue : GL.byte);
+  procedure Color3b (red  : GL.Byte;
+                       green: GL.Byte;
+                       blue : GL.Byte);
 
-  procedure Color (red, green, blue: GL.double);
-  procedure Color_f (red, green, blue : GL.float);
-  procedure Color (red, green, blue : GL.int);
-  procedure Color_s (red, green, blue : GL.short);
+  procedure Color (red, green, blue: GL.Double);
+  procedure Color_f (red, green, blue : GL.Float);
+  procedure Color (red, green, blue : GL.Int);
+  procedure Color_s (red, green, blue : GL.Short);
 
-  procedure Color3ub (red  : GL.ubyte;
-                        green: GL.ubyte;
-                        blue : GL.ubyte);
+  procedure Color3ub (red  : GL.Ubyte;
+                        green: GL.Ubyte;
+                        blue : GL.Ubyte);
 
-  procedure Color3ui (red  : GL.uint;
-                        green: GL.uint;
-                        blue : GL.uint);
+  procedure Color3ui (red  : GL.Uint;
+                        green: GL.Uint;
+                        blue : GL.Uint);
 
-  procedure Color3us (red  : GL.ushort;
-                        green: GL.ushort;
-                        blue : GL.ushort);
+  procedure Color3us (red  : GL.Ushort;
+                        green: GL.Ushort;
+                        blue : GL.Ushort);
 
-  procedure Color4b (red  : GL.byte;
-                   green: GL.byte;
-                   blue : GL.byte;
-                   alpha: GL.byte);
+  procedure Color4b (red  : GL.Byte;
+                   green: GL.Byte;
+                   blue : GL.Byte;
+                   alpha: GL.Byte);
 
-  procedure Color (red, green, blue, alpha: GL.double);
-  procedure Color_f (red, green, blue, alpha: GL.float);
-  procedure Color (red, green, blue, alpha: GL.int);
-  procedure Color_s (red, green, blue, alpha: GL.short);
+  procedure Color (red, green, blue, alpha: GL.Double);
+  procedure Color_f (red, green, blue, alpha: GL.Float);
+  procedure Color (red, green, blue, alpha: GL.Int);
+  procedure Color_s (red, green, blue, alpha: GL.Short);
 
-  procedure Color4ub (red  : GL.ubyte;
-                   green: GL.ubyte;
-                   blue : GL.ubyte;
-                   alpha: GL.ubyte);
+  procedure Color4ub (red  : GL.Ubyte;
+                   green: GL.Ubyte;
+                   blue : GL.Ubyte;
+                   alpha: GL.Ubyte);
 
-  procedure Color4ui (red  : GL.uint;
-                   green: GL.uint;
-                   blue : GL.uint;
-                   alpha: GL.uint);
+  procedure Color4ui (red  : GL.Uint;
+                   green: GL.Uint;
+                   blue : GL.Uint;
+                   alpha: GL.Uint);
 
-  procedure Color4us (red  : GL.ushort;
-                   green: GL.ushort;
-                   blue : GL.ushort;
-                   alpha: GL.ushort);
+  procedure Color4us (red  : GL.Ushort;
+                   green: GL.Ushort;
+                   blue : GL.Ushort;
+                   alpha: GL.Ushort);
 
   procedure Color3bv (v: GL.bytePtr);
 
@@ -3519,63 +3477,62 @@ package GL is
 
   procedure Color4usv (v: GL.ushortPtr);
 
-
   -- Texture coordinates
-  procedure TexCoord1d (s: GL.double);
+  procedure TexCoord1d (s: GL.Double);
 
-  procedure TexCoord1f (s: GL.float);
+  procedure TexCoord1f (s: GL.Float);
 
-  procedure TexCoord1i (s: GL.int);
+  procedure TexCoord1i (s: GL.Int);
 
-  procedure TexCoord1s (s: GL.short);
+  procedure TexCoord1s (s: GL.Short);
 
-  procedure TexCoord (s: GL.double;
-                      t: GL.double);
+  procedure TexCoord (s: GL.Double;
+                      t: GL.Double);
 
-  procedure TexCoordf (s: GL.float;
-                       t: GL.float);
+  procedure TexCoordf (s: GL.Float;
+                       t: GL.Float);
 
-  procedure TexCoord2i (s: GL.int;
-                          t: GL.int);
+  procedure TexCoord2i (s: GL.Int;
+                          t: GL.Int);
 
-  procedure TexCoord2s (s: GL.short;
-                          t: GL.short);
+  procedure TexCoord2s (s: GL.Short;
+                          t: GL.Short);
 
-  procedure TexCoord3d (s: GL.double;
-                          t: GL.double;
-                          r: GL.double);
+  procedure TexCoord3d (s: GL.Double;
+                          t: GL.Double;
+                          r: GL.Double);
 
-  procedure TexCoord3f (s: GL.float;
-                          t: GL.float;
-                          r: GL.float);
+  procedure TexCoord3f (s: GL.Float;
+                          t: GL.Float;
+                          r: GL.Float);
 
-  procedure TexCoord3i (s: GL.int;
-                          t: GL.int;
-                          r: GL.int);
+  procedure TexCoord3i (s: GL.Int;
+                          t: GL.Int;
+                          r: GL.Int);
 
-  procedure TexCoord3s (s: GL.short;
-                          t: GL.short;
-                          r: GL.short);
+  procedure TexCoord3s (s: GL.Short;
+                          t: GL.Short;
+                          r: GL.Short);
 
-  procedure TexCoord4d (s: GL.double;
-                          t: GL.double;
-                          r: GL.double;
-                          q: GL.double);
+  procedure TexCoord4d (s: GL.Double;
+                          t: GL.Double;
+                          r: GL.Double;
+                          q: GL.Double);
 
-  procedure TexCoord4f (s: GL.float;
-                          t: GL.float;
-                          r: GL.float;
-                          q: GL.float);
+  procedure TexCoord4f (s: GL.Float;
+                          t: GL.Float;
+                          r: GL.Float;
+                          q: GL.Float);
 
-  procedure TexCoord4i (s: GL.int;
-                          t: GL.int;
-                          r: GL.int;
-                          q: GL.int);
+  procedure TexCoord4i (s: GL.Int;
+                          t: GL.Int;
+                          r: GL.Int;
+                          q: GL.Int);
 
-  procedure TexCoord4s (s: GL.short;
-                          t: GL.short;
-                          r: GL.short;
-                          q: GL.short);
+  procedure TexCoord4s (s: GL.Short;
+                          t: GL.Short;
+                          r: GL.Short;
+                          q: GL.Short);
 
   procedure TexCoord1dv (v: GL.doublePtr);
 
@@ -3609,54 +3566,53 @@ package GL is
 
   procedure TexCoord4sv (v: GL.shortPtr);
 
-
   -- Pixel op raster position
-  procedure RasterPos2d (x: GL.double;
-                           y: GL.double);
+  procedure RasterPos2d (x: GL.Double;
+                           y: GL.Double);
 
-  procedure RasterPos2f (x: GL.float;
-                           y: GL.float);
+  procedure RasterPos2f (x: GL.Float;
+                           y: GL.Float);
 
-  procedure RasterPos(x,y: GL.int);
+  procedure RasterPos(x,y: GL.Int);
 
-  procedure RasterPos2s (x: GL.short;
-                           y: GL.short);
+  procedure RasterPos2s (x: GL.Short;
+                           y: GL.Short);
 
-  procedure RasterPos3d (x: GL.double;
-                           y: GL.double;
-                           z: GL.double);
+  procedure RasterPos3d (x: GL.Double;
+                           y: GL.Double;
+                           z: GL.Double);
 
-  procedure RasterPos3f (x: GL.float;
-                           y: GL.float;
-                           z: GL.float);
+  procedure RasterPos3f (x: GL.Float;
+                           y: GL.Float;
+                           z: GL.Float);
 
-  procedure RasterPos3i (x: GL.int;
-                           y: GL.int;
-                           z: GL.int);
+  procedure RasterPos3i (x: GL.Int;
+                           y: GL.Int;
+                           z: GL.Int);
 
-  procedure RasterPos3s (x: GL.short;
-                           y: GL.short;
-                           z: GL.short);
+  procedure RasterPos3s (x: GL.Short;
+                           y: GL.Short;
+                           z: GL.Short);
 
-  procedure RasterPos4d (x: GL.double;
-                           y: GL.double;
-                           z: GL.double;
-                           w: GL.double);
+  procedure RasterPos4d (x: GL.Double;
+                           y: GL.Double;
+                           z: GL.Double;
+                           w: GL.Double);
 
-  procedure RasterPos4f (x: GL.float;
-                           y: GL.float;
-                           z: GL.float;
-                           w: GL.float);
+  procedure RasterPos4f (x: GL.Float;
+                           y: GL.Float;
+                           z: GL.Float;
+                           w: GL.Float);
 
-  procedure RasterPos4i (x: GL.int;
-                           y: GL.int;
-                           z: GL.int;
-                           w: GL.int);
+  procedure RasterPos4i (x: GL.Int;
+                           y: GL.Int;
+                           z: GL.Int;
+                           w: GL.Int);
 
-  procedure RasterPos4s (x: GL.short;
-                           y: GL.short;
-                           z: GL.short;
-                           w: GL.short);
+  procedure RasterPos4s (x: GL.Short;
+                           y: GL.Short;
+                           z: GL.Short;
+                           w: GL.Short);
 
   procedure RasterPos2dv (v: GL.doublePtr);
 
@@ -3682,27 +3638,26 @@ package GL is
 
   procedure RasterPos4sv (v: GL.shortPtr);
 
-
   -- Rectangles
-  procedure Rectd (x1: GL.double;
-                     y1: GL.double;
-                     x2: GL.double;
-                     y2: GL.double);
+  procedure Rectd (x1: GL.Double;
+                     y1: GL.Double;
+                     x2: GL.Double;
+                     y2: GL.Double);
 
-  procedure Rectf (x1: GL.float;
-                     y1: GL.float;
-                     x2: GL.float;
-                     y2: GL.float);
+  procedure Rectf (x1: GL.Float;
+                     y1: GL.Float;
+                     x2: GL.Float;
+                     y2: GL.Float);
 
-  procedure Recti (x1: GL.int;
-                     y1: GL.int;
-                     x2: GL.int;
-                     y2: GL.int);
+  procedure Recti (x1: GL.Int;
+                     y1: GL.Int;
+                     x2: GL.Int;
+                     y2: GL.Int);
 
-  procedure Rects (x1: GL.short;
-                     y1: GL.short;
-                     x2: GL.short;
-                     y2: GL.short);
+  procedure Rects (x1: GL.Short;
+                     y1: GL.Short;
+                     x2: GL.Short;
+                     y2: GL.Short);
 
   procedure Rectdv (v1: GL.doublePtr;
                       v2: GL.doublePtr);
@@ -3716,47 +3671,43 @@ package GL is
   procedure Rectsv (v1: GL.shortPtr;
                       v2: GL.shortPtr);
 
-
   -- Bitmap
-  procedure Bitmap (width : GL.sizei;
-                      height: GL.sizei;
-                      xorig : GL.float;
-                      yorig : GL.float;
-                      xmove : GL.float;
-                      ymove : GL.float;
+  procedure Bitmap (width : GL.Sizei;
+                      height: GL.Sizei;
+                      xorig : GL.Float;
+                      yorig : GL.Float;
+                      xmove : GL.Float;
+                      ymove : GL.Float;
                       bitmap: ubytePtr);
 
-
   -- Stenciling
-  procedure StencilMask (mask: GL.uint);
+  procedure StencilMask (mask: GL.Uint);
 
-  procedure ClearStencil (s: GL.int);
-
+  procedure ClearStencil (s: GL.Int);
 
   -- Selections and name stack
-  procedure SelectBuffer (size  : GL.sizei;
+  procedure SelectBuffer (size  : GL.Sizei;
                             buffer: GL.uintPtr);
   procedure InitNames;
 
-  procedure LoadName (name: GL.uint);
+  procedure LoadName (name: GL.Uint);
 
-  procedure PushName (name: GL.uint);
+  procedure PushName (name: GL.Uint);
 
   procedure PopName;
 
-
   -- Mesa-specific routines
-  procedure WindowPos2iMESA (x: GL.int;
-                               y: GL.int);
+  procedure WindowPos2iMESA (x: GL.Int;
+                               y: GL.Int);
 
-  procedure WindowPos2sMESA (x: GL.short;
-                               y: GL.short);
+  procedure WindowPos2sMESA (x: GL.Short;
+                               y: GL.Short);
 
-  procedure WindowPos2fMESA (x: GL.float;
-                               y: GL.float);
+  procedure WindowPos2fMESA (x: GL.Float;
+                               y: GL.Float);
 
-  procedure WindowPos2dMESA (x: GL.double;
-                               y: GL.double);
+  procedure WindowPos2dMESA (x: GL.Double;
+                               y: GL.Double);
 
   procedure WindowPos2ivMESA (p: GL.intPointer);
 
@@ -3766,21 +3717,21 @@ package GL is
 
   procedure WindowPos2dvMESA (p: GL.doublePtr);
 
-  procedure WindowPos3iMESA (x: GL.int;
-                               y: GL.int;
-                               z: GL.int);
+  procedure WindowPos3iMESA (x: GL.Int;
+                               y: GL.Int;
+                               z: GL.Int);
 
-  procedure WindowPos3sMESA (x: GL.short;
-                               y: GL.short;
-                               z: GL.short);
+  procedure WindowPos3sMESA (x: GL.Short;
+                               y: GL.Short;
+                               z: GL.Short);
 
-  procedure WindowPos3fMESA (x: GL.float;
-                               y: GL.float;
-                               z: GL.float);
+  procedure WindowPos3fMESA (x: GL.Float;
+                               y: GL.Float;
+                               z: GL.Float);
 
-  procedure WindowPos3dMESA (x: GL.double;
-                               y: GL.double;
-                               z: GL.double);
+  procedure WindowPos3dMESA (x: GL.Double;
+                               y: GL.Double;
+                               z: GL.Double);
 
   procedure WindowPos3ivMESA (p: GL.intPointer);
 
@@ -3790,25 +3741,25 @@ package GL is
 
   procedure WindowPos3dvMESA (p: GL.doublePtr);
 
-  procedure WindowPos4iMESA (x: GL.int;
-                               y: GL.int;
-                               z: GL.int;
-                               w: GL.int);
+  procedure WindowPos4iMESA (x: GL.Int;
+                               y: GL.Int;
+                               z: GL.Int;
+                               w: GL.Int);
 
-  procedure WindowPos4sMESA (x: GL.short;
-                               y: GL.short;
-                               z: GL.short;
-                               w: GL.short);
+  procedure WindowPos4sMESA (x: GL.Short;
+                               y: GL.Short;
+                               z: GL.Short;
+                               w: GL.Short);
 
-  procedure WindowPos4fMESA (x: GL.float;
-                               y: GL.float;
-                               z: GL.float;
-                               w: GL.float);
+  procedure WindowPos4fMESA (x: GL.Float;
+                               y: GL.Float;
+                               z: GL.Float;
+                               w: GL.Float);
 
-  procedure WindowPos4dMESA (x: GL.double;
-                               y: GL.double;
-                               z: GL.double;
-                               w: GL.double);
+  procedure WindowPos4dMESA (x: GL.Double;
+                               y: GL.Double;
+                               z: GL.Double;
+                               w: GL.Double);
 
   procedure WindowPos4ivMESA (p: GL.intPointer);
 
@@ -3820,17 +3771,13 @@ package GL is
 
   procedure ResizeBuffersMESA;
 
-
-
-
-
   -- vertex buffer objects (GL 1.5 extension)
   --
 
-  procedure GenBuffers (n       : in GL.SizeI;
+  procedure GenBuffers (n       : in GL.Sizei;
                         buffers : in GL.uintPtr);
 
-  procedure DeleteBuffers (n       : in GL.SizeI;
+  procedure DeleteBuffers (n       : in GL.Sizei;
                            buffers : in GL.uintPtr);
 
   type VBO_Target is
@@ -3849,9 +3796,7 @@ package GL is
   );
 
   procedure BindBuffer (target : in VBO_Target;
-                        buffer : in gl.uInt);
-
-
+                        buffer : in GL.Uint);
 
   type VBO_Usage is
   (
@@ -3878,19 +3823,15 @@ package GL is
     DYNAMIC_COPY => 16#88EA#
   );
 
-
-
-
-  procedure BufferData (target : in GL.vbo_Target;
-                        size   : in GL.SizeIPtr;
-                        data   : in GL.Pointer;
+  procedure BufferData (target : in GL.VBO_Target;
+                        size   : in GL.sizeiPtr;
+                        data   : in GL.pointer;
                         usage  : in GL.VBO_Usage);
 
-  procedure BufferSubData (target : in GL.vbo_Target;
+  procedure BufferSubData (target : in GL.VBO_Target;
                            offset : in GL.intPtr;
-                           size   : in GL.SizeIPtr;
-                           data   : in GL.Pointer);
-
+                           size   : in GL.sizeiPtr;
+                           data   : in GL.pointer);
 
    type Access_Policy is
    (
@@ -3905,13 +3846,10 @@ package GL is
      READ_WRITE => 16#88BA#
    );
 
+  function MapBuffer   (target : in GL.VBO_Target;
+                        Policy : in GL.Access_Policy) return GL.pointer;
 
-  function MapBuffer   (target : in GL.vbo_Target;
-                        Policy : in GL.Access_Policy) return gl.Pointer;
-
-  function UnmapBuffer (target : in GL.vbo_Target) return GL_Boolean;
-
-
+  function UnmapBuffer (target : in GL.VBO_Target) return GL_Boolean;
 
   type Buffer_Parameter is
   (
@@ -3928,12 +3866,9 @@ package GL is
     BUFFER_MAPPED => 16#88BC#
   );
 
-
-  procedure GetBufferParameter (target : in GL.vbo_Target;
+  procedure GetBufferParameter (target : in GL.VBO_Target;
                                 value  : in Buffer_Parameter;
                                 data   : in intPointer);
-
-
 
   ------------------------------------------------------------------------------
 
@@ -3952,36 +3887,36 @@ private
   -- look at GL_Overloader.adb .
 
   -- Wrapper for color3d
-  procedure color3d (red, green, blue: GL.double);
-  procedure color (red, green, blue: GL.double) renames color3d;
+  procedure color3d (red, green, blue: GL.Double);
+  procedure Color (red, green, blue: GL.Double) renames color3d;
 
   -- Wrapper for color3f
-  procedure color3f (red, green, blue: GL.float);
-  procedure color_f (red, green, blue: GL.float) renames color3f;
+  procedure color3f (red, green, blue: GL.Float);
+  procedure Color_f (red, green, blue: GL.Float) renames color3f;
 
   -- Wrapper for color3i
-  procedure color3i (red, green, blue: GL.int);
-  procedure color (red, green, blue: GL.int) renames color3i;
+  procedure color3i (red, green, blue: GL.Int);
+  procedure Color (red, green, blue: GL.Int) renames color3i;
 
   -- Wrapper for color3s
-  procedure color3s (red, green, blue: GL.short);
-  procedure color_s (red, green, blue: GL.short) renames color3s;
+  procedure color3s (red, green, blue: GL.Short);
+  procedure Color_s (red, green, blue: GL.Short) renames color3s;
 
   -- Wrapper for color4d
-  procedure color4d (red, green, blue, alpha: GL.double);
-  procedure color (red, green, blue, alpha: GL.double) renames color4d;
+  procedure color4d (red, green, blue, alpha: GL.Double);
+  procedure Color (red, green, blue, alpha: GL.Double) renames color4d;
 
   -- Wrapper for color4f
-  procedure color4f (red, green, blue, alpha: GL.float);
-  procedure color_f (red, green, blue, alpha: GL.float) renames color4f;
+  procedure color4f (red, green, blue, alpha: GL.Float);
+  procedure Color_f (red, green, blue, alpha: GL.Float) renames color4f;
 
   -- Wrapper for color4i
-  procedure color4i (red, green, blue, alpha: GL.int);
-  procedure color (red, green, blue, alpha: GL.int) renames color4i;
+  procedure color4i (red, green, blue, alpha: GL.Int);
+  procedure Color (red, green, blue, alpha: GL.Int) renames color4i;
 
   -- Wrapper for color4s
-  procedure color4s (red, green, blue, alpha: GL.short);
-  procedure color_s (red, green, blue, alpha: GL.short) renames color4s;
+  procedure color4s (red, green, blue, alpha: GL.Short);
+  procedure Color_s (red, green, blue, alpha: GL.Short) renames color4s;
 
   -- Wrappers for Get
   procedure GetDoublev (pname : ParameterNameEnm;
@@ -3994,10 +3929,10 @@ private
 
   procedure Lightf (light: LightIDEnm;
                     pname: LightParameterEnm;
-                    param: GL.float);
+                    param: GL.Float);
   procedure Light (light: LightIDEnm;
                    pname: LightParameterEnm;
-                   param: GL.float) renames Lightf;
+                   param: GL.Float) renames Lightf;
 
   procedure Lightfv (light : LightIDEnm;
                      pname : LightParameterVEnm;
@@ -4007,149 +3942,149 @@ private
 
   procedure Materialf (face : FaceEnm;
                        pname: MaterialParameterEnm;
-                       param: GL.float);
+                       param: GL.Float);
   procedure Material (face : FaceEnm;
                       pname: MaterialParameterEnm;
-                      param: GL.float) renames Materialf;
+                      param: GL.Float) renames Materialf;
 
   procedure Materialfv (face  : FaceEnm;
                         pname : MaterialParameterVEnm;
                         params: floatPtr);
 
   -- Wrapper for Normal3d
-  procedure Normal3d (x,y,z: GL.double);
-  procedure Normal (x,y,z: GL.double) renames Normal3d;
+  procedure Normal3d (x,y,z: GL.Double);
+  procedure Normal (x,y,z: GL.Double) renames Normal3d;
 
   -- Wrapper for Normal3f
-  procedure Normal3f (x,y,z: GL.float);
-  procedure Normal_f (x,y,z: GL.float) renames Normal3f;
+  procedure Normal3f (x,y,z: GL.Float);
+  procedure Normal_f (x,y,z: GL.Float) renames Normal3f;
 
   -- Wrapper for Normal3i
-  procedure Normal3i (x,y,z: GL.int);
-  procedure Normal (x,y,z: GL.int) renames Normal3i;
+  procedure Normal3i (x,y,z: GL.Int);
+  procedure Normal (x,y,z: GL.Int) renames Normal3i;
 
   -- Wrapper for Normal3b
-  procedure Normal3b (x,y,z: GL.byte);
-  procedure Normal_b (x,y,z: GL.byte) renames Normal3b;
+  procedure Normal3b (x,y,z: GL.Byte);
+  procedure Normal_b (x,y,z: GL.Byte) renames Normal3b;
 
   -- Wrapper for Normal3s
-  procedure Normal3s (x,y,z: GL.short);
-  procedure Normal_s (x,y,z: GL.short) renames Normal3s;
+  procedure Normal3s (x,y,z: GL.Short);
+  procedure Normal_s (x,y,z: GL.Short) renames Normal3s;
 
   procedure PixelStorei (pname: PixelStorageEnm;
-                         param: GL.int);
+                         param: GL.Int);
   procedure PixelStore (pname: PixelStorageEnm;
-                        param: GL.int) renames PixelStorei;
+                        param: GL.Int) renames PixelStorei;
 
-  procedure RasterPos2i (x: GL.int;
-                         y: GL.int);
-  procedure RasterPos (x,y: GL.int) renames RasterPos2i;
+  procedure RasterPos2i (x: GL.Int;
+                         y: GL.Int);
+  procedure RasterPos (x,y: GL.Int) renames RasterPos2i;
 
-  procedure Rotated (angle: GL.double;
-                     x    : GL.double;
-                     y    : GL.double;
-                     z    : GL.double);
-  procedure Rotate (angle: GL.double;
-                    x    : GL.double;
-                    y    : GL.double;
-                    z    : GL.double) renames Rotated;
+  procedure Rotated (angle: GL.Double;
+                     x    : GL.Double;
+                     y    : GL.Double;
+                     z    : GL.Double);
+  procedure Rotate (angle: GL.Double;
+                    x    : GL.Double;
+                    y    : GL.Double;
+                    z    : GL.Double) renames Rotated;
 
-  procedure Rotatef (angle: GL.float;
-                     x    : GL.float;
-                     y    : GL.float;
-                     z    : GL.float);
-  procedure Rotate_f (angle: GL.float;
-                      x    : GL.float;
-                      y    : GL.float;
-                      z    : GL.float) renames Rotatef;
+  procedure Rotatef (angle: GL.Float;
+                     x    : GL.Float;
+                     y    : GL.Float;
+                     z    : GL.Float);
+  procedure Rotate_f (angle: GL.Float;
+                      x    : GL.Float;
+                      y    : GL.Float;
+                      z    : GL.Float) renames Rotatef;
 
   -- Wrapper for scaled
-  procedure scaled (x,y,z: GL.double);
-  procedure scale (x,y,z: GL.double) renames scaled;
+  procedure scaled (x,y,z: GL.Double);
+  procedure Scale (x,y,z: GL.Double) renames scaled;
 
   -- Wrapper for scalef
-  procedure scalef (x,y,z: GL.float);
-  procedure scale_f (x,y,z: GL.float) renames scalef;
+  procedure scalef (x,y,z: GL.Float);
+  procedure Scale_f (x,y,z: GL.Float) renames scalef;
 
   procedure TexCoord2d (s: GL.Double;
                         t: GL.Double);
   procedure TexCoord (s: GL.Double;
                       t: GL.Double) renames TexCoord2d;
 
-  procedure TexCoord2f (s: GL.float;
-                        t: GL.float);
-  procedure TexCoordf (s: GL.float;
-                       t: GL.float) renames TexCoord2f;
+  procedure TexCoord2f (s: GL.Float;
+                        t: GL.Float);
+  procedure TexCoordf (s: GL.Float;
+                       t: GL.Float) renames TexCoord2f;
 
   procedure TexEnvi (target: TexEnvEnm;
                      pname : TexEnvParameterEnm;
-                     param : GL.int);
+                     param : GL.Int);
   procedure TexEnv (target: TexEnvEnm;
                     pname : TexEnvParameterEnm;
-                    param : GL.int) renames Texenvi;
+                    param : GL.Int) renames TexEnvi;
 
   procedure TexParameteri (target: TargetTexEnm;
                            pname : TexParamEnm;
-                           param : GL.int);
+                           param : GL.Int);
   procedure TexParameter (target: TargetTexEnm;
                           pname : TexParamEnm;
-                          param : GL.int) renames TexParameteri;
+                          param : GL.Int) renames TexParameteri;
 
   -- Wrapper for translated
-  procedure translated (x,y,z: GL.double);
-  procedure translate (x,y,z: GL.double) renames translated;
+  procedure translated (x,y,z: GL.Double);
+  procedure Translate (x,y,z: GL.Double) renames translated;
 
   -- Wrapper for translatef
-  procedure translatef (x,y,z: GL.float);
-  procedure translate_f (x,y,z: GL.float) renames translatef;
+  procedure translatef (x,y,z: GL.Float);
+  procedure Translate_f (x,y,z: GL.Float) renames translatef;
 
   -- Wrapper for vertex2d
-  procedure vertex2d (x,y: GL.double);
-  procedure vertex (x,y: GL.double) renames vertex2d;
+  procedure vertex2d (x,y: GL.Double);
+  procedure Vertex (x,y: GL.Double) renames vertex2d;
 
   -- Wrapper for vertex2f
-  procedure vertex2f (x,y: GL.float);
-  procedure vertex_f (x,y: GL.float) renames vertex2f;
+  procedure vertex2f (x,y: GL.Float);
+  procedure Vertex_f (x,y: GL.Float) renames vertex2f;
 
   -- Wrapper for vertex2i
-  procedure vertex2i (x,y: GL.int);
-  procedure vertex (x,y: GL.int) renames vertex2i;
+  procedure vertex2i (x,y: GL.Int);
+  procedure Vertex (x,y: GL.Int) renames vertex2i;
 
   -- Wrapper for vertex2s
-  procedure vertex2s (x,y: GL.short);
-  procedure vertex_s (x,y: GL.short) renames vertex2s;
+  procedure vertex2s (x,y: GL.Short);
+  procedure Vertex_s (x,y: GL.Short) renames vertex2s;
 
   -- Wrapper for vertex3d
-  procedure vertex3d (x,y,z: GL.double);
-  procedure vertex (x,y,z: GL.double) renames vertex3d;
+  procedure vertex3d (x,y,z: GL.Double);
+  procedure Vertex (x,y,z: GL.Double) renames vertex3d;
 
   -- Wrapper for vertex3f
-  procedure vertex3f (x,y,z: GL.float);
-  procedure vertex_f (x,y,z: GL.float) renames vertex3f;
+  procedure vertex3f (x,y,z: GL.Float);
+  procedure Vertex_f (x,y,z: GL.Float) renames vertex3f;
 
   -- Wrapper for vertex3i
-  procedure vertex3i (x,y,z: GL.int);
-  procedure vertex (x,y,z: GL.int) renames vertex3i;
+  procedure vertex3i (x,y,z: GL.Int);
+  procedure Vertex (x,y,z: GL.Int) renames vertex3i;
 
   -- Wrapper for vertex3s
-  procedure vertex3s (x,y,z: GL.short);
-  procedure vertex_s (x,y,z: GL.short) renames vertex3s;
+  procedure vertex3s (x,y,z: GL.Short);
+  procedure Vertex_s (x,y,z: GL.Short) renames vertex3s;
 
   -- Wrapper for vertex4d
-  procedure vertex4d (x,y,z,w: GL.double);
-  procedure vertex (x,y,z,w: GL.double) renames vertex4d;
+  procedure vertex4d (x,y,z,w: GL.Double);
+  procedure Vertex (x,y,z,w: GL.Double) renames vertex4d;
 
   -- Wrapper for vertex4f
-  procedure vertex4f (x,y,z,w: GL.float);
-  procedure vertex_f (x,y,z,w: GL.float) renames vertex4f;
+  procedure vertex4f (x,y,z,w: GL.Float);
+  procedure Vertex_f (x,y,z,w: GL.Float) renames vertex4f;
 
   -- Wrapper for vertex4i
-  procedure vertex4i (x,y,z,w: GL.int);
-  procedure vertex (x,y,z,w: GL.int) renames vertex4i;
+  procedure vertex4i (x,y,z,w: GL.Int);
+  procedure Vertex (x,y,z,w: GL.Int) renames vertex4i;
 
   -- Wrapper for vertex4s
-  procedure vertex4s (x,y,z,w: GL.short);
-  procedure vertex_s (x,y,z,w: GL.short) renames vertex4s;
+  procedure vertex4s (x,y,z,w: GL.Short);
+  procedure Vertex_s (x,y,z,w: GL.Short) renames vertex4s;
 
   -- Some renames due to possible ambiguity with enumerated
   -- values (Accum, Clear, Viewport) that can be interpreted
@@ -4157,21 +4092,21 @@ private
   -- on the Janus compiler and not GNAT and ObjectAda.
   -- GM/TM 9-Sep-2006
   procedure glAccum (op   : AccumEnm;
-                     value: GL.float);
+                     value: GL.Float);
   procedure Accum (op   : AccumEnm;
-                   value: GL.float) renames glAccum;
+                   value: GL.Float) renames glAccum;
   --
-  procedure glClear (mask: bitfield);
-  procedure Clear (mask: bitfield) renames glClear;
+  procedure glClear (mask: Bitfield);
+  procedure Clear (mask: Bitfield) renames glClear;
   --
-  procedure glViewport (x     : GL.int;
-                        y     : GL.int;
-                        width : GL.sizei;
-                        height: GL.sizei);
-  procedure Viewport (x     : GL.int;
-                      y     : GL.int;
-                      width : GL.sizei;
-                      height: GL.sizei) renames glViewport;
+  procedure glViewport (x     : GL.Int;
+                        y     : GL.Int;
+                        width : GL.Sizei;
+                        height: GL.Sizei);
+  procedure Viewport (x     : GL.Int;
+                      y     : GL.Int;
+                      width : GL.Sizei;
+                      height: GL.Sizei) renames glViewport;
 
   -----------------
   -- Interfacing --
@@ -4239,10 +4174,10 @@ private
   pragma Import (Stdcall, MultMatrixf, "glMultMatrixf");
   pragma Import (Stdcall, Rotated, "glRotated");
   pragma Import (Stdcall, Rotatef, "glRotatef");
-  pragma Import (Stdcall, Scaled, "glScaled");
-  pragma Import (Stdcall, Scalef, "glScalef");
-  pragma Import (Stdcall, Translated, "glTranslated");
-  pragma Import (Stdcall, Translatef, "glTranslatef");
+  pragma Import (Stdcall, scaled, "glScaled");
+  pragma Import (Stdcall, scalef, "glScalef");
+  pragma Import (Stdcall, translated, "glTranslated");
+  pragma Import (Stdcall, translatef, "glTranslatef");
   pragma Import (Stdcall, IsList, "glIsList");
   pragma Import (Stdcall, DeleteLists, "glDeleteLists");
   pragma Import (Stdcall, GenLists, "glGenLists");
@@ -4253,18 +4188,18 @@ private
   pragma Import (Stdcall, ListBase, "glListBase");
   pragma Import (Stdcall, GL_Begin, "glBegin");
   pragma Import (Stdcall, GL_End, "glEnd");
-  pragma Import (Stdcall, Vertex2d, "glVertex2d");
-  pragma Import (Stdcall, Vertex2f, "glVertex2f");
-  pragma Import (Stdcall, Vertex2i, "glVertex2i");
-  pragma Import (Stdcall, Vertex2s, "glVertex2s");
-  pragma Import (Stdcall, Vertex3d, "glVertex3d");
-  pragma Import (Stdcall, Vertex3f, "glVertex3f");
-  pragma Import (Stdcall, Vertex3i, "glVertex3i");
-  pragma Import (Stdcall, Vertex3s, "glVertex3s");
-  pragma Import (Stdcall, Vertex4d, "glVertex4d");
-  pragma Import (Stdcall, Vertex4f, "glVertex4f");
-  pragma Import (Stdcall, Vertex4i, "glVertex4i");
-  pragma Import (Stdcall, Vertex4s, "glVertex4s");
+  pragma Import (Stdcall, vertex2d, "glVertex2d");
+  pragma Import (Stdcall, vertex2f, "glVertex2f");
+  pragma Import (Stdcall, vertex2i, "glVertex2i");
+  pragma Import (Stdcall, vertex2s, "glVertex2s");
+  pragma Import (Stdcall, vertex3d, "glVertex3d");
+  pragma Import (Stdcall, vertex3f, "glVertex3f");
+  pragma Import (Stdcall, vertex3i, "glVertex3i");
+  pragma Import (Stdcall, vertex3s, "glVertex3s");
+  pragma Import (Stdcall, vertex4d, "glVertex4d");
+  pragma Import (Stdcall, vertex4f, "glVertex4f");
+  pragma Import (Stdcall, vertex4i, "glVertex4i");
+  pragma Import (Stdcall, vertex4s, "glVertex4s");
   pragma Import (Stdcall, Vertex2dv, "glVertex2dv");
   pragma Import (Stdcall, Vertex2fv, "glVertex2fv");
   pragma Import (Stdcall, Vertex2iv, "glVertex2iv");
@@ -4298,18 +4233,18 @@ private
   pragma Import (Stdcall, Indexsv, "glIndexsv");
   pragma Import (Stdcall, Indexubv, "glIndexubv");
   pragma Import (Stdcall, Color3b, "glColor3b");
-  pragma Import (Stdcall, Color3d, "glColor3d");
-  pragma Import (Stdcall, Color3f, "glColor3f");
-  pragma Import (Stdcall, Color3i, "glColor3i");
-  pragma Import (Stdcall, Color3s, "glColor3s");
+  pragma Import (Stdcall, color3d, "glColor3d");
+  pragma Import (Stdcall, color3f, "glColor3f");
+  pragma Import (Stdcall, color3i, "glColor3i");
+  pragma Import (Stdcall, color3s, "glColor3s");
   pragma Import (Stdcall, Color3ub, "glColor3ub");
   pragma Import (Stdcall, Color3ui, "glColor3ui");
   pragma Import (Stdcall, Color3us, "glColor3us");
   pragma Import (Stdcall, Color4b, "glColor4b");
-  pragma Import (Stdcall, Color4d, "glColor4d");
-  pragma Import (Stdcall, Color4f, "glColor4f");
-  pragma Import (Stdcall, Color4i, "glColor4i");
-  pragma Import (Stdcall, Color4s, "glColor4s");
+  pragma Import (Stdcall, color4d, "glColor4d");
+  pragma Import (Stdcall, color4f, "glColor4f");
+  pragma Import (Stdcall, color4i, "glColor4i");
+  pragma Import (Stdcall, color4s, "glColor4s");
   pragma Import (Stdcall, Color4ub, "glColor4ub");
   pragma Import (Stdcall, Color4ui, "glColor4ui");
   pragma Import (Stdcall, Color4us, "glColor4us");
@@ -4403,7 +4338,7 @@ private
   pragma Import (Stdcall, ArrayElement, "glArrayElement");
   pragma Import (Stdcall, DrawArrays, "glDrawArrays");
   pragma Import (Stdcall, DrawElements, "glDrawElements");
-  pragma Import (Stdcall, InterleavedArrays, "GL.interleavedArrays");
+  pragma Import (Stdcall, interleavedArrays, "GL.interleavedArrays");
   pragma Import (Stdcall, ShadeModel, "glShadeModel");
   pragma Import (Stdcall, Lightf, "glLightf");
   pragma Import (Stdcall, Lighti, "glLighti");
@@ -4550,7 +4485,6 @@ private
   pragma Import (Stdcall, WindowPos4fvMESA, "glWindowPos4fvMESA");
   pragma Import (Stdcall, WindowPos4dvMESA, "glWindowPos4dvMESA");
   pragma Import (Stdcall, ResizeBuffersMESA, "glResizeBuffersMESA");
-
 
   -- vertex buffer object imports (GL 1.5)
   --

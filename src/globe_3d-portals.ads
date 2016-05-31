@@ -14,4 +14,3 @@ package GLOBE_3D.Portals is
   procedure Draw_boundary( main, clip: Rectangle );
 
 end GLOBE_3D.Portals;
-

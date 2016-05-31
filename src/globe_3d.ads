@@ -48,18 +48,16 @@
 -- Uwe R. Zimmer, July 2011
 --
 
-
-
 with GL,
      GL.Geometry,
      GL.Frustums,
-     GL.skinned_Geometry,
+     GL.Skinned_Geometry,
      GL.Materials;
 
 with Zip;
 
 with Ada.Text_IO;
-with Ada.Numerics.Generic_Elementary_functions;
+with Ada.Numerics.Generic_Elementary_Functions;
 with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 with Ada.Containers.Hashed_Maps;
@@ -94,12 +92,10 @@ package GLOBE_3D is
   package REF is new Ada.Numerics.Generic_Elementary_functions(Real);
   package RIO is new Ada.Text_IO.Float_IO(Real);
 
-  subtype Vector_3D is GL.Double_vector_3D;
+  subtype Vector_3D is GL.Double_Vector_3D;
   type  p_Vector_3D is access all Vector_3D;
 
   type Vector_4D is array (0..3) of Real;
-
-
 
   subtype Point_3D is Vector_3D;
 
@@ -117,8 +113,6 @@ package GLOBE_3D is
   type Vector_3D_array is array(Natural range <>) of Vector_3D;
 
   type Index_array is array(Natural range <>) of aliased Natural;   -- tbd: make gl.unsigned_Int (or unsigned_Short)?
-
-
 
   ----------------------------------------------------------------
   -- Portal rendering definitions (methods in GLOBE_3D.Portals) --
@@ -141,8 +135,6 @@ package GLOBE_3D is
     main_clipping   : Clipping_area;
   end record;
 
-
-
   -- Camera
   --
    use type Real;
@@ -152,13 +144,13 @@ package GLOBE_3D is
 
    type Camera is tagged
       record
-         Clipper             : Clipping_data:= (eye_position    => (0.0,  0.0,  5.0),
+         clipper             : Clipping_data:= (eye_position    => (0.0,  0.0,  5.0),
                                                 view_direction  => (0.0,  0.0, -1.0),
                                                 max_dot_product => 0.0,
                                                 main_clipping   => (0, 0, 0, 0));
-         world_Rotation      : Matrix_33 := Id_33;
-         Speed               : Vector_3D := (0.0, 0.0, 0.0);
-         rotation_Speed      : Vector_3D := (0.0, 0.0, 0.0);
+         world_rotation      : Matrix_33 := Id_33;
+         speed               : Vector_3D := (0.0, 0.0, 0.0);
+         rotation_speed      : Vector_3D := (0.0, 0.0, 0.0);
          compose_rotations   : Boolean:= True;
          -- True: apply successive rotations from rotation_Speed directly
          --       to world_Rotation. Good for totally free 3D movement, no gravity.
@@ -170,7 +162,7 @@ package GLOBE_3D is
          rotation            : Vector_3D := (0.0, 0.0, 0.0);
          -- ^ this vector is updated, whatever the state of 'compose_rotations'
 
-         FOVy                : Real  := default_field_of_view_Angle;  -- field of view angle (deg) in the y direction
+         FoVy                : Real  := default_field_of_view_Angle;  -- field of view angle (deg) in the y direction
          Aspect              : Real;                                  -- x/y aspect ratio
 
          near_plane_Distance : Real  := 1.0;                          -- distance to the near clipping plane
@@ -181,13 +173,12 @@ package GLOBE_3D is
          far_plane_Width     : Real;
          far_plane_Height    : Real;
 
-         Projection_Matrix   : Matrix_44;
+         projection_matrix   : Matrix_44;
 
-         frustum_Planes      : gl.frustums.plane_Array;
+         frustum_planes      : GL.Frustums.plane_Array;
       end record;
 
    type p_Camera is access all Camera'Class;
-
 
    -- 'Visual' class hierarchy
    --
@@ -213,44 +204,35 @@ package GLOBE_3D is
    procedure Pre_calculate  (o     : in out Visual)     is abstract;
 
    procedure set_Alpha      (o     : in out Visual;
-                             Alpha : in     gl.Double)   is abstract;
+                             Alpha : in     GL.Double)   is abstract;
 
    function  is_Transparent (o     : in     Visual) return Boolean   is abstract;
    --
    -- returns 'True' if any part of the 'visual' is potentially transparent.
 
-
    function face_Count (o : in Visual) return Natural                   is abstract;
-   function Bounds     (o : in Visual) return gl.geometry.Bounds_record is abstract;
+   function Bounds     (o : in Visual) return GL.Geometry.Bounds_record is abstract;
 
-   function skinned_Geometrys (o : in Visual) return gl.skinned_geometry.skinned_Geometrys;
+   function skinned_Geometrys (o : in Visual) return GL.Skinned_Geometry.skinned_Geometrys;
 
    procedure Display (o          : in out Visual;
                       clip       : in     Clipping_data
    ) is abstract;
-
 
    procedure Set_name (o: in out Visual'class; new_name: String);
    -- Give a new name (no need of space-filling) to the object
 
    function Get_name (o: in Visual'class) return String;
 
-
-
    function Width  (o: in Visual'class) return Real;
    function Height (o: in Visual'class) return Real;
    function Depth  (o: in Visual'class) return Real;
 
-
-
    null_Visuals : constant Visual_array (1 .. 0) := (others => null);
-
-
 
    procedure render (the_Visuals : in Visual_array;   the_Camera : in Camera);
    --
    -- clears the color buffer and renders each of the visuals.
-
 
    -- Map_of_Visuals
    --
@@ -275,7 +257,6 @@ package GLOBE_3D is
   -- Define a face --
   -------------------
 
-
   type Skin_type is (
     texture_only,
     colour_only,
@@ -285,7 +266,7 @@ package GLOBE_3D is
     invisible
   );
 
-  type Set_of_Skin is array(Skin_Type) of Boolean;
+  type Set_of_Skin is array(Skin_type) of Boolean;
 
   is_textured: constant Set_of_Skin:=
     ( texture_only | coloured_texture | material_texture => True,
@@ -325,7 +306,7 @@ package GLOBE_3D is
      material     : GL.Materials.Material_type:=
                       GL.Materials.neutral_material;
      -- *** > texture-mapping part (data ignored when irrelevant):
-     texture      : Image_id:= null_image;
+     texture      : Image_ID:= null_image;
      --  Alternative to setting an Image_id, if it is not known at
      --  time of building the object: use Texture_name_hint, then
      --  Rebuild_links
@@ -353,8 +334,6 @@ package GLOBE_3D is
 
   type Face_invariant_array is array(Natural range <>) of Face_invariant_type;
 
-
-
   type Object_3D_list;
   type p_Object_3D_list is access Object_3D_list;
   type Object_3D_list is record
@@ -364,7 +343,6 @@ package GLOBE_3D is
 
   type Object_3D_array is array(Positive range <>) of p_Object_3D;
   type p_Object_3D_array is access Object_3D_array;
-
 
   -----------------------------------
   -- Now: the Object_3D definition --
@@ -395,21 +373,18 @@ package GLOBE_3D is
     -- private:
     List_Id        : List_Ids;
     face_invariant : Face_invariant_array(1..Max_faces);
-    bounds         : gl.geometry.Bounds_record;
+    bounds         : GL.Geometry.Bounds_record;
     transparent    : Boolean:= False;
   end record; -- Object_3D
 
-
   procedure destroy        (o : in out Object_3D);
-  procedure set_Alpha      (o : in out Object_3D;   Alpha : in gl.Double);
+  procedure set_Alpha      (o : in out Object_3D;   Alpha : in GL.Double);
   function  is_Transparent (o : in Object_3D) return Boolean;
   function  face_Count     (o : in Object_3D) return Natural;
-  function  Bounds         (o : in Object_3D) return gl.geometry.Bounds_record;
-
+  function  Bounds         (o : in Object_3D) return GL.Geometry.Bounds_record;
 
   procedure Check_object(o: Object_3D);
   -- Check object for invalid or duplicate vertices
-
 
   procedure Texture_name_hint(
     o   : in out Object_3D;
@@ -443,7 +418,6 @@ package GLOBE_3D is
   -- Done automatically at first display, but sometimes
   -- it's better to do it before: operation can be long!
 
-
   ------------------------------------------------------------
   -- Display of a whole scene, viewed from a certain object --
   ------------------------------------------------------------
@@ -468,25 +442,20 @@ package GLOBE_3D is
   -- Display only this object and not connected objects
   -- "out" for o because object might be pre_calculated if not yet
 
-
   -- Abstract windowing management
   --
 
   type Window is abstract tagged
     record
-         Camera : aliased globe_3d.Camera;
+         Camera : aliased GLOBE_3D.Camera;
     end record;
-
 
    type p_Window is access all Window'Class;
 
-
-
   procedure enable  (Self      : in out Window) is abstract;
   procedure freshen (Self      : in out Window;
-                     time_Step : in     globe_3d.Real;
-                     Extras    : in     globe_3d.Visual_array := globe_3d.null_Visuals) is abstract;
-
+                     time_Step : in     GLOBE_3D.Real;
+                     Extras    : in     GLOBE_3D.Visual_array := GLOBE_3D.null_Visuals) is abstract;
 
   -- Exceptions
   --
@@ -510,7 +479,7 @@ package GLOBE_3D is
   subtype Light_ident is Light_count range 1..Light_count'Last;
 
   type Light_definition is record
-    position, ambient, diffuse, specular: GL.Light_Float_vector;
+    position, ambient, diffuse, specular: GL.Light_Float_Vector;
   end record;
 
   procedure Define(which: Light_ident; as: Light_definition);

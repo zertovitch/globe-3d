@@ -13,7 +13,6 @@
 --  24-May-2006: added explicit bound checks
 --  14-May-2006: created
 
-
 with GLOBE_3D.Math;
 
 with Ada.Numerics.Float_Random;         use Ada.Numerics.Float_Random;
@@ -86,7 +85,7 @@ package body GLOBE_3D.Random_extrusions is
         if fa > poly'Last then raise Constraint_Error; end if;
         -- ^ useful if we disable range checks...
         poly(fa):= face_proto;
-      end REgister_proto;
+      end Register_proto;
     begin
       Geometric_mapping(P1,P(1));
       Geometric_mapping(P2,P(2));
@@ -180,14 +179,14 @@ package body GLOBE_3D.Random_extrusions is
         xb:= Real(e1+1)*sc_1;
         ya:= Real(e2)*sc_2;
         yb:= Real(e2+1)*sc_2;
-        ta.u:= T1.u + xa * (T2.u-T1.u) + ya * (xa * (T3.u-T2.u) + (1.0-xa) * (T4.u-T1.u));
-        ta.v:= T1.v + xa * (T2.v-T1.v) + ya * (xa * (T3.v-T2.v) + (1.0-xa) * (T4.v-T1.v));
-        tb.u:= T1.u + xb * (T2.u-T1.u) + yb * (xb * (T3.u-T2.u) + (1.0-xb) * (T4.u-T1.u));
-        tb.v:= T1.v + xb * (T2.v-T1.v) + yb * (xb * (T3.v-T2.v) + (1.0-xb) * (T4.v-T1.v));
+        ta.U:= T1.U + xa * (T2.U-T1.U) + ya * (xa * (T3.U-T2.U) + (1.0-xa) * (T4.U-T1.U));
+        ta.V:= T1.V + xa * (T2.V-T1.V) + ya * (xa * (T3.V-T2.V) + (1.0-xa) * (T4.V-T1.V));
+        tb.U:= T1.U + xb * (T2.U-T1.U) + yb * (xb * (T3.U-T2.U) + (1.0-xb) * (T4.U-T1.U));
+        tb.V:= T1.V + xb * (T2.V-T1.V) + yb * (xb * (T3.V-T2.V) + (1.0-xb) * (T4.V-T1.V));
         -- The horizontal face
         Do_Face(
           (xa,ya,e), (xb,ya,e), (xb,yb,e), (xa,yb,e),
-          (ta,(tb.u,ta.v),tb,(ta.u,tb.v)),
+          (ta,(tb.U,ta.V),tb,(ta.U,tb.V)),
           T_ID,
           e1,e2
         );
@@ -207,24 +206,24 @@ package body GLOBE_3D.Random_extrusions is
             null; -- do nothing, there is no face to add
           else
             if e > en then -- neighbour has a lower elevation: face visible from south
-              ta.u:= V1.u + xa * (V2.u-V1.u) + en * (xa * (V3.u-V2.u) + (1.0-xa) * (V4.u-V1.u));
-              ta.v:= V1.v + xa * (V2.v-V1.v) + en * (xa * (V3.v-V2.v) + (1.0-xa) * (V4.v-V1.v));
-              tb.u:= V1.u + xb * (V2.u-V1.u) + e  * (xb * (V3.u-V2.u) + (1.0-xb) * (V4.u-V1.u));
-              tb.v:= V1.v + xb * (V2.v-V1.v) + e  * (xb * (V3.v-V2.v) + (1.0-xb) * (V4.v-V1.v));
+              ta.U:= V1.U + xa * (V2.U-V1.U) + en * (xa * (V3.U-V2.U) + (1.0-xa) * (V4.U-V1.U));
+              ta.V:= V1.V + xa * (V2.V-V1.V) + en * (xa * (V3.V-V2.V) + (1.0-xa) * (V4.V-V1.V));
+              tb.U:= V1.U + xb * (V2.U-V1.U) + e  * (xb * (V3.U-V2.U) + (1.0-xb) * (V4.U-V1.U));
+              tb.V:= V1.V + xb * (V2.V-V1.V) + e  * (xb * (V3.V-V2.V) + (1.0-xb) * (V4.V-V1.V));
               Do_Face(
                 (xa,ya,en), (xb,ya,en), (xb,ya,e), (xa,ya,e),
-                (ta,(tb.u,ta.v),tb,(ta.u,tb.v)),
+                (ta,(tb.U,ta.V),tb,(ta.U,tb.V)),
                 V_ID,
                 e1,e2
               );
             else           -- neighbour has a higher elevation: face visible from north
-              ta.u:= V2.u + xb * (V1.u-V2.u) + e  * (xb * (V4.u-V1.u) + (1.0-xb) * (V3.u-V2.u));
-              ta.v:= V2.v + xb * (V1.v-V2.v) + e  * (xb * (V4.v-V1.v) + (1.0-xb) * (V3.v-V2.v));
-              tb.u:= V2.u + xa * (V1.u-V2.u) + en * (xa * (V4.u-V1.u) + (1.0-xa) * (V3.u-V2.u));
-              tb.v:= V2.v + xa * (V1.v-V2.v) + en * (xa * (V4.v-V1.v) + (1.0-xa) * (V3.v-V2.v));
+              ta.U:= V2.U + xb * (V1.U-V2.U) + e  * (xb * (V4.U-V1.U) + (1.0-xb) * (V3.U-V2.U));
+              ta.V:= V2.V + xb * (V1.V-V2.V) + e  * (xb * (V4.V-V1.V) + (1.0-xb) * (V3.V-V2.V));
+              tb.U:= V2.U + xa * (V1.U-V2.U) + en * (xa * (V4.U-V1.U) + (1.0-xa) * (V3.U-V2.U));
+              tb.V:= V2.V + xa * (V1.V-V2.V) + en * (xa * (V4.V-V1.V) + (1.0-xa) * (V3.V-V2.V));
               Do_Face(
                 (xb,ya,e), (xa,ya,e), (xa,ya,en), (xb,ya,en),
-                (ta,(tb.u,ta.v),tb,(ta.u,tb.v)),
+                (ta,(tb.U,ta.V),tb,(ta.U,tb.V)),
                 V_ID,
                 e1,e2
               );
@@ -240,24 +239,24 @@ package body GLOBE_3D.Random_extrusions is
             null; -- do nothing, there is no face to add
           else
             if e > en then -- neighbour has a lower elevation: face visible from west
-              ta.u:= V2.u + yb * (V1.u-V2.u) + en * (yb * (V4.u-V1.u) + (1.0-yb) * (V3.u-V2.u));
-              ta.v:= V2.v + yb * (V1.v-V2.v) + en * (yb * (V4.v-V1.v) + (1.0-yb) * (V3.v-V2.v));
-              tb.u:= V2.u + ya * (V1.u-V2.u) + e  * (ya * (V4.u-V1.u) + (1.0-ya) * (V3.u-V2.u));
-              tb.v:= V2.v + ya * (V1.v-V2.v) + e  * (ya * (V4.v-V1.v) + (1.0-ya) * (V3.v-V2.v));
+              ta.U:= V2.U + yb * (V1.U-V2.U) + en * (yb * (V4.U-V1.U) + (1.0-yb) * (V3.U-V2.U));
+              ta.V:= V2.V + yb * (V1.V-V2.V) + en * (yb * (V4.V-V1.V) + (1.0-yb) * (V3.V-V2.V));
+              tb.U:= V2.U + ya * (V1.U-V2.U) + e  * (ya * (V4.U-V1.U) + (1.0-ya) * (V3.U-V2.U));
+              tb.V:= V2.V + ya * (V1.V-V2.V) + e  * (ya * (V4.V-V1.V) + (1.0-ya) * (V3.V-V2.V));
               Do_Face(
                 (xa,yb,en), (xa,ya,en), (xa,ya,e), (xa,yb,e),
-                (ta,(tb.u,ta.v),tb,(ta.u,tb.v)),
+                (ta,(tb.U,ta.V),tb,(ta.U,tb.V)),
                 V_ID,
                 e1,e2
               );
             else           -- neighbour has a higher elevation: face visible from east
-              ta.u:= V1.u + ya * (V2.u-V1.u) + e  * (ya * (V3.u-V2.u) + (1.0-ya) * (V4.u-V1.u));
-              ta.v:= V1.v + ya * (V2.v-V1.v) + e  * (ya * (V3.v-V2.v) + (1.0-ya) * (V4.v-V1.v));
-              tb.u:= V1.u + yb * (V2.u-V1.u) + en * (yb * (V3.u-V2.u) + (1.0-yb) * (V4.u-V1.u));
-              tb.v:= V1.v + yb * (V2.v-V1.v) + en * (yb * (V3.v-V2.v) + (1.0-yb) * (V4.v-V1.v));
+              ta.U:= V1.U + ya * (V2.U-V1.U) + e  * (ya * (V3.U-V2.U) + (1.0-ya) * (V4.U-V1.U));
+              ta.V:= V1.V + ya * (V2.V-V1.V) + e  * (ya * (V3.V-V2.V) + (1.0-ya) * (V4.V-V1.V));
+              tb.U:= V1.U + yb * (V2.U-V1.U) + en * (yb * (V3.U-V2.U) + (1.0-yb) * (V4.U-V1.U));
+              tb.V:= V1.V + yb * (V2.V-V1.V) + en * (yb * (V3.V-V2.V) + (1.0-yb) * (V4.V-V1.V));
               Do_Face(
                 (xa,ya,e), (xa,yb,e), (xa,yb,en), (xa,ya,en),
-                (ta,(tb.u,ta.v),tb,(ta.u,tb.v)),
+                (ta,(tb.U,ta.V),tb,(ta.U,tb.V)),
                 V_ID,
                 e1,e2
               );

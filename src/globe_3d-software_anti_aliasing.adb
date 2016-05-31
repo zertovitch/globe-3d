@@ -107,11 +107,7 @@ package body GLOBE_3D.Software_Anti_Aliasing is
      (0.156488, 0.376783), (0.140434, 0.977416),
      (0.808155, 0.77305), (0.282973, 0.188937)));
 
-
-
   J: p_Jitter_matrix;
-
-
 
   function Anti_Alias_phases return Positive is
   begin

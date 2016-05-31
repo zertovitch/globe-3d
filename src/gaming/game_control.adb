@@ -7,15 +7,14 @@
 
 package body Game_control is
 
-
   procedure Append_commands(
               size_x,
               size_y       : in     Integer;     -- screen dimensions for mouse
               warp_mouse   : in     Boolean;     -- recenter mouse cursor
-              c            : in out game_Control.Command_set; -- commands are added to c
+              c            : in out Game_control.Command_set; -- commands are added to c
               gx,gy        :    out GL.Double;   -- mouse movement since last call
-              Keyboard   : access GLUT.devices.Keyboard := GLUT.devices.default_Keyboard'access;
-              Mouse      : access GLUT.devices.Mouse    := GLUT.devices.default_Mouse'access
+              keyboard     : access GLUT.Devices.Keyboard := GLUT.Devices.default_Keyboard'Access;
+              mouse        : access GLUT.Devices.Mouse    := GLUT.Devices.default_Mouse'Access
   )
    is
     use GLUT.Devices;
@@ -31,54 +30,52 @@ package body Game_control is
 
     -- Clavier: !! lettres: clavier CH
 
-    c( slide_mode ):=     Keyboard.modif_set( GLUT.Active_alt );
+    c( slide_mode ):=     keyboard.modif_set( GLUT.ACTIVE_ALT );
 
     if c( slide_mode ) then
-      c( slide_up ):=       Keyboard.special_set( GLUT.key_page_up );
-      c( slide_down ):=     Keyboard.special_set( GLUT.key_page_down );
+      c( slide_up ):=       keyboard.special_set( GLUT.KEY_PAGE_UP );
+      c( slide_down ):=     keyboard.special_set( GLUT.KEY_PAGE_DOWN );
     else
-      c( turn_up ):=        Keyboard.special_set( GLUT.key_page_up );
-      c( turn_down ):=      Keyboard.special_set( GLUT.key_page_down );
-      c( slide_left ):=     Keyboard.normal_set( 'A' );
-      c( slide_right ):=    Keyboard.normal_set( 'D' );
-      c( slide_up ):=       Keyboard.normal_set( 'R' );
-      c( slide_down ):=     Keyboard.normal_set( 'F' );
+      c( turn_up ):=        keyboard.special_set( GLUT.KEY_PAGE_UP );
+      c( turn_down ):=      keyboard.special_set( GLUT.KEY_PAGE_DOWN );
+      c( slide_left ):=     keyboard.normal_set( 'A' );
+      c( slide_right ):=    keyboard.normal_set( 'D' );
+      c( slide_up ):=       keyboard.normal_set( 'R' );
+      c( slide_down ):=     keyboard.normal_set( 'F' );
     end if;
-    c( swing_plus ):=     Keyboard.normal_set( 'E' );
-    c( swing_minus ):=    Keyboard.normal_set( 'Q' );
-    c( special_plus ):=   Keyboard.normal_set( '+' );
-    c( special_minus ):=  Keyboard.normal_set( '-' );
-    c( jump ):=           Strike_once( ' ', Keyboard);
+    c( swing_plus ):=     keyboard.normal_set( 'E' );
+    c( swing_minus ):=    keyboard.normal_set( 'Q' );
+    c( special_plus ):=   keyboard.normal_set( '+' );
+    c( special_minus ):=  keyboard.normal_set( '-' );
+    c( jump ):=           Strike_once( ' ', keyboard);
     for i in n0..n9 loop
       c( i ):= Strike_once(Character'Val(Command'Pos(i)-Command'Pos(n0)+Character'Pos('0')),
-                           Keyboard);
+                           keyboard);
     end loop;
 
+    c( photo ):=          Strike_once( GLUT.KEY_F12, keyboard );
+    c( video ):=          Strike_once( GLUT.KEY_F11, keyboard );
+    c( toggle_10 ):=      Strike_once( GLUT.KEY_F10, keyboard );
 
-    c( photo ):=          Strike_once( GLUT.key_F12, Keyboard );
-    c( video ):=          Strike_once( GLUT.key_F11, Keyboard );
-    c( toggle_10 ):=      Strike_once( GLUT.key_F10, Keyboard );
-
-    c( interrupt_game ):= Keyboard.normal_set( ASCII.ESC );
-    c( go_forward ):=     Keyboard.special_set( GLUT.key_up )
+    c( interrupt_game ):= keyboard.normal_set( ASCII.ESC );
+    c( go_forward ):=     keyboard.special_set( GLUT.KEY_UP )
                           or
-                          Keyboard.normal_set( 'W' );
-    c( go_backwards ):=   Keyboard.special_set( GLUT.key_down )
+                          keyboard.normal_set( 'W' );
+    c( go_backwards ):=   keyboard.special_set( GLUT.KEY_DOWN )
                           or
-                          Keyboard.normal_set( 'S' );
-    c( run_mode ):=       Keyboard.modif_set( GLUT.Active_shift );
-    c( ctrl_mode ):=      Keyboard.modif_set( GLUT.Active_ctrl );
-
+                          keyboard.normal_set( 'S' );
+    c( run_mode ):=       keyboard.modif_set( GLUT.ACTIVE_SHIFT );
+    c( ctrl_mode ):=      keyboard.modif_set( GLUT.ACTIVE_CTRL );
 
     -----------
     -- Mouse --
     -----------
 
-    if Mouse.button_state( GLUT.LEFT_BUTTON )  then c( go_forward ):= True; end if;
-    if Mouse.button_state( GLUT.RIGHT_BUTTON ) then c( slide_mode ):= True; end if;
+    if mouse.button_state( GLUT.LEFT_BUTTON )  then c( go_forward ):= True; end if;
+    if mouse.button_state( GLUT.RIGHT_BUTTON ) then c( slide_mode ):= True; end if;
 
-    dx:= Mouse.mx - Mouse.oldx;
-    dy:= Mouse.my - Mouse.oldy;
+    dx:= mouse.mx - mouse.oldx;
+    dy:= mouse.my - mouse.oldy;
     gx:= 0.0;
     gy:= 0.0;
     if abs dx <= 100 and then abs dy <= 100 then
@@ -102,25 +99,24 @@ package body Game_control is
     end if;
 
     if warp_mouse and then
-       (abs(Mouse.mx-size_x/2) > size_x/4 or abs(Mouse.my-size_y/2) > size_y/4)
+       (abs(mouse.mx-size_x/2) > size_x/4 or abs(mouse.my-size_y/2) > size_y/4)
     then
-      Mouse.oldx:= size_x/2;
-      Mouse.oldy:= size_y/2;
-      GLUT.WarpPointer(Mouse.oldx, Mouse.oldy);
+      mouse.oldx:= size_x/2;
+      mouse.oldy:= size_y/2;
+      GLUT.WarpPointer(mouse.oldx, mouse.oldy);
     else
-      Mouse.oldx:= Mouse.mx;
-      Mouse.oldy:= Mouse.my;
+      mouse.oldx:= mouse.mx;
+      mouse.oldy:= mouse.my;
     end if;
 
     if c( slide_mode ) then
-      c( slide_left ):=     Keyboard.special_set( GLUT.key_left );
-      c( slide_right ):=    Keyboard.special_set( GLUT.key_right );
+      c( slide_left ):=     keyboard.special_set( GLUT.KEY_LEFT );
+      c( slide_right ):=    keyboard.special_set( GLUT.KEY_RIGHT );
     else
-      c( turn_left ):=      Keyboard.special_set( GLUT.key_left );
-      c( turn_right ):=     Keyboard.special_set( GLUT.key_right );
+      c( turn_left ):=      keyboard.special_set( GLUT.KEY_LEFT );
+      c( turn_right ):=     keyboard.special_set( GLUT.KEY_RIGHT );
     end if;
 
   end Append_commands;
-
 
 end Game_control;

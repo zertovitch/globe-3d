@@ -60,19 +60,19 @@ package body GLOBE_3D.Collision_detection is
       facteur: constant:= 1.05;
     begin
       -- Cycle through face's vertices
-      for sf in reverse 1..o.Face_invariant(f).last_edge loop
-        sfp1:= 1 + sf mod o.Face_invariant(f).last_edge;
-        Ps  := o.point( o.Face_invariant(f).P_compact(sf)   );
-        Psp1:= o.point( o.Face_invariant(f).P_compact(sfp1) );
+      for sf in reverse 1..o.face_invariant(f).last_edge loop
+        sfp1:= 1 + sf mod o.face_invariant(f).last_edge;
+        Ps  := o.point( o.face_invariant(f).P_compact(sf)   );
+        Psp1:= o.point( o.face_invariant(f).P_compact(sfp1) );
         edge_vector:= Psp1 - Ps;
         npa:= n * edge_vector;
         nnpa:= Norm(npa);
-        if Almost_Zero(nnpa) then -- degenerated edge
+        if Almost_zero(nnpa) then -- degenerated edge
           return False;
         end if;
         npa:= 1.0/nnpa * npa;
         -- npa points towards the prism's interior
-        u:= P_after_step - (Ps + o.Centre);
+        u:= P_after_step - (Ps + o.centre);
         dist_edge:= u * npa;
         if dist_edge < - ball.radius * facteur then
           return False;
@@ -83,14 +83,14 @@ package body GLOBE_3D.Collision_detection is
 
   begin
     reacted:= 0.0;
-    if Almost_Zero(lstep0) then
+    if Almost_zero(lstep0) then
       return;
     end if;
 
     P_after_step:= ball.centre + step;
 
     for face in reverse 1..o.Max_faces loop
-      n:= o.Face_invariant(face).normal;
+      n:= o.face_invariant(face).normal;
       if check_normals then
         nn:= Norm(n);
         if Almost_zero(nn) then
@@ -102,7 +102,7 @@ package body GLOBE_3D.Collision_detection is
       --  put_line("step=" & step(0)'img & ' ' & step(1)'img & ' ' & step(2)'img);
       --  put_line("   n=" & n(0)'img & ' ' & n(1)'img & ' ' & n(2)'img);
       if step * n < 0.0 then
-        P_face:= o.point(o.Face_invariant(face).P_compact(1)) + o.Centre;
+        P_face:= o.point(o.face_invariant(face).P_compact(1)) + o.centre;
         -- ^ any point on the face, to measure distance to face's plane.
         u:= ball.centre - P_face;
         dist_before:= u * n;

@@ -29,5 +29,4 @@ package Float_portable_binary_transfer is
 
   procedure Merge(m1,m2: in Mantissa_type; e: in Exponent_type; f: out Num);
 
-
 end Float_portable_binary_transfer;

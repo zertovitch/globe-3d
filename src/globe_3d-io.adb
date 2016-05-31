@@ -118,7 +118,7 @@ package body GLOBE_3D.IO is
     str: in  String
   )
   is
-    tstr: constant String:= Trim(str,right);
+    tstr: constant String:= Trim(str,Right);
   begin
     U8'Write(s,tstr'Length);
     String'Write(s,tstr);
@@ -195,16 +195,16 @@ package body GLOBE_3D.IO is
     procedure Read_face(face: out Face_type; face_invar: in out Face_invariant_type) is
     begin
       -- 1/ Points
-      for i in face.p'Range loop
+      for i in face.P'Range loop
         Read_Intel(buf, v32);
-        face.p(i):= Integer(v32);
+        face.P(i):= Integer(v32);
       end loop;
       -- 2/ Portal connection: object name is stored;
       --    access must be found later
       Read_String(buf,face_invar.connect_name);
       -- 3/ Skin
       GL.IO.Get_Byte(buf,v8);
-      face.skin:= skin_type'Val(v8);
+      face.skin:= Skin_type'Val(v8);
       -- 4/ Mirror
       GL.IO.Get_Byte(buf,v8);
       face.mirror:= Boolean'Val(v8);
@@ -315,8 +315,8 @@ package body GLOBE_3D.IO is
     procedure Write_face(face: Face_type; face_invar: Face_invariant_type) is
     begin
       -- 1/ Points
-      for i in face.p'Range loop
-        Write_Intel(U32(face.p(i)));
+      for i in face.P'Range loop
+        Write_Intel(U32(face.P(i)));
       end loop;
       -- 2/ Portal connection: object name is stored
       if face.connecting = null then
@@ -325,7 +325,7 @@ package body GLOBE_3D.IO is
         Write_String(s, face.connecting.ID);
       end if;
       -- 3/ Skin
-      U8'Write(s,skin_type'Pos(face.skin));
+      U8'Write(s,Skin_type'Pos(face.skin));
       -- 4/ Mirror
       U8'Write(s,Boolean'Pos(face.mirror));
       -- 5/ Alpha
@@ -403,7 +403,7 @@ package body GLOBE_3D.IO is
     name_ext: constant String:= name_in_resource & extension;
 
     procedure Try( zif: in out Zip.Zip_info; name: String ) is
-      use Unzip.Streams;
+      use UnZip.Streams;
       fobj: Zipped_File_Type;
     begin -- Try
       Load_if_needed( zif, name );
@@ -424,15 +424,15 @@ package body GLOBE_3D.IO is
       Try( zif_level, To_String(level_data_name) );
     exception
       when Zip.File_name_not_found |
-           Zip.Zip_file_open_error =>
+           Zip.Zip_file_open_Error =>
         -- Not found in level-specific pack
         Try( zif_global, To_String(global_data_name) );
     end;
   exception
     when Zip.File_name_not_found |
-         Zip.Zip_file_open_error =>
+         Zip.Zip_file_open_Error =>
       -- Never found - neither in level, nor in global pack
-      raise_exception(
+      Raise_Exception(
         Missing_object'Identity,
         animal & " not found in any data resource pack: " & name_in_resource
       );
@@ -453,7 +453,7 @@ package body GLOBE_3D.IO is
     use Ada.Streams.Stream_IO;
     f: File_Type;
   begin
-    Open(f, in_file, file_name);
+    Open(f, In_File, file_name);
     Read(Stream(f),o);
     Close(f);
   end Load_file;
@@ -462,7 +462,7 @@ package body GLOBE_3D.IO is
     use Ada.Streams.Stream_IO;
     f: File_Type;
   begin
-    Create(f, out_file, file_name);
+    Create(f, Out_File, file_name);
     Write(Stream(f), Object_3D (o));
     -- ^ endian-proof and floating-point hardware neutral;
     --   using stream attribute would be machine-specific.
@@ -471,7 +471,7 @@ package body GLOBE_3D.IO is
 
   procedure Save_file(o: in Object_3D'Class) is
   begin
-    Save_file(Trim(o.ID,right) & object_extension, o);
+    Save_file(Trim(o.ID,Right) & object_extension, o);
   end Save_file;
 
   -------------
@@ -548,9 +548,9 @@ package body GLOBE_3D.IO is
     f: File_Type;
   begin
     if Index(file_name, ".")=0 then
-      Create(f, out_file, file_name & BSP_extension);
+      Create(f, Out_File, file_name & BSP_extension);
     else
-      Create(f, out_file, file_name);
+      Create(f, Out_File, file_name);
     end if;
     Write(Stream(f),tree);
     Close(f);
@@ -582,9 +582,9 @@ package body GLOBE_3D.IO is
         if tolerant then
           return null;
         else
-          raise_exception(
+          Raise_Exception(
             Missing_object_in_BSP'Identity,
-            "Object not found: [" & Trim(ID,right) & ']'
+            "Object not found: [" & Trim(ID,Right) & ']'
           );
         end if;
     end Find_object;
@@ -618,11 +618,11 @@ package body GLOBE_3D.IO is
         -- because only the numbers are stored in the BSP file.
         -- Once the nodes are linked together through accesses (pointers),
         -- we can forget the farm and let the tree float...
-        farm: array (0..n) of p_BSP_Node;
+        farm: array (0..n) of p_BSP_node;
       begin
         farm(0):= null;
         for i in 1..n loop
-          farm(i):= new BSP_Node;
+          farm(i):= new BSP_node;
         end loop;
         for i in 1..n loop
           Read_Intel(buf, j); -- node_id

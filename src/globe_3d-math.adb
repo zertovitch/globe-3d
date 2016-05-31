@@ -58,7 +58,6 @@ package body GLOBE_3D.Math is
     return a * (1.0 / Norm(a));
   end Normalized;
 
-
   -- Angles
   --
 
@@ -68,23 +67,23 @@ package body GLOBE_3D.Math is
      Vector_2  : constant Vector_3D := Normalized (Point_3 - Point_2);
      Cos_Theta : constant Real      := Vector_1 * Vector_2;
   begin
-     if cos_Theta >= 1.0 then
-        return ada.numerics.Pi;
+     if Cos_Theta >= 1.0 then
+        return Ada.Numerics.Pi;
      else
-        return arcCos (cos_Theta);
+        return Arccos (Cos_Theta);
      end if;
   end Angle;
 
   function to_Degrees (Radians : Real) return Real
   is
-     use ada.Numerics;
+     use Ada.Numerics;
   begin
      return Radians * 180.0 / Pi;
   end to_Degrees;
 
   function to_Radians (Degrees : Real) return Real
   is
-     use ada.Numerics;
+     use Ada.Numerics;
   begin
      return Degrees * Pi / 180.0;
   end to_Radians;
@@ -108,8 +107,6 @@ package body GLOBE_3D.Math is
     return AB;
   end "*";
 
-
-
   function "*"(A: Matrix_33; x: Vector_3D) return Vector_3D is
     r: Real;
     Ax: Vector_3D;
@@ -125,12 +122,10 @@ package body GLOBE_3D.Math is
     return Ax;
   end "*";
 
-
-
   function "*"(A: Matrix_44; x: Vector_3D) return Vector_3D is
     r: Real;
 
-      type Vector_4D is array (0..3) of gl.Double;
+      type Vector_4D is array (0..3) of GL.Double;
       x_4D : constant Vector_4D := (x(0), x(1), x(2) , 1.0);
       Ax   : Vector_4D;
 
@@ -145,9 +140,6 @@ package body GLOBE_3D.Math is
     end loop;
     return (Ax (0), Ax (1), Ax(2));
   end "*";
-
-
-
 
   function "*"(A: Matrix_44; x: Vector_3D) return Vector_4D is
     r: Real;
@@ -167,37 +159,30 @@ package body GLOBE_3D.Math is
     return Ax;
   end "*";
 
-
-
-
-
   function Transpose(A: Matrix_33) return Matrix_33 is
   begin
-    return ( (a(1,1),a(2,1),a(3,1)),
-             (a(1,2),a(2,2),a(3,2)),
-             (a(1,3),a(2,3),a(3,3)));
+    return ( (A(1,1),A(2,1),A(3,1)),
+             (A(1,2),A(2,2),A(3,2)),
+             (A(1,3),A(2,3),A(3,3)));
   end Transpose;
-
 
   function Transpose(A: Matrix_44) return Matrix_44 is
   begin
-    return ( (a(1,1),a(2,1),a(3,1),a(4,1)),
-             (a(1,2),a(2,2),a(3,2),a(4,2)),
-             (a(1,3),a(2,3),a(3,3),a(4,3)),
-             (a(1,4),a(2,4),a(3,4),a(4,4)));
+    return ( (A(1,1),A(2,1),A(3,1),A(4,1)),
+             (A(1,2),A(2,2),A(3,2),A(4,2)),
+             (A(1,3),A(2,3),A(3,3),A(4,3)),
+             (A(1,4),A(2,4),A(3,4),A(4,4)));
   end Transpose;
-
-
 
   function Det(A: Matrix_33) return Real is
   begin
     return
-      a(1,1) * a(2,2) * a(3,3) +
-      a(2,1) * a(3,2) * a(1,3) +
-      a(3,1) * a(1,2) * a(2,3) -
-      a(3,1) * a(2,2) * a(1,3) -
-      a(2,1) * a(1,2) * a(3,3) -
-      a(1,1) * a(3,2) * a(2,3);
+      A(1,1) * A(2,2) * A(3,3) +
+      A(2,1) * A(3,2) * A(1,3) +
+      A(3,1) * A(1,2) * A(2,3) -
+      A(3,1) * A(2,2) * A(1,3) -
+      A(2,1) * A(1,2) * A(3,3) -
+      A(1,1) * A(3,2) * A(2,3);
   end Det;
 
   function XYZ_rotation(ax,ay,az: Real) return Matrix_33 is
@@ -253,14 +238,13 @@ package body GLOBE_3D.Math is
   begin
      for Row in the_sub_Matrix'Range (1) loop
         for Col in the_sub_Matrix'Range (2) loop
-           the_sub_Matrix (Row, Col) := self (Row + start_Row - 1,
+           the_sub_Matrix (Row, Col) := Self (Row + start_Row - 1,
                                               Col + start_Col - 1);
         end loop;
      end loop;
 
      return the_sub_Matrix;
   end sub_Matrix;
-
 
   function Look_at (eye, center, up : Vector_3D) return Matrix_33
   is
@@ -273,44 +257,43 @@ package body GLOBE_3D.Math is
              (-forward (0),   -forward (1),   -forward (2)));
   end Look_at;
 
-
   -- Following procedure is from Project Spandex, by Paul Nettle
   procedure Re_Orthonormalize(M: in out Matrix_33) is
     dot1,dot2,vlen: Real;
   begin
-    dot1:= m(1,1) * m(2,1) + m(1,2) * m(2,2) + m(1,3) * m(2,3);
-    dot2:= m(1,1) * m(3,1) + m(1,2) * m(3,2) + m(1,3) * m(3,3);
+    dot1:= M(1,1) * M(2,1) + M(1,2) * M(2,2) + M(1,3) * M(2,3);
+    dot2:= M(1,1) * M(3,1) + M(1,2) * M(3,2) + M(1,3) * M(3,3);
 
-    m(1,1) := m(1,1) - dot1 * m(2,1) - dot2 * m(3,1);
-    m(1,2) := m(1,2) - dot1 * m(2,2) - dot2 * m(3,2);
-    m(1,3) := m(1,3) - dot1 * m(2,3) - dot2 * m(3,3);
+    M(1,1) := M(1,1) - dot1 * M(2,1) - dot2 * M(3,1);
+    M(1,2) := M(1,2) - dot1 * M(2,2) - dot2 * M(3,2);
+    M(1,3) := M(1,3) - dot1 * M(2,3) - dot2 * M(3,3);
 
-    vlen:= 1.0 / Sqrt(m(1,1) * m(1,1) +
-                      m(1,2) * m(1,2) +
-                      m(1,3) * m(1,3));
+    vlen:= 1.0 / Sqrt(M(1,1) * M(1,1) +
+                      M(1,2) * M(1,2) +
+                      M(1,3) * M(1,3));
 
-    m(1,1):= m(1,1) * vlen;
-    m(1,2):= m(1,2) * vlen;
-    m(1,3):= m(1,3) * vlen;
+    M(1,1):= M(1,1) * vlen;
+    M(1,2):= M(1,2) * vlen;
+    M(1,3):= M(1,3) * vlen;
 
-    dot1:= m(2,1) * m(1,1) + m(2,2) * m(1,2) + m(2,3) * m(1,3);
-    dot2:= m(2,1) * m(3,1) + m(2,2) * m(3,2) + m(2,3) * m(3,3);
+    dot1:= M(2,1) * M(1,1) + M(2,2) * M(1,2) + M(2,3) * M(1,3);
+    dot2:= M(2,1) * M(3,1) + M(2,2) * M(3,2) + M(2,3) * M(3,3);
 
-    m(2,1) := m(2,1) - dot1 * m(1,1) - dot2 * m(3,1);
-    m(2,2) := m(2,2) - dot1 * m(1,2) - dot2 * m(3,2);
-    m(2,3) := m(2,3) - dot1 * m(1,3) - dot2 * m(3,3);
+    M(2,1) := M(2,1) - dot1 * M(1,1) - dot2 * M(3,1);
+    M(2,2) := M(2,2) - dot1 * M(1,2) - dot2 * M(3,2);
+    M(2,3) := M(2,3) - dot1 * M(1,3) - dot2 * M(3,3);
 
-    vlen:= 1.0 / Sqrt(m(2,1) * m(2,1) +
-                      m(2,2) * m(2,2) +
-                      m(2,3) * m(2,3));
+    vlen:= 1.0 / Sqrt(M(2,1) * M(2,1) +
+                      M(2,2) * M(2,2) +
+                      M(2,3) * M(2,3));
 
-    m(2,1):= m(2,1) * vlen;
-    m(2,2):= m(2,2) * vlen;
-    m(2,3):= m(2,3) * vlen;
+    M(2,1):= M(2,1) * vlen;
+    M(2,2):= M(2,2) * vlen;
+    M(2,3):= M(2,3) * vlen;
 
-    m(3,1):= m(1,2) * m(2,3) - m(1,3) * m(2,2);
-    m(3,2):= m(1,3) * m(2,1) - m(1,1) * m(2,3);
-    m(3,3):= m(1,1) * m(2,2) - m(1,2) * m(2,1);
+    M(3,1):= M(1,2) * M(2,3) - M(1,3) * M(2,2);
+    M(3,2):= M(1,3) * M(2,1) - M(1,1) * M(2,3);
+    M(3,3):= M(1,1) * M(2,2) - M(1,2) * M(2,1);
   end Re_Orthonormalize;
 
   type Matrix_44 is array(0..3,0..3) of aliased Real; -- for GL.MultMatrix
@@ -355,12 +338,12 @@ package body GLOBE_3D.Math is
 
   function Almost_zero(x: Real) return Boolean is
   begin
-    return  abs X <= Real'Base'Model_Small;
+    return  abs x <= Real'Base'Model_Small;
   end Almost_zero;
 
   function Almost_zero(x: GL.Float) return Boolean is
   begin
-    return  abs X <= GL.Float'Base'Model_Small;
+    return  abs x <= GL.Float'Base'Model_Small;
   end Almost_zero;
 
 begin

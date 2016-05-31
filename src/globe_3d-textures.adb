@@ -1,4 +1,4 @@
-with GL, GL.IO, Unzip.Streams;
+with GL, GL.IO, UnZip.Streams;
 
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Exceptions;                    use Ada.Exceptions;
@@ -20,7 +20,7 @@ package body GLOBE_3D.Textures is
     name         : Ident:= empty;
   end record;
 
-  type Texture_info_array is array( Image_id range <>) of Texture_info;
+  type Texture_info_array is array( Image_ID range <>) of Texture_info;
   type p_Texture_info_array is access Texture_info_array;
 
   procedure Dispose is new Ada.Unchecked_Deallocation(Texture_info_array, p_Texture_info_array);
@@ -53,25 +53,25 @@ package body GLOBE_3D.Textures is
   -- Load_texture (internal) --
   -----------------------------
 
-  procedure Load_texture_2D (id: Image_id; blending_hint: out Boolean) is
-    tex_name: constant String:= Trim(texture_2D_infos.tex(id).name,Right);
+  procedure Load_texture_2D (id: Image_ID; blending_hint: out Boolean) is
+    tex_name: constant String:= Trim(texture_2d_infos.tex(id).name,Right);
 
     procedure Try( zif: in out Zip.Zip_info; name: String ) is
-      use Unzip.Streams;
+      use UnZip.Streams;
       ftex: Zipped_File_Type;
       procedure Try_a_type(tex_name_ext: String; format: GL.IO.Supported_format) is
       begin
         Open( ftex, zif, tex_name_ext );
         GL.IO.Load(
           Ada.Streams.Stream_IO.Stream_Access(Stream(ftex)),
-          format, Image_id'Pos(id)+1, blending_hint
+          format, Image_ID'Pos(id)+1, blending_hint
         );
         Close( ftex );
       exception
         when Zip.File_name_not_found =>
           raise;
         when e:others =>
-          raise_exception(
+          Raise_Exception(
             Exception_Identity(e),
             Exception_Message(e) & " on texture: " & tex_name_ext
           );
@@ -88,37 +88,37 @@ package body GLOBE_3D.Textures is
       Try( zif_level, To_String(level_data_name) );
     exception
       when Zip.File_name_not_found |
-           Zip.Zip_file_open_error =>
+           Zip.Zip_file_open_Error =>
         -- Not found in level-specific pack
         Try( zif_global, To_String(global_data_name) );
     end;
   exception
     when Zip.File_name_not_found |
-         Zip.Zip_file_open_error =>
+         Zip.Zip_file_open_Error =>
       -- Never found - neither in level, nor in global pack
-      raise_exception(Missing_texture'Identity, "texture: " & tex_name);
+      Raise_Exception(Missing_texture'Identity, "texture: " & tex_name);
   end Load_texture_2D;
 
-  function Valid_texture_ID(id: Image_id) return Boolean is
+  function Valid_texture_ID(id: Image_ID) return Boolean is
   begin
     return id in null_image+1 .. texture_2d_infos.last_entry_in_use;
   end Valid_texture_ID;
 
-  procedure Check_2D_texture(id: Image_id; blending_hint: out Boolean) is
+  procedure Check_2D_texture(id: Image_ID; blending_hint: out Boolean) is
   begin
     if not Valid_texture_ID(id) then
       raise Undefined_texture_ID;
     end if;
-    if texture_2D_infos.tex(id).loaded then
-      blending_hint:= texture_2D_infos.tex(id).blending_hint;
+    if texture_2d_infos.tex(id).loaded then
+      blending_hint:= texture_2d_infos.tex(id).blending_hint;
     else
       Load_texture_2D(id, blending_hint);
-      texture_2D_infos.tex(id).loaded:= True;
-      texture_2D_infos.tex(id).blending_hint:= blending_hint;
+      texture_2d_infos.tex(id).loaded:= True;
+      texture_2d_infos.tex(id).blending_hint:= blending_hint;
     end if;
   end Check_2D_texture;
 
-  procedure Check_2D_texture(id: Image_id) is
+  procedure Check_2D_texture(id: Image_ID) is
     junk_blending_hint: Boolean;
     pragma Warnings(off, junk_blending_hint);
   begin
@@ -140,7 +140,7 @@ package body GLOBE_3D.Textures is
     texture_2d_infos:= empty_texture_2d_infos;
   end Reset_textures;
 
-  procedure Add_texture_name( name: String; id: out Image_id ) is
+  procedure Add_texture_name( name: String; id: out Image_ID ) is
     new_tab: p_Texture_info_array;
     up_name: constant String:= To_Upper(name);
     -- Convention: UPPER_CASE for identifiers
@@ -183,7 +183,7 @@ package body GLOBE_3D.Textures is
     procedure Register( zif: in out Zip.Zip_info; name: String ) is
       --
       procedure Action( name: String ) is
-        dummy: Image_id;
+        dummy: Image_ID;
         ext: constant String:= To_Upper(name(name'Last-3..name'Last));
       begin
         if ext = ".BMP" or ext = ".TGA" then
@@ -197,7 +197,7 @@ package body GLOBE_3D.Textures is
       Traverse(zif);
       -- That's it!
     exception
-      when Zip.Zip_file_open_error =>
+      when Zip.Zip_file_open_Error =>
         null;
     end Register;
 
@@ -207,7 +207,7 @@ package body GLOBE_3D.Textures is
   end Register_textures_from_resources;
 
   procedure Associate_textures is
-    dummy: Image_id;
+    dummy: Image_ID;
   begin
     Reset_textures;
     for t in Texture_enum loop
@@ -215,7 +215,7 @@ package body GLOBE_3D.Textures is
     end loop;
   end Associate_textures;
 
-  function Texture_name( id: Image_id; trim: Boolean ) return Ident is
+  function Texture_name( id: Image_ID; trim: Boolean ) return Ident is
     tn: Ident;
   begin
     if not Valid_texture_ID(id) then
@@ -230,7 +230,7 @@ package body GLOBE_3D.Textures is
   end Texture_name;
 
   function Texture_ID( name: String ) return Image_ID is
-    trimmed: constant String:= Trim(name,both);
+    trimmed: constant String:= Trim(name,Both);
     up_name: constant String:= To_Upper(trimmed);
   begin
     return Texture_Name_Mapping.Element(
@@ -251,4 +251,3 @@ package body GLOBE_3D.Textures is
   end Texture_ID;
 
 end GLOBE_3D.Textures;
-

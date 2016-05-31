@@ -66,7 +66,7 @@ package body Zip_Streams is
    is
    begin
      return S.Is_Read_Only;
-   end Is_Read_Only;
+   end Is_Read_only;
 
    ---------------------------------------------------------------------
    -- Unbounded_Stream: stream based on an in-memory Unbounded_String --

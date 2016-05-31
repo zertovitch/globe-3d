@@ -4,13 +4,13 @@ package body GLUT_2D is
 
   GLUT_char: constant array(Font_type) of System.Address:=
   (
-    Screen_9_BY_15 => GLUT.BITMAP_9_BY_15,
-    Screen_8_BY_13 => GLUT.BITMAP_8_BY_13,
-    TIMES_ROMAN_10 => GLUT.BITMAP_TIMES_ROMAN_10,
-    TIMES_ROMAN_24 => GLUT.BITMAP_TIMES_ROMAN_24,
-    HELVETICA_10   => GLUT.BITMAP_HELVETICA_10,
-    HELVETICA_12   => GLUT.BITMAP_HELVETICA_12,
-    HELVETICA_18   => GLUT.BITMAP_HELVETICA_18
+    Screen_9_by_15 => GLUT.BITMAP_9_BY_15,
+    Screen_8_by_13 => GLUT.BITMAP_8_BY_13,
+    Times_Roman_10 => GLUT.BITMAP_TIMES_ROMAN_10,
+    Times_Roman_24 => GLUT.BITMAP_TIMES_ROMAN_24,
+    Helvetica_10   => GLUT.BITMAP_HELVETICA_10,
+    Helvetica_12   => GLUT.BITMAP_HELVETICA_12,
+    Helvetica_18   => GLUT.BITMAP_HELVETICA_18
   );
 
   procedure Text_output(
@@ -24,7 +24,7 @@ package body GLUT_2D is
     end loop;
   end Text_output;
 
-  procedure Push_3D_set_2D(main_size_x, main_size_y : GL.SizeI) is
+  procedure Push_3D_set_2D(main_size_x, main_size_y : GL.Sizei) is
     use GL;
   begin
     -- Push current matrix mode and viewport attributes.
@@ -52,7 +52,7 @@ package body GLUT_2D is
   procedure Text_output(
     x,y         : GL.Int;
     main_size_x,
-    main_size_y : GL.SizeI;
+    main_size_y : GL.Sizei;
     s           : String;
     font        : Font_type
   )
@@ -60,12 +60,12 @@ package body GLUT_2D is
   begin
     Push_3D_set_2D(main_size_x, main_size_y);
     GL.RasterPos(x,y);
-    Text_Output(s,font);
+    Text_output(s,font);
     Pop_3D;
   end Text_output;
 
   procedure Text_output(
-    p    : GL.Double_vector_3D;
+    p    : GL.Double_Vector_3D;
     s    : String;
     font : Font_type
   )
@@ -74,7 +74,7 @@ package body GLUT_2D is
     GL.PushMatrix;
     GL.Translate(p);
     GL.RasterPos(0,0);
-    Text_Output(s,font);
+    Text_output(s,font);
     GL.PopMatrix;
   end Text_output;
 
@@ -84,7 +84,7 @@ package body GLUT_2D is
     size_x,
     size_y      : GL.Int;
     main_size_x,
-    main_size_y : GL.SizeI
+    main_size_y : GL.Sizei
   )
   is
   begin
@@ -93,7 +93,7 @@ package body GLUT_2D is
     Push_3D_set_2D(main_size_x, main_size_y);
     GL.Translate(GL.Double(x),GL.Double(y),0.0);
     -- GL.Enable( GL.TEXTURE_2D );
-    GL.BindTexture(GL.TEXTURE_2D, GL.uint(Image_ID));
+    GL.BindTexture(GL.TEXTURE_2D, GL.Uint(Image_ID));
     GL.GL_Begin(GL.QUADS);
     GL.TexCoord(0.0,0.0);
     GL.Vertex(0,size_y);

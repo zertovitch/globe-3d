@@ -19,9 +19,9 @@ package body GL is
   procedure Light
    (light : LightIDEnm;
     pname : LightParameterVEnm;
-    params: Light_Float_vector)
+    params: Light_Float_Vector)
   is
-    params_copy: aliased Light_Float_vector:= params;
+    params_copy: aliased Light_Float_Vector:= params;
   begin
     Lightfv( light, pname, params_copy(0)'Unchecked_Access);
   end Light;
@@ -35,20 +35,19 @@ package body GL is
     Materialfv(face, pname, params_copy(0)'Unchecked_Access);
   end Material;
 
-
-  procedure Vertex (v: Double_vector_3D) is
+  procedure Vertex (v: Double_Vector_3D) is
   begin
     Vertex3dv(A2A_double.To_Pointer(v(0)'Address));
     -- This method is functionally identical
     -- to using GNAT's 'Unrestricted_Access
   end Vertex;
 
-  procedure Normal (v: Double_vector_3D) is
+  procedure Normal (v: Double_Vector_3D) is
   begin
     Normal3dv(A2A_double.To_Pointer(v(0)'Address));
   end Normal;
 
-  procedure Translate (v: Double_vector_3D) is
+  procedure Translate (v: Double_Vector_3D) is
   begin
     Translate(v(0),v(1),v(2));
   end Translate;
@@ -81,38 +80,38 @@ package body GL is
   -- Wrappers of GL.Extended --
   -----------------------------
 
-  procedure GenBuffers (n       : in GL.SizeI;
+  procedure GenBuffers (n       : in GL.Sizei;
                         buffers : in GL.uintPtr)
                         renames GL.Extended.GenBuffers;
 
-  procedure DeleteBuffers (n       : in GL.SizeI;
+  procedure DeleteBuffers (n       : in GL.Sizei;
                            buffers : in GL.uintPtr)
                            renames GL.Extended.DeleteBuffers;
 
   procedure BindBuffer (target : in VBO_Target;
-                        buffer : in gl.uInt)
+                        buffer : in GL.Uint)
                         renames GL.Extended.BindBuffer;
 
-  procedure BufferData (target : in GL.vbo_Target;
-                        size   : in GL.SizeIPtr;
-                        data   : in GL.Pointer;
+  procedure BufferData (target : in GL.VBO_Target;
+                        size   : in GL.sizeiPtr;
+                        data   : in GL.pointer;
                         usage  : in GL.VBO_Usage)
                         renames GL.Extended.BufferData;
 
-  procedure BufferSubData (target : in GL.vbo_Target;
+  procedure BufferSubData (target : in GL.VBO_Target;
                            offset : in GL.intPtr;
-                           size   : in GL.SizeIPtr;
-                           data   : in GL.Pointer)
+                           size   : in GL.sizeiPtr;
+                           data   : in GL.pointer)
                            renames GL.Extended.BufferSubData;
 
-  function MapBuffer   (target : in GL.vbo_Target;
-                        Policy : in GL.Access_Policy) return gl.Pointer
+  function MapBuffer   (target : in GL.VBO_Target;
+                        Policy : in GL.Access_Policy) return GL.pointer
                         renames GL.Extended.MapBuffer;
 
-  function UnmapBuffer (target : in GL.vbo_Target) return GL_Boolean
+  function UnmapBuffer (target : in GL.VBO_Target) return GL_Boolean
                         renames GL.Extended.UnmapBuffer;
 
-  procedure GetBufferParameter (target : in GL.vbo_Target;
+  procedure GetBufferParameter (target : in GL.VBO_Target;
                                 value  : in Buffer_Parameter;
                                 data   : in intPointer)
                                 renames GL.Extended.GetBufferParameter;

@@ -14,14 +14,12 @@ with Ada.Text_IO;                       use Ada.Text_IO;
 with System.Storage_Elements;
 with Ada.Containers.Generic_Array_Sort;
 
-
 package body GLOBE_3D is
 
   use GLOBE_3D.Options;
 
   package G3DT renames GLOBE_3D.Textures;
   package G3DM renames GLOBE_3D.Math;
-
 
   function Image( r: Real ) return String is
     s: String(1..10);
@@ -41,25 +39,18 @@ package body GLOBE_3D is
            ')';
   end Coords;
 
-
-
-
-
-
-
-
    -- normal support
    --
 
-   procedure Add_Normal_of_3p (o             : in     Object_3d'Class;
+   procedure Add_Normal_of_3p (o             : in     Object_3D'Class;
                                Pn0, Pn1, Pn2 : in     Integer;
                                N             : in out Vector_3D) is
-      use GL, G3dm;
+      use GL, G3DM;
 
       function Params return String is
       begin
          return
-           " Object: " & Trim(o.id,right) &
+           " Object: " & Trim(o.ID,Right) &
          " Pn0=" & Integer'Image(Pn0) &
          " Pn1=" & Integer'Image(Pn1) &
          " Pn2=" & Integer'Image(Pn2);
@@ -69,7 +60,7 @@ package body GLOBE_3D is
       if Pn0=0 or Pn1=0 or Pn2=0 then return; end if;
       N_contrib:= (o.point(Pn1)-o.point(Pn0))*(o.point(Pn2)-o.point(Pn0)) ;
       if strict_geometry and then Almost_zero(Norm2(N_contrib)) then
-         raise_exception( zero_normal'Identity,
+         Raise_Exception( zero_normal'Identity,
                          Params &
                          " P0=" & Coords(o.point(Pn0)) &
                          " P1=" & Coords(o.point(Pn1)) &
@@ -80,14 +71,11 @@ package body GLOBE_3D is
       N:= N + N_contrib;
    exception
       when e: others =>
-         raise_exception(
+         Raise_Exception(
                          Exception_Identity(e),
                          Exception_Message(e) & Params
                         );
    end Add_Normal_of_3p;
-
-
-
 
   -- blending support
   --
@@ -98,19 +86,16 @@ package body GLOBE_3D is
     return not Almost_zero(m-1.0);
   end Is_to_blend;
 
-
   function Is_to_blend(m: GL.Float) return Boolean is
     use GL, G3DM;
   begin
     return not Almost_zero(m-1.0);
   end Is_to_blend;
 
-
   function Is_to_blend(m: GL.Material_Float_vector) return Boolean is
   begin
     return Is_to_blend(m(3));
   end Is_to_blend;
-
 
   function Is_to_blend(m: GL.Materials.Material_type) return Boolean  is
   begin
@@ -139,35 +124,34 @@ package body GLOBE_3D is
 
   procedure free (o     : in out p_Visual)
   is
-     procedure deallocate is new ada.unchecked_deallocation (Visual'Class, p_Visual);
+     procedure deallocate is new Ada.Unchecked_Deallocation (Visual'Class, p_Visual);
   begin
      destroy (o.all);
      deallocate (o);
   end free;
 
-  function skinned_Geometrys (o : in Visual) return gl.skinned_geometry.skinned_Geometrys
+  function skinned_Geometrys (o : in Visual) return GL.Skinned_Geometry.skinned_Geometrys
   is
   begin
-     return gl.skinned_geometry.null_skinned_Geometrys;
+     return GL.Skinned_Geometry.null_skinned_Geometrys;
   end skinned_Geometrys;
 
   function Width  (o: in Visual'class) return Real
   is
   begin
-     return bounds (o).box.X_Extent.Max - bounds (o).box.X_Extent.Min;
+     return Bounds (o).Box.X_Extent.Max - Bounds (o).Box.X_Extent.Min;
   end Width;
 
   function Height  (o: in Visual'class) return Real
   is
   begin
-     return bounds (o).box.Y_Extent.Max - bounds (o).box.Y_Extent.Min;
+     return Bounds (o).Box.Y_Extent.Max - Bounds (o).Box.Y_Extent.Min;
   end Height;
-
 
   function Depth  (o: in Visual'class) return Real
   is
   begin
-     return bounds (o).box.Z_Extent.Max - bounds (o).box.Z_Extent.Min;
+     return Bounds (o).Box.Z_Extent.Max - Bounds (o).Box.Z_Extent.Min;
   end Depth;
 
   -- 'Object_3D'
@@ -185,9 +169,9 @@ package body GLOBE_3D is
       procedure Check(f,v: Integer) is
       pragma Inline(Check);
       begin
-        if v < 0 or else v > o.max_points then
-          raise_exception(bad_vertex_number'Identity,
-               o.id & " face="   & Integer'Image(f) &
+        if v < 0 or else v > o.Max_points then
+          Raise_Exception(bad_vertex_number'Identity,
+               o.ID & " face="   & Integer'Image(f) &
                       " vertex=" & Integer'Image(v));
         end if;
       end Check;
@@ -199,15 +183,15 @@ package body GLOBE_3D is
         if Pn1=0 or else Pn2=0 then return; end if;
         -- Detect same point number
         if Pn1=Pn2 then
-          raise_exception(duplicated_vertex'Identity,
-               o.id & " in face "   & Integer'Image(f) );
+          Raise_Exception(duplicated_vertex'Identity,
+               o.ID & " in face "   & Integer'Image(f) );
         end if;
         -- Detect same point coordinates (tolerated in an object,
         -- although inefficient, but harms as vertex of the same face!)
 
         if Almost_zero(Norm2(o.point(Pn1) - o.point(Pn2))) then
-          raise_exception(duplicated_vertex_location'Identity,
-               o.id & " in face "   & Integer'Image(f) );
+          Raise_Exception(duplicated_vertex_location'Identity,
+               o.ID & " in face "   & Integer'Image(f) );
         end if;
       end Check_duplicate;
 
@@ -256,7 +240,7 @@ package body GLOBE_3D is
       if l in Edge_count then
         fi.last_edge:= l;
       else
-        raise_exception( bad_edge_number'Identity, o.id );
+        Raise_Exception( bad_edge_number'Identity, o.ID );
       end if;
       -- * Face invariant : Textured face: extremities
       for e in 1..l loop
@@ -305,7 +289,6 @@ package body GLOBE_3D is
       end if;
     end Calculate_face_invariants;
 
-
     adjacent_faces: array(o.point'Range) of Natural:= (others => 0);
     pf: Natural;
     length: Real;
@@ -329,32 +312,32 @@ package body GLOBE_3D is
         o.transparent:= o.transparent or o.face_invariant(i).blending;
       exception
         when zero_summed_normal =>
-              raise_exception( zero_summed_normal'Identity,
-               o.id & " face=" & Integer'Image(i));
+              Raise_Exception( zero_summed_normal'Identity,
+               o.ID & " face=" & Integer'Image(i));
       end;
     end loop;
 
     declare
-      use globe_3d.REF;
+      use GLOBE_3D.REF;
       max_Norm2 : Real := 0.0;
     begin
-      o.bounds.box.X_Extent.Min := Real'Last;   o.bounds.box.X_Extent.Max := Real'First;
-      o.bounds.box.Y_Extent.Min := Real'Last;   o.bounds.box.Y_Extent.Max := Real'First;
-      o.bounds.box.Z_Extent.Min := Real'Last;   o.bounds.box.Z_Extent.Max := Real'First;
+      o.bounds.Box.X_Extent.Min := Real'Last;   o.bounds.Box.X_Extent.Max := Real'First;
+      o.bounds.Box.Y_Extent.Min := Real'Last;   o.bounds.Box.Y_Extent.Max := Real'First;
+      o.bounds.Box.Z_Extent.Min := Real'Last;   o.bounds.Box.Z_Extent.Max := Real'First;
 
       for p in o.point'Range loop
         o.edge_vector(p)          := (0.0,0.0,0.0);
-        max_Norm2                 := Real'Max (Norm2 (o.Point (p)),  max_Norm2);
+        max_Norm2                 := Real'Max (Norm2 (o.point (p)),  max_Norm2);
 
-        o.bounds.box.X_Extent.Min := Real'Min (o.bounds.box.X_Extent.Min,  o.Point (p)(0));  -- tbd: set extents and bounding sphere radius in
-        o.bounds.box.X_Extent.Max := Real'Max (o.bounds.box.X_Extent.Max,  o.Point (p)(0));  --      common procedure for 'object_base' class.
-        o.bounds.box.Y_Extent.Min := Real'Min (o.bounds.box.Y_Extent.Min,  o.Point (p)(1));
-        o.bounds.box.Y_Extent.Max := Real'Max (o.bounds.box.Y_Extent.Max,  o.Point (p)(1));
-        o.bounds.box.Z_Extent.Min := Real'Min (o.bounds.box.Z_Extent.Min,  o.Point (p)(2));
-        o.bounds.box.Z_Extent.Max := Real'Max (o.bounds.box.Z_Extent.Max,  o.Point (p)(2));
+        o.bounds.Box.X_Extent.Min := Real'Min (o.bounds.Box.X_Extent.Min,  o.point (p)(0));  -- tbd: set extents and bounding sphere radius in
+        o.bounds.Box.X_Extent.Max := Real'Max (o.bounds.Box.X_Extent.Max,  o.point (p)(0));  --      common procedure for 'object_base' class.
+        o.bounds.Box.Y_Extent.Min := Real'Min (o.bounds.Box.Y_Extent.Min,  o.point (p)(1));
+        o.bounds.Box.Y_Extent.Max := Real'Max (o.bounds.Box.Y_Extent.Max,  o.point (p)(1));
+        o.bounds.Box.Z_Extent.Min := Real'Min (o.bounds.Box.Z_Extent.Min,  o.point (p)(2));
+        o.bounds.Box.Z_Extent.Max := Real'Max (o.bounds.Box.Z_Extent.Max,  o.point (p)(2));
       end loop;
 
-      o.bounds.sphere_Radius := sqRt (max_Norm2);
+      o.bounds.sphere_Radius := Sqrt (max_Norm2);
     end;
 
     -- Calculate edge vectors.
@@ -372,10 +355,10 @@ package body GLOBE_3D is
       if is_textured(o.face(f).skin) and then
          not Textures.Valid_texture_ID(o.face(f).texture)
       then
-        raise_exception(Textures.Undefined_texture_ID'Identity,
-           Trim(o.id, right) &
+        Raise_Exception(Textures.Undefined_texture_ID'Identity,
+           Trim(o.ID, Right) &
            " face="   & Integer'Image(f) &
-           " skin="   & Skin_Type'Image(o.face(f).skin) &
+           " skin="   & Skin_type'Image(o.face(f).skin) &
            " texture_id=" & Image_ID'Image(o.face(f).texture));
       end if;
     end loop;
@@ -383,8 +366,8 @@ package body GLOBE_3D is
       if adjacent_faces(p) = 0 then
         if strict_geometry then
           -- Strict approach: detect any unmatched point:
-          raise_exception(point_unmatched'Identity,
-            Trim(o.id, right) &
+          Raise_Exception(point_unmatched'Identity,
+            Trim(o.ID, Right) &
             " point " & Integer'Image(p) &
             " belongs to none of the object's face");
         end if;
@@ -527,7 +510,6 @@ package body GLOBE_3D is
           end if;
         end if;
 
-
         if First_Face
           or else Previous_face.skin = invisible
           or else fa.skin /= Previous_face.skin
@@ -537,7 +519,7 @@ package body GLOBE_3D is
           case fa.skin is
             when texture_only | coloured_texture | material_texture =>
               Enable( TEXTURE_2D );
-              GL.BindTexture( GL.TEXTURE_2D, GL.Uint(Image_id'Pos(fa.texture)+1) );
+              GL.BindTexture( GL.TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.texture)+1) );
               -- ^ superfluous ?!!
             when colour_only | material_only =>
               Disable( TEXTURE_2D );
@@ -614,9 +596,7 @@ package body GLOBE_3D is
       end loop;
     end Display_normals;
 
-
     use GL, G3DM;
-
 
   begin -- Display_one
 
@@ -624,13 +604,12 @@ package body GLOBE_3D is
       Pre_calculate(o);
     end if;
 
-    gl.bindBuffer    (gl.ARRAY_BUFFER, 0);             -- disable 'vertex buffer objects'
-    gl.bindBuffer    (gl.ELEMENT_ARRAY_BUFFER, 0);     -- disable 'vertex buffer objects' indices
+    GL.BindBuffer    (GL.ARRAY_BUFFER, 0);             -- disable 'vertex buffer objects'
+    GL.BindBuffer    (GL.ELEMENT_ARRAY_BUFFER, 0);     -- disable 'vertex buffer objects' indices
 
     --      gl.disableClientState (gl.TEXTURE_COORD_ARRAY);
     --      gl.disable    (ALPHA_TEST);
-    gl.enable (Lighting);
-
+    GL.Enable (LIGHTING);
 
     GL.PushMatrix; -- 26-May-2006: instead of rotating/translating back
     GL.Translate( o.centre );
@@ -638,17 +617,17 @@ package body GLOBE_3D is
 
     -- List preparation phase
     case o.List_Status is
-      when No_list | Is_List =>
+      when No_List | Is_List =>
         null;
 
       when Generate_List =>
         o.List_Id := Integer(GL.GenLists(1));
-        GL.NewList (GL.uint (o.List_Id), COMPILE_AND_EXECUTE);
+        GL.NewList (GL.Uint (o.List_Id), COMPILE_AND_EXECUTE);
     end case;
 
     -- Execution phase
     case o.List_Status is
-      when No_list =>
+      when No_List =>
         for f in o.face'Range loop
           Display_face_optimized.Display_face(True, o.face(f), o.face_invariant(f));
           -- We mimic the old Display_face with redundant color, material, etc.
@@ -659,12 +638,12 @@ package body GLOBE_3D is
           Display_face_optimized.Display_face(f = o.face'First, o.face(f), o.face_invariant(f));
         end loop;
 
-      when Is_List => GL.CallList (GL.uint (o.List_Id));
+      when Is_List => GL.CallList (GL.Uint (o.List_Id));
     end case;
 
     -- Close list
     case o.List_Status is
-      when No_list | Is_List => null;
+      when No_List | Is_List => null;
 
       when Generate_List  =>
         GL.EndList;
@@ -689,7 +668,6 @@ package body GLOBE_3D is
 
     --  GL.Translate( -o.centre );
   end Display_one;
-
 
   procedure Display(
     o          : in out Object_3D;
@@ -785,10 +763,10 @@ package body GLOBE_3D is
         if portal_depth > 0 then
           GL.Enable(GL.SCISSOR_TEST);
           GL.Scissor(
-            x      => GL.Int(clip_area.x1),
-            y      => GL.Int(clip_area.y1),
-            width  => GL.SizeI(clip_area.x2 - clip_area.x1+1),
-            height => GL.SizeI(clip_area.y2 - clip_area.y1+1)
+            x      => GL.Int(clip_area.X1),
+            y      => GL.Int(clip_area.Y1),
+            width  => GL.Sizei(clip_area.X2 - clip_area.X1+1),
+            height => GL.Sizei(clip_area.Y2 - clip_area.Y1+1)
           );
         else
           GL.Disable(GL.SCISSOR_TEST);
@@ -819,16 +797,16 @@ package body GLOBE_3D is
     Reset_portal_seen(o);
   end Display;
 
-  procedure Destroy (o : in out Object_3D) is
+  procedure destroy (o : in out Object_3D) is
     ol: p_Object_3D_list:= o.sub_objects;
   begin
     while ol /= null loop
-      Free(p_Visual(ol.objc));
+      free(p_Visual(ol.objc));
       ol:= ol.next;
     end loop;
-  end Destroy;
+  end destroy;
 
-  procedure set_Alpha(o: in out Object_3D; Alpha : in gl.Double) is
+  procedure set_Alpha(o: in out Object_3D; Alpha : in GL.Double) is
   begin
     for f in o.face'Range loop
       o.face(f).alpha := Alpha;
@@ -845,11 +823,10 @@ package body GLOBE_3D is
     return o.Max_faces;
   end face_Count;
 
-  function  Bounds(o: in Object_3D) return gl.geometry.Bounds_record is
+  function  Bounds(o: in Object_3D) return GL.Geometry.Bounds_record is
   begin
-    return o.Bounds;
+    return o.bounds;
   end Bounds;
-
 
   -- Lighting support.
   --
@@ -926,7 +903,7 @@ package body GLOBE_3D is
       begin
         Zip.Load( zif, name );
       exception
-        when Zip.Zip_file_open_error => -- Try with lower case:
+        when Zip.Zip_file_open_Error => -- Try with lower case:
           Zip.Load( zif, To_Lower(name) );
       end;
     end if;
@@ -967,7 +944,7 @@ package body GLOBE_3D is
 
   function Get_name(o: Visual'class) return String is
   begin
-    return Trim(o.id,right);
+    return Trim(o.ID,Right);
   end Get_name;
 
   procedure Rebuild_links(
@@ -1025,11 +1002,11 @@ package body GLOBE_3D is
           if tolerant_obj then
             o.face(f).connecting:= null;
           else
-            raise_exception(
+            Raise_Exception(
               Portal_connection_failed'Identity,
-              "For object name [" & Trim(o.ID,right) &
+              "For object name [" & Trim(o.ID,Right) &
               "], looking for [" &
-              Trim(o.face_invariant(f).connect_name,right)
+              Trim(o.face_invariant(f).connect_name,Right)
               & ']'
             );
           end if;
@@ -1062,10 +1039,6 @@ package body GLOBE_3D is
     o.face_invariant(face).connect_name(1..name'Length):= name;
   end Portal_name_hint;
 
-
-
-
-
    ----------------------------------------
    -- tbd: has been moved (for the moment) external to 'render' for performance, but this makes package task unsafe !
    --
@@ -1073,28 +1046,27 @@ package body GLOBE_3D is
       type visual_Geometry is
          record
             Visual   : p_Visual;
-            Geometry : gl.skinned_geometry.skinned_Geometry;
+            Geometry : GL.Skinned_Geometry.skinned_Geometry;
          end record;
       pragma Convention (C, visual_Geometry);  -- using convention pragma to disable default initialization (for performance)
 
       type visual_Geometrys is array (Positive range <>) of visual_Geometry;
       pragma Convention (C, visual_Geometrys);  -- using convention pragma to disable default initialization (for performance)
 
-   all_Geometrys     : visual_geometrys (1 .. 80_000);   pragma Convention (C, all_Geometrys);  -- tbd: this is slow !
+   all_Geometrys     : visual_Geometrys (1 .. 80_000);   pragma Convention (C, all_Geometrys);  -- tbd: this is slow !
    --
    --------------------------------------
-
 
    procedure render (the_Visuals : in Visual_array;   the_Camera : in Camera)
    is
       use GL, REF, G3DM;
 
-      all_Transparents  : globe_3d.Visual_array (1 .. 10_000);
+      all_Transparents  : GLOBE_3D.Visual_array (1 .. 10_000);
       transparent_Count : Natural                           := 0;
 
       geometry_Count    : Natural                       := 0;   -- for 'all_Geometrys' array.
 
-      current_Skin      : gl.skins.p_Skin;
+      current_Skin      : GL.Skins.p_Skin;
 
    begin
       -- prepare openGL to display visuals.
@@ -1108,7 +1080,7 @@ package body GLOBE_3D is
 
       MatrixMode    (MODELVIEW);
       Set_GL_Matrix (the_Camera.world_rotation);
-      Translate     (-the_Camera.Clipper.eye_Position (0),  -the_Camera.Clipper.eye_Position (1),  -the_Camera.Clipper.eye_Position (2));
+      Translate     (-the_Camera.clipper.eye_position (0),  -the_Camera.clipper.eye_position (1),  -the_Camera.clipper.eye_position (2));
 
       PushMatrix;
 
@@ -1117,9 +1089,9 @@ package body GLOBE_3D is
       for Each in the_Visuals'Range loop
          declare
             the_Visual       : Visual'Class                          renames the_Visuals (Each).all;
-            visual_Geometrys : gl.skinned_geometry.skinned_Geometrys renames skinned_Geometrys (the_visual);
+            visual_Geometrys : GL.Skinned_Geometry.skinned_Geometrys renames skinned_Geometrys (the_Visual);
          begin
-            if is_transparent (the_Visual) then
+            if is_Transparent (the_Visual) then
                transparent_Count                    := transparent_Count + 1;
                all_Transparents (transparent_Count) := the_Visual'Access;
             else
@@ -1129,24 +1101,22 @@ package body GLOBE_3D is
                   all_Geometrys (geometry_Count).Geometry := visual_Geometrys (Each);
                end loop;
 
-               Display (the_Visuals (Each).all,  the_Camera.Clipper);
+               Display (the_Visuals (Each).all,  the_Camera.clipper);
             end if;
          end;
       end loop;
 
-
-      gl.Errors.log;
-
+      GL.Errors.log;
 
       -- display all opaque geometries, sorted by gl geometry primitive kind and skin.
       --
       declare
-         function "<" (L, R : in visual_geometry) return Boolean
+         function "<" (L, R : in visual_Geometry) return Boolean
          is
-            use gl.Geometry, System.Storage_Elements;
+            use GL.Geometry, System.Storage_Elements;
          begin
             if primitive_Id (L.Geometry.Geometry.all)  =  primitive_Id (R.Geometry.Geometry.all) then   -- tbd: find better naming scheme to avoid '.Geometry.Geometry.'
-               return to_Integer (L.Geometry.Skin.all'Address)  <  to_Integer (R.Geometry.Skin.all'Address); -- tbd: check this is safe/portable
+               return To_Integer (L.Geometry.Skin.all'Address)  <  To_Integer (R.Geometry.Skin.all'Address); -- tbd: check this is safe/portable
                -- GdM: aaargh! remove that !!
             elsif primitive_Id (L.Geometry.Geometry.all)  <  primitive_Id (R.Geometry.Geometry.all) then
                return True;
@@ -1157,8 +1127,8 @@ package body GLOBE_3D is
          end "<";
 
          procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
-                                                                  visual_geometry,
-                                                                  visual_geometrys);
+                                                                  visual_Geometry,
+                                                                  visual_Geometrys);
          use GL.Skins, GL.Geometry, GL.Skinned_Geometry;
 
          current_Visual : p_Visual;
@@ -1175,26 +1145,25 @@ package body GLOBE_3D is
             if all_Geometrys (Each).Geometry.Skin /= current_Skin then
                current_Skin := all_Geometrys (Each).Geometry.Skin;
                enable (current_Skin.all);
-               gl.Errors.log;
+               GL.Errors.log;
             end if;
 
             if all_Geometrys (Each).Geometry.Veneer /= null then
                enable (all_Geometrys (Each).Geometry.Veneer.all);
-               gl.Errors.log;
+               GL.Errors.log;
             end if;
 
-
             if all_Geometrys (Each).Visual = current_Visual then
-               draw (all_Geometrys (Each).Geometry.Geometry.all);
-               gl.Errors.log;
+               Draw (all_Geometrys (Each).Geometry.Geometry.all);
+               GL.Errors.log;
             else
                GL.PopMatrix;
                GL.PushMatrix;
                GL.Translate       (all_Geometrys (Each).Visual.centre);
                Multiply_GL_Matrix (all_Geometrys (Each).Visual.rotation);
 
-               draw (all_Geometrys (Each).Geometry.Geometry.all);
-               gl.Errors.log;
+               Draw (all_Geometrys (Each).Geometry.Geometry.all);
+               GL.Errors.log;
 
                current_Visual := all_Geometrys (Each).Visual;
             end if;
@@ -1204,32 +1173,32 @@ package body GLOBE_3D is
          GL.PopMatrix;
       end;
 
-      gl.Errors.log;
+      GL.Errors.log;
 
       -- display all transparent visuals, sorted from far to near.
       --
       declare
-         function "<" (L, R : in globe_3d.p_Visual) return Boolean -- tbd : ugh move expensive calcs outside
+         function "<" (L, R : in GLOBE_3D.p_Visual) return Boolean -- tbd : ugh move expensive calcs outside
          is
          begin
-            return L.Centre_camera_space (2) < R.Centre_camera_space (2);  -- nb: in camera space, negative Z is forward, so use '<'.
+            return L.centre_camera_space (2) < R.centre_camera_space (2);  -- nb: in camera space, negative Z is forward, so use '<'.
          end "<";
 
          --procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
          procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
-                                                                  globe_3d.p_Visual,
-                                                                  globe_3d.Visual_array);
+                                                                  GLOBE_3D.p_Visual,
+                                                                  GLOBE_3D.Visual_array);
       begin
          for Each in 1 .. transparent_Count loop  -- pre-calculate each visuals Centre in camera space.
-            all_Transparents (Each).Centre_camera_space :=   the_Camera.world_Rotation
-                                                           * (all_Transparents (Each).Centre - the_Camera.Clipper.eye_Position);
+            all_Transparents (Each).centre_camera_space :=   the_Camera.world_rotation
+                                                           * (all_Transparents (Each).centre - the_Camera.clipper.eye_position);
          end loop;
 
          if transparent_Count > 1 then
             sort (all_Transparents (1 .. transparent_Count));
          end if;
 
-         gl.depthMask (gl_False);  -- make depth buffer read-only, for correct transparency
+         GL.DepthMask (GL_FALSE);  -- make depth buffer read-only, for correct transparency
 
          Enable    (LIGHTING);   -- ensure lighting is enabled for G3D.Display of transparents (obsolete).
          Enable    (BLEND);
@@ -1239,26 +1208,26 @@ package body GLOBE_3D is
          for Each in 1 .. transparent_Count loop
             declare
                the_Visual       : Visual'Class                          renames all_Transparents (Each).all;
-               visual_Geometrys : constant gl.skinned_geometry.skinned_Geometrys      := skinned_Geometrys (the_visual); -- tbd: apply ogl state sorting here ?
+               visual_Geometrys : constant GL.Skinned_Geometry.skinned_Geometrys      := skinned_Geometrys (the_Visual); -- tbd: apply ogl state sorting here ?
             begin
-               display (the_Visual,  the_Camera.clipper);
-               gl.Errors.log;
+               Display (the_Visual,  the_Camera.clipper);
+               GL.Errors.log;
 
                for Each in visual_Geometrys'Range loop
                   declare
-                     use gl.Skins, gl.Geometry;
-                     the_Geometry : gl.skinned_geometry.skinned_Geometry renames visual_Geometrys (Each);
+                     use GL.Skins, GL.Geometry;
+                     the_Geometry : GL.Skinned_Geometry.skinned_Geometry renames visual_Geometrys (Each);
                   begin
 
                      if the_Geometry.Skin /= current_Skin then
                         current_Skin := the_Geometry.Skin;
                         enable (current_Skin.all);
-                        gl.Errors.log;
+                        GL.Errors.log;
                      end if;
 
                      if the_Geometry.Veneer /= null then
                         enable (the_Geometry.Veneer.all);
-                        gl.Errors.log;
+                        GL.Errors.log;
                      end if;
 
                      GL.PushMatrix;
@@ -1266,8 +1235,8 @@ package body GLOBE_3D is
                      GL.Translate       (the_Visual.centre);
                      Multiply_GL_Matrix (the_Visual.rotation);
 
-                     draw (the_Geometry.Geometry.all);
-                     gl.Errors.log;
+                     Draw (the_Geometry.Geometry.all);
+                     GL.Errors.log;
 
                      GL.PopMatrix;
                   end;
@@ -1276,15 +1245,13 @@ package body GLOBE_3D is
             end;
          end loop;
 
-         gl.depthMask (gl_True);
+         GL.DepthMask (GL_TRUE);
       end;
-
 
       PopMatrix;
 
-      gl.Errors.log;      -- tbd: for debug only
+      GL.Errors.log;      -- tbd: for debug only
    end render;
-
 
    function empty_map return Map_of_Visuals is
      thing: Map_of_Visuals;
@@ -1320,4 +1287,3 @@ package body GLOBE_3D is
    end Map_of;
 
 end GLOBE_3D;
-

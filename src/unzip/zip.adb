@@ -863,7 +863,7 @@ package body Zip is
       end if;
       Zip.BlockRead(from, buf(1..Integer'Min(remains, buf'Last)), actually_read);
       if actually_read = 0 then -- premature end, unexpected
-        raise Zip.Zip_File_Error;
+        raise Zip.Zip_file_Error;
       end if;
       remains:= remains - actually_read;
       Zip.BlockWrite(into, buf(1..actually_read));

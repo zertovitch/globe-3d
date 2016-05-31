@@ -65,7 +65,7 @@ package body GLOBE_3D.Portals is
   begin
     b:= ( X1|Y1=> Integer'Last, X2|Y2=> Integer'First );
 
-    for sf in reverse 1 .. o.Face_invariant(face).last_edge loop
+    for sf in reverse 1 .. o.face_invariant(face).last_edge loop
       Projection(
         o.point(o.face_invariant(face).P_compact(sf))+o.centre,
         x, y,
@@ -106,7 +106,7 @@ package body GLOBE_3D.Portals is
     GL.Disable( GL.TEXTURE_2D );
     -- GL.Disable( GL.DEPTH_TEST ); -- eeerh, @#*$!, doesn't work!
     -- Workaround, we make the rectangle 1 pixel smaller
-    rect:= (clip.x1+1,clip.y1+1,clip.x2-1,clip.y2-1);
+    rect:= (clip.X1+1,clip.Y1+1,clip.X2-1,clip.Y2-1);
     -- Push current matrix mode and viewport attributes.
     GL.PushAttrib(GL.TRANSFORM_BIT + GL.VIEWPORT_BIT);
     GL.MatrixMode(GL.PROJECTION);
@@ -114,9 +114,9 @@ package body GLOBE_3D.Portals is
     GL.LoadIdentity;
     GL.Ortho(
       left     => 0.0,
-      right    => GL.Double(main.x2-1),
+      right    => GL.Double(main.X2-1),
       bottom   => 0.0,
-      top      => GL.Double(main.y2-1),
+      top      => GL.Double(main.Y2-1),
       near_val => -1.0,
       far_val  => 1.0
     );
@@ -128,13 +128,13 @@ package body GLOBE_3D.Portals is
     -- A green rectangle to signal the clipping area
     GL.Color( 0.1, 1.0, 0.1, 1.0);
     GL_Begin(GL.LINES);
-    Frame_Rect( rect.x1,  rect.y1,  rect.x2,  rect.y2 );
+    Frame_Rect( rect.X1,  rect.Y1,  rect.X2,  rect.Y2 );
     GL_End;
     -- A red cross across the area
     GL.Color( 1.0, 0.1, 0.1, 1.0);
     GL_Begin(GL.LINES);
-    Line( clip.x1,clip.y1,clip.x2,clip.y2 );
-    Line( clip.x2,clip.y1,clip.x1,clip.y2 );
+    Line( clip.X1,clip.Y1,clip.X2,clip.Y2 );
+    Line( clip.X2,clip.Y1,clip.X1,clip.Y2 );
     GL_End;
 
     GL.PopMatrix;

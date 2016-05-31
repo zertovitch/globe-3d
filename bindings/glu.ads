@@ -49,7 +49,6 @@ package GLU is
 
   VERSION_1_1                     : constant := 1;
 
-
   -- The GLU boolean constants
   GL_FALSE                           : constant := GL.GL_FALSE;
   GL_TRUE                            : constant := GL.GL_TRUE;
@@ -57,12 +56,12 @@ package GLU is
   ------------------------------------------------------------------------------
 
   type viewPortRec is record
-     X, Y:           aliased GL.int;
-     Width, Height:  aliased GL.int;
+     X, Y:           aliased GL.Int;
+     Width, Height:  aliased GL.Int;
   end record;
 
-  type floatMatrix      is array ( 0..3, 0..3 ) of aliased GL.float;
-  type doubleMatrix     is array ( 0..3, 0..3 ) of aliased GL.double;
+  type floatMatrix      is array ( 0..3, 0..3 ) of aliased GL.Float;
+  type doubleMatrix     is array ( 0..3, 0..3 ) of aliased GL.Double;
 
   type viewPortRecPtr   is access all viewPortRec;
   type floatMatrixPtr   is access all floatMatrix;
@@ -77,7 +76,6 @@ package GLU is
   type GLUnurbsObjPtr        is access all GLUnurbsObj;
 
   ------------------------------------------------------------------------------
-
 
   -- Error string
   type ErrorEnm is
@@ -113,41 +111,38 @@ package GLU is
   function ErrorString (errorCode: ErrorEnm)
   return GL.ubytePtr;
 
-  function ErrorString (errorCode: gl.ErrorEnm)
+  function ErrorString (errorCode: GL.ErrorEnm)
   return GL.ubytePtr;
-
 
   -- Scale image
   function ScaleImage (format   : GL.PixelFormatEnm;
-                          widthin  : GL.int;
-                          heightin : GL.int;
+                          widthin  : GL.Int;
+                          heightin : GL.Int;
                           typein   : GL.PixelDataTypeEnm;
                           datain   : GL.pointer;
-                          widthout : GL.int;
-                          heightout: GL.int;
+                          widthout : GL.Int;
+                          heightout: GL.Int;
                           typeout  : GL.PixelDataTypeEnm;
                           dataout  : GL.pointer)
-  return GL.int;
-
+  return GL.Int;
 
   -- Build mipmaps
   function Build1DMipmaps (target    : GL.TargetTex1DOnlyEnm;
-                              components: GL.int;
-                              width     : GL.int;
+                              components: GL.Int;
+                              width     : GL.Int;
                               format    : GL.TexPixelFormatEnm;
                               c_type    : GL.PixelDataTypeEnm;
                               data      : GL.pointer)
-  return GL.int;
+  return GL.Int;
 
   function Build2DMipmaps (target    : GL.TargetTex2DOnlyEnm;
-                              components: GL.int;
-                              width     : GL.int;
-                              height    : GL.int;
+                              components: GL.Int;
+                              width     : GL.Int;
+                              height    : GL.Int;
                               format    : GL.TexPixelFormatEnm;
                               c_type    : GL.PixelDataTypeEnm;
                               data      : GL.pointer)
-  return GL.int;
-
+  return GL.Int;
 
   -- Quadric objects
   type DrawStyleEnm is
@@ -219,38 +214,37 @@ package GLU is
                                normals   : NormalsEnm);
 
   procedure QuadricTexture (quadObject   : GLUquadricObjPtr;
-                               textureCoords: GL.GL_boolean);
+                               textureCoords: GL.GL_Boolean);
 
   procedure QuadricCallback (qobj : GLUquadricObjPtr;
                                 which: CallbackEnm;
                                 fn   : QuadricCallbackFunction);
 
   procedure Cylinder (qobj      : GLUquadricObjPtr;
-                         baseRadius: GL.double;
-                         topRadius : GL.double;
-                         height    : GL.double;
-                         slices    : GL.int;
-                         stacks    : GL.int);
+                         baseRadius: GL.Double;
+                         topRadius : GL.Double;
+                         height    : GL.Double;
+                         slices    : GL.Int;
+                         stacks    : GL.Int);
 
   procedure Sphere (qobj  : GLUquadricObjPtr;
-                       radius: GL.double;
-                       slices: GL.int;
-                       stacks: GL.int);
+                       radius: GL.Double;
+                       slices: GL.Int;
+                       stacks: GL.Int);
 
   procedure Disk (qobj       : GLUquadricObjPtr;
-                     innerRadius: GL.double;
-                     outerRadius: GL.double;
-                     slices     : GL.int;
-                     loops      : GL.int);
+                     innerRadius: GL.Double;
+                     outerRadius: GL.Double;
+                     slices     : GL.Int;
+                     loops      : GL.Int);
 
   procedure PartialDisk (qobj       : GLUquadricObjPtr;
-                            innerRadius: GL.double;
-                            outerRadius: GL.double;
-                            slices     : GL.int;
-                            loops      : GL.int;
-                            startAngle : GL.double;
-                            sweepAngle : GL.double);
-
+                            innerRadius: GL.Double;
+                            outerRadius: GL.Double;
+                            slices     : GL.Int;
+                            loops      : GL.Int;
+                            startAngle : GL.Double;
+                            sweepAngle : GL.Double);
 
   -- Non-uniform rational B-splines (NURBS)
   type NurbsPropertyEnm is
@@ -404,7 +398,7 @@ package GLU is
 
   procedure NurbsProperty (nobj    : GLUnurbsObjPtr;
                               property: NurbsPropertyEnm;
-                              value   : GL.float);
+                              value   : GL.Float);
 
   procedure GetNurbsProperty (nobj    : GLUnurbsObjPtr;
                                  property: NurbsPropertyEnm;
@@ -415,11 +409,11 @@ package GLU is
   procedure EndCurve (nobj: GLUnurbsObjPtr);
 
   procedure NurbsCurve (nobj    : GLUnurbsObjPtr;
-                           nknots  : GL.int;
+                           nknots  : GL.Int;
                            knot    : GL.floatPtr;
-                           stride  : GL.int;
+                           stride  : GL.Int;
                            ctlarray: GL.floatPtr;
-                           order   : GL.int;
+                           order   : GL.Int;
                            c_type  : GL.Map1TargetEnm);
 
   procedure BeginSurface (nobj: GLUnurbsObjPtr);
@@ -427,15 +421,15 @@ package GLU is
   procedure EndSurface (nobj: GLUnurbsObjPtr);
 
   procedure NurbsSurface (nobj       : GLUnurbsObjPtr;
-                             sknot_count: GL.int;
+                             sknot_count: GL.Int;
                              sknot      : GL.floatPtr;
-                             tknot_count: GL.int;
+                             tknot_count: GL.Int;
                              tknot      : GL.floatPtr;
-                             s_stride   : GL.int;
-                             t_stride   : GL.int;
+                             s_stride   : GL.Int;
+                             t_stride   : GL.Int;
                              ctlarray   : GL.floatPtr;
-                             sorder     : GL.int;
-                             torder     : GL.int;
+                             sorder     : GL.Int;
+                             torder     : GL.Int;
                              c_type     : GL.Map2TargetEnm);
 
   procedure BeginTrim (nobj: GLUnurbsObjPtr);
@@ -443,15 +437,14 @@ package GLU is
   procedure EndTrim (nobj: GLUnurbsObjPtr);
 
   procedure PwlCurve (nobj   : GLUnurbsObjPtr;
-                         count  : GL.int;
+                         count  : GL.Int;
                          c_array: GL.floatPtr;
-                         stride : GL.int;
+                         stride : GL.Int;
                          c_type : PwlCurveTypeEnm);
 
   procedure NurbsCallback (nobj : GLUnurbsObjPtr;
                               which: CallbackEnm;
                               fn   : NurbsCallbackFunction);
-
 
   -- Polygon tesselation
   type TessCallbackEnm is
@@ -520,7 +513,7 @@ package GLU is
   for TessErrorEnm'Size use GL.enum'Size;
   type TessErrorCallbackFunction is access procedure (Error:  TessErrorEnm);
 
-  type TessEdgeFlagCallbackFunction is access procedure (Flag:  GL.GL_boolean);
+  type TessEdgeFlagCallbackFunction is access procedure (Flag:  GL.GL_Boolean);
 
   type ContourTypeEnm is
   (
@@ -572,7 +565,6 @@ package GLU is
                            v   : GL.doublePtr;
                            data: GL.pointer);
 
-
   -- GLU strings
   type StringEnm is
   (
@@ -589,69 +581,68 @@ package GLU is
   function GetString (name: StringEnm)
   return GL.ubytePtr;
 
-
   -- Projections
-  procedure LookAt (eyex   : GL.double;
-                    eyey   : GL.double;
-                    eyez   : GL.double;
-                    centerx: GL.double;
-                    centery: GL.double;
-                    centerz: GL.double;
-                    upx    : GL.double;
-                    upy    : GL.double;
-                    upz    : GL.double);
+  procedure LookAt (eyex   : GL.Double;
+                    eyey   : GL.Double;
+                    eyez   : GL.Double;
+                    centerx: GL.Double;
+                    centery: GL.Double;
+                    centerz: GL.Double;
+                    upx    : GL.Double;
+                    upy    : GL.Double;
+                    upz    : GL.Double);
 
-  procedure Ortho2D (left  : GL.double;
-                     right : GL.double;
-                     bottom: GL.double;
-                     top   : GL.double);
+  procedure Ortho2D (left  : GL.Double;
+                     right : GL.Double;
+                     bottom: GL.Double;
+                     top   : GL.Double);
 
-  procedure Perspective (fovy  : GL.double;
-                         aspect: GL.double;
-                         zNear : GL.double;
-                         zFar  : GL.double);
+  procedure Perspective (fovy  : GL.Double;
+                         aspect: GL.Double;
+                         zNear : GL.Double;
+                         zFar  : GL.Double);
 
-  procedure PickMatrix (x       : GL.double;
-                        y       : GL.double;
-                        width   : GL.double;
-                        height  : GL.double;
+  procedure PickMatrix (x       : GL.Double;
+                        y       : GL.Double;
+                        width   : GL.Double;
+                        height  : GL.Double;
                         viewport: viewPortRecPtr);
 
-  function Project (objx       : GL.double;
-                    objy       : GL.double;
-                    objz       : GL.double;
+  function Project (objx       : GL.Double;
+                    objy       : GL.Double;
+                    objz       : GL.Double;
                     modelMatrix: doubleMatrixPtr;
                     projMatrix : doubleMatrixPtr;
                     viewport   : viewPortRecPtr;
                     winx       : GL.doublePtr;
                     winy       : GL.doublePtr;
                     winz       : GL.doublePtr)
-  return GL.int;
+  return GL.Int;
   pragma Import (Stdcall, Project, "gluProject");
 
   -- Project, Ada style
 
-  procedure Project (objx       : GL.double;
-                     objy       : GL.double;
-                     objz       : GL.double;
+  procedure Project (objx       : GL.Double;
+                     objy       : GL.Double;
+                     objz       : GL.Double;
                      modelMatrix: doubleMatrix;
                      projMatrix : doubleMatrix;
                      viewport   : viewPortRec;
-                     winx       : out GL.double;
-                     winy       : out GL.double;
-                     winz       : out GL.double;
+                     winx       : out GL.Double;
+                     winy       : out GL.Double;
+                     winz       : out GL.Double;
                      result     : out Boolean );
 
-  function UnProject (winx       : GL.double;
-                      winy       : GL.double;
-                      winz       : GL.double;
+  function UnProject (winx       : GL.Double;
+                      winy       : GL.Double;
+                      winz       : GL.Double;
                       modelMatrix: doubleMatrixPtr;
                       projMatrix : doubleMatrixPtr;
                       viewport   : viewPortRecPtr;
                       objx       : GL.doublePtr;
                       objy       : GL.doublePtr;
                       objz       : GL.doublePtr)
-  return GL.int;
+  return GL.Int;
 
   -- GLU.Get's
 
@@ -685,8 +676,8 @@ package GLU is
   function ErrorString   (errorCode: ErrorEnm)  return GL.ubytePtr renames ErrorString_1;
   pragma Import (Stdcall, ErrorString_1, "gluErrorString");
 
-  function ErrorString_2 (errorCode: gl.ErrorEnm) return GL.ubytePtr;
-  function ErrorString   (errorCode: gl.ErrorEnm) return GL.ubytePtr renames ErrorString_2;
+  function ErrorString_2 (errorCode: GL.ErrorEnm) return GL.ubytePtr;
+  function ErrorString   (errorCode: GL.ErrorEnm) return GL.ubytePtr renames ErrorString_2;
   pragma Import (Stdcall, ErrorString_2, "gluErrorString");
 
   pragma Import (Stdcall, ScaleImage, "gluScaleImage");

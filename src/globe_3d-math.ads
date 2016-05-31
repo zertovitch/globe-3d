@@ -33,7 +33,6 @@ package GLOBE_3D.Math is
 
   function Normalized(a: Vector_3D) return Vector_3D;
 
-
    -- Angles
    --
 
@@ -41,10 +40,8 @@ package GLOBE_3D.Math is
    --
    -- returns the angle between the vector Point_1 to Point_2 and the vector Point_3 to Point_2.
 
-
    function to_Degrees (Radians : Real) return Real;
    function to_Radians (Degrees : Real) return Real;
-
 
   --------------
   -- Matrices --
@@ -72,7 +69,6 @@ package GLOBE_3D.Math is
 
    function Look_at (eye, center, up : Vector_3D) return Matrix_33;
 
-
   -- This is for correcting cumulation of small computational
   -- errors, making the rotation matrix no more orthogonal
   procedure Re_Orthonormalize(M: in out Matrix_33);
@@ -89,9 +85,7 @@ package GLOBE_3D.Math is
   function Almost_zero(x: GL.Float) return Boolean;
   pragma Inline(Almost_zero);
 
-
   function sub_Matrix (Self : in Matrix;   start_Row, end_Row : in Positive;
                                            start_Col, end_Col : in Positive) return Matrix;
-
 
 end GLOBE_3D.Math;

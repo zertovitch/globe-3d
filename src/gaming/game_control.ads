@@ -55,19 +55,16 @@ package Game_control is
   --  mouse_command_mapping   : array( PC_Mouse.Mouse_button ) of Command :=
   --    ( others=> bogus_command ); -- for later !!
 
-
   -- Record game commands from peripherals (keyboard, mouse) --
 
   procedure Append_commands(
               size_x,
               size_y     : in     Integer;                  -- screen dimensions for mouse
               warp_mouse : in     Boolean;                  -- recenter mouse cursor
-              c          : in out game_control.Command_set; -- commands are added to c
+              c          : in out Game_control.Command_set; -- commands are added to c
               gx,gy      :    out GL.Double;                -- mouse movement since last call
-              keyboard   : access GLUT.devices.Keyboard := GLUT.devices.default_Keyboard'access;
-              mouse      : access GLUT.devices.Mouse    := GLUT.devices.default_Mouse'access
+              keyboard   : access GLUT.Devices.Keyboard := GLUT.Devices.default_Keyboard'Access;
+              mouse      : access GLUT.Devices.Mouse    := GLUT.Devices.default_Mouse'Access
   );
-
-
 
 end Game_control;

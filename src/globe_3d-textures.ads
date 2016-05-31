@@ -31,7 +31,7 @@ package GLOBE_3D.Textures is
   -- simply stored on a text file, or obtained by a "dir"-like operation.
   -- The system associates a name to a texture id that it finds itself.
 
-  procedure Add_texture_name( name: String; id: out Image_id );
+  procedure Add_texture_name( name: String; id: out Image_ID );
 
   ------------------------------------------------------------
   -- b) Texture name association by searching the .zip data --
@@ -72,18 +72,18 @@ package GLOBE_3D.Textures is
   Texture_name_not_found: exception;
 
   -- - Recall a texture's name
-  function Texture_name( id: Image_id; trim: Boolean ) return Ident;
+  function Texture_name( id: Image_ID; trim: Boolean ) return Ident;
 
   -- Check if the texture image has been loaded and load it if needed.
   -- This is done automatically, but you may want to force the loading
   -- of the images before beginning to display.
-  procedure Check_2D_texture(id: Image_id; blending_hint: out Boolean);
+  procedure Check_2D_texture(id: Image_ID; blending_hint: out Boolean);
   -- variant for situations where the blending information doesn't matter:
-  procedure Check_2D_texture(id: Image_id);
+  procedure Check_2D_texture(id: Image_ID);
   -- same, but for all textures.
   procedure Check_all_textures;
 
-  function Valid_texture_ID(id: Image_id) return Boolean;
+  function Valid_texture_ID(id: Image_ID) return Boolean;
 
   -- >= 16-apr-2008: no more need to reserve anything; unbounded collection
   --
