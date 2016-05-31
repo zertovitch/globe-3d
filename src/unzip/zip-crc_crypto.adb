@@ -51,56 +51,62 @@ package body Zip.CRC_Crypto is
 
   --
 
-  package body Crypto is -- 27-Jun-2001: Algorithm in Appnote.txt
+  procedure Set_mode(obj: in out Crypto_pack; new_mode: Crypto_Mode) is
+  begin
+    obj.current_mode:= new_mode;
+  end Set_mode;
 
-    type Decrypt_keys is array( 0..2 ) of Unsigned_32;
-    keys     : Decrypt_keys;
-    current_mode : Mode;
+  function Get_mode(obj: Crypto_pack) return Crypto_Mode is
+  begin
+    return obj.current_mode;
+  end Get_mode;
 
-    procedure Set_mode ( new_mode: Mode ) is
-    begin
-      current_mode:= new_mode;
-    end Set_mode;
+  procedure Update_keys(obj: in out Crypto_pack; by: Zip.Byte ) is
+  begin
+    Update( obj.keys(0), (0 => by) );
+    obj.keys(1) := obj.keys(1) + (obj.keys(0) and 16#000000ff#);
+    obj.keys(1) := obj.keys(1) * 134775813 + 1;
+    Update(
+      obj.keys(2),
+      (0 => Zip.Byte(Shift_Right( obj.keys(1), 24 )))
+    );
+  end Update_keys;
 
-    function Get_mode return Mode is
-    begin
-      return current_mode;
-    end Get_mode;
+  --  Crypto_code: Pseudo-random byte to be XOR'ed with.
+  function Crypto_code(obj: Crypto_pack) return Zip.Byte is
+  pragma Inline(Crypto_code);
+    temp: Unsigned_16;
+  begin
+    temp:= Unsigned_16(obj.keys(2) and 16#ffff#) or 2;
+    return Zip.Byte(Shift_Right(temp * (temp xor 1), 8));
+  end Crypto_code;
 
-    procedure Update_keys( by: Zip.Byte ) is
-    begin
-      Update( keys(0), (0 => by) );
-      keys(1) := keys(1) + (keys(0) and 16#000000ff#);
-      keys(1) := keys(1) * 134775813 + 1;
-      Update(
-        keys(2),
-        (0 => Zip.Byte(Shift_Right( keys(1), 24 )))
-      );
-    end Update_keys;
+  procedure Init_keys(obj: in out Crypto_pack; password: String) is
+  begin
+    obj.keys:= ( 16#12345678#, 16#23456789#, 16#34567890# );
+    for i in password'Range loop
+      Update_keys(obj, Character'Pos(password(i)));
+    end loop;
+  end Init_keys;
 
-    function Crypto_code return Zip.Byte is -- Pseudo-random byte to be XOR'ed
-      temp: Unsigned_16;
-    begin
-      temp:= Unsigned_16(keys(2) and 16#ffff#) or 2;
-      return Zip.Byte(Shift_Right(temp * (temp xor 1), 8));
-    end Crypto_code;
-
-    procedure Init_keys(pwd: String) is
-    begin
-      keys:= ( 16#12345678#, 16#23456789#, 16#34567890# );
-      for i in pwd'Range loop
-        Update_keys( Character'Pos(pwd(i)) );
+  procedure Encode(obj: in out Crypto_pack; buf: in out Zip.Byte_Buffer) is
+    bc: Zip.Byte;
+  begin
+    if obj.current_mode = encrypted then
+      for i in buf'Range loop
+        bc:= buf(i);
+        buf(i):= bc xor Crypto_code(obj);
+        Update_keys(obj, bc);  -- Keys are updated with the unencrypted byte
       end loop;
-    end Init_keys;
+    end if;
+  end Encode;
 
-    procedure Decode( b: in out Zip.Byte ) is
-    begin
-      if current_mode = encrypted then
-        b:= b xor Crypto_code;
-        Update_keys(b); -- Keys are updated with the unencrypted byte
-      end if;
-    end Decode;
-
-  end Crypto;
+  procedure Decode(obj: in out Crypto_pack; b: in out Unsigned_8) is
+  begin
+    if obj.current_mode = encrypted then
+      b:= b xor Crypto_code(obj);
+      Update_keys(obj, b);     -- Keys are updated with the unencrypted byte
+    end if;
+  end Decode;
 
 end Zip.CRC_Crypto;

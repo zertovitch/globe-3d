@@ -147,9 +147,10 @@ package body Zip is
   -------------------------------------------------------------
 
   procedure Load(
-    info           :    out Zip_info;
-    from           : in out Zip_Streams.Root_Zipstream_Type'Class;
-    case_sensitive : in     Boolean:= False
+    info            :    out Zip_info;
+    from            : in out Zip_Streams.Root_Zipstream_Type'Class;
+    case_sensitive  : in     Boolean:= False;
+    duplicate_names : in     Duplicate_name_policy:= error_on_duplicate
   )
   is
     procedure Insert(
@@ -164,46 +165,63 @@ package body Zip is
       name_encoding    : Zip_name_encoding;
       read_only        : Boolean;
       encrypted_2_x    : Boolean;
-      node             : in out p_Dir_node
+      root_node        : in out p_Dir_node
       )
     is
+      procedure Insert_into_tree(node: in out p_Dir_node) is
+        use type Zip_Streams.ZS_Size_Type;
+      begin
+        if node = null then
+          node:= new Dir_node'
+            ( (name_len          => file_name'Length,
+               left              => null,
+               right             => null,
+               dico_name         => dico_name,
+               file_name         => file_name,
+               file_index        => file_index,
+               comp_size         => comp_size,
+               uncomp_size       => uncomp_size,
+               crc_32            => crc_32,
+               date_time         => date_time,
+               method            => method,
+               name_encoding     => name_encoding,
+               read_only         => read_only,
+               encrypted_2_x     => encrypted_2_x,
+               user_code         => 0
+               )
+            );
+        elsif dico_name > node.dico_name then
+          Insert_into_tree(node.right);
+        elsif dico_name < node.dico_name then
+          Insert_into_tree(node.left);
+        else
+          --  Here we have a case where the entry name already exists in the dictionary.
+          case duplicate_names is
+            when error_on_duplicate =>
+              Ada.Exceptions.Raise_Exception
+                (Duplicate_name'Identity,
+                 "Same full entry name (in dictionary: " & dico_name &
+                 ") appears twice in archive directory; " &
+                 "procedure Load was called with strict name policy."
+                );
+            when admit_duplicates =>
+              if file_index > node.file_index then
+                Insert_into_tree(node.right);
+              elsif file_index < node.file_index then
+                Insert_into_tree(node.left);
+              else
+                Ada.Exceptions.Raise_Exception
+                  (Duplicate_name'Identity,
+                   "Archive directory corrupt: same full entry name (in dictionary: " &
+                   dico_name & "), with same data position, appear twice."
+                  );
+              end if;
+          end case;
+        end if;
+      end Insert_into_tree;
+      --
     begin
-      if node = null then
-        node:= new Dir_node'
-          ( (name_len          => file_name'Length,
-             left              => null,
-             right             => null,
-             dico_name         => dico_name,
-             file_name         => file_name,
-             file_index        => file_index,
-             comp_size         => comp_size,
-             uncomp_size       => uncomp_size,
-             crc_32            => crc_32,
-             date_time         => date_time,
-             method            => method,
-             name_encoding     => name_encoding,
-             read_only         => read_only,
-             encrypted_2_x     => encrypted_2_x,
-             user_code         => 0
-             )
-          );
-      elsif dico_name > node.dico_name then
-        Insert( dico_name, file_name, file_index, comp_size, uncomp_size,
-          crc_32, date_time, method, name_encoding,
-          read_only, encrypted_2_x,
-          node.right );
-      elsif dico_name < node.dico_name then
-        Insert( dico_name, file_name, file_index, comp_size, uncomp_size,
-          crc_32, date_time, method, name_encoding,
-          read_only, encrypted_2_x,
-          node.left );
-      else
-        Ada.Exceptions.Raise_Exception
-          (Duplicate_name'Identity,
-           "Name (in dictionary: " & dico_name &
-           ") was already in at insertion.");
-        raise Duplicate_name;
-      end if;
+      Insert_into_tree(root_node);
     end Insert;
 
     the_end: Zip.Headers.End_of_Central_Dir;
@@ -261,8 +279,8 @@ package body Zip is
                     Zip.Headers.Language_Encoding_Flag_Bit) /= 0),
                 read_only   => header.made_by_version / 256 = 0 and -- DOS-like
                                (header.external_attributes and 1) = 1,
-                encrypted_2_x => (header.short_info.bit_flag and 1) /= 0,
-                node        => p );
+                encrypted_2_x => (header.short_info.bit_flag and Zip.Headers.Encryption_Flag_Bit) /= 0,
+                root_node     => p );
         -- Since the files are usually well ordered, the tree as inserted
         -- is very unbalanced; we need to rebalance it from time to time
         -- during loading, otherwise the insertion slows down dramatically
@@ -288,10 +306,12 @@ package body Zip is
   -- Load Zip_info from a file containing the .zip archive --
   -----------------------------------------------------------
 
-  procedure Load
-   (info           : out Zip_info;
-    from           : in  String; -- Zip file name
-    case_sensitive : in  Boolean:= False)
+  procedure Load(
+    info            : out Zip_info;
+    from            : in  String; -- Zip file name
+    case_sensitive  : in  Boolean:= False;
+    duplicate_names : in  Duplicate_name_policy:= error_on_duplicate
+  )
   is
     use Zip_Streams;
     MyStream   : aliased File_Zipstream;
@@ -308,7 +328,8 @@ package body Zip is
     Load(
       info,
       MyStream,
-      case_sensitive
+      case_sensitive,
+      duplicate_names
     );
     Close (MyStream);
     Dispose(info.zip_file_name);
@@ -384,62 +405,74 @@ package body Zip is
 
   -- Traverse a whole Zip_info directory in sorted order, giving the
   -- name for each entry to an user-defined "Action" procedure.
-  -- Added 29-Nov-2002
-  procedure Traverse( z: Zip_info ) is
+
+  generic
+    with procedure Action_private( dn: in out Dir_node );
+    -- Dir_node is private: only known to us, contents subject to change
+  procedure Traverse_private( z: Zip_info );
+
+  procedure Traverse_private( z: Zip_info ) is
 
     procedure Traverse( p: p_Dir_node ) is
     begin
       if p /= null then
         Traverse(p.left);
-        Action(p.file_name);
+        Action_private(p.all);
         Traverse(p.right);
       end if;
     end Traverse;
 
   begin
     Traverse(z.dir_binary_tree);
+  end Traverse_private;
+
+  -----------------------
+  --  Public versions  --
+  -----------------------
+
+  procedure Traverse( z: Zip_info ) is
+    procedure My_Action_private( dn: in out Dir_node ) is
+    pragma Inline(My_Action_private);
+    begin
+      Action(dn.file_name);
+    end;
+    procedure My_Traverse_private is new Traverse_private(My_Action_private);
+  begin
+    My_Traverse_private(z);
   end Traverse;
 
   procedure Traverse_Unicode( z: Zip_info ) is
-
-    procedure Traverse( p: p_Dir_node ) is
+    procedure My_Action_private( dn: in out Dir_node ) is
+    pragma Inline(My_Action_private);
     begin
-      if p /= null then
-        Traverse(p.left);
-        Action(p.file_name, p.name_encoding);
-        Traverse(p.right);
-      end if;
-    end Traverse;
-
+      Action(dn.file_name, dn.name_encoding);
+    end;
+    procedure My_Traverse_private is new Traverse_private(My_Action_private);
   begin
-    Traverse(z.dir_binary_tree);
+    My_Traverse_private(z);
   end Traverse_Unicode;
 
   procedure Traverse_verbose( z: Zip_info ) is
-
-    procedure Traverse( p: p_Dir_node ) is
+    procedure My_Action_private( dn: in out Dir_node ) is
+    pragma Inline(My_Action_private);
     begin
-      if p /= null then
-        Traverse(p.left);
-        Action(
-          p.file_name,
-          p.file_index,
-          p.comp_size,
-          p.uncomp_size,
-          p.crc_32,
-          p.date_time,
-          p.method,
-          p.name_encoding,
-          p.read_only,
-          p.encrypted_2_x,
-          p.user_code
-        );
-        Traverse(p.right);
-      end if;
-    end Traverse;
-
+      Action(
+        dn.file_name,
+        dn.file_index,
+        dn.comp_size,
+        dn.uncomp_size,
+        dn.crc_32,
+        dn.date_time,
+        dn.method,
+        dn.name_encoding,
+        dn.read_only,
+        dn.encrypted_2_x,
+        dn.user_code
+      );
+    end;
+    procedure My_Traverse_private is new Traverse_private(My_Action_private);
   begin
-    Traverse(z.dir_binary_tree);
+    My_Traverse_private(z);
   end Traverse_verbose;
 
   procedure Tree_stat(
@@ -570,7 +603,7 @@ package body Zip is
         end if;
       end;
     end loop;
-    raise File_name_not_found;
+    Ada.Exceptions.Raise_Exception(File_name_not_found'Identity, "Entry: [" & name & ']');
   end Find_offset;
 
   -- Internal: find offset of a zipped file using the zip_info tree 8-)
@@ -586,7 +619,7 @@ package body Zip is
   )
   is
     aux: p_Dir_node:= info.dir_binary_tree;
-    up_name: String:= Normalize(name, info.case_sensitive);
+    up_name: constant String:= Normalize(name, info.case_sensitive);
   begin
     if not info.loaded then
       raise Forgot_to_load_zip_info;
@@ -618,7 +651,7 @@ package body Zip is
   return Boolean
   is
     aux: p_Dir_node:= info.dir_binary_tree;
-    up_name: String:= Normalize(name, info.case_sensitive);
+    up_name: constant String:= Normalize(name, info.case_sensitive);
   begin
     if not info.loaded then
       raise Forgot_to_load_zip_info;
@@ -642,7 +675,7 @@ package body Zip is
   )
   is
     aux: p_Dir_node:= info.dir_binary_tree;
-    up_name: String:= Normalize(name, info.case_sensitive);
+    up_name: constant String:= Normalize(name, info.case_sensitive);
   begin
     if not info.loaded then
       raise Forgot_to_load_zip_info;
@@ -670,7 +703,7 @@ package body Zip is
   return Integer
   is
     aux: p_Dir_node:= info.dir_binary_tree;
-    up_name: String:= Normalize(name, info.case_sensitive);
+    up_name: constant String:= Normalize(name, info.case_sensitive);
   begin
     if not info.loaded then
       raise Forgot_to_load_zip_info;
@@ -688,6 +721,7 @@ package body Zip is
       File_name_not_found'Identity,
       "Archive: [" & info.zip_file_name.all & "], entry: [" & name & ']'
     );
+    return 0;  --  Fake, since exception has been raised just before. Removes an OA warning.
   end User_code;
 
   procedure Get_sizes(
@@ -954,5 +988,15 @@ package body Zip is
       last_char:= c;
     end loop;
   end Write_as_text;
+
+  function Hexadecimal(x: Interfaces.Unsigned_32) return String
+  is
+    package MIO is new Ada.Text_IO.Modular_IO(Interfaces.Unsigned_32);
+    str: String(1..12);
+    use Ada.Strings.Fixed;
+  begin
+    MIO.Put(str, x, 16);
+    return str(Index(str,"#")+1..11);
+  end Hexadecimal;
 
 end Zip;

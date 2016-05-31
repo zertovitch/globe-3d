@@ -52,6 +52,7 @@ package body UnZip.Decompress is
     end UnZ_Glob;
 
     Zip_EOF  : Boolean; -- read over end of zip section for this file
+    LZ77_dump : Ada.Text_IO.File_Type;
 
     package UnZ_IO is
       out_bin_file: Ada.Streams.Stream_IO.File_Type;
@@ -145,34 +146,8 @@ package body UnZip.Decompress is
       end if;
     end Process_feedback;
 
-    package Local_crypto is new Zip.CRC_Crypto.Crypto;
-
-    procedure Init_Decryption( password: String; crc_check: Unsigned_32) is
-      c: Zip.Byte;
-      t: Unsigned_32;
-      use Local_crypto;
-    begin
-      -- Step 1 - Initializing the encryption keys
-      Init_keys(password);
-      -- Step 2 - Decrypting the encryption header. 11 bytes are random,
-      --          just to shuffle the keys, 1 byte is from the CRC value.
-      Set_mode(encrypted);
-      for i in 1..12 loop
-        UnZ_IO.Read_byte_no_decrypt( c );
-        Local_crypto.Decode(c);
-      end loop;
-      t:= Zip_Streams.Calendar.Convert(hint.file_timedate);
-      -- Last byte used to check password; 1/256 probability of success with any password!
-      if c /= Zip.Byte(Shift_Right( crc_check, 24 )) and not
-        -- Dec. 2012. This is a feature of Info-Zip (crypt.c).
-        -- Since CRC is only known at the end of a one-way stream
-        -- compression, and cannot be written back, they are using a byte of
-        -- the time stamp instead. This is NOT documented in appnote.txt v.6.3.3.
-        ( data_descriptor_after_data and c = Zip.Byte(Shift_Right(t, 8) and 16#FF#) )
-      then
-        raise UnZip.Wrong_password;
-      end if;
-    end Init_Decryption;
+    use Zip.CRC_Crypto;
+    local_crypto_pack: Crypto_pack;
 
     ------------------------------
     -- Bodies of UnZ_* packages --
@@ -251,7 +226,7 @@ package body UnZip.Decompress is
         bt : Zip.Byte;
       begin
         Read_byte_no_decrypt( bt );
-        Local_crypto.Decode(bt);
+        Decode(local_crypto_pack, bt);
         return bt;
       end Read_byte_decrypted;
 
@@ -443,11 +418,8 @@ package body UnZip.Decompress is
       procedure Copy(distance, length: Natural; index: in out Natural ) is
         source, part, remain: Integer;
       begin
-        if full_trace or (some_trace and then distance > 32768+3) then
-          Ada.Text_IO.Put(
-            "DLE(distance=" & Integer'Image(distance) &
-            " length=" & Integer'Image(length) & ")"
-          );
+        if some_trace then
+          Ada.Text_IO.Put_Line(LZ77_dump, "DLE" & Integer'Image(distance) & Integer'Image(length));
         end if;
         source:= index - distance;
         remain:= length;
@@ -497,6 +469,32 @@ package body UnZip.Decompress is
       end Delete_output;
 
     end UnZ_IO;
+
+    procedure Init_Decryption( password: String; crc_check: Unsigned_32) is
+      c: Zip.Byte:= 0;
+      t: Unsigned_32;
+    begin
+      -- Step 1 - Initializing the encryption keys
+      Init_keys(local_crypto_pack, password);
+      -- Step 2 - Decrypting the encryption header. 11 bytes are random,
+      --          just to shuffle the keys, 1 byte is from the CRC value.
+      Set_mode(local_crypto_pack, encrypted);
+      for i in 1..12 loop
+        UnZ_IO.Read_byte_no_decrypt( c );
+        Decode(local_crypto_pack, c);
+      end loop;
+      t:= Zip_Streams.Calendar.Convert(hint.file_timedate);
+      -- Last byte used to check password; 1/256 probability of success with any password!
+      if c /= Zip.Byte(Shift_Right( crc_check, 24 )) and not
+        -- Dec. 2012. This is a feature of Info-Zip (crypt.c).
+        -- Since CRC is only known at the end of a one-way stream
+        -- compression, and cannot be written back, they are using a byte of
+        -- the time stamp instead. This is NOT documented in appnote.txt v.6.3.3.
+        ( data_descriptor_after_data and c = Zip.Byte(Shift_Right(t, 8) and 16#FF#) )
+      then
+        raise UnZip.Wrong_password;
+      end if;
+    end Init_Decryption;
 
     package body UnZ_Meth is
 
@@ -941,7 +939,7 @@ package body UnZip.Decompress is
 
         S := UnZ_Glob.uncompsize;
         while  S > 0  and  not Zip_EOF  loop
-          if UnZ_IO.Bit_buffer.Read_and_dump(1) /= 0 then  -- 1: Litteral
+          if UnZ_IO.Bit_buffer.Read_and_dump(1) /= 0 then  -- 1: Literal
             S:= S - 1;
             Ct:= Tb.table;
             Ci:= UnZ_IO.Bit_buffer.Read_inverted(Bb);
@@ -1053,7 +1051,7 @@ package body UnZip.Decompress is
         UnZ_IO.Bit_buffer.Init;
         S := UnZ_Glob.uncompsize;
         while  S > 0  and not Zip_EOF  loop
-          if UnZ_IO.Bit_buffer.Read_and_dump(1) /= 0 then  -- 1: Litteral
+          if UnZ_IO.Bit_buffer.Read_and_dump(1) /= 0 then  -- 1: Literal
             S:= S - 1;
             UnZ_Glob.slide ( W ):=
               Zip.Byte(UnZ_IO.Bit_buffer.Read_and_dump(8));
@@ -1329,10 +1327,9 @@ package body UnZip.Decompress is
       procedure Copy_stored is
         size: constant UnZip.File_size_type:= UnZ_Glob.compsize;
         read_in, absorbed : UnZip.File_size_type;
-        use Local_crypto;
       begin
         absorbed:= 0;
-        if Get_mode = encrypted then
+        if Get_mode(local_crypto_pack) = encrypted then
           absorbed:= 12;
         end if;
         while absorbed < size loop
@@ -1362,40 +1359,58 @@ package body UnZip.Decompress is
 
       --------[ Method: Inflate ]--------
 
+      lt_count,     dl_count,
+      lt_count_0,   dl_count_0,
+      lt_count_dyn, dl_count_dyn,
+      lt_count_fix, dl_count_fix: Long_Integer:= 0;  --  Statistics of LZ codes per block
+
       procedure Inflate_Codes ( Tl, Td: p_Table_list; Bl, Bd: Integer ) is
-        CTE    : p_HufT;       -- current table element
+        CT     : p_HufT_table;       -- current table
+        CT_idx : Natural;            -- current table's index
         length : Natural;
         E      : Integer;      -- table entry flag/number of extra bits
-        W      : Integer:= UnZ_Glob.slide_index;
-        -- more local variable for slide index
+        W      : Integer:= UnZ_Glob.slide_index;  -- more local variable for slide index
+        literal: Zip.Byte;
       begin
-        if full_trace then
+        if some_trace then
+          lt_count_0:= lt_count;
+          dl_count_0:= dl_count;
           Ada.Text_IO.Put_Line("Begin Inflate_codes");
         end if;
 
         -- inflate the coded data
         main_loop:
         while not Zip_EOF loop
-          CTE:= Tl.table( UnZ_IO.Bit_buffer.Read(Bl) )'Access;
-
+          CT:= Tl.table;
+          CT_idx:= UnZ_IO.Bit_buffer.Read(Bl);
           loop
-            E := CTE.extra_bits;
+            E := CT(CT_idx).extra_bits;
             exit when E <= 16;
             if E = invalid then
               raise Zip.Zip_file_Error;
             end if;
 
             -- then it's a literal
-            UnZ_IO.Bit_buffer.Dump( CTE.bits );
+            UnZ_IO.Bit_buffer.Dump( CT(CT_idx).bits );
             E:= E - 16;
-            CTE := CTE.next_table( UnZ_IO.Bit_buffer.Read(E) )'Access;
+            CT:= CT(CT_idx).next_table;
+            CT_idx := UnZ_IO.Bit_buffer.Read(E);
           end loop;
 
-          UnZ_IO.Bit_buffer.Dump ( CTE.bits );
+          UnZ_IO.Bit_buffer.Dump ( CT(CT_idx).bits );
 
           case E is
-            when 16 =>     -- CTE.N is a Litteral
-              UnZ_Glob.slide ( W ) :=  Zip.Byte( CTE.n );
+            when 16 =>     -- CT(CT_idx).N is a Literal
+              literal:= Zip.Byte( CT(CT_idx).n );
+              if some_trace then
+                lt_count:= lt_count + 1;
+                Ada.Text_IO.Put(LZ77_dump, "Lit" & Zip.Byte'Image(literal));
+                if literal in 32..126 then
+                  Ada.Text_IO.Put(LZ77_dump, " '" & Character'Val(literal) & ''');
+                end if;
+                Ada.Text_IO.New_Line(LZ77_dump);
+              end if;
+              UnZ_Glob.slide ( W ) :=  literal;
               W:= W + 1;
               UnZ_IO.Flush_if_full(W);
 
@@ -1406,25 +1421,29 @@ package body UnZip.Decompress is
               exit main_loop;
 
             when others => -- We have a length/distance
-
+              if some_trace then
+                dl_count:= dl_count + 1;
+              end if;
               -- Get length of block to copy:
-              length:= CTE.n + UnZ_IO.Bit_buffer.Read_and_dump(E);
+              length:= CT(CT_idx).n + UnZ_IO.Bit_buffer.Read_and_dump(E);
 
               -- Decode distance of block to copy:
-              CTE := Td.table( UnZ_IO.Bit_buffer.Read(Bd) )'Access;
+              CT:= Td.table;
+              CT_idx:= UnZ_IO.Bit_buffer.Read(Bd);
               loop
-                E := CTE.extra_bits;
+                E := CT(CT_idx).extra_bits;
                 exit when E <= 16;
                 if E = invalid then
                   raise Zip.Zip_file_Error;
                 end if;
-                UnZ_IO.Bit_buffer.Dump( CTE.bits );
+                UnZ_IO.Bit_buffer.Dump( CT(CT_idx).bits );
                 E:= E - 16;
-                CTE := CTE.next_table( UnZ_IO.Bit_buffer.Read(E) )'Access;
+                CT:= CT(CT_idx).next_table;
+                CT_idx:= UnZ_IO.Bit_buffer.Read(E);
               end loop;
-              UnZ_IO.Bit_buffer.Dump( CTE.bits );
+              UnZ_IO.Bit_buffer.Dump( CT(CT_idx).bits );
               UnZ_IO.Copy(
-                distance => CTE.n + UnZ_IO.Bit_buffer.Read_and_dump(E),
+                distance => CT(CT_idx).n + UnZ_IO.Bit_buffer.Read_and_dump(E),
                 length   => length,
                 index    => W
               );
@@ -1433,28 +1452,30 @@ package body UnZip.Decompress is
 
         UnZ_Glob.slide_index:= W;
 
-        if full_trace then
-          Ada.Text_IO.Put_Line("End   Inflate_codes");
+        if some_trace then
+          Ada.Text_IO.Put_Line("End   Inflate_codes;  " &
+            Long_Integer'Image(lt_count-lt_count_0) & " literals," &
+            Long_Integer'Image(dl_count-dl_count_0) & " DL codes," &
+            Long_Integer'Image(dl_count+lt_count-lt_count_0-dl_count_0) & " in total");
         end if;
       end Inflate_Codes;
 
       procedure Inflate_stored_block is -- Actually, nothing to inflate
         N : Integer;
       begin
-        if full_trace then
-          Ada.Text_IO.Put_Line("Begin Inflate_stored_block");
-        end if;
         UnZ_IO.Bit_buffer.Dump_to_byte_boundary;
-
         -- Get the block length and its complement
         N:= UnZ_IO.Bit_buffer.Read_and_dump( 16 );
+        if some_trace then
+          Ada.Text_IO.Put_Line("Begin Inflate_stored_block, bytes stored: " & Integer'Image(N));
+        end if;
         if  N /= Integer(
          (not UnZ_IO.Bit_buffer.Read_and_dump_U32(16))
          and 16#ffff#)
         then
           raise Zip.Zip_file_Error;
         end if;
-        while N > 0  and then not Zip_EOF loop
+        while N > 0 and then not Zip_EOF loop
           -- Read and output the non-compressed data
           N:= N - 1;
           UnZ_Glob.slide ( UnZ_Glob.slide_index ) :=
@@ -1462,7 +1483,7 @@ package body UnZip.Decompress is
           UnZ_Glob.slide_index:= UnZ_Glob.slide_index + 1;
           UnZ_IO.Flush_if_full(UnZ_Glob.slide_index);
         end loop;
-        if full_trace then
+        if some_trace then
           Ada.Text_IO.Put_Line("End   Inflate_stored_block");
         end if;
       end Inflate_stored_block;
@@ -1498,26 +1519,21 @@ package body UnZip.Decompress is
           ( 0..143=> 8, 144..255=> 9, 256..279=> 7, 280..287=> 8);
 
       procedure Inflate_fixed_block is
-        Tl,                        -- literal/length code table
-          Td : p_Table_list;            -- distance code table
-        Bl, Bd : Integer;          -- lookup bits for tl/bd
+        Tl,                        --   literal/length code table
+            Td : p_Table_list;            --  distance code table
+        Bl, Bd : Integer;          --  lookup bits for tl/bd
         huft_incomplete : Boolean;
-
-        -- length list for HufT_build (literal table)
-
       begin
         if some_trace then
           Ada.Text_IO.Put_Line("Begin Inflate_fixed_block");
         end if;
-
-        -- make a complete, but wrong code set
+        --  Make a complete, but wrong [why ?] code set (see Appnote: 5.5.2, RFC 1951: 3.2.6)
         Bl := 7;
         HufT_build(
           length_list_for_fixed_block_literals, 257, copy_lengths_literal,
           extra_bits_literal, Tl, Bl, huft_incomplete
         );
-
-        -- Make an incomplete code set
+        --  Make an incomplete code set (see Appnote: 5.5.2, RFC 1951: 3.2.6)
         Bd := 5;
         begin
           HufT_build(
@@ -1538,14 +1554,15 @@ package body UnZip.Decompress is
             HufT_free( Tl );
             raise Zip.Zip_file_Error;
         end;
-
+        --  Decompress the block's data, until an end-of-block code.
         Inflate_Codes ( Tl, Td, Bl, Bd );
-
+        --  Done with this block, free resources.
         HufT_free ( Tl );
         HufT_free ( Td );
-
         if some_trace then
           Ada.Text_IO.Put_Line("End   Inflate_fixed_block");
+          lt_count_fix:= lt_count_fix + (lt_count-lt_count_0);
+          dl_count_fix:= dl_count_fix + (dl_count-dl_count_0);
         end if;
       end Inflate_fixed_block;
 
@@ -1563,7 +1580,8 @@ package body UnZip.Decompress is
         Tl,                             -- literal/length code tables
           Td : p_Table_list;            -- distance code tables
 
-        CTE : p_HufT;  -- current table element
+        CT     : p_HufT_table;       -- current table
+        CT_idx : Natural;            -- current table's index
 
         Bl, Bd : Integer;                  -- lookup bits for tl/bd
         Nb : Natural;  -- number of bit length codes
@@ -1614,11 +1632,11 @@ package body UnZip.Decompress is
           );
           if huft_incomplete then
             HufT_free(Tl);
-            raise Zip.Zip_file_Error;
+            Raise_Exception(Zip.Zip_file_Error'Identity, "Incomplete code set for compression structure");
           end if;
         exception
           when others =>
-            raise Zip.Zip_file_Error;
+            Raise_Exception(Zip.Zip_file_Error'Identity, "Error when building tables for compression structure");
         end;
 
         -- Read in literal and distance code lengths
@@ -1627,12 +1645,13 @@ package body UnZip.Decompress is
         current_length := 0;
 
         while  defined < number_of_lengths  loop
-          CTE:= Tl.table( UnZ_IO.Bit_buffer.Read(Bl) )'Access;
-          UnZ_IO.Bit_buffer.Dump( CTE.bits );
+          CT:= Tl.table;
+          CT_idx:= UnZ_IO.Bit_buffer.Read(Bl);
+          UnZ_IO.Bit_buffer.Dump( CT(CT_idx).bits );
 
-          case CTE.n is
+          case CT(CT_idx).n is
             when 0..15 =>       -- length of code in bits (0..15)
-              current_length:= CTE.n;
+              current_length:= CT(CT_idx).n;
               Ll (defined) := current_length;
               defined:= defined + 1;
             when 16 =>          -- repeat last length 3 to 6 times
@@ -1643,15 +1662,14 @@ package body UnZip.Decompress is
             when 18 =>          -- 11 to 138 zero length codes
               current_length:= 0;
               Repeat_length_code(11 + UnZ_IO.Bit_buffer.Read_and_dump(7));
-            when others =>
+            when others =>      --  Shouldn't occur if this tree is correct
               if full_trace then
-                Ada.Text_IO.Put_Line("Illegal length code: " & Integer'Image(CTE.n));
+                Ada.Text_IO.Put_Line("Illegal length code: " & Integer'Image(CT(CT_idx).n));
               end if;
           end case;
         end loop;
-        HufT_free ( Tl );        -- free decoding table for trees
-
-        -- Build the decoding tables for literal/length codes
+        HufT_free ( Tl );
+        --  Build the decoding tables for literal/length codes
         Bl := Lbits;
         begin
           HufT_build (
@@ -1661,14 +1679,13 @@ package body UnZip.Decompress is
           );
           if huft_incomplete then
             HufT_free(Tl);
-            raise Zip.Zip_file_Error;
+            Raise_Exception(Zip.Zip_file_Error'Identity, "Incomplete code set for literals/lengths");
           end if;
         exception
           when others =>
-            raise Zip.Zip_file_Error;
+            Raise_Exception(Zip.Zip_file_Error'Identity, "Error when building tables for literals/lengths");
         end;
-
-        -- Build the decoding tables for distance codes
+        --  Build the decoding tables for distance codes
         Bd := Dbits;
         begin
           HufT_build (
@@ -1676,41 +1693,46 @@ package body UnZip.Decompress is
             copy_offset_distance, extra_bits_distance,
             Td, Bd, huft_incomplete
           );
-          if huft_incomplete then -- do nothing!
-            if some_trace then
+          if huft_incomplete then
+            if deflate_strict then
+              Raise_Exception(Zip.Zip_file_Error'Identity, "Incomplete code set for distances");
+            elsif some_trace then  --  not deflate_strict => don't stop
               Ada.Text_IO.Put_Line("Huffman tree incomplete - PKZIP 1.93a bug workaround");
             end if;
           end if;
         exception
           when huft_out_of_memory | huft_error =>
             HufT_free(Tl);
-            raise Zip.Zip_file_Error;
+            Raise_Exception(Zip.Zip_file_Error'Identity, "Error when building tables for distances");
         end;
-
-        -- Decompress the block, until an end-of-block code
+        --  Decompress the block's data, until an end-of-block code.
         Inflate_Codes ( Tl, Td, Bl, Bd );
+        --  Done with this block, free resources.
         HufT_free ( Tl );
         HufT_free ( Td );
-
         if some_trace then
           Ada.Text_IO.Put_Line("End   Inflate_dynamic_block");
+          lt_count_dyn:= lt_count_dyn + (lt_count-lt_count_0);
+          dl_count_dyn:= dl_count_dyn + (dl_count-dl_count_0);
         end if;
       end Inflate_dynamic_block;
 
-      procedure Inflate_Block( last_block: out Boolean ) is
+      procedure Inflate_Block( last_block: out Boolean; fix, dyn: in out Long_Integer ) is
       begin
         last_block:= Boolean'Val(UnZ_IO.Bit_buffer.Read_and_dump(1));
         case UnZ_IO.Bit_buffer.Read_and_dump(2) is -- Block type = 0,1,2,3
           when 0 =>      Inflate_stored_block;
           when 1 =>      Inflate_fixed_block;
+                         fix:= fix + 1;
           when 2 =>      Inflate_dynamic_block;
+                         dyn:= dyn + 1;
           when others => raise Zip.Zip_file_Error; -- Bad block type (3)
         end case;
       end Inflate_Block;
 
       procedure Inflate is
         is_last_block: Boolean;
-        blocks: Positive:= 1;
+        blocks, blocks_fix, blocks_dyn: Long_Integer:= 0;
       begin
         if deflate_e_mode then
           copy_lengths_literal(28):= 3; -- instead of 258
@@ -1718,14 +1740,29 @@ package body UnZip.Decompress is
           max_dist:= 31;
         end if;
         loop
-          Inflate_Block ( is_last_block );
+          blocks:= blocks + 1;
+          Inflate_Block ( is_last_block, blocks_fix, blocks_dyn );
           exit when is_last_block;
-          blocks:= blocks+1;
         end loop;
         UnZ_IO.Flush( UnZ_Glob.slide_index );
         UnZ_Glob.slide_index:= 0;
         if some_trace then
-          Ada.Text_IO.Put("# blocks:" & Integer'Image(blocks));
+          Ada.Text_IO.Put_Line(
+            "# blocks:" & Long_Integer'Image(blocks) &
+            "; fixed:" & Long_Integer'Image(blocks_fix) &
+            "; dynamic:" & Long_Integer'Image(blocks_dyn));
+          if blocks_fix > 0 then
+            Ada.Text_IO.Put_Line(
+              "Averages per fixed block: literals:" & Long_Integer'Image(lt_count_fix / blocks_fix) &
+              "; DL codes:" & Long_Integer'Image(dl_count_fix / blocks_fix) &
+              "; all codes:" & Long_Integer'Image((lt_count_fix + dl_count_fix) / blocks_fix));
+          end if;
+          if blocks_dyn > 0 then
+            Ada.Text_IO.Put_Line(
+              "Averages per dynamic block: literals:" & Long_Integer'Image(lt_count_dyn / blocks_dyn) &
+              "; DL codes:" & Long_Integer'Image(dl_count_dyn / blocks_dyn) &
+              "; all codes:" & Long_Integer'Image((lt_count_dyn + dl_count_dyn) / blocks_dyn));
+          end if;
         end if;
       end Inflate;
 
@@ -1800,10 +1837,9 @@ package body UnZip.Decompress is
       start: Integer;
       b: Unsigned_8;
       dd_buffer: Zip.Byte_Buffer(1..30);
-      use Local_crypto;
     begin
       UnZ_IO.Bit_buffer.Dump_to_byte_boundary;
-      Set_mode(clear); -- We are after compressed data, switch off decryption.
+      Set_mode(local_crypto_pack, clear); -- We are after compressed data, switch off decryption.
       b:= UnZ_IO.Read_byte_decrypted;
       if b = 75 then -- 'K' ('P' is before, this is a Java/JAR bug!)
         dd_buffer(1):= 80;
@@ -1823,9 +1859,12 @@ package body UnZip.Decompress is
     end Process_descriptor;
 
     work_index: Zip_Streams.ZS_Index_Type;
-    use Zip, UnZ_Meth, Local_crypto;
+    use Zip, UnZ_Meth;
 
   begin -- Decompress_Data
+    if some_trace then
+      Ada.Text_IO.Create(LZ77_dump, Ada.Text_IO.Out_File, "dump.lz77");
+    end if;
     output_memory_access:= null;
     -- ^ this is an 'out' parameter, we have to set it anyway
     case mode is
@@ -1852,7 +1891,7 @@ package body UnZip.Decompress is
     UnZ_Glob.uncompsize:= hint.dd.uncompressed_size;
     UnZ_IO.Init_Buffers;
     if is_encrypted then
-      Set_mode( encrypted );
+      Set_mode(local_crypto_pack, encrypted);
       work_index := Zip_Streams.Index(zip_file);
       password_passes: for pass in 1..tolerance_wrong_password loop
         begin
@@ -1876,7 +1915,7 @@ package body UnZip.Decompress is
         UnZ_IO.Init_Buffers;
       end loop password_passes;
     else
-      Set_mode( clear );
+      Set_mode(local_crypto_pack, clear);
     end if;
 
     -- UnZip correct type
@@ -1920,7 +1959,9 @@ package body UnZip.Decompress is
 
     if hint.dd.crc_32 /= UnZ_Glob.crc32val then
       UnZ_IO.Delete_output;
-      raise CRC_Error;
+      Raise_Exception(CRC_Error'Identity,
+        "CRC stored in archive: " & Hexadecimal(hint.dd.crc_32) &
+        "; CRC computed now: " & Hexadecimal(UnZ_Glob.crc32val));
     end if;
 
     case mode is
@@ -1931,6 +1972,9 @@ package body UnZip.Decompress is
       when write_to_memory | write_to_stream | just_test =>
         null; -- Nothing to close!
     end case;
+    if some_trace then
+      Ada.Text_IO.Close(LZ77_dump);
+    end if;
 
   exception
     when others => -- close the file in case of an error, if not yet closed

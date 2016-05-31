@@ -88,7 +88,7 @@ package Zip_Streams is
 
    procedure Set_Read_Only_Flag (S     : out Root_Zipstream_Type;
                                  Value : in Boolean);
-   function Is_Read_only(S : in Root_Zipstream_Type)
+   function Is_Read_Only(S : in Root_Zipstream_Type)
                          return Boolean;
 
    -- this procedure sets the Modification_Time of the stream

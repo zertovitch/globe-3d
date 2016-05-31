@@ -15,7 +15,7 @@
 
 -- Legal licensing note:
 
---  Copyright (c) 1999..2014 Gautier de Montmollin
+--  Copyright (c) 1999 .. 2016 Gautier de Montmollin
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
 --  of this software and associated documentation files (the "Software"), to deal
@@ -41,6 +41,7 @@
 with Zip_Streams;
 with Ada.Calendar, Ada.Streams.Stream_IO, Ada.Text_IO;
 with Interfaces;
+with System;
 
 package Zip is
 
@@ -57,20 +58,27 @@ package Zip is
   -- fast searching                                                    --
   -----------------------------------------------------------------------
 
+   type Duplicate_name_policy is
+     ( admit_duplicates,    --  two entries in the Zip archive may have the same full name
+       error_on_duplicate   --  raise exception on attempt to add twice the same entry name
+     );
+
   -- Load from a file
 
   procedure Load(
-    info           : out Zip_info;
-    from           : in  String; -- Zip file name
-    case_sensitive : in  Boolean:= False
+    info            : out Zip_info;
+    from            : in  String; -- Zip file name
+    case_sensitive  : in  Boolean:= False;
+    duplicate_names : in  Duplicate_name_policy:= error_on_duplicate
   );
 
   -- Load from a stream
 
   procedure Load(
-    info           :    out Zip_info;
-    from           : in out Zip_Streams.Root_Zipstream_Type'Class;
-    case_sensitive : in     Boolean:= False
+    info            :    out Zip_info;
+    from            : in out Zip_Streams.Root_Zipstream_Type'Class;
+    case_sensitive  : in     Boolean:= False;
+    duplicate_names : in     Duplicate_name_policy:= error_on_duplicate
   );
 
   Zip_file_Error,
@@ -343,12 +351,19 @@ package Zip is
     last_char: in out Character -- track line-ending characters between writes
   );
 
+  function Hexadecimal(x: Interfaces.Unsigned_32) return String;
+
+  --  In case you want to use the Zip.LZ77 compression procedure
+  --  separately, you need to pick an appropriate method
+  --
+  type LZ77_method is (LZHuf, IZ_4, IZ_5, IZ_6, IZ_7, IZ_8, IZ_9, IZ_10);
+
   --------------------------------------------------------------
   -- Information about this package - e.g. for an "about" box --
   --------------------------------------------------------------
 
-  version   : constant String:= "48";
-  reference : constant String:= "20-Jul-2014";
+  version   : constant String:= "50_f1";
+  reference : constant String:= "27-Apr-2016";
   web       : constant String:= "http://unzip-ada.sf.net/";
   -- hopefully the latest version is at that URL...  ---^
 
@@ -396,5 +411,24 @@ private
     total_entries   : Natural;
     zip_file_comment: p_String;
   end record;
+
+  --  System.Word_Size: 13.3(8): A word is the largest amount of storage
+  --  that can be conveniently and efficiently manipulated by the hardware,
+  --  given the implementation's run-time model.
+  --
+  min_bits_32: constant:= Integer'Max(32, System.Word_Size);
+  min_bits_16: constant:= Integer'Max(16, System.Word_Size);
+
+  --  We define an Integer type which is at least 32 bits, but n bits
+  --  on a native n (> 32) bits architecture (no performance hit on 64+
+  --  bits architectures).
+  --  Integer_M16 not needed: Integer already guarantees 16 bits
+  --
+  type Integer_M32 is range -2**(min_bits_32-1) .. 2**(min_bits_32-1) - 1;
+  subtype Natural_M32  is Integer_M32 range 0..Integer_M32'Last;
+  subtype Positive_M32 is Integer_M32 range 1..Integer_M32'Last;
+
+  type Unsigned_M16 is mod 2**min_bits_16;
+  type Unsigned_M32 is mod 2**min_bits_32;
 
 end Zip;

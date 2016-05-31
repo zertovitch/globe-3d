@@ -61,12 +61,12 @@ package body Zip_Streams is
      S.Is_Read_Only := Value;
    end Set_Read_Only_Flag;
 
-   function Is_Read_only(S : in Root_Zipstream_Type)
+   function Is_Read_Only(S : in Root_Zipstream_Type)
                          return Boolean
    is
    begin
      return S.Is_Read_Only;
-   end Is_Read_only;
+   end Is_Read_Only;
 
    ---------------------------------------------------------------------
    -- Unbounded_Stream: stream based on an in-memory Unbounded_String --
