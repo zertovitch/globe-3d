@@ -30,6 +30,7 @@ with Vehic001, Vehic002,
      X29,
      Brick, Icosahedron,
      SkotKnot, Lissajous,
+     Knot_10_102, Knot_link,
      Planet,
      A319,
      Dreadnought,
@@ -208,6 +209,7 @@ procedure GLOBE_3D_Demo is
   -- vrml,
   -- gmax,
   knot, liss,
+  knot_10_102_obj, knot_link_obj,
   globe,
   a319_plane,
   x29_plane,
@@ -483,6 +485,20 @@ procedure GLOBE_3D_Demo is
     );
     Pre_calculate(liss.all);
 
+    Knot_10_102.Create(
+      object => knot_10_102_obj,
+      scale  => 1.0,
+      centre => (0.0,0.0,-50.0)
+    );
+    Pre_calculate(knot_10_102_obj.all);
+
+    Knot_link.Create(
+      object => knot_link_obj,
+      scale  => 1.0,
+      centre => (0.0,0.0,-50.0)
+    );
+    Pre_calculate(knot_link_obj.all);
+
     --
     -- Load a Doom 3 level from .g3d/.bsp files
     --
@@ -574,6 +590,7 @@ procedure GLOBE_3D_Demo is
       cube, cube_tri, cube_bico,
       ico, icos,
       knot, liss,
+      knot_10_102_obj, knot_link_obj,
       bri1
     );
 
