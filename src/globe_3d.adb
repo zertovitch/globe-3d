@@ -130,11 +130,11 @@ package body GLOBE_3D is
      deallocate (o);
   end free;
 
-  function skinned_Geometrys (o : in Visual) return GL.Skinned_Geometry.skinned_Geometrys
+  function Skinned_Geometries (o : in Visual) return GL.Skinned_Geometry.Skinned_Geometries
   is
   begin
-     return GL.Skinned_Geometry.null_skinned_Geometrys;
-  end skinned_Geometrys;
+     return GL.Skinned_Geometry.null_skinned_geometries;
+  end Skinned_Geometries;
 
   function Width  (o: in Visual'class) return Real
   is
@@ -447,9 +447,9 @@ package body GLOBE_3D is
           return;
         end if;
 
-        --------------
-        -- Material --
-        --------------
+        ------------------------------
+        --  1) Set Face's Material  --
+        ------------------------------
 
         if First_Face
           or else Previous_face.skin = invisible
@@ -466,9 +466,9 @@ package body GLOBE_3D is
           end case;
         end if;
 
-        ------------
-        -- Colour --
-        ------------
+        ----------------------------
+        --  2) Set Face's Colour  --
+        ----------------------------
 
         if First_Face
           or else Previous_face.skin = invisible
@@ -496,9 +496,9 @@ package body GLOBE_3D is
           end case;
         end if;
 
-        -------------
-        -- Texture --
-        -------------
+        -----------------------------
+        --  3) Set Face's Texture  --
+        -----------------------------
 
         if is_textured(fa.skin) then
           G3DT.Check_2D_texture(fa.texture, blending_hint);
@@ -528,9 +528,9 @@ package body GLOBE_3D is
           end case;
         end if;
 
-        -----------------------------
-        -- Blending / transparency --
-        -----------------------------
+        ------------------------------------------
+        --  Set Face's Blending / Transparency  --
+        ------------------------------------------
 
         if First_Face
           or else Previous_face.skin = invisible
@@ -550,9 +550,9 @@ package body GLOBE_3D is
           end if;
         end if;
 
-        -------------
-        -- Drawing --
-        -------------
+        --------------------------
+        --  Now, draw the face  --
+        --------------------------
 
         case fi.last_edge is
           when 3 => GL_Begin( TRIANGLES );
@@ -615,42 +615,42 @@ package body GLOBE_3D is
     GL.Translate( o.centre );
     Multiply_GL_Matrix(o.rotation);
 
-    -- List preparation phase
+    --  List preparation phase.
     case o.List_Status is
       when No_List | Is_List =>
         null;
-
       when Generate_List =>
         o.List_Id := Integer(GL.GenLists(1));
         GL.NewList (GL.Uint (o.List_Id), COMPILE_AND_EXECUTE);
     end case;
 
-    -- Execution phase
+    --  List generation phase or execution.
     case o.List_Status is
       when No_List =>
         for f in o.face'Range loop
           Display_face_optimized.Display_face(True, o.face(f), o.face_invariant(f));
-          -- We mimic the old Display_face with redundant color, material, etc.
-          -- instructions by passing True for First_Face.
+          --  We mimic the old, direct, Display_face with redundant color, material, etc.
+          --  instructions by passing True for First_Face.
         end loop;
       when Generate_List =>
         for f in o.face'Range loop
           Display_face_optimized.Display_face(f = o.face'First, o.face(f), o.face_invariant(f));
         end loop;
-
-      when Is_List => GL.CallList (GL.Uint (o.List_Id));
+      when Is_List =>
+        GL.CallList (GL.Uint (o.List_Id));
     end case;
 
-    -- Close list
+    --  Close list - if any.
     case o.List_Status is
-      when No_List | Is_List => null;
-
+      when No_List | Is_List =>
+        null;
       when Generate_List  =>
         GL.EndList;
         if GL.GetError = OUT_OF_MEMORY then
           o.List_Status := No_List;
         else
           o.List_Status := Is_List;
+          GL.CallList (GL.Uint (o.List_Id));  --  First display of the freshly generated list.
         end if;
     end case;
 
@@ -1043,28 +1043,28 @@ package body GLOBE_3D is
    -- tbd: has been moved (for the moment) external to 'render' for performance, but this makes package task unsafe !
    --
    --
-      type visual_Geometry is
+      type Visual_Geometry is
          record
             Visual   : p_Visual;
-            Geometry : GL.Skinned_Geometry.skinned_Geometry;
+            Geometry : GL.Skinned_Geometry.Skinned_Geometry;
          end record;
-      pragma Convention (C, visual_Geometry);  -- using convention pragma to disable default initialization (for performance)
+      pragma Convention (C, Visual_Geometry);  -- using convention pragma to disable default initialization (for performance)
 
-      type visual_Geometrys is array (Positive range <>) of visual_Geometry;
-      pragma Convention (C, visual_Geometrys);  -- using convention pragma to disable default initialization (for performance)
+      type Visual_Geometries is array (Positive range <>) of Visual_Geometry;
+      pragma Convention (C, Visual_Geometries);  -- using convention pragma to disable default initialization (for performance)
 
-   all_Geometrys     : visual_Geometrys (1 .. 80_000);   pragma Convention (C, all_Geometrys);  -- tbd: this is slow !
+   all_Geometries     : Visual_Geometries (1 .. 80_000);   pragma Convention (C, all_Geometries);  -- tbd: this is slow !
    --
    --------------------------------------
 
-   procedure render (the_Visuals : in Visual_array;   the_Camera : in Camera)
+   procedure Render (the_Visuals : in Visual_array;   the_Camera : in Camera)
    is
       use GL, REF, G3DM;
 
       all_Transparents  : GLOBE_3D.Visual_array (1 .. 10_000);
       transparent_Count : Natural                           := 0;
 
-      geometry_Count    : Natural                       := 0;   -- for 'all_Geometrys' array.
+      geometry_Count    : Natural                       := 0;   -- for 'all_Geometries' array.
 
       current_Skin      : GL.Skins.p_Skin;
 
@@ -1088,17 +1088,17 @@ package body GLOBE_3D is
       --
       for Each in the_Visuals'Range loop
          declare
-            the_Visual       : Visual'Class                          renames the_Visuals (Each).all;
-            visual_Geometrys : GL.Skinned_Geometry.skinned_Geometrys renames skinned_Geometrys (the_Visual);
+            the_Visual        : Visual'Class                           renames the_Visuals (Each).all;
+            visual_geometries : GL.Skinned_Geometry.Skinned_Geometries renames Skinned_Geometries (the_Visual);
          begin
             if is_Transparent (the_Visual) then
                transparent_Count                    := transparent_Count + 1;
                all_Transparents (transparent_Count) := the_Visual'Access;
             else
-               for Each in visual_Geometrys'Range loop
+               for Each in visual_geometries'Range loop
                   geometry_Count                          := geometry_Count + 1;
-                  all_Geometrys (geometry_Count).Visual   := the_Visual'Access;
-                  all_Geometrys (geometry_Count).Geometry := visual_Geometrys (Each);
+                  all_Geometries (geometry_Count).Visual   := the_Visual'Access;
+                  all_Geometries (geometry_Count).Geometry := visual_geometries (Each);
                end loop;
 
                Display (the_Visuals (Each).all,  the_Camera.clipper);
@@ -1111,7 +1111,7 @@ package body GLOBE_3D is
       -- display all opaque geometries, sorted by gl geometry primitive kind and skin.
       --
       declare
-         function "<" (L, R : in visual_Geometry) return Boolean
+         function "<" (L, R : in Visual_Geometry) return Boolean
          is
             use GL.Geometry, System.Storage_Elements;
          begin
@@ -1126,46 +1126,46 @@ package body GLOBE_3D is
             end if;
          end "<";
 
-         procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
-                                                                  visual_Geometry,
-                                                                  visual_Geometrys);
+         procedure Sort is new Ada.Containers.Generic_Array_Sort (Positive,
+                                                                  Visual_Geometry,
+                                                                  Visual_Geometries);
          use GL.Skins, GL.Geometry, GL.Skinned_Geometry;
 
          current_Visual : p_Visual;
 
       begin
          if geometry_Count > 1 then
-            sort (all_Geometrys (1 .. geometry_Count));
+            Sort (all_Geometries (1 .. geometry_Count));
          end if;
 
          GL.PushMatrix;
 
          for Each in 1 .. geometry_Count loop
 
-            if all_Geometrys (Each).Geometry.Skin /= current_Skin then
-               current_Skin := all_Geometrys (Each).Geometry.Skin;
+            if all_Geometries (Each).Geometry.Skin /= current_Skin then
+               current_Skin := all_Geometries (Each).Geometry.Skin;
                enable (current_Skin.all);
                GL.Errors.log;
             end if;
 
-            if all_Geometrys (Each).Geometry.Veneer /= null then
-               enable (all_Geometrys (Each).Geometry.Veneer.all);
+            if all_Geometries (Each).Geometry.Veneer /= null then
+               enable (all_Geometries (Each).Geometry.Veneer.all);
                GL.Errors.log;
             end if;
 
-            if all_Geometrys (Each).Visual = current_Visual then
-               Draw (all_Geometrys (Each).Geometry.Geometry.all);
+            if all_Geometries (Each).Visual = current_Visual then
+               Draw (all_Geometries (Each).Geometry.Geometry.all);
                GL.Errors.log;
             else
                GL.PopMatrix;
                GL.PushMatrix;
-               GL.Translate       (all_Geometrys (Each).Visual.centre);
-               Multiply_GL_Matrix (all_Geometrys (Each).Visual.rotation);
+               GL.Translate       (all_Geometries (Each).Visual.centre);
+               Multiply_GL_Matrix (all_Geometries (Each).Visual.rotation);
 
-               Draw (all_Geometrys (Each).Geometry.Geometry.all);
+               Draw (all_Geometries (Each).Geometry.Geometry.all);
                GL.Errors.log;
 
-               current_Visual := all_Geometrys (Each).Visual;
+               current_Visual := all_Geometries (Each).Visual;
             end if;
 
          end loop;
@@ -1207,16 +1207,16 @@ package body GLOBE_3D is
 
          for Each in 1 .. transparent_Count loop
             declare
-               the_Visual       : Visual'Class                          renames all_Transparents (Each).all;
-               visual_Geometrys : constant GL.Skinned_Geometry.skinned_Geometrys      := skinned_Geometrys (the_Visual); -- tbd: apply ogl state sorting here ?
+               the_Visual        : Visual'Class                          renames all_Transparents (Each).all;
+               visual_Geometries : constant GL.Skinned_Geometry.Skinned_Geometries      := Skinned_Geometries (the_Visual); -- tbd: apply ogl state sorting here ?
             begin
                Display (the_Visual,  the_Camera.clipper);
                GL.Errors.log;
 
-               for Each in visual_Geometrys'Range loop
+               for Each in visual_Geometries'Range loop
                   declare
                      use GL.Skins, GL.Geometry;
-                     the_Geometry : GL.Skinned_Geometry.skinned_Geometry renames visual_Geometrys (Each);
+                     the_Geometry : GL.Skinned_Geometry.Skinned_Geometry renames visual_Geometries (Each);
                   begin
 
                      if the_Geometry.Skin /= current_Skin then
@@ -1251,7 +1251,7 @@ package body GLOBE_3D is
       PopMatrix;
 
       GL.Errors.log;      -- tbd: for debug only
-   end render;
+   end Render;
 
    function empty_map return Map_of_Visuals is
      thing: Map_of_Visuals;

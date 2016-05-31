@@ -19,7 +19,7 @@ package body GL.Skinned_Geometry is
 
    use GL.Geometry, GL.Skins;
 
-   procedure destroy (Self : in out skinned_Geometry)
+   procedure destroy (Self : in out Skinned_Geometry)
    is
    begin
       free (Self.Geometry);

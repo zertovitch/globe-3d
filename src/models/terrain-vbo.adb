@@ -28,7 +28,7 @@ package body Terrain.vbo is
 
    function new_terrain_Sprite return sprite.p_Sprite
    is
-      the_Sprite : sprite.p_Sprite := new globe_3d.sprite.Sprite (max_geometrys => 1);
+      the_Sprite : sprite.p_Sprite := new globe_3d.sprite.Sprite (max_Geometries => 1);
    begin
       the_Sprite.is_Terrain := True;
       return the_Sprite;
@@ -105,7 +105,7 @@ package body Terrain.vbo is
       end;
 
 
-      self.skinned_Geometrys (1).Geometry := the_Geometry.all'access;
+      self.skinned_Geometries (1).Geometry := the_Geometry.all'access;
       self.skinned_geometry_Count         := 1;
    end;
 
@@ -120,7 +120,7 @@ package body Terrain.vbo is
    is
       use gl.Textures, gl.Skins, gl.Geometry.vbo;
 
-      the_skinned_Geometry : gl.skinned_Geometry.skinned_Geometry renames self.skinned_geometrys (1);
+      the_skinned_Geometry : gl.skinned_Geometry.skinned_Geometry renames self.skinned_Geometries (1);
 
       the_Skin       : p_Skin_unlit_textured_vbo         := new Skin_unlit_textured_vbo'(texture => Now);
       the_Vertices   : gl.geometry.vertex_Array     renames vbo_Geometry (the_skinned_Geometry.Geometry.all).Vertices.get;
@@ -156,7 +156,7 @@ package body Terrain.vbo is
       use GLOBE_3D, GL, GL.Geometry, GL.Geometry.vbo, GL.Buffer, GL.Buffer.vertex, GLOBE_3D.REF, GLOBE_3D.Math, globe_3d.Sprite;
 
    begin
-      Object            := new globe_3d.sprite.Sprite (max_geometrys => 1);
+      Object            := new globe_3d.sprite.Sprite (max_Geometries => 1);
       Object.is_Terrain := True;
 
       Heights_are (Object, the_Height_Map, Scale, Y_Offset);

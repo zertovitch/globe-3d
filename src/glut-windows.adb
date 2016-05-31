@@ -283,7 +283,7 @@ package body GLUT.Windows is
    is
       use GL, G3D;
    begin
-      G3D.render (Self.Objects (1 .. Self.object_Count)  &  Extras,
+      G3D.Render (Self.Objects (1 .. Self.object_Count)  &  Extras,
                   Self.Camera);
 
       if Self.show_Status then

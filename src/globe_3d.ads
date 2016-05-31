@@ -210,10 +210,10 @@ package GLOBE_3D is
    --
    -- returns 'True' if any part of the 'visual' is potentially transparent.
 
-   function face_Count (o : in Visual) return Natural                   is abstract;
+   function Face_Count (o : in Visual) return Natural                   is abstract;
    function Bounds     (o : in Visual) return GL.Geometry.Bounds_record is abstract;
 
-   function skinned_Geometrys (o : in Visual) return GL.Skinned_Geometry.skinned_Geometrys;
+   function Skinned_Geometries (o : in Visual) return GL.Skinned_Geometry.Skinned_Geometries;
 
    procedure Display (o          : in out Visual;
                       clip       : in     Clipping_data
@@ -230,7 +230,7 @@ package GLOBE_3D is
 
    null_Visuals : constant Visual_array (1 .. 0) := (others => null);
 
-   procedure render (the_Visuals : in Visual_array;   the_Camera : in Camera);
+   procedure Render (the_Visuals : in Visual_array;   the_Camera : in Camera);
    --
    -- clears the color buffer and renders each of the visuals.
 
