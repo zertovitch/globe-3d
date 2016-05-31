@@ -122,13 +122,13 @@ package body GLOBE_3D is
   -- 'Visual'
   --
 
-  procedure free (o     : in out p_Visual)
+  procedure Free (o     : in out p_Visual)
   is
      procedure deallocate is new Ada.Unchecked_Deallocation (Visual'Class, p_Visual);
   begin
-     destroy (o.all);
+     Destroy (o.all);
      deallocate (o);
-  end free;
+  end Free;
 
   function Skinned_Geometries (o : in Visual) return GL.Skinned_Geometry.Skinned_Geometries
   is
@@ -617,7 +617,7 @@ package body GLOBE_3D is
 
     --  List preparation phase.
     case o.List_Status is
-      when No_List | Is_List =>
+      when No_List | No_List_Optimized | Is_List =>
         null;
       when Generate_List =>
         o.List_Id := Integer(GL.GenLists(1));
@@ -632,7 +632,7 @@ package body GLOBE_3D is
           --  We mimic the old, direct, Display_face with redundant color, material, etc.
           --  instructions by passing True for First_Face.
         end loop;
-      when Generate_List =>
+      when No_List_Optimized | Generate_List =>
         for f in o.face'Range loop
           Display_face_optimized.Display_face(f = o.face'First, o.face(f), o.face_invariant(f));
         end loop;
@@ -642,7 +642,7 @@ package body GLOBE_3D is
 
     --  Close list - if any.
     case o.List_Status is
-      when No_List | Is_List =>
+      when No_List | No_List_Optimized | Is_List =>
         null;
       when Generate_List  =>
         GL.EndList;
@@ -797,31 +797,37 @@ package body GLOBE_3D is
     Reset_portal_seen(o);
   end Display;
 
-  procedure destroy (o : in out Object_3D) is
-    ol: p_Object_3D_list:= o.sub_objects;
+  procedure Destroy (o : in out Object_3D) is
+    ol, ol_prev: p_Object_3D_list:= o.sub_objects;
+    procedure Dispose is new Ada.Unchecked_Deallocation (Object_3D_list, p_Object_3D_list);
   begin
     while ol /= null loop
-      free(p_Visual(ol.objc));
+      Free(p_Visual(ol.objc));  --  Sub-object will be destroyed first - then, sub-sub-objects etc.
+      ol_prev:= ol;
       ol:= ol.next;
+      Dispose(ol_prev);
     end loop;
-  end destroy;
+    if o.List_Status = Is_List then
+      GL.DeleteLists (GL.Uint (o.List_Id), 1);
+    end if;
+  end Destroy;
 
-  procedure set_Alpha(o: in out Object_3D; Alpha : in GL.Double) is
+  procedure Set_Alpha(o: in out Object_3D; Alpha : in GL.Double) is
   begin
     for f in o.face'Range loop
       o.face(f).alpha := Alpha;
     end loop;
-  end set_Alpha;
+  end Set_Alpha;
 
-  function is_Transparent(o: in Object_3D) return Boolean is
+  function Is_Transparent(o: in Object_3D) return Boolean is
   begin
     return o.transparent;
-  end is_Transparent;
+  end Is_Transparent;
 
-  function face_Count(o: in Object_3D) return Natural is
+  function Face_Count(o: in Object_3D) return Natural is
   begin
     return o.Max_faces;
-  end face_Count;
+  end Face_Count;
 
   function  Bounds(o: in Object_3D) return GL.Geometry.Bounds_record is
   begin
@@ -1091,7 +1097,7 @@ package body GLOBE_3D is
             the_Visual        : Visual'Class                           renames the_Visuals (Each).all;
             visual_geometries : GL.Skinned_Geometry.Skinned_Geometries renames Skinned_Geometries (the_Visual);
          begin
-            if is_Transparent (the_Visual) then
+            if Is_Transparent (the_Visual) then
                transparent_Count                    := transparent_Count + 1;
                all_Transparents (transparent_Count) := the_Visual'Access;
             else

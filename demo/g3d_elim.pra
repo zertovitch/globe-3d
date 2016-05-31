@@ -423,7 +423,6 @@ pragma Eliminate (GL, DrawBuffer);
 pragma Eliminate (GL, DrawArrays);
 pragma Eliminate (GL, DepthRange);
 pragma Eliminate (GL, DepthFunc);
-pragma Eliminate (GL, DeleteLists);
 pragma Eliminate (GL, CopyTexSubImage3DEXT);
 pragma Eliminate (GL, CopyTexSubImage2D);
 pragma Eliminate (GL, CopyTexSubImage1D);

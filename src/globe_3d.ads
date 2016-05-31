@@ -1,9 +1,9 @@
 -------------------------------------------------------------------------
 --  GLOBE_3D - GL-based, real-time, 3D engine
 --
---  Copyright (c) Gautier de Montmollin 2001..2012
+--  Copyright (c) Gautier de Montmollin 2001 .. 2016
 --  SWITZERLAND
---  Copyright (c) Rod Kay 2006..2008
+--  Copyright (c) Rod Kay 2006 .. 2008
 --  AUSTRALIA
 --
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -198,15 +198,15 @@ package GLOBE_3D is
    type p_Visual is access all Visual'Class;
    type Visual_array is array (Positive range <>) of p_Visual;
 
-   procedure destroy        (o     : in out Visual) is abstract;
-   procedure free           (o     : in out p_Visual);
+   procedure Destroy        (o     : in out Visual) is abstract;
+   procedure Free           (o     : in out p_Visual);
 
    procedure Pre_calculate  (o     : in out Visual)     is abstract;
 
-   procedure set_Alpha      (o     : in out Visual;
+   procedure Set_Alpha      (o     : in out Visual;
                              Alpha : in     GL.Double)   is abstract;
 
-   function  is_Transparent (o     : in     Visual) return Boolean   is abstract;
+   function  Is_Transparent (o     : in     Visual) return Boolean   is abstract;
    --
    -- returns 'True' if any part of the 'visual' is potentially transparent.
 
@@ -344,23 +344,32 @@ package GLOBE_3D is
   type Object_3D_array is array(Positive range <>) of p_Object_3D;
   type p_Object_3D_array is access Object_3D_array;
 
-  -----------------------------------
-  -- Now: the Object_3D definition --
-  -----------------------------------
-
-  type List_Cases  is (No_List, Generate_List, Is_List);
+  --  Added "List_status" and "List_Id" to the Object_3D.
+  --  by default the Display_One routine will now generate a GL command list
+  --  instead of sending the command each time explicitely.
+  --  To disable this feature, set Object_3D.List_Status to "No_List".
+  --  If memory is not sufficient to hold a list, the Display_One routine will
+  --  automatically default back to "No_List".
+  --
+  --  Uwe R. Zimmer, July 2011
+  --
+  type List_Cases  is (
+    No_List,             --  Old way: all colors, texture IDs, coordinates are sent at each frame
+    No_List_Optimized,   --  Old way, but removing redundant commands across faces (for tests only)
+    Generate_List,       --  Generate a list of GL optimized commands upon first call to Display_one
+    Is_List              --  Call the previously generated list
+  );
   subtype List_Ids is Positive;
 
-   --
-   -- Added "List_status" and "List_Id" to the Object_3D.
-   -- by default the Display_One routine will now generate a GL command list
-   -- instead of sending the command each time explicitely.
-   -- To disable this feature, set Object_3D.List_Status to "No_List".
-   -- If memory is not sufficient to hold a list, the Display_One routine will
-   -- automatically default back to "No_List".
-   --
-   -- Uwe R. Zimmer, July 2011
-   --
+  --  Typical performances (HP Phoenix h9-1161ez of 2012, single-textured demo's 1st scene):
+  --    No_List           :    102 FPS
+  --    No_List_Optimized :    144 FPS
+  --    Generate_List     :    156 FPS
+
+  -------------------------------------
+  --  Now: the Object_3D definition  --
+  -------------------------------------
+
   type Object_3D (Max_points, Max_faces: Integer) is new Visual with record
     point          : Point_3D_array  (1..Max_points);  -- vertices
     edge_vector    : Vector_3D_array (1..Max_points);  -- normals for lighting
@@ -377,10 +386,10 @@ package GLOBE_3D is
     transparent    : Boolean:= False;
   end record; -- Object_3D
 
-  procedure destroy        (o : in out Object_3D);
-  procedure set_Alpha      (o : in out Object_3D;   Alpha : in GL.Double);
-  function  is_Transparent (o : in Object_3D) return Boolean;
-  function  face_Count     (o : in Object_3D) return Natural;
+  procedure Destroy        (o : in out Object_3D);
+  procedure Set_Alpha      (o : in out Object_3D;   Alpha : in GL.Double);
+  function  Is_Transparent (o : in Object_3D) return Boolean;
+  function  Face_Count     (o : in Object_3D) return Natural;
   function  Bounds         (o : in Object_3D) return GL.Geometry.Bounds_record;
 
   procedure Check_object(o: Object_3D);
