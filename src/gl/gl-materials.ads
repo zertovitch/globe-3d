@@ -37,7 +37,7 @@ package GL.Materials is
                               diffuse =>        (0.8, 0.8, 0.8, 1.0),
                               specular =>       (0.0, 0.0, 0.0, 1.0),
                               emission =>       (0.0, 0.0, 0.0, 1.0),
-                              shininess =>      0.0);                 
+                              shininess =>      0.0);
                               -- ^ the values are GL defaults.
 
   -- A few colour-dominant materials:
@@ -73,7 +73,6 @@ package GL.Materials is
     emission  => (0.0, 0.0, 0.0, 1.0),
     shininess => 12.8
   );
-
 
   Indigo   : constant Material_type:= (
     ambient   => (0.0, 0.0, 0.0, 1.0),

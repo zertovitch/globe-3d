@@ -1,16 +1,11 @@
 
-with Ada.Numerics.Generic_Elementary_functions;
+with Ada.Numerics.Generic_Elementary_Functions;
 with Ada.Text_IO;
-
-
 
 package GL.Math is
 
-
-  package REF is new Ada.Numerics.Generic_Elementary_functions (Double);
+  package REF is new Ada.Numerics.Generic_Elementary_Functions (Double);
   package RIO is new Ada.Text_IO.Float_IO                      (Double);
-
-
 
   -------------
   -- Vectors --
@@ -45,10 +40,7 @@ package GL.Math is
 
   function Normalized(a: Double_Vector_3D) return Double_Vector_3D;
 
-
   type Vector_4D is array (0 .. 3) of Double;
-
-
 
    -- Angles
    --
@@ -57,10 +49,8 @@ package GL.Math is
    --
    -- returns the angle between the vector Point_1 to Point_2 and the vector Point_3 to Point_2.
 
-
    function to_Degrees (Radians : Double) return Double;
    function to_Radians (Degrees : Double) return Double;
-
 
   --------------
   -- Matrices --
@@ -75,8 +65,6 @@ package GL.Math is
   Id_33 : constant Matrix_33:= ((1.0, 0.0, 0.0),
                                 (0.0, 1.0, 0.0),
                                 (0.0, 0.0, 1.0));
-
-
 
   function "*"(A,B: Matrix_33) return Matrix_33;
 
@@ -100,7 +88,6 @@ package GL.Math is
 
    function Look_at (eye, center, up : Double_Vector_3D) return Matrix_33;
 
-
   -- This is for correcting cumulation of small computational
   -- errors, making the rotation matrix no more orthogonal
   procedure Re_Orthonormalize(M: in out Matrix_33);
@@ -117,9 +104,7 @@ package GL.Math is
   function Almost_zero(x: GL.Float) return Boolean;
   pragma Inline(Almost_zero);
 
-
   function sub_Matrix (Self : in Matrix;   start_Row, end_Row : in Positive;
                                            start_Col, end_Col : in Positive) return Matrix;
-
 
 end GL.Math;

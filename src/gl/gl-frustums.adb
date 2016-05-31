@@ -1,95 +1,88 @@
 
-
 package body GL.Frustums is
-
 
    procedure normalise (the_Planes : in out plane_Array)
    is
-      use gl.Geometry;
+      use GL.Geometry;
    begin
-      for Each in the_Planes'range loop
+      for Each in the_Planes'Range loop
          normalise (the_Planes (Each));
       end loop;
    end;
-
-
-
 
    function current_Planes return plane_Array
    is
       the_Planes : plane_Array;
 
-      Proj       : array (0 .. 15) of aliased gl.Float;
-      Modl       : array (0 .. 15) of aliased gl.Float;
-      Clip       : array (0 .. 15) of gl.Float;
+      Proj       : array (0 .. 15) of aliased GL.Float;
+      Modl       : array (0 .. 15) of aliased GL.Float;
+      Clip       : array (0 .. 15) of GL.Float;
 
    begin
 
-      gl.GetFloatv( GL.PROJECTION_MATRIX, proj(0)'unchecked_access );      -- Get the current PROJECTION matrix from OpenGL
-      gl.GetFloatv( GL.MODELVIEW_MATRIX, modl(0)'unchecked_access );       -- Get the current MODELVIEW  matrix from OpenGL
+      GL.GetFloatv( GL.PROJECTION_MATRIX, Proj(0)'Unchecked_Access );      -- Get the current PROJECTION matrix from OpenGL
+      GL.GetFloatv( GL.MODELVIEW_MATRIX, Modl(0)'Unchecked_Access );       -- Get the current MODELVIEW  matrix from OpenGL
 
       -- Combine the two matrices (multiply projection by modelview)
       --
-      clip (0) := modl( 0) * proj( 0) + modl( 1) * proj( 4) + modl( 2) * proj( 8) + modl( 3) * proj(12);
-      clip( 1) := modl( 0) * proj( 1) + modl( 1) * proj( 5) + modl( 2) * proj( 9) + modl( 3) * proj(13);
-      clip( 2) := modl( 0) * proj( 2) + modl( 1) * proj( 6) + modl( 2) * proj(10) + modl( 3) * proj(14);
-      clip( 3) := modl( 0) * proj( 3) + modl( 1) * proj( 7) + modl( 2) * proj(11) + modl( 3) * proj(15);
+      Clip (0) := Modl( 0) * Proj( 0) + Modl( 1) * Proj( 4) + Modl( 2) * Proj( 8) + Modl( 3) * Proj(12);
+      Clip( 1) := Modl( 0) * Proj( 1) + Modl( 1) * Proj( 5) + Modl( 2) * Proj( 9) + Modl( 3) * Proj(13);
+      Clip( 2) := Modl( 0) * Proj( 2) + Modl( 1) * Proj( 6) + Modl( 2) * Proj(10) + Modl( 3) * Proj(14);
+      Clip( 3) := Modl( 0) * Proj( 3) + Modl( 1) * Proj( 7) + Modl( 2) * Proj(11) + Modl( 3) * Proj(15);
 
-      clip( 4) := modl( 4) * proj( 0) + modl( 5) * proj( 4) + modl( 6) * proj( 8) + modl( 7) * proj(12);
-      clip( 5) := modl( 4) * proj( 1) + modl( 5) * proj( 5) + modl( 6) * proj( 9) + modl( 7) * proj(13);
-      clip( 6) := modl( 4) * proj( 2) + modl( 5) * proj( 6) + modl( 6) * proj(10) + modl( 7) * proj(14);
-      clip( 7) := modl( 4) * proj( 3) + modl( 5) * proj( 7) + modl( 6) * proj(11) + modl( 7) * proj(15);
+      Clip( 4) := Modl( 4) * Proj( 0) + Modl( 5) * Proj( 4) + Modl( 6) * Proj( 8) + Modl( 7) * Proj(12);
+      Clip( 5) := Modl( 4) * Proj( 1) + Modl( 5) * Proj( 5) + Modl( 6) * Proj( 9) + Modl( 7) * Proj(13);
+      Clip( 6) := Modl( 4) * Proj( 2) + Modl( 5) * Proj( 6) + Modl( 6) * Proj(10) + Modl( 7) * Proj(14);
+      Clip( 7) := Modl( 4) * Proj( 3) + Modl( 5) * Proj( 7) + Modl( 6) * Proj(11) + Modl( 7) * Proj(15);
 
-      clip( 8) := modl( 8) * proj( 0) + modl( 9) * proj( 4) + modl(10) * proj( 8) + modl(11) * proj(12);
-      clip( 9) := modl( 8) * proj( 1) + modl( 9) * proj( 5) + modl(10) * proj( 9) + modl(11) * proj(13);
-      clip(10) := modl( 8) * proj( 2) + modl( 9) * proj( 6) + modl(10) * proj(10) + modl(11) * proj(14);
-      clip(11) := modl( 8) * proj( 3) + modl( 9) * proj( 7) + modl(10) * proj(11) + modl(11) * proj(15);
+      Clip( 8) := Modl( 8) * Proj( 0) + Modl( 9) * Proj( 4) + Modl(10) * Proj( 8) + Modl(11) * Proj(12);
+      Clip( 9) := Modl( 8) * Proj( 1) + Modl( 9) * Proj( 5) + Modl(10) * Proj( 9) + Modl(11) * Proj(13);
+      Clip(10) := Modl( 8) * Proj( 2) + Modl( 9) * Proj( 6) + Modl(10) * Proj(10) + Modl(11) * Proj(14);
+      Clip(11) := Modl( 8) * Proj( 3) + Modl( 9) * Proj( 7) + Modl(10) * Proj(11) + Modl(11) * Proj(15);
 
-      clip(12) := modl(12) * proj( 0) + modl(13) * proj( 4) + modl(14) * proj( 8) + modl(15) * proj(12);
-      clip(13) := modl(12) * proj( 1) + modl(13) * proj( 5) + modl(14) * proj( 9) + modl(15) * proj(13);
-      clip(14) := modl(12) * proj( 2) + modl(13) * proj( 6) + modl(14) * proj(10) + modl(15) * proj(14);
-      clip(15) := modl(12) * proj( 3) + modl(13) * proj( 7) + modl(14) * proj(11) + modl(15) * proj(15);
-
+      Clip(12) := Modl(12) * Proj( 0) + Modl(13) * Proj( 4) + Modl(14) * Proj( 8) + Modl(15) * Proj(12);
+      Clip(13) := Modl(12) * Proj( 1) + Modl(13) * Proj( 5) + Modl(14) * Proj( 9) + Modl(15) * Proj(13);
+      Clip(14) := Modl(12) * Proj( 2) + Modl(13) * Proj( 6) + Modl(14) * Proj(10) + Modl(15) * Proj(14);
+      Clip(15) := Modl(12) * Proj( 3) + Modl(13) * Proj( 7) + Modl(14) * Proj(11) + Modl(15) * Proj(15);
 
       -- Extract the RIGHT plane
-      the_Planes (Right)(0) := gl.Double (clip( 3) - clip( 0));
-      the_Planes (Right)(1) := gl.Double (clip( 7) - clip( 4));
-      the_Planes (Right)(2) := gl.Double (clip(11) - clip( 8));
-      the_Planes (Right)(3) := gl.Double (clip(15) - clip(12));
+      the_Planes (Right)(0) := GL.Double (Clip( 3) - Clip( 0));
+      the_Planes (Right)(1) := GL.Double (Clip( 7) - Clip( 4));
+      the_Planes (Right)(2) := GL.Double (Clip(11) - Clip( 8));
+      the_Planes (Right)(3) := GL.Double (Clip(15) - Clip(12));
 
       -- Extract the LEFT plane
-      the_Planes (Left)(0) := gl.Double (clip( 3) + clip( 0));
-      the_Planes (Left)(1) := gl.Double (clip( 7) + clip( 4));
-      the_Planes (Left)(2) := gl.Double (clip(11) + clip( 8));
-      the_Planes (Left)(3) := gl.Double (clip(15) + clip(12));
+      the_Planes (Left)(0) := GL.Double (Clip( 3) + Clip( 0));
+      the_Planes (Left)(1) := GL.Double (Clip( 7) + Clip( 4));
+      the_Planes (Left)(2) := GL.Double (Clip(11) + Clip( 8));
+      the_Planes (Left)(3) := GL.Double (Clip(15) + Clip(12));
 
       -- Extract the LOW plane
-      the_Planes (Low)(0) := gl.Double (clip( 3) + clip( 1));
-      the_Planes (Low)(1) := gl.Double (clip( 7) + clip( 5));
-      the_Planes (Low)(2) := gl.Double (clip(11) + clip( 9));
-      the_Planes (Low)(3) := gl.Double (clip(15) + clip(13));
+      the_Planes (Low)(0) := GL.Double (Clip( 3) + Clip( 1));
+      the_Planes (Low)(1) := GL.Double (Clip( 7) + Clip( 5));
+      the_Planes (Low)(2) := GL.Double (Clip(11) + Clip( 9));
+      the_Planes (Low)(3) := GL.Double (Clip(15) + Clip(13));
 
       -- Extract the HIGH plane
-      the_Planes (High)(0) := gl.Double (clip( 3) - clip( 1));
-      the_Planes (High)(1) := gl.Double (clip( 7) - clip( 5));
-      the_Planes (High)(2) := gl.Double (clip(11) - clip( 9));
-      the_Planes (High)(3) := gl.Double (clip(15) - clip(13));
+      the_Planes (High)(0) := GL.Double (Clip( 3) - Clip( 1));
+      the_Planes (High)(1) := GL.Double (Clip( 7) - Clip( 5));
+      the_Planes (High)(2) := GL.Double (Clip(11) - Clip( 9));
+      the_Planes (High)(3) := GL.Double (Clip(15) - Clip(13));
 
       -- Extract the FAR plane
-      the_Planes (Far)(0) := gl.Double (clip( 3) - clip( 2));
-      the_Planes (Far)(1) := gl.Double (clip( 7) - clip( 6));
-      the_Planes (Far)(2) := gl.Double (clip(11) - clip(10));
-      the_Planes (Far)(3) := gl.Double (clip(15) - clip(14));
+      the_Planes (Far)(0) := GL.Double (Clip( 3) - Clip( 2));
+      the_Planes (Far)(1) := GL.Double (Clip( 7) - Clip( 6));
+      the_Planes (Far)(2) := GL.Double (Clip(11) - Clip(10));
+      the_Planes (Far)(3) := GL.Double (Clip(15) - Clip(14));
 
       -- Extract the NEAR plane
-      the_Planes (Near)(0) := gl.Double (clip( 3) + clip( 2));
-      the_Planes (Near)(1) := gl.Double (clip( 7) + clip( 6));
-      the_Planes (Near)(2) := gl.Double (clip(11) + clip(10));
-      the_Planes (Near)(3) := gl.Double (clip(15) + clip(14));
+      the_Planes (Near)(0) := GL.Double (Clip( 3) + Clip( 2));
+      the_Planes (Near)(1) := GL.Double (Clip( 7) + Clip( 6));
+      the_Planes (Near)(2) := GL.Double (Clip(11) + Clip(10));
+      the_Planes (Near)(3) := GL.Double (Clip(15) + Clip(14));
 
       normalise (the_Planes);
       return the_Planes;
    end;
-
 
 end GL.Frustums;

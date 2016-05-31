@@ -8,18 +8,14 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with gl.Errors;
+with GL.Errors;
 
-with Ada.Numerics.Generic_Elementary_functions;
+with Ada.Numerics.Generic_Elementary_Functions;
 with Ada.Text_IO; use Ada.Text_IO;
 
 with System;
 
-
-package body gl.Buffer is
-
-
-
+package body GL.Buffer is
 
    -- 'Name' support
    --
@@ -28,23 +24,16 @@ package body gl.Buffer is
    is
       the_Name : aliased vbo_Name;
    begin
-      gl.genBuffers (1,  the_Name'unchecked_access);
+      GL.GenBuffers (1,  the_Name'Unchecked_Access);
       return the_Name;
    end;
-
-
-
 
    procedure free (the_vbo_Name : in vbo_Name)
    is
       the_Name : aliased vbo_Name := the_vbo_Name;
    begin
-      gl.deleteBuffers (1, the_Name'unchecked_access);
+      GL.DeleteBuffers (1, the_Name'Unchecked_Access);
    end;
-
-
-
-
 
    -- object
    --
@@ -52,57 +41,43 @@ package body gl.Buffer is
    procedure verify_Name (Self : in out Object'Class)
    is
    begin
-      if self.Name = 0 then
-         self.Name := new_vbo_Name;
+      if Self.Name = 0 then
+         Self.Name := new_vbo_Name;
       end if;
    end;
-
-
 
    procedure enable (Self : in Object'Class)
    is
    begin
-      pragma Assert (self.Name > 0);
+      pragma Assert (Self.Name > 0);
 
-      gl.bindBuffer (vbo_Target (Self),  self.Name);
+      GL.BindBuffer (VBO_Target (Self),  Self.Name);
    end;
-
-
 
    procedure destroy (Self : in out Object'Class)
    is
    begin
-      gl.bindBuffer    (vbo_Target (Self), 0);
-      gl.DeleteBuffers (1, self.Name'unchecked_access);
+      GL.BindBuffer    (VBO_Target (Self), 0);
+      GL.DeleteBuffers (1, Self.Name'Unchecked_Access);
    end;
-
-
-
-
 
    -- array object
    --
 
-   function vbo_Target (Self : in array_Object) return gl.VBO_Target
+   function vbo_Target (Self : in array_Object) return GL.VBO_Target
    is
    begin
-      return gl.ARRAY_BUFFER;
+      return GL.ARRAY_BUFFER;
    end;
-
-
 
    -- element array object
    --
 
-   function vbo_Target (Self : in element_array_Object) return gl.VBO_Target
+   function vbo_Target (Self : in element_array_Object) return GL.VBO_Target
    is
    begin
-      return gl.ELEMENT_ARRAY_BUFFER;
+      return GL.ELEMENT_ARRAY_BUFFER;
    end;
-
-
-
-
 
 --     -- texture coordinates
 --     --
@@ -119,7 +94,4 @@ package body gl.Buffer is
 --                                         GL.STATIC_DRAW);                        -- tbd: make this a parameter.
 --     end;
 
-
-
-
-end gl.Buffer;
+end GL.Buffer;

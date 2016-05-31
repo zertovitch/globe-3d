@@ -8,19 +8,15 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-
-package gl.Errors is
+package GL.Errors is
 
    openGL_Error : exception;
-
-
 
    function Current return String;
    --
    -- returns a descriptive string of the last occuring openGL error.
    -- returns "", when no error exists.
    -- clears any existing error.
-
 
    procedure log (Prefix : in String := "");
    --
@@ -34,4 +30,4 @@ package gl.Errors is
    -- clears any existing error.
    -- sets error_Occurred to true, if a GL error was detected.
 
-end gl.Errors;
+end GL.Errors;

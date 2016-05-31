@@ -8,17 +8,14 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with gl.IO;
-with gl.Errors;
+with GL.IO;
+with GL.Errors;
 
 --with Ada.Directories;
-with ada.Characters.handling;
+with Ada.Characters.Handling;
 with Ada.Text_IO; use Ada.Text_IO;
 
-
-
-package body gl.Textures is
-
+package body GL.Textures is
 
    -- names
 
@@ -26,94 +23,77 @@ package body gl.Textures is
    is
       the_Name : aliased texture_Name;
    begin
-      gl.genTextures (1,  the_Name'unchecked_access);
+      GL.GenTextures (1,  the_Name'Unchecked_Access);
       return the_Name;
    end;
-
-
 
    procedure free (the_texture_Name : in texture_Name)
    is
       the_Name : aliased texture_Name := the_texture_Name;
    begin
-      gl.deleteTextures (1, the_Name'unchecked_access);
+      GL.DeleteTextures (1, the_Name'Unchecked_Access);
    end;
-
-
-
 
    -- coordinates
    --
 
-   function to_texture_Coordinates_xz (the_Points  : in gl.geometry.vertex_Array;
+   function to_texture_Coordinates_xz (the_Points  : in GL.Geometry.Vertex_array;
                                        Transform_S : in texture_Transform;          -- transforms point X ordinate.
                                        Transform_T : in texture_Transform)          -- transforms point Z ordinate.
                                        return p_Coordinate_2D_array
    is
       the_Coords : constant p_Coordinate_2D_array := new Coordinate_2D_array (1 .. the_Points'Last);
    begin
-      for Each in the_Points'range loop
+      for Each in the_Points'Range loop
          declare
-            the_Vertex : gl.geometry.Vertex renames the_Points (each);
+            the_Vertex : GL.Geometry.Vertex renames the_Points (Each);
          begin
-            the_Coords (each).S :=         (the_Vertex (0) + Transform_s.Offset) * Transform_s.Scale;
-            the_Coords (each).T := 1.0  -  (the_Vertex (2) + Transform_t.Offset) * Transform_t.Scale;
+            the_Coords (Each).S :=         (the_Vertex (0) + Transform_S.Offset) * Transform_S.Scale;
+            the_Coords (Each).T := 1.0  -  (the_Vertex (2) + Transform_T.Offset) * Transform_T.Scale;
          end;
       end loop;
 
       return the_Coords;
    end;
 
-
-
-
-   function to_texture_Coordinates_xz (the_Points  : in gl.geometry.vertex_Array;
+   function to_texture_Coordinates_xz (the_Points  : in GL.Geometry.Vertex_array;
                                        Transform_S : in texture_Transform;          -- transforms point X ordinate.
                                        Transform_T : in texture_Transform)          -- transforms point Z ordinate.
                                        return Coordinate_2D_array
    is
       the_Coords : Coordinate_2D_array (1 .. the_Points'Last);
    begin
-      for Each in the_Points'range loop
+      for Each in the_Points'Range loop
          declare
-            the_Vertex : gl.geometry.Vertex renames the_Points (each);
+            the_Vertex : GL.Geometry.Vertex renames the_Points (Each);
          begin
-            the_Coords (each).S :=         (the_Vertex (0) + Transform_s.Offset) * Transform_s.Scale;
-            the_Coords (each).T := 1.0  -  (the_Vertex (2) + Transform_t.Offset) * Transform_t.Scale;
+            the_Coords (Each).S :=         (the_Vertex (0) + Transform_S.Offset) * Transform_S.Scale;
+            the_Coords (Each).T := 1.0  -  (the_Vertex (2) + Transform_T.Offset) * Transform_T.Scale;
          end;
       end loop;
 
       return the_Coords;
    end;
 
-
-
-
    -- xz_Generator
 
-   function to_Coordinates (Self : in xz_Generator;   the_Vertices : in gl.geometry.Vertex_array) return gl.textures.p_Coordinate_2D_array
+   function to_Coordinates (Self : in xz_Generator;   the_Vertices : in GL.Geometry.Vertex_array) return GL.Textures.p_Coordinate_2D_array
    is
    begin
-      return to_texture_Coordinates_xz (the_Vertices, self.transform_S, self.transform_T);
+      return to_texture_Coordinates_xz (the_Vertices, Self.Transform_S, Self.Transform_T);
    end;
 
-
-   function to_Coordinates (Self : in xz_Generator;   the_Vertices : in gl.geometry.Vertex_array) return gl.textures.Coordinate_2D_array
+   function to_Coordinates (Self : in xz_Generator;   the_Vertices : in GL.Geometry.Vertex_array) return GL.Textures.Coordinate_2D_array
    is
    begin
-      return to_texture_Coordinates_xz (the_Vertices, self.transform_S, self.transform_T);
+      return to_texture_Coordinates_xz (the_Vertices, Self.Transform_S, Self.Transform_T);
    end;
-
-
-
-
-
 
    -- texture objects
 
    function new_Texture (image_Filename : in String) return Object
    is
-      use ada.Characters.handling;
+      use Ada.Characters.Handling;
 
       Extension : constant String := image_Filename (image_Filename'Last - 2 .. image_Filename'Last);
 
@@ -121,11 +101,11 @@ package body gl.Textures is
    begin
       the_Texture.Name := new_texture_Name;
 
-      if to_Lower (Extension) = "bmp" then
-         gl.io.load (image_Filename,  gl.io.BMP,  Integer (the_Texture.Name),  blending_hint => the_Texture.is_Transparent);
+      if To_Lower (Extension) = "bmp" then
+         GL.IO.Load (image_Filename,  GL.IO.BMP,  Integer (the_Texture.Name),  blending_hint => the_Texture.is_Transparent);
 
-      elsif to_Lower (Extension) = "tga" then
-         gl.io.load (image_Filename,  gl.io.TGA,  Integer (the_Texture.Name),  blending_hint => the_Texture.is_Transparent);
+      elsif To_Lower (Extension) = "tga" then
+         GL.IO.Load (image_Filename,  GL.IO.TGA,  Integer (the_Texture.Name),  blending_hint => the_Texture.is_Transparent);
       else
          raise unsupported_format_Error;
       end if;
@@ -134,70 +114,47 @@ package body gl.Textures is
       return the_Texture;
    end;
 
-
-
-
-
-
    procedure destroy (Self : in out Object)
    is
    begin
-      if self.Pool = null then
-         free (self.Name);
+      if Self.Pool = null then
+         free (Self.Name);
       else
-         free (self.Pool.all, Self);
+         free (Self.Pool.all, Self);
       end if;
    end;
 
-
-
-
-   procedure set_Name (Self : in out Object;   To : in gl.uInt)
+   procedure set_Name (Self : in out Object;   To : in GL.Uint)
    is
    begin
-      self.Name := To;
+      Self.Name := To;
    end;
 
-
-
-   function Name (Self : in     Object) return gl.uInt
+   function Name (Self : in     Object) return GL.Uint
    is
    begin
-      return self.Name;
+      return Self.Name;
    end;
-
-
-
 
    function  is_Transparent (Self : in     Object) return Boolean
    is
    begin
-      return self.is_Transparent;
+      return Self.is_Transparent;
    end;
-
-
-
 
    procedure enable (Self : in out Object)
    is
    begin
-      pragma Assert (self.Name > 0);
+      pragma Assert (Self.Name > 0);
 
-      gl.enable      (gl.TEXTURE_2D);
-      gl.bindTexture (gl.TEXTURE_2D, self.Name);
+      GL.Enable      (GL.TEXTURE_2D);
+      GL.BindTexture (GL.TEXTURE_2D, Self.Name);
    end;
-
-
-
-
-
-
 
    -- Pool
    --
 
-   null_Image : array (1 .. 10_000_000) of aliased gl.uByte := (others => 0);
-
+   null_Image : array (1 .. 10_000_000) of aliased GL.Ubyte := (others => 0);
 
    -- tbd: add texture properties as 'in' parameters to habdle different types of textures.
    --
@@ -209,11 +166,11 @@ package body gl.Textures is
       Size_width  : constant Size := to_Size (min_Width);
       Size_height : constant Size := to_Size (min_Height);
 
-      unused_texture_List : p_pool_texture_List := from.unused_Textures_for_size (Size_width, Size_height);
+      unused_texture_List : p_pool_texture_List := From.unused_Textures_for_size (Size_width, Size_height);
    begin
       if unused_texture_List = null then
          unused_texture_List                                     := new pool_texture_List;
-         from.unused_Textures_for_size (Size_width, Size_height) := unused_texture_List;
+         From.unused_Textures_for_size (Size_width, Size_height) := unused_texture_List;
       end if;
 
       -- search for existing, but unused, object.
@@ -224,19 +181,18 @@ package body gl.Textures is
 
          enable (the_Texture);
 
-         gl.texImage2D  (gl.TEXTURE_2D,  0,  gl.RGBA,
+         GL.TexImage2D  (GL.TEXTURE_2D,  0,  GL.RGBA,
                          power_of_2_Ceiling (min_Width), power_of_2_Ceiling (min_Height),
                          0,
                          --gl.RGBA, gl.GL_UNSIGNED_BYTE, null);    -- nb: actual image is not initialised.
-                         gl.RGBA, gl.GL_UNSIGNED_BYTE, null_Image (null_image'First)'access);    -- nb: actual image is not initialised.
+                         GL.RGBA, GL.GL_UNSIGNED_BYTE, null_Image (null_Image'First)'Access);    -- nb: actual image is not initialised.
       else
          -- no existing, unused texture found, so create a new one.
          --
          the_Texture.Width  := Size_width;
          the_Texture.Height := Size_height;
 
-         the_Texture.Pool := From.all'access;
-
+         the_Texture.Pool := From.all'Access;
 
          the_Texture.Name := new_texture_Name;
          enable (the_Texture);
@@ -257,22 +213,17 @@ package body gl.Textures is
          TexEnv ( TEXTURE_ENV, TEXTURE_ENV_MODE, MODULATE );
          --TexEnv ( TEXTURE_ENV, TEXTURE_ENV_MODE, DECAL );
 
-
-         gl.texImage2D  (gl.TEXTURE_2D,  0,  gl.RGBA,
+         GL.TexImage2D  (GL.TEXTURE_2D,  0,  GL.RGBA,
                          power_of_2_Ceiling (min_Width), power_of_2_Ceiling (min_Height),
                          0,
                          --gl.RGBA, gl.GL_UNSIGNED_BYTE, null);    -- nb: actual image is not initialised.
-                         gl.RGBA, gl.GL_UNSIGNED_BYTE, null_Image (null_image'First)'access);    -- nb: actual image is not initialised.
+                         GL.RGBA, GL.GL_UNSIGNED_BYTE, null_Image (null_Image'First)'Access);    -- nb: actual image is not initialised.
 
-         gl.Errors.log;  -- tbd: only for debug.
+         GL.Errors.log;  -- tbd: only for debug.
       end if;
 
       return the_Texture;
    end;
-
-
-
-
 
    procedure free (Self : in out Pool;   the_Texture : in Object)
    is
@@ -289,16 +240,12 @@ package body gl.Textures is
       end;
    end;
 
-
-
-
-
    procedure vacuum (Self : in out Pool)
    is
    begin
 
-      for each_Width in self.unused_Textures_for_size'range (1) loop
-         for each_Height in self.unused_Textures_for_size'range (2) loop
+      for each_Width in Self.unused_Textures_for_size'Range (1) loop
+         for each_Height in Self.unused_Textures_for_size'Range (2) loop
             declare
                unused_texture_List : constant p_pool_texture_List := Self.unused_Textures_for_size (each_Width, each_Height);
             begin
@@ -316,10 +263,6 @@ package body gl.Textures is
 
    end;
 
-
-
-
-
    function to_Size (From : in Positive) return Size
    is
    begin
@@ -336,13 +279,12 @@ package body gl.Textures is
       elsif From <= 2048 then  return s2048;
       end if;
 
-      put_line ("to_Size: From: " & Positive'image (From));
+      Put_Line ("to_Size: From: " & Positive'Image (From));
 
       raise Constraint_Error;
    end;
 
-
-   function power_of_2_Ceiling (From : in Positive) return gl.Sizei
+   function power_of_2_Ceiling (From : in Positive) return GL.Sizei
    is
    begin
       if    From <= 2    then  return 2;
@@ -361,26 +303,16 @@ package body gl.Textures is
       raise Constraint_Error;
    end;
 
-
-
-
-
-
    function Size_width  (Self : in Object) return Size
    is
    begin
-      return self.Width;
+      return Self.Width;
    end;
-
-
 
    function Size_height (Self : in Object) return Size
    is
    begin
-      return self.Height;
+      return Self.Height;
    end;
 
-
-
-
-end gl.Textures;
+end GL.Textures;

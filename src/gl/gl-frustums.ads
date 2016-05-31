@@ -16,22 +16,16 @@
 
 with GL.Geometry;
 
-
 package GL.Frustums is
-
 
    type plane_Id is (Left, Right, High, Low, Near, Far);
 
-   type plane_Array is array (plane_Id) of gl.geometry.Plane;
+   type plane_Array is array (plane_Id) of GL.Geometry.Plane;
 
    procedure normalise (the_Planes : in out plane_Array);
-
-
 
    function current_Planes return plane_Array;
    --
    -- returns the frustum planes calculated from the current GL projection and modelview matrices.
-
-
 
 end GL.Frustums;

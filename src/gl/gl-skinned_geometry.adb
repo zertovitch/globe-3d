@@ -15,19 +15,16 @@
 --with Ada.Strings.Unbounded;
 --with Ada.Unchecked_Deallocation;
 
+package body GL.Skinned_Geometry is
 
-package body gl.skinned_Geometry is
-
-
-   use gl.Geometry, gl.Skins;
+   use GL.Geometry, GL.Skins;
 
    procedure destroy (Self : in out skinned_Geometry)
    is
    begin
-      free (self.Geometry);
-      free (self.Skin);
-      free (self.Veneer);
+      free (Self.Geometry);
+      free (Self.Skin);
+      free (Self.Veneer);
    end;
 
-
-end gl.skinned_Geometry;
+end GL.Skinned_Geometry;

@@ -40,7 +40,7 @@
 --                      -> removed TGA_BAD_DIMENSION
 
 with Ada.Streams.Stream_IO;
-with Ada.Unchecked_deallocation;
+with Ada.Unchecked_Deallocation;
 
 package GL.IO is
 
@@ -48,15 +48,13 @@ package GL.IO is
 
   type Supported_format is (BMP, TGA);
 
-
-  type Byte_array is array( Integer range <> ) of aliased GL.UByte;
+  type Byte_array is array( Integer range <> ) of aliased GL.Ubyte;
   type Byte_array_ptr is access all Byte_array;
 
   procedure Free is
-    new Ada.Unchecked_deallocation(Byte_array, Byte_array_ptr);
+    new Ada.Unchecked_Deallocation(Byte_array, Byte_array_ptr);
 
-  type Byte_grid is array (Integer range <>, Integer range <>) of aliased GL.UByte;
-
+  type Byte_grid is array (Integer range <>, Integer range <>) of aliased GL.Ubyte;
 
   type Image is
     record
@@ -66,10 +64,8 @@ package GL.IO is
       size             : Integer;
       Width,
       Height           : Integer;
-      Data             : Byte_Array_Ptr;
+      Data             : Byte_array_ptr;
     end record;
-
-
 
   function to_TGA_Image (Filename : in  String                            -- Input data tga filename
                         ) return Image;
@@ -77,7 +73,6 @@ package GL.IO is
                         ) return Image;
 
   function to_greyscale_Pixels (the_Image : in Image) return Byte_grid;
-
 
   -- Multi-format loader:
 
@@ -180,13 +175,13 @@ package GL.IO is
     stm : in Ada.Streams.Stream_IO.Stream_Access
   );
 
-  procedure Get_Byte(b: in out Input_buffer; byte: out UByte);
+  procedure Get_Byte(b: in out Input_buffer; byte: out Ubyte);
   pragma Inline(Get_Byte);
 
 private
 
   type Input_buffer is record
-    data       : Byte_Array(1..1024);
+    data       : Byte_array(1..1024);
     stm        : Ada.Streams.Stream_IO.Stream_Access;
     InBufIdx   : Positive;   --  Points to next char in buffer to be read
     MaxInBufIdx: Natural;    --  Count of valid chars in input buffer

@@ -9,22 +9,16 @@
 -------------------------------------------------------------------------
 
 with Ada.Text_IO;
-with ada.unchecked_Deallocation;
+with Ada.Unchecked_Deallocation;
 
+package body GL.Skins is
 
-
-package body gl.Skins is
-
-
-   use gl.Geometry;
-   use gl.Textures;
-
+   use GL.Geometry;
+   use GL.Textures;
 
    -----------------------------------------------------------------
    -- tbd: ensure *all* skins disable *all* unneeded GL states !!!!!
    -----------------------------------------------------------------
-
-
 
    -- veneers
    --
@@ -35,18 +29,13 @@ package body gl.Skins is
       null;
    end;
 
-
-
-
    procedure free (Self : in out p_Veneer)
    is
-      procedure deallocate is new ada.unchecked_Deallocation (Veneer'Class, p_Veneer);
+      procedure deallocate is new Ada.Unchecked_Deallocation (Veneer'Class, p_Veneer);
    begin
       destroy    (Self.all);
       deallocate (Self);
    end;
-
-
 
    procedure destroy (Self : in out Skin)
    is
@@ -54,22 +43,15 @@ package body gl.Skins is
       null;
    end;
 
-
-
    procedure free (Self : in out p_Skin)
    is
-      procedure deallocate is new ada.unchecked_Deallocation (Skin'Class, p_Skin);
+      procedure deallocate is new Ada.Unchecked_Deallocation (Skin'Class, p_Skin);
    begin
       destroy    (Self.all);
       deallocate (Self);
    end;
 
-
-
-
-
-
-   procedure Set_Material (m: materials.Material_type) is
+   procedure Set_Material (m: Materials.Material_type) is
       use GL;
    begin
       Material (FRONT_AND_BACK, AMBIENT,   m.ambient);
@@ -79,37 +61,30 @@ package body gl.Skins is
       Material (FRONT_AND_BACK, SHININESS, m.shininess);
    end Set_Material;
 
-
-
-
    -- Skin_opaque_unlit_mono_color
    --
 
-   function  new_Veneer (Self : in     Skin_opaque_unlit_mono_color;   for_Geometry : in gl.Geometry.Geometry'Class) return p_Veneer
+   function  new_Veneer (Self : in     Skin_opaque_unlit_mono_color;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
    is
    begin
       return null;
    end;
 
-
-
    procedure enable (Self : in out Skin_opaque_unlit_mono_color)
    is
    begin
-      gl.Disable (LIGHTING);
-      gl.disable (ALPHA_TEST);
-      gl.disable            (TEXTURE_2D);
-      gl.disable            (COLOR_MATERIAL);
-      gl.disableClientState (TEXTURE_COORD_ARRAY);
-
+      GL.Disable (LIGHTING);
+      GL.Disable (ALPHA_TEST);
+      GL.Disable            (TEXTURE_2D);
+      GL.Disable            (COLOR_MATERIAL);
+      GL.DisableClientState (TEXTURE_COORD_ARRAY);
 
       Enable (BLEND); -- See 4.1.7 Blending
       BlendFunc (sfactor => SRC_ALPHA,
                  dfactor => ONE_MINUS_SRC_ALPHA);
 
-      gl.Color   (self.Color.Red,  self.Color.Green,  self.Color.Blue,  1.0);
+      GL.Color   (Self.Color.red,  Self.Color.green,  Self.Color.blue,  1.0);
    end;
-
 
    function  is_Transparent (Self : in     Skin_opaque_unlit_mono_color) return Boolean
    is
@@ -117,140 +92,106 @@ package body gl.Skins is
       return False;
    end;
 
-
-
-
-
    -- Skin_opaque_lit_mono_color
    --
 
    procedure enable (Self : in out Veneer_opaque_lit_mono_color)
    is
    begin
-      gl.bindBuffer        (gl.ARRAY_BUFFER, 0);    -- disable 'vertex buffer objects'
-      gl.enableClientState (gl.NORMAL_ARRAY);
-      gl.normalPointer     (GL_DOUBLE,  0,  to_Pointer (self.Normals (1)(0)'unchecked_access));
+      GL.BindBuffer        (GL.ARRAY_BUFFER, 0);    -- disable 'vertex buffer objects'
+      GL.EnableClientState (GL.NORMAL_ARRAY);
+      GL.NormalPointer     (GL_DOUBLE,  0,  to_Pointer (Self.Normals (1)(0)'Unchecked_Access));
    end;
 
-
-
-
-
-   function  new_Veneer (Self : in     Skin_opaque_lit_mono_color;   for_Geometry : in gl.Geometry.Geometry'Class) return p_Veneer
+   function  new_Veneer (Self : in     Skin_opaque_lit_mono_color;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
    is
-      the_Veneer : constant p_Veneer := new Veneer_opaque_lit_mono_color' (max_normals => vertex_Count (for_Geometry),
+      the_Veneer : constant p_Veneer := new Veneer_opaque_lit_mono_color' (max_Normals => vertex_Count (for_Geometry),
                                                                            normals     => vertex_Normals (for_Geometry));
    begin
       return the_Veneer;
    end;
 
-
-
-
-
    procedure enable (Self : in out Skin_opaque_lit_mono_color)
    is
    begin
-      gl.disable            (TEXTURE_2D);
-      gl.disable            (COLOR_MATERIAL);
-      gl.disableClientState (TEXTURE_COORD_ARRAY);
-      gl.disable            (ALPHA_TEST);
+      GL.Disable            (TEXTURE_2D);
+      GL.Disable            (COLOR_MATERIAL);
+      GL.DisableClientState (TEXTURE_COORD_ARRAY);
+      GL.Disable            (ALPHA_TEST);
 
-      gl.enable    (LIGHTING);
-      set_Material (self.Material);
+      GL.Enable    (LIGHTING);
+      Set_Material (Self.Material);
    end;
-
-
-
 
    function  is_Transparent (Self : in     Skin_opaque_lit_mono_color) return Boolean
    is
-      use gl.Materials;
+      use GL.Materials;
    begin
-      return is_Transparent (self.Material);
+      return is_Transparent (Self.Material);
    end;
-
-
-
 
    -- Skin: transparent unlit textured
    --
 
-
    procedure enable (Self : in out Veneer_transparent_unlit_textured)
    is
    begin
-      gl.bindBuffer        (gl.ARRAY_BUFFER, 0);    -- disable 'vertex buffer objects'
-      gl.enableClientState (gl.TEXTURE_COORD_ARRAY);
-      gl.texCoordPointer   (2,  GL_DOUBLE,  0,  to_Pointer (self.texture_Coordinates (1).S'unchecked_access));
+      GL.BindBuffer        (GL.ARRAY_BUFFER, 0);    -- disable 'vertex buffer objects'
+      GL.EnableClientState (GL.TEXTURE_COORD_ARRAY);
+      GL.TexCoordPointer   (2,  GL_DOUBLE,  0,  to_Pointer (Self.texture_Coordinates (1).S'Unchecked_Access));
    end;
-
-
-
 
    procedure destroy (Self : in out Skin_transparent_unlit_textured)
    is
    begin
-      destroy (self.Texture);
+      destroy (Self.Texture);
    end;
 
-
-
-
-   function new_Veneer (Self : in     Skin_transparent_unlit_textured;   for_Geometry : in gl.Geometry.Geometry'Class) return p_Veneer
+   function new_Veneer (Self : in     Skin_transparent_unlit_textured;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
    is
       the_Veneer : constant p_Veneer_transparent_unlit_textured
-        :=   new Veneer_transparent_unlit_textured '(num_coordinates     => vertex_Count (for_Geometry),
+        :=   new Veneer_transparent_unlit_textured '(num_Coordinates     => vertex_Count (for_Geometry),
                                                      texture_coordinates => (others => (S => 0.0,  T => 0.0)));
    begin
-      if self.coordinate_generator /= null then
-         the_veneer.texture_coordinates := to_Coordinates (self.coordinate_generator.all, Vertices (for_Geometry));
+      if Self.coordinate_Generator /= null then
+         the_Veneer.texture_Coordinates := to_Coordinates (Self.coordinate_Generator.all, Vertices (for_Geometry));
       end if;
 
-      return the_Veneer.all'access;
+      return the_Veneer.all'Access;
    end;
-
-
-
 
    procedure enable (Self : in out Skin_transparent_unlit_textured)
    is
    begin
-      gl.disable    (LIGHTING);
-      gl.disable    (COLOR_MATERIAL);
-      gl.bindBuffer (gl.ARRAY_BUFFER, 0);    -- disable 'vertex buffer objects'
+      GL.Disable    (LIGHTING);
+      GL.Disable    (COLOR_MATERIAL);
+      GL.BindBuffer (GL.ARRAY_BUFFER, 0);    -- disable 'vertex buffer objects'
 
-      gl.color     (1.0, 1.0, 1.0, 1.0);
+      GL.Color     (1.0, 1.0, 1.0, 1.0);
 
-      gl.enable    (ALPHA_TEST);
-      gl.alphaFunc (GREATER, 0.1);
+      GL.Enable    (ALPHA_TEST);
+      GL.AlphaFunc (GREATER, 0.1);
 
-      enable (self.Texture);
+      enable (Self.Texture);
    end;
-
 
    function  is_Transparent (Self : in     Skin_transparent_unlit_textured) return Boolean
    is
    begin
-      return is_Transparent (self.Texture);
+      return is_Transparent (Self.Texture);
    end;
-
-
-
 
    -- Skin: unlit textured vbo
    --
 
    procedure enable (Self : in out Veneer_unlit_textured_vbo)
    is
-      use gl.Buffer;
+      use GL.Buffer;
    begin
-      enable (self.texture_Coordinates);
-      gl.texCoordPointer   (2, GL_DOUBLE, 0, null);
-      gl.enableClientState (gl.TEXTURE_COORD_ARRAY);
+      enable (Self.texture_Coordinates);
+      GL.TexCoordPointer   (2, GL_DOUBLE, 0, null);
+      GL.EnableClientState (GL.TEXTURE_COORD_ARRAY);
    end;
-
-
 
    procedure destroy (Self : in out Skin_unlit_textured_vbo)
    is
@@ -258,33 +199,25 @@ package body gl.Skins is
       null;
    end;
 
-
-
-   function  new_Veneer (Self : in     Skin_unlit_textured_vbo;   for_Geometry : in gl.Geometry.Geometry'Class) return p_Veneer
+   function  new_Veneer (Self : in     Skin_unlit_textured_vbo;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
    is
    begin
       return new Veneer_unlit_textured_vbo;
    end;
 
-
-
    procedure enable (Self : in out Skin_unlit_textured_vbo)
    is
    begin
-      gl.disable (LIGHTING);
-      gl.disable (ALPHA_TEST);
+      GL.Disable (LIGHTING);
+      GL.Disable (ALPHA_TEST);
 
-      enable (self.Texture);
+      enable (Self.Texture);
    end;
-
-
 
    function  is_Transparent (Self : in     Skin_unlit_textured_vbo) return Boolean
    is
    begin
-      return is_Transparent (self.Texture);
+      return is_Transparent (Self.Texture);
    end;
 
-
-
-end gl.Skins;
+end GL.Skins;

@@ -25,13 +25,13 @@ package body GL.IO is
 
   function to_greyscale_Pixels (the_Image : in Image) return Byte_grid
   is
-     the_Grid : Byte_Grid (1 .. the_Image.Height, 1 .. the_Image.Width);
+     the_Grid : Byte_grid (1 .. the_Image.Height, 1 .. the_Image.Width);
   begin
      case the_Image.tex_pixel_Format is
         when GL.LUMINANCE =>
 
-           for Row in the_Grid'range (1) loop
-              for Col in the_Grid'range (2) loop
+           for Row in the_Grid'Range (1) loop
+              for Col in the_Grid'Range (2) loop
                  the_Grid (Row, Col) := the_Image.Data (the_Image.Width * (Row - 1) + Col - 1);
               end loop;
            end loop;
@@ -51,7 +51,7 @@ package body GL.IO is
               texPixelFormat : TexPixelFormatEnm;
               image_p        : Byte_array_ptr
             ) is
-    ptr: constant GL.Pointer:= image_p(0)'Access;
+    ptr: constant GL.pointer:= image_p(0)'Access;
   begin
     BindTexture ( TEXTURE_2D, Uint(id) );
     PixelStore ( UNPACK_ALIGNMENT, 1 );
@@ -67,13 +67,12 @@ package body GL.IO is
                  ptr);
   end Insert_into_GL;
 
-
   -- Workaround for the severe xxx'Read xxx'Write performance
   -- problems in the GNAT and ObjectAda compilers (as in 2009)
   -- This is possible if and only if Byte = Stream_Element and
   -- arrays types are both packed the same way.
   --
-  subtype Size_test_a is Byte_Array(1..19);
+  subtype Size_test_a is Byte_array(1..19);
   subtype Size_test_b is Ada.Streams.Stream_Element_Array(1..19);
   workaround_possible: constant Boolean:=
     Size_test_a'Size = Size_test_b'Size and then
@@ -88,7 +87,7 @@ package body GL.IO is
   is
     --
     procedure BlockRead(
-      buffer       :    out Byte_Array;
+      buffer       :    out Byte_array;
       actually_read:    out Natural
     )
     is
@@ -111,7 +110,7 @@ package body GL.IO is
         begin
           Read(b.stm.all, SE_Buffer, Last_Read);
           for i in buffer'Range loop
-            buffer(i):= Ubyte(SE_Buffer(Stream_Element_Offset(i-buffer'First)+SE_buffer'First));
+            buffer(i):= Ubyte(SE_Buffer(Stream_Element_Offset(i-buffer'First)+SE_Buffer'First));
           end loop;
         end;
       end if;
@@ -137,7 +136,7 @@ package body GL.IO is
     Fill_Buffer(b);
   end Attach_Stream;
 
-  procedure Get_Byte(b: in out Input_buffer; byte: out UByte) is
+  procedure Get_Byte(b: in out Input_buffer; byte: out Ubyte) is
   begin
     if b.InBufIdx > b.MaxInBufIdx then
       Fill_Buffer(b);
@@ -182,13 +181,13 @@ package body GL.IO is
          end case;
        end Get_pixel;
 
-       tmp: GL.UByte;
+       tmp: GL.Ubyte;
 
      begin --  RLE_Pixel
        if RLE_pixels_remaining = 0 then -- load RLE code
          Get_Byte(stream_buf, tmp );
          Get_pixel;
-         RLE_pixels_remaining:= GL.UByte'Pos(tmp and 16#7F#);
+         RLE_pixels_remaining:= GL.Ubyte'Pos(tmp and 16#7F#);
          is_run_packet:= (tmp and 16#80#) /= 0;
          if is_run_packet then
            case iBits is
@@ -285,11 +284,11 @@ package body GL.IO is
      procedure getGray ( buffer: out Byte_array ) is
      begin
        if RLE then
-         for b in buffer'range loop
+         for b in buffer'Range loop
            RLE_Pixel( 8, buffer(b..b) );
          end loop;
        else
-         for b in buffer'range loop
+         for b in buffer'Range loop
            Get_Byte(stream_buf, buffer(b) );
          end loop;
        end if;
@@ -320,20 +319,20 @@ package body GL.IO is
        end case;
      end getData;
 
-     TGA_type: Byte_Array(0..3);
-     info    : Byte_Array(0..5);
-     dummy   : Byte_Array(1..8);
+     TGA_type: Byte_array(0..3);
+     info    : Byte_array(0..5);
+     dummy   : Byte_array(1..8);
 
      imageBits: Integer;
 
      image_type: Integer;
 
   begin -- to_TGA_Image
-     Byte_Array'Read( s, TGA_type ); -- read in colormap info and image type
-     Byte_Array'Read( s, dummy );    -- seek past the header and useless info
-     Byte_Array'Read( s, info );
+     Byte_array'Read( S, TGA_type ); -- read in colormap info and image type
+     Byte_array'Read( S, dummy );    -- seek past the header and useless info
+     Byte_array'Read( S, info );
 
-     if TGA_type(1) /= GL.UByte'Val(0) then
+     if TGA_type(1) /= GL.Ubyte'Val(0) then
        Raise_Exception(
          TGA_Unsupported_Image_Type'Identity,
          "TGA: palette not supported, please use BMP"
@@ -348,8 +347,8 @@ package body GL.IO is
      --     10=RLE version of Type 2
      --     11=RLE version of Type 3
 
-     image_type:= GL.UByte'Pos(TGA_type(2));
-     RLE:= image_Type >= 9;
+     image_type:= GL.Ubyte'Pos(TGA_type(2));
+     RLE:= image_type >= 9;
      if RLE then
        image_type:= image_type - 8;
        RLE_pixels_remaining:= 0;
@@ -361,9 +360,9 @@ package body GL.IO is
        );
      end if;
 
-     the_Image.Width  := GL.UByte'Pos(info(0)) + GL.UByte'Pos(info(1)) * 256;
-     the_Image.Height := GL.UByte'Pos(info(2)) + GL.UByte'Pos(info(3)) * 256;
-     imageBits   := GL.UByte'Pos(info(4));
+     the_Image.Width  := GL.Ubyte'Pos(info(0)) + GL.Ubyte'Pos(info(1)) * 256;
+     the_Image.Height := GL.Ubyte'Pos(info(2)) + GL.Ubyte'Pos(info(3)) * 256;
+     imageBits   := GL.Ubyte'Pos(info(4));
 
      the_Image.size := the_Image.Width * the_Image.Height;
 
@@ -376,16 +375,15 @@ package body GL.IO is
 
      -- make sure we are loading a supported TGA_type
      if imageBits /= 32 and imageBits /= 24 and imageBits /= 8 then
-        raise TGA_Unsupported_BITS_per_pixel;
+        raise TGA_Unsupported_Bits_per_pixel;
      end if;
 
      -- Allocation
-     the_Image.Data:= new Byte_array(0..(imagebits/8)*the_Image.size-1);
+     the_Image.Data:= new Byte_array(0..(imageBits/8)*the_Image.size-1);
      getData (imageBits, the_Image.Data.all);
 
      return the_Image;
   end to_TGA_Image;
-
 
   function to_TGA_Image (Filename : in  String      -- Input data filename
                         ) return Image
@@ -394,9 +392,9 @@ package body GL.IO is
      the_Image : Image;
   begin
      begin
-        Open(f,in_file,Filename);
+        Open(f,In_File,Filename);
      exception
-        when name_error => Raise_Exception(FILE_NOT_FOUND'Identity, " file name:" & Filename);
+        when Name_Error => Raise_Exception(File_Not_Found'Identity, " file name:" & Filename);
      end;
      the_Image := to_TGA_Image ( Stream(f) );
      Close(f);
@@ -404,11 +402,9 @@ package body GL.IO is
   exception
      when e:others =>
         Close(f);
-        raise_exception(Exception_Identity(e), " file name:" & Filename);
+        Raise_Exception(Exception_Identity(e), " file name:" & Filename);
         return the_Image;
   end to_TGA_Image;
-
-
 
   --  =============
   --  loadTGA
@@ -427,10 +423,10 @@ package body GL.IO is
         -- has the image blending / transparency /alpha ?
   )
   is
-    the_Image : Image := to_tga_Image (S);
+    the_Image : Image := to_TGA_Image (S);
   begin
     Insert_into_GL(
-              id             => id,
+              id             => Id,
               size           => the_Image.size,
               width          => the_Image.Width,
               height         => the_Image.Height,
@@ -454,16 +450,16 @@ package body GL.IO is
     f: File_Type;
   begin
     begin
-      Open(f,in_file,name);
+      Open(f,In_File,name);
     exception
-      when name_error => raise_exception(FILE_NOT_FOUND'Identity, " file name:" & name);
+      when Name_Error => Raise_Exception(File_Not_Found'Identity, " file name:" & name);
     end;
     Stream_Loader( Stream(f), id, blending_hint );
     Close(f);
   exception
     when e:others =>
       Close(f);
-      raise_exception(Exception_Identity(e), " file name:" & name);
+      Raise_Exception(Exception_Identity(e), " file name:" & name);
   end Load_XXX;
 
   procedure i_Load_TGA is new Load_XXX( Stream_Loader => Load_TGA );
@@ -482,7 +478,7 @@ package body GL.IO is
   )
   is
 
-    imageData: Byte_Array_Ptr:= null;
+    imageData: Byte_array_ptr:= null;
     stream_buf: Input_buffer;
 
     subtype Y_Loc is Natural range 0 .. 4095;
@@ -490,7 +486,7 @@ package body GL.IO is
 
     -- 256-col types
 
-    subtype Color_Type is GL.UByte;
+    subtype Color_Type is GL.Ubyte;
 
     type RGB_Color is
        record
@@ -552,12 +548,12 @@ package body GL.IO is
       procedure Read_Intel_x86_number(n: out Number);
 
       procedure Read_Intel_x86_number(n: out Number) is
-        b: GL.UByte;
+        b: GL.Ubyte;
         m: Number:= 1;
       begin
         n:= 0;
         for i in 1..Number'Size/8 loop
-          GL.UByte'Read(s,b);
+          GL.Ubyte'Read(S,b);
           n:= n + m * Number(b);
           m:= m * 256;
         end loop;
@@ -595,7 +591,7 @@ package body GL.IO is
         --   Value 8, denoting 256 color, is expected
         Read_Intel(w);
         if w/=8 and w/=4 and w/=1 then
-           raise BMP_Unsupported_bits_per_pixel;
+           raise BMP_unsupported_bits_per_pixel;
         end if;
         image_bits:= Integer(w);
         --   Pos= 31, read four bytees
@@ -613,14 +609,14 @@ package body GL.IO is
      procedure Load_BMP_Palette (S         : Stream_Access;
                                  image_bits: in Integer;
                                  Palette   : out Color_Palette) is
-       dummy: GL.UByte;
+       dummy: GL.Ubyte;
        mc: constant Color_Type:= (2**image_bits)-1;
      begin
        for DAC in 0..mc loop
-         GL.UByte'Read(S, Palette(DAC).Blue);
-         GL.UByte'Read(S, Palette(DAC).Green);
-         GL.UByte'Read(S, Palette(DAC).Red);
-         GL.UByte'Read(S, dummy);
+         GL.Ubyte'Read(S, Palette(DAC).Blue);
+         GL.Ubyte'Read(S, Palette(DAC).Green);
+         GL.Ubyte'Read(S, Palette(DAC).Red);
+         GL.Ubyte'Read(S, dummy);
        end loop;
      end Load_BMP_Palette;
 
@@ -633,7 +629,7 @@ package body GL.IO is
                               BMP_bits: Integer;
                               Palette : Color_Palette) is
        idx: Natural;
-       b01, b: GL.UByte:= 0;
+       b01, b: GL.Ubyte:= 0;
        pair: Boolean:= True;
        bit: Natural range 0..7:= 0;
        --
@@ -643,9 +639,9 @@ package body GL.IO is
        procedure Fill_palettized is
          pragma Inline(Fill_palettized);
        begin
-         Buffer( x3     ):= UByte(Palette(b).Red  );
-         Buffer( x3 + 1 ):= UByte(Palette(b).Green);
-         Buffer( x3 + 2 ):= UByte(Palette(b).Blue );
+         Buffer( x3     ):= Ubyte(Palette(b).Red  );
+         Buffer( x3 + 1 ):= Ubyte(Palette(b).Green);
+         Buffer( x3 + 2 ):= Ubyte(Palette(b).Blue );
        end Fill_palettized;
        --
     begin
@@ -709,7 +705,7 @@ package body GL.IO is
     BMP_tex_pixel_format:= GL.RGB;
     Load_BMP_Palette(S, BMP_bits, Palette);
 
-    size := Width * Height;
+    size := width * height;
 
     -- Allocation
     imageData:= new Byte_array(0..(imagebits/8)*size-1);
@@ -719,7 +715,7 @@ package body GL.IO is
        BMP_bits, Palette);
 
     Insert_into_GL(
-              id             => id,
+              id             => Id,
               size           => size,
               width          => width,
               height         => height,
@@ -832,7 +828,7 @@ package body GL.IO is
   -- BMP RGB(A) output of the current, active viewport --
   -------------------------------------------------------
 
-  procedure Screenshot( Name: in String ) is
+  procedure Screenshot( name: in String ) is
     -- Translated by (New) P2Ada v. 15-Nov-2006
     -- http://wiki.delphigl.com/index.php/Screenshot
     f: Ada.Streams.Stream_IO.File_Type;
