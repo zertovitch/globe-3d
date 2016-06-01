@@ -2,57 +2,42 @@ with GLOBE_3D.Options,
      GLOBE_3D.Textures,
      GLOBE_3D.Math;
 
-with gl.Buffer.vertex;
-with gl.Buffer.indices;
-with gl.Buffer.texture_coords;
+with GL.Buffer.Vertex;
+with GL.Buffer.Indices;
+with GL.Buffer.Texture_coords;
 
 with Ada.Exceptions; use Ada.Exceptions;
-with ada.text_io;    use ada.text_io;
+with Ada.Text_IO;    use Ada.Text_IO;
 
-with ada.unchecked_Conversion;
+with Ada.Unchecked_Conversion;
 
 with System;
 
-
-
-package body GLOBE_3D.tri_Mesh.vbo is
+package body GLOBE_3D.tri_Mesh.VBO is
 
   use GLOBE_3D.Options;
 
   package G3DT renames GLOBE_3D.Textures;
   package G3DM renames GLOBE_3D.Math;
 
-
-
-
-
    procedure destroy (o: in out tri_Mesh)
    is
-      use gl.skinned_geometry;
+      use GL.Skinned_Geometry;
    begin
       destroy (o.skinned_Geometry);
    end;
 
-
-
-
-
-   function skinned_Geometrys (o : in tri_Mesh) return gl.skinned_geometry.skinned_Geometrys
+   function skinned_Geometries (o : in tri_Mesh) return GL.Skinned_Geometry.Skinned_Geometries
    is
    begin
       return (1 => o.skinned_Geometry);
    end;
 
-
-
-   procedure set_Alpha ( o    : in out tri_Mesh;   Alpha : in gl.Double)
+   procedure set_Alpha ( o    : in out tri_Mesh;   Alpha : in GL.Double)
    is
    begin
       null;    -- tbd:
    end;
-
-
-
 
    function  is_Transparent (o    : in tri_Mesh) return Boolean
    is
@@ -61,20 +46,12 @@ package body GLOBE_3D.tri_Mesh.vbo is
       return o.skinned_Geometry.Skin.is_Transparent;
    end;
 
-
-
-
-
    procedure Pre_calculate (o: in out tri_Mesh)
    is
       use GL, G3DM;
    begin
       null;  -- tbd:
    end Pre_calculate;
-
-
-
-
 
    procedure Display (o      : in out tri_Mesh;
                       clip   : in     Clipping_data)
@@ -83,68 +60,46 @@ package body GLOBE_3D.tri_Mesh.vbo is
       null;
    end Display;
 
-
-
-
-
-
-   procedure set_Vertices (Self : in out tri_Mesh;   To : access gl.geometry.vertex_Array)
+   procedure set_Vertices (Self : in out tri_Mesh;   To : access GL.Geometry.Vertex_array)
    is
-      use gl.Buffer.vertex, gl.Geometry, gl.Geometry.vbo;
+      use GL.Buffer.Vertex, GL.Geometry, GL.Geometry.VBO;
 
-      the_Geometry : gl.geometry.vbo.vbo_Geometry renames gl.geometry.vbo.vbo_Geometry (self.skinned_geometry.Geometry.all);
+      the_Geometry : GL.Geometry.VBO.vbo_Geometry renames GL.Geometry.VBO.vbo_Geometry (Self.skinned_Geometry.Geometry.all);
    begin
-      the_Geometry.Vertices     := to_Buffer (To, usage => gl.static_draw);  -- tbd: check usage
-      the_Geometry.vertex_Count := gl.SizeI  (To'Length);
+      the_Geometry.Vertices     := to_Buffer (To, Usage => GL.STATIC_DRAW);  -- tbd: check usage
+      the_Geometry.vertex_Count := GL.Sizei  (To'Length);
 
       the_Geometry.Bounds := Bounds (To.all);
    end;
 
-
-
-
-   procedure set_Indices  (Self : in out tri_Mesh;   To : access gl.geometry.vertex_Id_array)
+   procedure set_Indices  (Self : in out tri_Mesh;   To : access GL.Geometry.vertex_Id_array)
    is
-      use gl.Buffer.indices, gl.Geometry, gl.Geometry.vbo;
-      the_Geometry : gl.geometry.vbo.vbo_Geometry renames gl.geometry.vbo.vbo_Geometry (self.skinned_geometry.Geometry.all);
+      use GL.Buffer.Indices, GL.Geometry, GL.Geometry.VBO;
+      the_Geometry : GL.Geometry.VBO.vbo_Geometry renames GL.Geometry.VBO.vbo_Geometry (Self.skinned_Geometry.Geometry.all);
    begin
-      the_Geometry.indices_Count := gl.SizeI (To'Length);
-      the_Geometry.Indices       := to_Buffer (To, usage => gl.static_draw);
+      the_Geometry.indices_Count := GL.Sizei (To'Length);
+      the_Geometry.Indices       := to_Buffer (To, Usage => GL.STATIC_DRAW);
    end;
 
-
-
-
-
-   procedure Skin_is (o : in out tri_Mesh;   Now : in gl.skins.p_Skin)
+   procedure Skin_is (o : in out tri_Mesh;   Now : in GL.Skins.p_Skin)
    is
    begin
       o.skinned_Geometry.Skin   := Now;
-      o.skinned_Geometry.Veneer := Now.all.new_Veneer (for_geometry => o.skinned_Geometry.Geometry.all);
+      o.skinned_Geometry.Veneer := Now.all.new_Veneer (for_Geometry => o.skinned_Geometry.Geometry.all);
    end;
-
-
-
-
 
    function face_Count (o : in tri_Mesh) return Natural
    is
       use GL;
-      the_Geometry : gl.geometry.vbo.vbo_Geometry renames gl.geometry.vbo.vbo_Geometry (o.skinned_geometry.Geometry.all);
+      the_Geometry : GL.Geometry.VBO.vbo_Geometry renames GL.Geometry.VBO.vbo_Geometry (o.skinned_Geometry.Geometry.all);
    begin
       return Natural (the_Geometry.indices_Count / 3);
    end;
 
-
-
-
-   function Bounds (o : in tri_Mesh) return gl.geometry.Bounds_record
+   function Bounds (o : in tri_Mesh) return GL.Geometry.Bounds_record
    is
    begin
-      return o.skinned_geometry.Geometry.Bounds;
+      return o.skinned_Geometry.Geometry.Bounds;
    end;
 
-
-
-
-end GLOBE_3D.tri_Mesh.vbo;
+end GLOBE_3D.tri_Mesh.VBO;
