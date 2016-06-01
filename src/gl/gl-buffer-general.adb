@@ -15,7 +15,7 @@ with Ada.Text_IO; use Ada.Text_IO;
 
 with System;
 
-package body GL.Buffer.general is
+package body GL.Buffer.General is
 
    use Element_Pointers;
 
@@ -51,7 +51,7 @@ package body GL.Buffer.general is
       GL.BufferSubData (VBO_Target (Self),  offset => GL.intPtr ((Position - 1) * Vertex_Size_in_bits / 8),
                                             size   => new_Vertices'Size / 8,
                                             data   => to_gl_Pointer (new_Vertices (new_Vertices'First)'Unchecked_Access));
-      GL.Errors.log;
+      GL.Errors.Log;
    end;
 
    function  get (Self   : access    Object) return Element_Array
@@ -224,4 +224,4 @@ package body GL.Buffer.general is
       set (memory_Map (Self), Position, To);
    end;
 
-end GL.Buffer.general;
+end GL.Buffer.General;

@@ -3,6 +3,7 @@
 --
 --  Copyright (c) Rod Kay 2007
 --  AUSTRALIA
+--
 --  Permission granted to use this software, without any warranty,
 --  for any purpose, provided this copyright note remains attached
 --  and unmodified if sources are distributed further.
@@ -23,8 +24,8 @@ package GL.Skinned_Geometry is
    type Skinned_Geometries is array (Positive range <>) of Skinned_Geometry;
 
    null_skinned_geometries : constant Skinned_Geometries (1 .. 0) := (others => (Geometry => null,
-                                                                                Skin     => null,
-                                                                                Veneer   => null));
+                                                                                 Skin     => null,
+                                                                                 Veneer   => null));
 
 --   function Bounds (Self : in
 

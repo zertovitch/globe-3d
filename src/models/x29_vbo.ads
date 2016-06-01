@@ -9,7 +9,7 @@ with GLOBE_3D.Sprite;
 package X29_vbo is
 
   procedure Create(
-    object: in out GLOBE_3D.sprite.p_Sprite;
+    object: in out GLOBE_3D.Sprite.p_Sprite;
     scale :        GLOBE_3D.Real;
     centre:        GLOBE_3D.Point_3D
   );

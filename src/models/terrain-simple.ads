@@ -1,25 +1,31 @@
+-------------------------------------------------------------------------
+--  Terrain.Simple [NB: broken so far !!]
+--
+--  Copyright (c) Rod Kay 2007
+--  AUSTRALIA
+--
+--  Permission granted to use this software, without any warranty,
+--  for any purpose, provided this copyright note remains attached
+--  and unmodified if sources are distributed further.
+-------------------------------------------------------------------------
+
 with GLOBE_3D.tri_Mesh;
 
+package Terrain.Simple is  -- tbd: rename 'Terrain_trimesh' !
 
-
-package Terrain.simple is  -- tbd: rename 'Terrain_trimesh' !
-
-   use Globe_3d;
-
+   use GLOBE_3D;
 
    -- tbd: currently broken !!
 
-   procedure Create (Object      : in out tri_mesh.p_tri_Mesh;
+   procedure Create (Object      : in out tri_Mesh.p_tri_Mesh;
                      png_Heights : in     String;                             -- filename of the PNG heightmap image
                      Scale       : in     Vector_3D);
-
 
    function  Create (png_Heights   : in     String;                           -- filename of the PNG heightmap image
                      texture_Image : in     String;                           -- filename of the BMP or TGA texture image
                      tile_Width    : in     Positive  := 32;
                      tile_Depth    : in     Positive  := 32;
                      base_Centre   : in     Vector_3D := (0.0, 0.0, 0.0);     -- position of centre of terrain, at height '0.0'.
-                     Scale         : in     Vector_3D := (1.0, 1.0, 1.0)) return tri_mesh.p_tri_Mesh_Grid;
+                     Scale         : in     Vector_3D := (1.0, 1.0, 1.0)) return tri_Mesh.p_tri_Mesh_grid;
 
-
-end Terrain.simple;
+end Terrain.Simple;

@@ -1,8 +1,10 @@
 -------------------------------------------------------------------------
---  gl.Buffer.general - a generic for producing the various types of openGL vertex buffer objects.
+--  GL.Buffer.General - a generic for producing the
+--  various types of OpenGL vertex buffer objects.
 --
 --  Copyright (c) Rod Kay 2007
 --  AUSTRALIA
+--
 --  Permission granted to use this software, without any warranty,
 --  for any purpose, provided this copyright note remains attached
 --  and unmodified if sources are distributed further.
@@ -17,7 +19,7 @@ generic
    type Element       is private;
    type Element_Array is array (Index range <>) of aliased Element;
 
-package GL.Buffer.general is
+package GL.Buffer.General is
 
    type Object is new base_Object with private;
 
@@ -93,4 +95,4 @@ private
    type write_only_Map is new memory_Map with null record;
    type read_write_Map is new memory_Map with null record;
 
-end GL.Buffer.general;
+end GL.Buffer.General;

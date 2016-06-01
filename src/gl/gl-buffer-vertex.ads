@@ -1,8 +1,8 @@
+with GL.Buffer.General;
 
-with gl.Buffer.general;
+package GL.Buffer.Vertex is
 
-
-package gl.Buffer.vertex is new gl.Buffer.general (base_object   => gl.Buffer.array_Object,
-                                                   index         => gl.geometry.positive_vertex_Id,
-                                                   element       => gl.geometry.Vertex,
-                                                   element_array => gl.geometry.vertex_Array);
+   new GL.Buffer.General (base_object   => GL.Buffer.array_Object,
+                          index         => GL.Geometry.positive_vertex_Id,
+                          element       => GL.Geometry.Vertex,
+                          element_array => GL.Geometry.vertex_Array);

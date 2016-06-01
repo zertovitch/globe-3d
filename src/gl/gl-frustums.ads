@@ -1,9 +1,8 @@
 -------------------------------------------------------------------------
---  GL.Frustum
+--  GL.Frustums
 --
---  Copyright (c) Gautier de Montmollin/Rod Kay 2001..2007
---  CH-8810 Horgen
---  SWITZERLAND
+--  Copyright (c) Rod Kay 2007
+--  AUSTRALIA
 --
 --  Permission granted to:
 --  1/ use this library, without any warranty, for any purpose;

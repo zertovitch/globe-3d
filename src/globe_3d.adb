@@ -1112,7 +1112,7 @@ package body GLOBE_3D is
          end;
       end loop;
 
-      GL.Errors.log;
+      GL.Errors.Log;
 
       -- display all opaque geometries, sorted by gl geometry primitive kind and skin.
       --
@@ -1151,17 +1151,17 @@ package body GLOBE_3D is
             if all_Geometries (Each).Geometry.Skin /= current_Skin then
                current_Skin := all_Geometries (Each).Geometry.Skin;
                enable (current_Skin.all);
-               GL.Errors.log;
+               GL.Errors.Log;
             end if;
 
             if all_Geometries (Each).Geometry.Veneer /= null then
                enable (all_Geometries (Each).Geometry.Veneer.all);
-               GL.Errors.log;
+               GL.Errors.Log;
             end if;
 
             if all_Geometries (Each).Visual = current_Visual then
                Draw (all_Geometries (Each).Geometry.Geometry.all);
-               GL.Errors.log;
+               GL.Errors.Log;
             else
                GL.PopMatrix;
                GL.PushMatrix;
@@ -1169,7 +1169,7 @@ package body GLOBE_3D is
                Multiply_GL_Matrix (all_Geometries (Each).Visual.rotation);
 
                Draw (all_Geometries (Each).Geometry.Geometry.all);
-               GL.Errors.log;
+               GL.Errors.Log;
 
                current_Visual := all_Geometries (Each).Visual;
             end if;
@@ -1179,7 +1179,7 @@ package body GLOBE_3D is
          GL.PopMatrix;
       end;
 
-      GL.Errors.log;
+      GL.Errors.Log;
 
       -- display all transparent visuals, sorted from far to near.
       --
@@ -1217,7 +1217,7 @@ package body GLOBE_3D is
                visual_Geometries : constant GL.Skinned_Geometry.Skinned_Geometries      := Skinned_Geometries (the_Visual); -- tbd: apply ogl state sorting here ?
             begin
                Display (the_Visual,  the_Camera.clipper);
-               GL.Errors.log;
+               GL.Errors.Log;
 
                for Each in visual_Geometries'Range loop
                   declare
@@ -1228,12 +1228,12 @@ package body GLOBE_3D is
                      if the_Geometry.Skin /= current_Skin then
                         current_Skin := the_Geometry.Skin;
                         enable (current_Skin.all);
-                        GL.Errors.log;
+                        GL.Errors.Log;
                      end if;
 
                      if the_Geometry.Veneer /= null then
                         enable (the_Geometry.Veneer.all);
-                        GL.Errors.log;
+                        GL.Errors.Log;
                      end if;
 
                      GL.PushMatrix;
@@ -1242,7 +1242,7 @@ package body GLOBE_3D is
                      Multiply_GL_Matrix (the_Visual.rotation);
 
                      Draw (the_Geometry.Geometry.all);
-                     GL.Errors.log;
+                     GL.Errors.Log;
 
                      GL.PopMatrix;
                   end;
@@ -1256,7 +1256,7 @@ package body GLOBE_3D is
 
       PopMatrix;
 
-      GL.Errors.log;      -- tbd: for debug only
+      GL.Errors.Log;      -- tbd: for debug only
    end Render;
 
    function empty_map return Map_of_Visuals is

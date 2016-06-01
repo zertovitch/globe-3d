@@ -22,7 +22,7 @@ package body GL.Errors is
       return Value (to_chars_ptr (GLU.ErrorString (GL.GetError)));
    end;
 
-   procedure log (Prefix : in String := "")
+   procedure Log (Prefix : in String := "")
    is
       current_Error : String renames Current;
    begin
@@ -36,10 +36,10 @@ package body GL.Errors is
          Ada.Text_IO.Put_Line (Prefix & ": '" & current_Error & "'");
       end if;
 
-      raise openGL_Error;  -- tbd: use ada.exceptions to attach the openg error string to the exception.
+      raise openGL_Error with current_Error;
    end;
 
-   procedure log (Prefix : in String := "";   error_Occurred : out Boolean)
+   procedure Log (Prefix : in String := "";   error_Occurred : out Boolean)
    is
       current_Error : String renames Current;
    begin

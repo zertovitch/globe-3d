@@ -1,7 +1,8 @@
+with GL.Buffer.General;
 
-with GL.Buffer.general;
+package GL.Buffer.Normals is
 
-package GL.Buffer.normals is new gl.Buffer.general (base_object   => gl.Buffer.array_Object,
-                                                    index         => gl.geometry.positive_vertex_Id,
-                                                    element       => gl.geometry.Normal,
-                                                    element_array => gl.geometry.normal_Array);
+   new GL.Buffer.General (base_object   => GL.Buffer.array_Object,
+                          index         => GL.Geometry.positive_vertex_Id,
+                          element       => GL.Geometry.Normal,
+                          element_array => GL.Geometry.normal_Array);

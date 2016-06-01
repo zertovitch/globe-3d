@@ -442,7 +442,7 @@ package body GLUT.Windows is
          elsif Self.alpha > 1.0 then Self.alpha := 1.0; end if;
 
          for Each in 1 .. Self.object_Count loop
-            set_Alpha (Self.Objects (Each).all,  Self.alpha);
+            Set_Alpha (Self.Objects (Each).all,  Self.alpha);
          end loop;
       end if;
 

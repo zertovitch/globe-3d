@@ -11,99 +11,71 @@
 -- with Ada.Numerics.Generic_Elementary_functions;
 -- with Ada.Text_IO; use Ada.Text_IO;
 
+package body GL.Geometry.VBO is
 
+   use GL.Buffer;
 
-package body gl.Geometry.VBO is
-
-
-   use gl.Buffer;
-
-
-
-
-   function  primitive_Id (Self : in     vbo_Geometry) return gl.ObjectTypeEnm
+   function  primitive_Id (Self : in     vbo_Geometry) return GL.ObjectTypeEnm
    is
    begin
-      return self.primitive_Id;
+      return Self.primitive_Id;
    end;
 
-
-
-
-   function  vertex_Count  (Self : in     vbo_Geometry) return gl.geometry.vertex_Id
+   function  vertex_Count  (Self : in     vbo_Geometry) return GL.Geometry.vertex_Id
    is
    begin
-      return vertex_Id (self.vertex_Count);
+      return vertex_Id (Self.vertex_Count);
    end;
 
-
-
-   function  indices_Count (Self : in     vbo_Geometry) return gl.positive_uInt
+   function  indices_Count (Self : in     vbo_Geometry) return GL.positive_uInt
    is
    begin
-      return gl.positive_uInt (self.indices_Count);
+      return GL.positive_uInt (Self.indices_Count);
    end;
 
-
-
-
-   function  Bounds (Self : in     vbo_Geometry) return gl.geometry.Bounds_record
+   function  Bounds (Self : in     vbo_Geometry) return GL.Geometry.Bounds_record
    is
    begin
-      return self.Bounds;
+      return Self.Bounds;
    end;
 
-
-
-
-   procedure draw (Self : in     vbo_Geometry)
+   procedure Draw (Self : in     vbo_Geometry)
    is
    begin
-      self.Vertices.enable;
-      gl.vertexPointer (3, GL_DOUBLE, 0, null);
+      Self.Vertices.enable;
+      GL.VertexPointer (3, GL_DOUBLE, 0, null);
 
-      self.Indices.enable;
+      Self.Indices.enable;
 
-      gl.enableClientState  (gl.VERTEX_ARRAY);
+      GL.EnableClientState  (GL.VERTEX_ARRAY);
 
-      gl.drawElements       (self.primitive_Id,  self.indices_Count, gl.UNSIGNED_INT, null);
-      gl.disableClientState (gl.VERTEX_ARRAY);
+      GL.DrawElements       (Self.primitive_Id,  Self.indices_Count, GL.UNSIGNED_INT, null);
+      GL.DisableClientState (GL.VERTEX_ARRAY);
    end;
-
-
-
-
 
    --  Modified by zheng, 2011.1.20
-   function Vertices (Self : in     vbo_Geometry) return gl.geometry.Vertex_array
+   function Vertices (Self : in     vbo_Geometry) return GL.Geometry.Vertex_array
    is
-      self_buf: aliased vbo_Geometry:=self;
+      self_buf: aliased vbo_Geometry:=Self;
    begin
       return self_buf.Vertices.get;
    end;
 
-
-
-
    --  Modified by zheng, 2011.1.20
-   function Indices (Self : in     vbo_Geometry) return gl.geometry.vertex_Id_array
+   function Indices (Self : in     vbo_Geometry) return GL.Geometry.vertex_Id_array
    is
-      self_buf: aliased vbo_Geometry:=self;
+      self_buf: aliased vbo_Geometry:=Self;
       gl_Indices : vertex_Id_array := self_buf.Indices.get;
    begin
       increment (gl_Indices);
       return gl_Indices;
    end;
 
-
-
-
    procedure destroy (Self : in out vbo_Geometry)
    is
    begin
-      destroy (self.Vertices);
-      destroy (self.Indices);
+      destroy (Self.Vertices);
+      destroy (Self.Indices);
    end;
 
-
-end gl.Geometry.VBO;
+end GL.Geometry.VBO;

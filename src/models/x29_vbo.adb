@@ -4,18 +4,14 @@
 --  Copyright: (c) Evans & Sutherland -- ok to distribute if copyright appears
 ------------------------------------------------------------------------------
 
-with GL, GL.Geometry.vbo, gl.Buffer.vertex, gl.Buffer.indices, gl.Skins,
+with GL, GL.Geometry.VBO, GL.Buffer.Vertex, GL.Buffer.Indices, GL.Skins,
      GLOBE_3D.Math, GL.Materials;
 
-with ada.text_io; use ada.text_io;
-
-
-
+with Ada.Text_IO; use Ada.Text_IO;
 
 package body X29_vbo is
 
-   use GL, GL.Geometry, Gl.Buffer.indices,  GLOBE_3D, GLOBE_3D.Math, GL.Materials;
-
+   use GL, GL.Geometry, GL.Buffer.Indices,  GLOBE_3D, GLOBE_3D.Math, GL.Materials;
 
    type Piece is (silver_Metal,    -- when 178..237 => material:= Polished_Silver;   -- 1 metal clair
                   black_Cockpit,   -- when 260..315 => material:= Black_Rubber;      -- 2 (noir) fond cockpit
@@ -27,12 +23,11 @@ package body X29_vbo is
                   nose_Cone,       -- when 392      => material:= Gold;   -- jaune (bout du nez)
                   Remains);        -- when others   => material:= Polished_Bronze;   -- 0 metal fonce
 
-
       nb_points: constant:= 590;
       nb_faces:  constant:= 955;
 
       --object_points: constant array( 1..nb_points ) of gl.geometry.Vertex :=
-      object_points: aliased gl.geometry.vertex_Array :=
+      object_points: aliased GL.Geometry.Vertex_array :=
         ((7.05889, 2.89081, 0.0),
          (4.34717, 0.725027, 0.059694),
          (7.07989, 2.88901, 0.0),
@@ -1105,31 +1100,26 @@ package body X29_vbo is
            580, 587, 586,0), ( 580, 588, 587,0), (
            580, 589, 588,0));
 
-
-   the_Geometrys : array (Piece) of aliased gl.geometry.vbo.vbo_Geometry;
-
-
+   the_Geometries : array (Piece) of aliased GL.Geometry.VBO.vbo_Geometry;
 
 --     the_vertex_Arrays : array (Piece'range) of gl.geometry.vertex_Array (1 .. nb_points);
 --     vertex_Array_Last : array (Piece'range) of gl.geometry.vertex_Id;
 
    -- tbd: free these
-   the_Indices   : array (Piece'range) of aliased p_vertex_Id_Array := (others => new gl.geometry.vertex_Id_array (1 .. nb_faces * 3));
-   indices_Count : array (Piece'range) of gl.uInt                   := (others => 0);
+   the_Indices   : constant array (Piece'Range) of aliased p_vertex_Id_array := (others => new GL.Geometry.vertex_Id_array (1 .. nb_faces * 3));
+   indices_Count : array (Piece'Range) of GL.Uint                   := (others => 0);
 
-   the_vertex_Buffer   : gl.Buffer.vertex.Object;
+   the_vertex_Buffer   : GL.Buffer.Vertex.Object;
 --   the_indices_Buffers : array (Piece) of gl.Buffer.indices.Object;
 
-   total_Bounds      : gl.geometry.Bounds_record := null_Bounds;
+   total_Bounds      : GL.Geometry.Bounds_record := null_Bounds;
 
    is_Initialised : Boolean := False;
-
-
 
    procedure initialise
    is
    begin
-      the_vertex_Buffer := gl.Buffer.vertex.to_Buffer (object_points'access,  usage => GL.STATIC_DRAW);
+      the_vertex_Buffer := GL.Buffer.Vertex.to_Buffer (object_points'Access,  Usage => GL.STATIC_DRAW);
 
       declare
          piece_Id : Piece;
@@ -1158,50 +1148,45 @@ package body X29_vbo is
          end loop;
       end;
 
-
       for Each in Piece loop
-         the_Geometrys (Each).primitive_Id := gl.TRIANGLES;
+         the_Geometries (Each).primitive_Id := GL.TRIANGLES;
 
-         -- tbd: make sure the culler culls individual Geometrys (based on geometrys bounding box) and not only on whole Visuals !
+         -- tbd: make sure the culler culls individual Geometries (based on geometries bounding box) and not only on whole Visuals !
          --
-         the_Geometrys (Each).Bounds := Bounds (object_points,  the_Indices (Each) (1 .. positive_uInt (indices_Count (Each))));
-         total_Bounds                := max (total_Bounds,  the_Geometrys (Each).Bounds);
+         the_Geometries (Each).Bounds := Bounds (object_points,  the_Indices (Each) (1 .. positive_uInt (indices_Count (Each))));
+         total_Bounds                := Max (total_Bounds,  the_Geometries (Each).Bounds);
 
          -- vertices
          --
-         the_Geometrys (Each).Vertices     := the_vertex_Buffer;
-         the_Geometrys (Each).vertex_Count := gl.SizeI  (object_points'Length);
+         the_Geometries (Each).Vertices     := the_vertex_Buffer;
+         the_Geometries (Each).vertex_Count := GL.Sizei  (object_points'Length);
 
          -- indices
          --
          decrement (the_Indices (Each) (1 .. positive_uInt (indices_Count (Each))));
 
          declare -- tbd: free pad
-            Pad : p_vertex_Id_array := new vertex_Id_array'(the_Indices (Each) (1 .. positive_uInt (indices_Count (Each))));
+         Pad : constant p_vertex_Id_array := new vertex_Id_array'(the_Indices (Each) (1 .. positive_uInt (indices_Count (Each))));
          begin
-            the_Geometrys (Each).Indices        := to_Buffer (Pad,  usage => GL.STATIC_DRAW);
-            the_Geometrys (Each).indices_Count  := gl.SizeI  (Pad.all'Length);
+            the_Geometries (Each).Indices        := to_Buffer (Pad,  Usage => GL.STATIC_DRAW);
+            the_Geometries (Each).indices_Count  := GL.Sizei  (Pad.all'Length);
          end;
 
       end loop;
 
    end initialise;
 
+   the_Skins : array (Piece) of aliased GL.Skins.Skin_opaque_lit_mono_color
+     := (silver_Metal    => (Material => Polished_Silver),
+         black_Cockpit   => (Material => Black_Rubber),
+         Black           => (Material => Black_Plastic),
+         black_front_Air => (Material => Bronze),
+         Copper          => (Material => Polished_Copper),
+         fire_Engine     => (Material => Ruby),
+         nose_Cone       => (Material => Gold),
+         Remains         => (Material => Polished_Bronze));
 
-
-   the_Skins : array (Piece) of aliased gl.skins.Skin_opaque_lit_mono_color
-     := (silver_Metal    => (material => Polished_Silver),
-         black_Cockpit   => (material => Black_Rubber),
-         Black           => (material => Black_Plastic),
-         black_front_Air => (material => Bronze),
-         Copper          => (material => Polished_Copper),
-         fire_Engine     => (material => Ruby),
-         nose_Cone       => (material => Gold),
-         Remains         => (material => Polished_Bronze));
-
-
-
-   procedure Create (object : in out GLOBE_3D.sprite.p_Sprite;
+   procedure Create (object : in out GLOBE_3D.Sprite.p_Sprite;
                      scale  :        GLOBE_3D.Real;
                      centre :        GLOBE_3D.Point_3D)
    is
@@ -1211,7 +1196,7 @@ package body X29_vbo is
          is_Initialised := True;
       end if;
 
-      object := new sprite.Sprite (max_geometrys => Piece'Pos (Piece'Last) + 1);
+      object := new Sprite.Sprite (max_geometries => Piece'Pos (Piece'Last) + 1);
 
 --        for i in reverse 1..nb_points loop
 --           object.point(i):= scale * object_points(i);
@@ -1241,18 +1226,14 @@ package body X29_vbo is
 --  --         object.face(i):= face_0;
 --        end loop;
 
-
       for Each in Piece loop
-         object.add (the_Geometrys (Each)'access,  the_Skins (Each)'access);
-         --object.add (the_Geometrys (Each)'access,  gl.Skins.lit_green_Skin);
+         object.add (the_Geometries (Each)'Access,  the_Skins (Each)'Access);
+         --object.add (the_Geometries (Each)'access,  gl.Skins.lit_green_Skin);
       end loop;
-
 
       object.Bounds := total_Bounds;
       object.centre := centre; -- e3d: 7.5*scale
       Set_name (object.all, "X29 prototype");
    end Create;
-
-
 
 end X29_vbo;

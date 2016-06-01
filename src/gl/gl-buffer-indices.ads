@@ -1,8 +1,8 @@
+with GL.Buffer.General;
 
-with gl.Buffer.general;
+package GL.Buffer.Indices is
 
-
-package gl.Buffer.indices is new gl.Buffer.general (base_object   => gl.Buffer.element_array_Object,
-                                                    index         => gl.positive_uInt,
-                                                    element       => gl.geometry.vertex_Id,
-                                                    element_array => gl.geometry.vertex_Id_Array);
+   new GL.Buffer.general (base_object   => GL.Buffer.element_array_Object,
+                          index         => GL.positive_uInt,
+                          element       => GL.Geometry.vertex_Id,
+                          element_array => GL.Geometry.vertex_Id_Array);

@@ -1,3 +1,13 @@
+-------------------------------------------------------------------------
+--  GL.Math
+--
+--  Copyright (c) Rod Kay 2007
+--  AUSTRALIA
+--
+--  Permission granted to use this software, without any warranty,
+--  for any purpose, provided this copyright note remains attached
+--  and unmodified if sources are distributed further.
+-------------------------------------------------------------------------
 
 with Ada.Numerics.Generic_Elementary_Functions;
 with Ada.Text_IO;

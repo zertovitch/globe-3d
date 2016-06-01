@@ -1,7 +1,7 @@
 --   Normalize by ADALOG, modified on purpose, to:
 --
 -- - reduce # of lines to test compilation with the ObjectAda 7.2.2 special
---   edition (limited # of lines) 
+--   edition (limited # of lines)
 --
 -- - add the stdcall decoration fixups in pragma import
 --   because of a linker incompatibility GNU / MS
@@ -67,7 +67,7 @@ procedure Trans_OA is
    Str_beg     : Positive;
 
    File_Out   : File_Type;
-   Buffer_Out : String (Buffer_In'range);
+   Buffer_Out : String (Buffer_In'Range);
    Index_Out  : Natural;
 
    Separator_Required : Boolean;
@@ -90,8 +90,9 @@ procedure Trans_OA is
        end loop;
      end;
    begin
-     if s="_glBlendFunc" then Add("@8");
-     end if; 
+     if s="_glBlendFunc" then
+       Add("@8");
+     end if;
    end;
 
    use Ada.Characters.Handling;
@@ -200,7 +201,7 @@ begin
                end loop;
                Separator_Required := True;
 
-            when ' ' | Ascii.HT =>
+            when ' ' | ASCII.HT =>
                Index_In := Index_In + 1;
 
             when others =>
@@ -212,7 +213,7 @@ begin
 
       if Index_Out > 0 then
          Put (Buffer_Out (1..Index_Out));
-         if (not compact) or else Col > 134 then
+         if (not Compact) or else Col > 134 then
            New_Line;
          else
            case Buffer_Out(Index_Out) is

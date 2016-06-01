@@ -5,10 +5,6 @@ with GLOBE_3D.Textures;
 
 package body Box is
 
-   package g3d renames GLOBE_3D;
-
-
-
   procedure Create (object  : in out GLOBE_3D.p_Object_3D;
                     Sides   :        GLOBE_3D.Vector_3D := (1.0, 1.0, 1.0);
                     scale   :        GLOBE_3D.Real      := 1.0;
@@ -16,13 +12,13 @@ package body Box is
    is
       use GLOBE_3D, GL, GLOBE_3D.REF;
 
-      function Basic_face (P      : G3D.Index_array;
+      function Basic_face (P      : GLOBE_3D.Index_array;
                            texture: String;
                            colour : GL.RGB_Color;
                            repeat : Positive)       return Face_type
       is
          f: Face_type; -- takes defaults values
-         alpha : GL.Double:= 1.0;
+         alpha : constant GL.Double:= 1.0;
          new_id: Image_ID;
       begin
          f.P       := P;
@@ -36,16 +32,15 @@ package body Box is
          return f;
       end Basic_face;
 
-
-      half_Width  : constant g3d.Real := Scale * Sides (0) / 2.0;
-      half_Height : constant g3d.Real := Scale * Sides (1) / 2.0;
-      half_Depth  : constant g3d.Real := Scale * Sides (2) / 2.0;
+      half_Width  : constant GLOBE_3D.Real := scale * Sides (0) / 2.0;
+      half_Height : constant GLOBE_3D.Real := scale * Sides (1) / 2.0;
+      half_Depth  : constant GLOBE_3D.Real := scale * Sides (2) / 2.0;
 
    begin
 
-      object:= new G3D.Object_3D (Max_points => 8,  Max_faces => 6);
+      object:= new GLOBE_3D.Object_3D (Max_points => 8,  Max_faces => 6);
 
-      object.centre:= Centre;
+      object.centre:= centre;
 
       object.point:= ((-half_Width, -half_Height, -half_Depth),
                       (-half_Width,  half_Height, -half_Depth),
@@ -66,6 +61,5 @@ package body Box is
       Set_name (object.all, "a box");
 
   end Create;
-
 
 end Box;

@@ -219,7 +219,7 @@ package body GL.Textures is
                          --gl.RGBA, gl.GL_UNSIGNED_BYTE, null);    -- nb: actual image is not initialised.
                          GL.RGBA, GL.GL_UNSIGNED_BYTE, null_Image (null_Image'First)'Access);    -- nb: actual image is not initialised.
 
-         GL.Errors.log;  -- tbd: only for debug.
+         GL.Errors.Log;  -- tbd: only for debug.
       end if;
 
       return the_Texture;

@@ -3,14 +3,15 @@
 --
 --  Copyright (c) Rod Kay 2007
 --  AUSTRALIA
+--
 --  Permission granted to use this software, without any warranty,
 --  for any purpose, provided this copyright note remains attached
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
 with GL.Geometry, GL.Textures, GL.Materials;
-with GL.Buffer.texture_coords;
-with GL.Buffer.normals;
+with GL.Buffer.Texture_coords;
+with GL.Buffer.Normals;
 
 package GL.Skins is
 
@@ -107,7 +108,7 @@ package GL.Skins is
    type Veneer_unlit_textured_vbo is new Veneer with
       record
          --texture_Coordinates : gl.Buffer.vertex_buffer_Object;
-         texture_Coordinates : GL.Buffer.texture_coords.Object;
+         texture_Coordinates : GL.Buffer.Texture_coords.Object;
       end record;
 
    type p_Veneer_unlit_textured_vbo is access all Veneer_unlit_textured_vbo'Class;

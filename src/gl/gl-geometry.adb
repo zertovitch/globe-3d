@@ -298,7 +298,7 @@ package body GL.Geometry is
             raise Constraint_Error; -- tbd: finish these
       end case;
 
-      return Normal_array'(1..0 => (others => 0.0));
+      --  return Normal_array'(1..0 => (others => 0.0));  --  GNAT: unreachable code
    end;
 
 end GL.Geometry;
