@@ -1,14 +1,14 @@
-with GLOBE_3D.Textures,
-     GLOBE_3D.Math;
+--  with GLOBE_3D.Textures,
+with GLOBE_3D.Math;
 
-with GLUT.Windows; use GLUT.Windows;
-with GL.Errors;
-with GLU;
+--  with GLUT.Windows; use GLUT.Windows;
+--  with GL.Errors;
+--  with GLU;
 
 package body GLOBE_3D.Impostor.Simple is
 
-   package G3DT renames GLOBE_3D.Textures;
-   package G3DM renames GLOBE_3D.Math;
+   --  package G3DT renames GLOBE_3D.Textures;
+   --  package G3DM renames GLOBE_3D.Math;
 
    procedure pre_Calculate (o : in out Impostor)
    is
@@ -39,8 +39,8 @@ package body GLOBE_3D.Impostor.Simple is
       o.current_pixel_Region            := o.get_pixel_Region (the_Camera);
 
       declare
-         use GL.Textures, GLOBE_3D.Math;
-         use type GL.Double;
+         use GL.Textures;
+         --  use type GL.Double;
          update_Required : Boolean := o.general_Update_required (the_Camera, o.current_pixel_Region);
       begin
          if         not update_Required

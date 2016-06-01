@@ -6,12 +6,12 @@ with GL.Buffer.Vertex,
      GL.Buffer.Texture_coords;
 with GL.Geometry.VBO;
 with GL.Skinned_Geometry;
-with GL.IO;
+--  with GL.IO;
 
 with GLOBE_3D.Math;                            use GLOBE_3D.Math;
 
-with Ada.Numerics;                             use Ada.Numerics;
-with Ada.Text_IO;                              use Ada.Text_IO;
+--  with Ada.Numerics;                             use Ada.Numerics;
+--  with Ada.Text_IO;                              use Ada.Text_IO;
 
 package body Terrain.VBO is
 
@@ -29,7 +29,7 @@ package body Terrain.VBO is
                                                        Scale    : in     GLOBE_3D.Vector_3D;
                                                        Y_Offset :    out Real)
    is
-      use GLOBE_3D, GL, GL.Geometry, GL.Geometry.VBO, GL.Buffer, GL.Buffer.Vertex, GLOBE_3D.REF, GLOBE_3D.Math, GLOBE_3D.Sprite;
+      use GL.Geometry, GL.Geometry.VBO, GL.Buffer, GL.Buffer.Vertex, GLOBE_3D.REF, GLOBE_3D.Sprite;
 
       the_Geometry : constant GL.Geometry.VBO.p_vbo_Geometry := new GL.Geometry.VBO.vbo_Geometry;
 
@@ -65,7 +65,7 @@ package body Terrain.VBO is
          for Row in 1 .. Now.row_Count - 1 loop
             for Col in 1 .. Now.column_Count - 1 loop
                declare
-                  use GL.Geometry;
+                  --  use GL.Geometry;
                   NW : constant vertex_Id := Vertex_Id_for (Now,   Row,     Col    );
                   SW : constant vertex_Id := Vertex_Id_for (Now,   Row + 1, Col    );
                   NE : constant vertex_Id := Vertex_Id_for (Now,   Row,     Col + 1);
@@ -98,7 +98,7 @@ package body Terrain.VBO is
                                                       texture_Transform_s : in     GL.Textures.texture_Transform;
                                                       texture_Transform_t : in     GL.Textures.texture_Transform)
    is
-      use GL.Textures, GL.Skins, GL.Geometry.VBO;
+      use GL.Skins, GL.Geometry.VBO;
 
       the_skinned_Geometry : GL.Skinned_Geometry.Skinned_Geometry renames Self.skinned_Geometries (1);
 
@@ -128,7 +128,7 @@ package body Terrain.VBO is
                      texture_Transform_t : in     GL.Textures.texture_Transform;
                      Y_Offset            :    out Real)
    is
-      use GLOBE_3D, GL, GL.Geometry, GL.Geometry.VBO, GL.Buffer, GL.Buffer.Vertex, GLOBE_3D.REF, GLOBE_3D.Math, GLOBE_3D.Sprite;
+      use GL.Geometry, GL.Geometry.VBO, GL.Buffer, GL.Buffer.Vertex, GLOBE_3D.REF, GLOBE_3D.Sprite;
 
    begin
       Object            := new GLOBE_3D.Sprite.Sprite (max_Geometries => 1);
@@ -143,7 +143,7 @@ package body Terrain.VBO is
                      Scale          : in     GLOBE_3D.Vector_3D;
                      base_Texture   : in     String)
    is
-      use GLOBE_3D, GL, GLOBE_3D.REF, GLOBE_3D.Math;
+      use GLOBE_3D.REF;
 
       the_height_Map : constant height_Map                    := to_Height_Map (to_Matrix (png_Heights));
 

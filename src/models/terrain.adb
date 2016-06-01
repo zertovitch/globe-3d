@@ -1,17 +1,18 @@
-with GL,
-     GL.Textures,
-     GL.Skins;                                 use GL, GL.Textures;
-with GL.Buffer.Vertex,
-     GL.Buffer.Indices,
-     GL.Buffer.Texture_coords;
-with GL.Geometry.VBO;
-with GL.Skinned_Geometry;
+with GL;
+--     GL.Textures,
+--     GL.Skins;                                 use GL, GL.Textures;
+--  with GL.Buffer.Vertex,
+--       GL.Buffer.Indices,
+--       GL.Buffer.Texture_coords;
+--  with GL.Geometry.VBO;
+--  with GL.Skinned_Geometry;
 with GL.IO;
 
 with GLOBE_3D.Math;                            use GLOBE_3D.Math;
+--  with GLOBE_3D.tri_Mesh;
 
-with Ada.Numerics;                             use Ada.Numerics;
-with Ada.Text_IO;                              use Ada.Text_IO;
+--  with Ada.Numerics;                             use Ada.Numerics;
+--  with Ada.Text_IO;                              use Ada.Text_IO;
 
 package body Terrain is
 
@@ -19,7 +20,7 @@ package body Terrain is
 
    function to_Matrix (tga_Heights : in String) return Matrix
    is
-      use GLOBE_3D, GL.IO;
+      use GL.IO;
 
       the_Image   : GL.IO.Image                  := to_TGA_Image (tga_Heights);
       the_Pixels  : constant GL.IO.Byte_grid     := to_greyscale_Pixels (the_Image);
@@ -77,7 +78,7 @@ package body Terrain is
                   scale           : in     GLOBE_3D.Vector_3D;
                   height_Offset   :    out Real)
    is
-      use GLOBE_3D, GL, GL.Geometry, GLOBE_3D.REF, GLOBE_3D.Math, GLOBE_3D.tri_Mesh;
+      use GL, GL.Geometry, GLOBE_3D.REF;
 
       the_height_Offset : constant Real      := from_height_Map.min_Height + (from_height_Map.max_Height - from_height_Map.min_Height) / 2.0;
       MidPoint          : constant GL.Geometry.Vertex :=
@@ -96,7 +97,7 @@ package body Terrain is
       for Row in from_height_Map.Heights'Range (1) loop
          for Col in from_height_Map.Heights'Range (2) loop
             declare
-               use type GL.Geometry.Vertex;
+               --  use type GL.Geometry.Vertex;
                the_Point : GL.Geometry.Vertex renames the_Vertices (Vertex_Id_for (from_height_Map,  Row, Col));
             begin
                the_Point := GL.Geometry.Vertex'(Real (Col) - 1.0,          -- '- 1.0' adjusts for '1 based' indexing.

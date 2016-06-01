@@ -1,16 +1,16 @@
-with GLOBE_3D.Textures,
-     GLOBE_3D.Math;
+--  with GLOBE_3D.Textures,
+with GLOBE_3D.Math;
 
-with GLUT.Windows; use GLUT.Windows;
+--  with GLUT.Windows; use GLUT.Windows;
 with GL.Errors;
-with GLU;
+--  with GLU;
 
 with Ada.Text_IO;  use Ada.Text_IO;
 
 package body GLOBE_3D.Impostor is
 
-   package G3DT renames GLOBE_3D.Textures;
-   package G3DM renames GLOBE_3D.Math;
+   --  package G3DT renames GLOBE_3D.Textures;
+   --  package G3DM renames GLOBE_3D.Math;
 
    procedure destroy (o : in out Impostor)
    is
@@ -104,6 +104,7 @@ package body GLOBE_3D.Impostor is
    function general_Update_required (o : access Impostor;   the_Camera       : in p_Camera;
                                                             the_pixel_Region : in pixel_Region) return Boolean
    is
+   pragma Unreferenced (the_pixel_Region);
       use GL, GLOBE_3D.Math;
       Camera_has_moved : constant Boolean  :=  the_Camera.clipper.eye_position /= o.prior_camera_Position;
       Target_has_moved : constant Boolean  :=  o.Target.centre                 /= o.prior_target_Position;
@@ -201,8 +202,8 @@ package body GLOBE_3D.Impostor is
 Width_size               : constant GL.Textures.Size := to_Size (Natural (o.current_Width_pixels));
 Height_size              : constant GL.Textures.Size := to_Size (Natural (o.current_Height_pixels));
 
-texture_Width            : constant GL.Sizei         := GL.Sizei (power_of_2_Ceiling (Natural (o.current_Width_pixels)));
-texture_Height           : constant GL.Sizei         := GL.Sizei (power_of_2_Ceiling (Natural (o.current_Height_pixels)));
+texture_Width            : constant GL.Sizei         := power_of_2_Ceiling (Natural (o.current_Width_pixels));
+texture_Height           : constant GL.Sizei         := power_of_2_Ceiling (Natural (o.current_Height_pixels));
 
       GL_Error : Boolean;
    begin
@@ -316,6 +317,7 @@ texture_Height           : constant GL.Sizei         := GL.Sizei (power_of_2_Cei
 
    function face_Count (o : in Impostor) return Natural
    is
+   pragma Unreferenced (o);
    begin
       return 1;
    end;
@@ -341,6 +343,7 @@ texture_Height           : constant GL.Sizei         := GL.Sizei (power_of_2_Cei
 
    function  is_Transparent (o    : in Impostor) return Boolean
    is
+   pragma Unreferenced (o);
    begin
       return True;   -- tbd: - if using gl alpha test, depth sorting is not needed apparently.
                      --        in which case this could be set to False, and treated as a non-transparent in g3d.render.
@@ -400,6 +403,7 @@ texture_Height           : constant GL.Sizei         := GL.Sizei (power_of_2_Cei
       end;
 
    end;
+   pragma Unreferenced (enable_Rotation);
    --
    -- based on lighthouse3d billboard example.
 

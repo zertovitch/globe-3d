@@ -132,8 +132,9 @@ package body GLOBE_3D is
 
   function Skinned_Geometries (o : in Visual) return GL.Skinned_Geometry.Skinned_Geometries
   is
+  pragma Unreferenced (o);
   begin
-     return GL.Skinned_Geometry.null_skinned_geometries;
+     return GL.Skinned_Geometry.null_skinned_geometries;  --  !! obviously a placeholder...
   end Skinned_Geometries;
 
   function Width  (o: in Visual'class) return Real
@@ -403,8 +404,6 @@ package body GLOBE_3D is
     Vertex(P+D);    Vertex(P+V2);
     GL_End;
   end Arrow;
-
-  neutral_material_already_set: Boolean:= False;
 
   -------------
   -- Display --

@@ -11,7 +11,7 @@
 
 with GLOBE_3D.tri_Mesh;
 with GL.Geometry.VBO;
-with GL.Textures;
+--  with GL.Textures;
 
 package GLOBE_3D.tri_Mesh.VBO is
 

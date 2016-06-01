@@ -1,10 +1,10 @@
-with GLOBE_3D.Textures,
-     GLOBE_3D.Math;
+--  with GLOBE_3D.Textures,
+--       GLOBE_3D.Math;
 
 package body GLOBE_3D.Sprite is
 
-   package G3DT renames GLOBE_3D.Textures;
-   package G3DM renames GLOBE_3D.Math;
+   --  package G3DT renames GLOBE_3D.Textures;
+   --  package G3DM renames GLOBE_3D.Math;
 
    function skinned_Geometries (o : in Sprite) return GL.Skinned_Geometry.Skinned_Geometries
    is
@@ -15,7 +15,7 @@ package body GLOBE_3D.Sprite is
    procedure add (o : in out Sprite;   Geometry : access GL.Geometry.Geometry'Class;
                                        Skin     : access GL.Skins.Skin'Class)
    is
-      new_skinned_Geometry : access GL.Skinned_Geometry.Skinned_Geometry := new GL.Skinned_Geometry.Skinned_Geometry;
+      --  new_skinned_Geometry : access GL.Skinned_Geometry.Skinned_Geometry := new GL.Skinned_Geometry.Skinned_Geometry;
    begin
       o.skinned_geometry_Count                        := o.skinned_geometry_Count + 1;
       o.skinned_Geometries (o.skinned_geometry_Count) := (Geometry => Geometry.all'Access,
@@ -25,7 +25,7 @@ package body GLOBE_3D.Sprite is
 
    procedure Pre_calculate (o: in out Sprite)
    is
-      use GL, GL.Geometry, G3DM;
+      use GL, GL.Geometry;
    begin
       --vertex_cache_optimise (o);  -- tbd: doesn't seem to help !! ... :(
                                   -- at least with terrain ... (terrain dataset may already naturally be in optimal order ?)

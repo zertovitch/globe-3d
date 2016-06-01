@@ -9,7 +9,7 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GL,  GL.Geometry,  GL.Textures,  GL.Skins,  GL.Skinned_Geometry;
+with GL, GL.Textures;
 
 package GLOBE_3D.Impostor.Simple is      -- tbd: rename 'GLOBE_3D.Impostor.standard' ?
 

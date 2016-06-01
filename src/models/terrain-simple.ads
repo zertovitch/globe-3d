@@ -13,7 +13,7 @@ with GLOBE_3D.tri_Mesh;
 
 package Terrain.Simple is  -- tbd: rename 'Terrain_trimesh' !
 
-   use GLOBE_3D;
+   --  use GLOBE_3D;
 
    -- tbd: currently broken !!
 

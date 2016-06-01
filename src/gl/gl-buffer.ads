@@ -8,8 +8,8 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GL.Geometry;
-with GL.Textures;
+--  with GL.Geometry;
+--  with GL.Textures;
 
 package GL.Buffer is
 

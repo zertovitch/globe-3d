@@ -15,7 +15,7 @@
 
 with Interfaces.C;
 with Interfaces.C.Strings;
-with System.Storage_Elements;
+with System;  -- System.Storage_Elements;
 
 with GL;
 

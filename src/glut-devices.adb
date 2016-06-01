@@ -55,30 +55,30 @@ package body GLUT.Devices is
   -- GLUT Callback procedures --
 
   procedure Key( k: GLUT.Key_type; x,y: Integer ) is
+  pragma Unreferenced (x, y);
 
   begin
-    if x=y then null; end if; -- bogus (anti-warning)
     current_Keyboard.normal_set( To_Upper(Character'Val(k)) ):= True;   -- key k is pressed
     Update_modifier_keys;
   end Key;
 
   procedure Key_up( k: GLUT.Key_type; x,y: Integer ) is
+  pragma Unreferenced (x, y);
   begin
-    if x=y then null; end if; -- bogus (anti-warning)
     current_Keyboard.normal_set( To_Upper(Character'Val(k)) ):= False;  -- key k is unpressed
     Update_modifier_keys;
   end Key_up;
 
   procedure Special_key( k: Integer; x,y: Integer ) is
+  pragma Unreferenced (x, y);
   begin
-    if x=y then null; end if; -- bogus (anti-warning)
     current_Keyboard.special_set( k ):= True;  -- key k is pressed
     Update_modifier_keys;
   end Special_key;
 
   procedure Special_key_up( k: Integer; x,y: Integer ) is
+  pragma Unreferenced (x, y);
   begin
-    if x=y then null; end if; -- bogus (anti-warning)
     current_Keyboard.special_set( k ):= False; -- key k is unpressed
     Update_modifier_keys;
   end Special_key_up;

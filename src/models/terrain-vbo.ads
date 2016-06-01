@@ -9,16 +9,16 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GLOBE_3D.tri_Mesh;
+--  with GLOBE_3D.tri_Mesh;
 with GLOBE_3D.Sprite;
 
-with GL.Textures;
+--  with GL.Textures;
 
-with Ada.Unchecked_Deallocation;
+--  with Ada.Unchecked_Deallocation;
 
 package Terrain.VBO is
 
-   use GLOBE_3D;
+   --  use GLOBE_3D;
 
    -- sprite (uses vertex buffer objects)
    --

@@ -10,7 +10,6 @@
 -------------------------------------------------------------------------
 
 with GL.Geometry.Primitives,  GL.Geometry.primal, GL.Textures,  GL.Skins,  GL.Skinned_Geometry;
-with GLOBE_3D.Math;
 
 package GLOBE_3D.Impostor is
 

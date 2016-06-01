@@ -23,7 +23,7 @@ project GLOBE_3D_Darwin is
    end Linker;
 
    package Compiler is
-      for Default_Switches ("ada") use ("-gnatf", "-gnato", "-fstack-check", "-gnatE", "-g", "-gnatwkmpz", "-gnatVcfimorst", "-gnatyhiknp", "-gnat05");
+      for Default_Switches ("ada") use ("-gnatf", "-gnato", "-fstack-check", "-gnatE", "-g", "-gnatwa", "-gnatVcfimorst", "-gnatyhiknp", "-gnat05");
    end Compiler;
 
 end GLOBE_3D_Darwin;

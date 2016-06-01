@@ -9,7 +9,7 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GL.Textures, GL.Skins;
+with GL.Skins;
 
 package GLOBE_3D.tri_Mesh is
 

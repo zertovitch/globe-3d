@@ -34,12 +34,20 @@ project GLOBE_3D_Win32 is
               "-gnatyaknpr",  --  Style: check all casings: a:attribute, k:keywords, n:package Standard identifiers, p:pragma, r:identifier references
               "-gnatybfhiu",  --  Style: check b:no blanks at end of lines, f:no ff/vtabs, h: no htabs, i:if-then layout, u:no unnecessary blank lines
               "-gnatyx",      --  Style: check x:no extra parens
-              "-gnat05", "-gnato", "-fno-inline", "-fstack-check", "-gnatwkmpz", "-fno-strict-aliasing", "-g", "-gnatVcdeimoprst", "-gnatecdebug.pra", "-gnatyhiknp");
-            -- -gnatV*: turn off floating point validity check, seems to give false positives on a scalar product for collision detection
+              "-gnat05", "-gnato", "-fno-inline", "-fstack-check", 
+              "-gnatwa", 
+              "-fno-strict-aliasing", "-g", 
+              "-gnatVcdeimoprst", 
+              -- -gnatVf: (2016) turned off floating point validity check, seems to give false positives on a scalar product for collision detection
+              "-gnatecdebug.pra");
          when "Fast" =>
-            for Default_Switches ("ada") use ("-gnat05", "-O2", "-gnatn", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-fipa-cp-clone", "-fgcse-after-reload", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers", "-ftree-vectorize", "-mfpmath=sse", "-msse3", "-gnatec../../demo/g3d_elim.pra");
+            for Default_Switches ("ada") use ("-gnat05", "-O2", "-gnatn", "-gnatp", 
+              "-gnatwa", 
+              "-fno-strict-aliasing", "-fipa-cp-clone", "-fgcse-after-reload", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers", "-ftree-vectorize", "-mfpmath=sse", "-msse3", "-gnatec../../demo/g3d_elim.pra");
          when "Small" =>
-            for Default_Switches ("ada") use ("-gnat05", "-Os", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-fno-inline", "-march=i386", "-ffunction-sections", "-falign-jumps=0", "-falign-loops=0", "-falign-functions=0", "-mpreferred-stack-boundary=2", "-gnatec../../demo/g3d_elim.pra");
+            for Default_Switches ("ada") use ("-gnat05", "-Os", "-gnatp", 
+              "-gnatwa", 
+              "-fno-strict-aliasing", "-fno-inline", "-march=i386", "-ffunction-sections", "-falign-jumps=0", "-falign-loops=0", "-falign-functions=0", "-mpreferred-stack-boundary=2", "-gnatec../../demo/g3d_elim.pra");
       end case;
    end Compiler;
 

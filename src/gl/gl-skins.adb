@@ -8,7 +8,7 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with Ada.Text_IO;
+--  with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
 package body GL.Skins is
@@ -66,6 +66,7 @@ package body GL.Skins is
 
    function  new_Veneer (Self : in     Skin_opaque_unlit_mono_color;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
    is
+   pragma Unreferenced (for_Geometry, Self);
    begin
       return null;
    end;
@@ -88,6 +89,7 @@ package body GL.Skins is
 
    function  is_Transparent (Self : in     Skin_opaque_unlit_mono_color) return Boolean
    is
+   pragma Unreferenced (Self);
    begin
       return False;
    end;
@@ -105,6 +107,7 @@ package body GL.Skins is
 
    function  new_Veneer (Self : in     Skin_opaque_lit_mono_color;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
    is
+   pragma Unreferenced (Self);
       the_Veneer : constant p_Veneer := new Veneer_opaque_lit_mono_color' (max_Normals => vertex_Count (for_Geometry),
                                                                            normals     => vertex_Normals (for_Geometry));
    begin
@@ -201,6 +204,7 @@ package body GL.Skins is
 
    function  new_Veneer (Self : in     Skin_unlit_textured_vbo;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
    is
+   pragma Unreferenced (for_Geometry, Self);
    begin
       return new Veneer_unlit_textured_vbo;
    end;

@@ -1,4 +1,6 @@
---  NB: broken so far !!
+--
+--  NB: this package is broken so far !!
+--
 
 with GL, GL.Textures; use GL;
 with GLOBE_3D.Math;   use GLOBE_3D.Math;
@@ -12,7 +14,7 @@ package body Terrain.Simple is
    function to_tri_Mesh (the_height_Map : in     height_Map;
                          scale          : in     GLOBE_3D.Vector_3D) return tri_Mesh.p_tri_Mesh
    is
-      use GLOBE_3D, GL, GLOBE_3D.REF, GLOBE_3D.Math, GLOBE_3D.tri_Mesh;
+      use GLOBE_3D.REF, GLOBE_3D.tri_Mesh;
 
       object        : p_tri_Mesh := new GLOBE_3D.tri_Mesh.vertex_array.tri_Mesh '(max_points => the_height_Map.Width       * the_height_Map.Depth,
                                                                                   max_faces  => (the_height_Map.Width - 1) * (the_height_Map.Depth - 1) * 2,

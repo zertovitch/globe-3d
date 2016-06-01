@@ -24,7 +24,7 @@ package body GL.Errors is
 
    procedure Log (Prefix : in String := "")
    is
-      current_Error : String renames Current;
+      current_Error : constant String:= Current;
    begin
       if current_Error = "no error" then
          return;
@@ -41,7 +41,7 @@ package body GL.Errors is
 
    procedure Log (Prefix : in String := "";   error_Occurred : out Boolean)
    is
-      current_Error : String renames Current;
+      current_Error : constant String:= Current;
    begin
       if current_Error = "no error" then
          error_Occurred := False;

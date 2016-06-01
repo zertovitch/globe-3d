@@ -50,7 +50,9 @@ package body GL.IO is
               texFormat      : TexFormatEnm;
               texPixelFormat : TexPixelFormatEnm;
               image_p        : Byte_array_ptr
-            ) is
+            )
+  is
+    pragma Unreferenced (size);
     ptr: constant GL.pointer:= image_p(0)'Access;
   begin
     BindTexture ( TEXTURE_2D, Uint(id) );

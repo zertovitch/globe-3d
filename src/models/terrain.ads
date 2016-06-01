@@ -9,10 +9,11 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GLOBE_3D.tri_Mesh;
-with GLOBE_3D.Sprite;
+with GLOBE_3D;
+--  with GLOBE_3D.tri_Mesh;
+--  with GLOBE_3D.Sprite;
 
-with GL.Textures;
+--  with GL.Textures;
 with GL.Geometry;
 
 with Ada.Unchecked_Deallocation;

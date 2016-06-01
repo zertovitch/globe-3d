@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------
---  GL.Geometry - GL vertex buffer Object
+--  GL.Buffer.General
 --
 --  Copyright (c) Rod Kay 2007
 --  AUSTRALIA
@@ -9,11 +9,12 @@
 -------------------------------------------------------------------------
 
 with GL.Errors;
+--  with GL.Geometry;
 
-with Ada.Numerics.Generic_Elementary_Functions;
-with Ada.Text_IO; use Ada.Text_IO;
+--  with Ada.Numerics.Generic_Elementary_Functions;
+--  with Ada.Text_IO; use Ada.Text_IO;
 
-with System;
+--  with System;
 
 package body GL.Buffer.General is
 
@@ -56,7 +57,7 @@ package body GL.Buffer.General is
 
    function  get (Self   : access    Object) return Element_Array
    is
-      use GL.Geometry, GL.Buffer;
+      use GL.Buffer;  --  GL.Geometry
 
       the_Map      : read_only_Map'Class renames Map (Self);
       the_Vertices : constant Element_Array            := get (the_Map, Index'First, Self.Length);
@@ -79,7 +80,7 @@ package body GL.Buffer.General is
 
    function  get (Self : in memory_Map;   Position : in Index) return Element
    is
-      use Element_Pointers, Interfaces.C;
+      use Interfaces.C;  --  Element_Pointers
       Start : constant Element_Pointers.Pointer := Self.Data + ptrdiff_t (Position - 1);
    begin
       return Value (Start, 1) (1);
@@ -88,7 +89,7 @@ package body GL.Buffer.General is
    function  get (Self : in memory_Map;   Position : in Index;
                                           Count    : in Positive              ) return Element_Array
    is
-      use Element_Pointers, Interfaces.C;
+      use Interfaces.C;  --  Element_Pointers
       Start : constant Element_Pointers.Pointer := Self.Data + ptrdiff_t (Position - 1);
    begin
       return Value (Start, ptrdiff_t (Count));
@@ -97,7 +98,7 @@ package body GL.Buffer.General is
    procedure set (Self : in     memory_Map;   Position : in     Index;
                                               To       : access Element)
    is
-      use GL.Geometry, Element_Pointers, Interfaces.C;
+      use Interfaces.C;  --  GL.Geometry, Element_Pointers
    begin
       Copy_Array (Element_Pointers.Pointer (To),  Self.Data + ptrdiff_t (Position - 1),  1);
    end;
@@ -114,7 +115,7 @@ package body GL.Buffer.General is
 
    function  Map (Self : access Object) return read_only_Map'Class
    is
-      use GL.Geometry;
+      --  use GL.Geometry;
       the_Map : read_only_Map;
    begin
       enable (Self.all);
@@ -147,7 +148,7 @@ package body GL.Buffer.General is
 
    function Map (Self : access Object) return write_only_Map'Class
    is
-      use GL.Geometry;
+      --  use GL.Geometry;
       the_Map : write_only_Map;
    begin
       enable (Self.all);
@@ -181,7 +182,7 @@ package body GL.Buffer.General is
 
    function Map (Self : access Object) return read_write_Map'Class
    is
-      use GL.Geometry;
+      --  use GL.Geometry;
       the_Map : read_write_Map;
    begin
       enable (Self.all);

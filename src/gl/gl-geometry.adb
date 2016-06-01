@@ -12,7 +12,7 @@ with GL.Math; use GL.Math;
 
 with Ada.Numerics.Generic_Elementary_Functions;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with Ada.Text_IO;           use Ada.Text_IO;
+--  with Ada.Text_IO;           use Ada.Text_IO;
 with Ada.Characters.Latin_1;
 
 package body GL.Geometry is
@@ -191,7 +191,6 @@ package body GL.Geometry is
 
    function Image  (Self : in     Vertex_array) return String
    is
-      use Ada.Strings.Unbounded;
       the_Image : Unbounded_String;
       NL        : constant String := (1 => Ada.Characters.Latin_1.LF);   -- NL: New Line
    begin
@@ -274,8 +273,8 @@ package body GL.Geometry is
                   end loop;
 
                   declare
-                     use GL.Math.REF;
-                     max_Distance_2 : constant Double := 0.0;      -- current maximum distance squared.
+                     --  use GL.Math.REF;
+                     --  max_Distance_2 : constant Double := 0.0;      -- current maximum distance squared.
                   begin
                      for p in the_Vertices'Range loop
 

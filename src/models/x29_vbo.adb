@@ -4,14 +4,13 @@
 --  Copyright: (c) Evans & Sutherland -- ok to distribute if copyright appears
 ------------------------------------------------------------------------------
 
-with GL, GL.Geometry.VBO, GL.Buffer.Vertex, GL.Buffer.Indices, GL.Skins,
-     GLOBE_3D.Math, GL.Materials;
+with GL, GL.Geometry.VBO, GL.Buffer.Vertex, GL.Buffer.Indices, GL.Skins, GL.Materials;
 
-with Ada.Text_IO; use Ada.Text_IO;
+--  with Ada.Text_IO; use Ada.Text_IO;
 
 package body X29_vbo is
 
-   use GL, GL.Geometry, GL.Buffer.Indices,  GLOBE_3D, GLOBE_3D.Math, GL.Materials;
+   use GL, GL.Geometry, GL.Buffer.Indices, GL.Materials;
 
    type Piece is (silver_Metal,    -- when 178..237 => material:= Polished_Silver;   -- 1 metal clair
                   black_Cockpit,   -- when 260..315 => material:= Black_Rubber;      -- 2 (noir) fond cockpit
@@ -23,7 +22,7 @@ package body X29_vbo is
                   nose_Cone,       -- when 392      => material:= Gold;   -- jaune (bout du nez)
                   Remains);        -- when others   => material:= Polished_Bronze;   -- 0 metal fonce
 
-      nb_points: constant:= 590;
+      --  nb_points: constant:= 590;
       nb_faces:  constant:= 955;
 
       --object_points: constant array( 1..nb_points ) of gl.geometry.Vertex :=
@@ -1190,13 +1189,14 @@ package body X29_vbo is
                      scale  :        GLOBE_3D.Real;
                      centre :        GLOBE_3D.Point_3D)
    is
+   pragma Unreferenced (scale);
    begin
       if not is_Initialised then
          initialise;
          is_Initialised := True;
       end if;
 
-      object := new Sprite.Sprite (max_geometries => Piece'Pos (Piece'Last) + 1);
+      object := new GLOBE_3D.Sprite.Sprite (max_geometries => Piece'Pos (Piece'Last) + 1);
 
 --        for i in reverse 1..nb_points loop
 --           object.point(i):= scale * object_points(i);
@@ -1233,7 +1233,7 @@ package body X29_vbo is
 
       object.Bounds := total_Bounds;
       object.centre := centre; -- e3d: 7.5*scale
-      Set_name (object.all, "X29 prototype");
+      GLOBE_3D.Set_name (object.all, "X29 prototype");
    end Create;
 
 end X29_vbo;

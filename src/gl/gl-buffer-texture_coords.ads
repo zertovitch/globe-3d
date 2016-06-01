@@ -1,4 +1,4 @@
-with GL.Buffer.General;
+with GL.Buffer.General, GL.Geometry, GL.Textures;
 
 package GL.Buffer.Texture_coords is
 

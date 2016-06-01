@@ -8,12 +8,12 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GL.Errors;
+--  with GL.Errors;
 
-with Ada.Numerics.Generic_Elementary_Functions;
-with Ada.Text_IO; use Ada.Text_IO;
+--  with Ada.Numerics.Generic_Elementary_Functions;
+--  with Ada.Text_IO; use Ada.Text_IO;
 
-with System;
+--  with System;
 
 package body GL.Buffer is
 
@@ -28,12 +28,12 @@ package body GL.Buffer is
       return the_Name;
    end;
 
-   procedure free (the_vbo_Name : in vbo_Name)
-   is
+   procedure free (the_vbo_Name : in vbo_Name) is
       the_Name : aliased vbo_Name := the_vbo_Name;
    begin
       GL.DeleteBuffers (1, the_Name'Unchecked_Access);
    end;
+   pragma Unreferenced (free);
 
    -- object
    --
@@ -66,6 +66,7 @@ package body GL.Buffer is
 
    function vbo_Target (Self : in array_Object) return GL.VBO_Target
    is
+   pragma Unreferenced (Self);
    begin
       return GL.ARRAY_BUFFER;
    end;
@@ -75,6 +76,7 @@ package body GL.Buffer is
 
    function vbo_Target (Self : in element_array_Object) return GL.VBO_Target
    is
+   pragma Unreferenced (Self);
    begin
       return GL.ELEMENT_ARRAY_BUFFER;
    end;

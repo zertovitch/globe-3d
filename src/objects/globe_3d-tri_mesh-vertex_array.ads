@@ -12,8 +12,8 @@
 with GLOBE_3D.tri_Mesh;
 with GL.Geometry.Primitives;
 with GL.Geometry.primal;
-with GL.Textures;
-with GLU; -- only for debug
+--  with GL.Textures;
+--  with GLU; -- only for debug
 
 package GLOBE_3D.tri_Mesh.vertex_array is
 

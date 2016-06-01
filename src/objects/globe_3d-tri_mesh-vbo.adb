@@ -1,24 +1,24 @@
-with GLOBE_3D.Options,
-     GLOBE_3D.Textures,
-     GLOBE_3D.Math;
+--  with GLOBE_3D.Options,
+--       GLOBE_3D.Textures,
+--       GLOBE_3D.Math;
 
 with GL.Buffer.Vertex;
 with GL.Buffer.Indices;
-with GL.Buffer.Texture_coords;
+--  with GL.Buffer.Texture_coords;
 
-with Ada.Exceptions; use Ada.Exceptions;
-with Ada.Text_IO;    use Ada.Text_IO;
+--  with Ada.Exceptions; use Ada.Exceptions;
+--  with Ada.Text_IO;    use Ada.Text_IO;
 
 with Ada.Unchecked_Conversion;
 
-with System;
+--  with System;
 
 package body GLOBE_3D.tri_Mesh.VBO is
 
-  use GLOBE_3D.Options;
+  --  use GLOBE_3D.Options;
 
-  package G3DT renames GLOBE_3D.Textures;
-  package G3DM renames GLOBE_3D.Math;
+  --  package G3DT renames GLOBE_3D.Textures;
+  --  package G3DM renames GLOBE_3D.Math;
 
    procedure destroy (o: in out tri_Mesh)
    is
@@ -41,14 +41,14 @@ package body GLOBE_3D.tri_Mesh.VBO is
 
    function  is_Transparent (o    : in tri_Mesh) return Boolean
    is
-      use type GL.Double;
+      --  use type GL.Double;
    begin
       return o.skinned_Geometry.Skin.is_Transparent;
    end;
 
    procedure Pre_calculate (o: in out tri_Mesh)
    is
-      use GL, G3DM;
+      --  use GL, G3DM;
    begin
       null;  -- tbd:
    end Pre_calculate;

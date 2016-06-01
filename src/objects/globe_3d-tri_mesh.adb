@@ -1,20 +1,20 @@
-with GLOBE_3D.Options,
-     GLOBE_3D.Textures,
-     GLOBE_3D.Math;
+--  with GLOBE_3D.Options,
+--       GLOBE_3D.Textures,
+--       GLOBE_3D.Math;
 
-with Ada.Exceptions; use Ada.Exceptions;
+--  with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Text_IO;    use Ada.Text_IO;
 
 with Ada.Unchecked_Conversion;
 
-with System;
+--  with System;
 
 package body GLOBE_3D.tri_Mesh is
 
-  use GLOBE_3D.Options;
+  --  use GLOBE_3D.Options;
 
-  package G3DT renames GLOBE_3D.Textures;
-  package G3DM renames GLOBE_3D.Math;
+  --  package G3DT renames GLOBE_3D.Textures;
+  --  package G3DM renames GLOBE_3D.Math;
 
    procedure dummy is begin null; end;
 
@@ -171,10 +171,10 @@ package body GLOBE_3D.tri_Mesh is
 
       function tri_Score_of (triangle_Id : in positive_uInt) return GL.Double
       is
-         use GL;
-         the_Triangle : vco_Triangle renames vco_Triangles (triangle_Id);
+         --  use GL;
+         --  the_Triangle : vco_Triangle renames vco_Triangles (triangle_Id);
 
-Base         : constant positive_uInt              := positive_uInt (triangle_Id - 1) * 3;
+         Base         : constant positive_uInt := positive_uInt (triangle_Id - 1) * 3;
          v1_Id        : GL.Geometry.vertex_Id renames Indices (Base + 1);
          v2_Id        : GL.Geometry.vertex_Id renames Indices (Base + 2);
          v3_Id        : GL.Geometry.vertex_Id renames Indices (Base + 3);
@@ -357,5 +357,6 @@ Base         : constant positive_uInt              := positive_uInt (triangle_Id
 
       free (vco_Vertices);        -- clean up
    end vertex_cache_optimise;
+   pragma Unreferenced (vertex_cache_optimise);
 
 end GLOBE_3D.tri_Mesh;

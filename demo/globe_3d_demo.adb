@@ -1040,9 +1040,12 @@ procedure GLOBE_3D_Demo is
     GLUT_options: GLUT.Unsigned:= GLUT.DOUBLE or GLUT.RGB or GLUT.DEPTH;
   begin
     Init;
-    if smoothing = hardware then
-      GLUT_options:= GLUT_options or GLUT.MULTISAMPLE;
-    end if;
+    case smoothing is
+      when hardware =>
+        GLUT_options:= GLUT_options or GLUT.MULTISAMPLE;
+      when others =>
+        null;
+    end case;
     InitDisplayMode( GLUT_options );
     main_size_x:= 1280; -- 854;  --  YouTube recommended sizes, for 16/9
     main_size_y:= 720;  -- 480;  --  YouTube recommended sizes, for 16/9
@@ -1080,10 +1083,13 @@ procedure GLOBE_3D_Demo is
       Fogf(FOG_DENSITY, 0.02);
     end if;
     Reset_for_3D( Integer(main_size_x), Integer(main_size_y ));
-    if smoothing = hardware then
-      Enable( MULTISAMPLE_ARB );
-      Enable( SAMPLE_COVERAGE_ARB ); -- Hope it helps switching on the AA...
-    end if;
+    case smoothing is
+      when hardware =>
+        Enable( MULTISAMPLE_ARB );
+        Enable( SAMPLE_COVERAGE_ARB ); -- Hope it helps switching on the AA...
+      when others =>
+        null;
+    end case;
   end Start_GLs;
 
   -- Get eventual command line arguments.
