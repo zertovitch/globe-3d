@@ -743,12 +743,12 @@ package body GLOBE_3D is
              not o.face_invariant(f).portal_seen
              --  NB: drawing [different parts of] the same object several times
              --  is right, since portions can be seen through different portals,
-             --  but going more than once through the same portal is wrong.
+             --  but walking more than once through the same *portal* with
+			 --  this algorithm is wrong, causing infinite recursion.
           then
             o.face_invariant(f).portal_seen := True;
+            --  Recursively calls Display_clipped for objects visible through face f.
             Try_portal(f);
-            -- ^ recursively calls Display_clipped for
-            --   objects visible through face f.
           end if;
         end loop;
       end if;

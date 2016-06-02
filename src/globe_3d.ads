@@ -553,17 +553,17 @@ private
                      -- 0 in P (triangle). Compact range : 1..3 for triangle
      normal      : Vector_3D;
      blending    : Boolean; -- is any alpha < 1 ?
+     --  connect_name is used for loading connected objects.
+     --  When the object group has been loaded, that name is set;
+     --  the face(f).connecting accesses can be resolved using
+     --  the face_invariant(f).connect_name .
      connect_name: Ident:= empty;
-     -- ^ Used for loading connected objects.
-     --   When the object group has been loaded, that name is set;
-     --   the face(f).connecting accesses can be resolved using
-     --   the face_invariant(f).connect_name .
+     --  texture_name. face(f).texture must be resolved using
+     --  face_invariant(f).texture_name.
      texture_name: Ident:= empty;
-     -- ^ face(f).texture must be resolved using
-     --   face_invariant(f).texture_name .
+     --  portal_seen is always False, except during Display to avoid possible infinite
+     --  recursion; it is reset to False at the end of Display.
      portal_seen : Boolean:= False;
-     -- ^ always False, except during Display to avoid possible infinite
-     --   recursion; reset to False at the end of Display.
   end record;
 
   -- A few global variables - shocking! Don't look, it's private here :-)
