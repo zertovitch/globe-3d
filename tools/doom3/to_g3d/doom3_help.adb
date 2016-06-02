@@ -582,7 +582,7 @@ package body Doom3_Help is
           new_obj.ID                   := m.obj.ID;
           new_obj.point(1..p)          := m.obj.point;
           new_obj.face(1..f)           := m.obj.face;
-          new_obj.face_invariant(1..f) := m.obj.face_invariant;
+          new_obj.face_internal(1..f)  := m.obj.face_internal;
           -- Dispose(m.obj);
           m.obj:= new_obj;
         end if;

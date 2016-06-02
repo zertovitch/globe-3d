@@ -328,11 +328,12 @@ package GLOBE_3D is
 
   subtype Edge_count is Positive range 3..4;
 
-  -- Invariants: things that don't change during the object's life
+  -- Internal: faces properties that usually don't change during
+  -- the object's life. Nothing for GLOBE_3D users.
 
-  type Face_invariant_type is private; -- GLOBE_3D-internal, nothing for users
+  type Face_internal_type is private;
 
-  type Face_invariant_array is array(Natural range <>) of Face_invariant_type;
+  type Face_internal_array is array(Natural range <>) of Face_internal_type;
 
   type Object_3D_list;
   type p_Object_3D_list is access Object_3D_list;
@@ -381,7 +382,7 @@ package GLOBE_3D is
     List_Status    : List_Cases := Generate_List;
     -- private:
     List_Id        : List_Ids;
-    face_invariant : Face_invariant_array(1..Max_faces);
+    face_internal : Face_internal_array(1..Max_faces);
     bounds         : GL.Geometry.Bounds_record;
     transparent    : Boolean:= False;
   end record; -- Object_3D
@@ -543,7 +544,7 @@ private
 
   type p_String is access String;
 
-  type Face_invariant_type is record
+  type Face_internal_type is record
      P_compact   : Idx_4_array;
                      -- indices of the edges (anticlockwise),
                      -- in compact range : 1..3 for triangle
@@ -556,10 +557,10 @@ private
      --  connect_name is used for loading connected objects.
      --  When the object group has been loaded, that name is set;
      --  the face(f).connecting accesses can be resolved using
-     --  the face_invariant(f).connect_name .
+     --  the face_internal(f).connect_name .
      connect_name: Ident:= empty;
      --  texture_name. face(f).texture must be resolved using
-     --  face_invariant(f).texture_name.
+     --  face_internal(f).texture_name.
      texture_name: Ident:= empty;
      --  portal_seen is always False, except during Display to avoid possible infinite
      --  recursion; it is reset to False at the end of Display.

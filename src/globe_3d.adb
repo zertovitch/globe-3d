@@ -222,9 +222,9 @@ package body GLOBE_3D is
     N: Vector_3D;
     length_N : Real;
 
-    procedure Calculate_face_invariants(
+    procedure Calculate_face_internals(
       fa:  in Face_type;
-      fi: out Face_invariant_type
+      fi: out Face_internal_type
     ) is
       l: Natural:= 0;
       quadri_edge:  array(fa.P'Range) of Natural;
@@ -288,7 +288,7 @@ package body GLOBE_3D is
       else
         fi.normal:= (1.0 / length_N) * N;
       end if;
-    end Calculate_face_invariants;
+    end Calculate_face_internals;
 
     adjacent_faces: array(o.point'Range) of Natural:= (others => 0);
     pf: Natural;
@@ -300,17 +300,17 @@ package body GLOBE_3D is
     for i in o.face'Range loop
       begin
         -- Geometry
-        Calculate_face_invariants( o.face(i), o.face_invariant(i) );
+        Calculate_face_internals( o.face(i), o.face_internal(i) );
         -- Disable blending when alphas are = 1
         case o.face(i).skin is
           when material_only | material_texture =>
-            o.face_invariant(i).blending:= Is_to_blend(o.face(i).material);
+            o.face_internal(i).blending:= Is_to_blend(o.face(i).material);
           when colour_only | coloured_texture | texture_only=>
-            o.face_invariant(i).blending:= Is_to_blend(o.face(i).alpha);
+            o.face_internal(i).blending:= Is_to_blend(o.face(i).alpha);
           when invisible =>
-            o.face_invariant(i).blending:= False;
+            o.face_internal(i).blending:= False;
         end case;
-        o.transparent:= o.transparent or o.face_invariant(i).blending;
+        o.transparent:= o.transparent or o.face_internal(i).blending;
       exception
         when zero_summed_normal =>
               Raise_Exception( zero_summed_normal'Identity,
@@ -350,7 +350,7 @@ package body GLOBE_3D is
         pf:= o.face(f).P(p);
         if pf /= 0 then
           adjacent_faces(pf):= adjacent_faces(pf) + 1;
-          o.edge_vector(pf):= o.edge_vector(pf) + o.face_invariant(f).normal;
+          o.edge_vector(pf):= o.edge_vector(pf) + o.face_internal(f).normal;
         end if;
       end loop;
       if is_textured(o.face(f).skin) and then
@@ -423,17 +423,17 @@ package body GLOBE_3D is
     -- Uwe R. Zimmer, July 2011
     --
     package Display_face_optimized is
-      procedure Display_face (First_Face : Boolean; fa: Face_type; fi: in out Face_invariant_type);
+      procedure Display_face (First_Face : Boolean; fa: Face_type; fi: in out Face_internal_type);
     private
       Previous_face           : Face_type;
-      Previous_face_Invariant : Face_invariant_type;
+      Previous_face_internal : Face_internal_type;
     end Display_face_optimized;
 
     package body Display_face_optimized is
 
       use GL.Materials;
 
-      procedure Display_face (First_Face : Boolean; fa: Face_type; fi: in out Face_invariant_type) is
+      procedure Display_face (First_Face : Boolean; fa: Face_type; fi: in out Face_internal_type) is
 
         use GL;
         blending_hint: Boolean;
@@ -442,7 +442,7 @@ package body GLOBE_3D is
 
         if fa.skin = invisible then
           Previous_face           := fa;
-          Previous_face_Invariant := fi;
+          Previous_face_internal := fi;
           return;
         end if;
 
@@ -533,7 +533,7 @@ package body GLOBE_3D is
 
         if First_Face
           or else Previous_face.skin = invisible
-          or else fi.blending /= Previous_face_Invariant.blending
+          or else fi.blending /= Previous_face_internal.blending
         then
           if fi.blending then
             Enable( BLEND ); -- See 4.1.7 Blending
@@ -569,7 +569,7 @@ package body GLOBE_3D is
         GL_End;
 
         Previous_face           := fa;
-        Previous_face_Invariant := fi;
+        Previous_face_internal := fi;
       end Display_face;
 
     end Display_face_optimized;
@@ -587,11 +587,11 @@ package body GLOBE_3D is
       -- show normals of faces:
       for f in o.face'Range loop
         C:= (0.0,0.0,0.0);
-        for i in 1..o.face_invariant(f).last_edge loop
-          C:= C+o.point(o.face_invariant(f).P_compact(i));
+        for i in 1..o.face_internal(f).last_edge loop
+          C:= C+o.point(o.face_internal(f).P_compact(i));
         end loop;
-        C:= (1.0/Real(o.face_invariant(f).last_edge)) * C;
-        Arrow(C, arrow_inflator * o.face_invariant(f).normal);
+        C:= (1.0/Real(o.face_internal(f).last_edge)) * C;
+        Arrow(C, arrow_inflator * o.face_internal(f).normal);
       end loop;
     end Display_normals;
 
@@ -627,13 +627,13 @@ package body GLOBE_3D is
     case o.List_Status is
       when No_List =>
         for f in o.face'Range loop
-          Display_face_optimized.Display_face(True, o.face(f), o.face_invariant(f));
+          Display_face_optimized.Display_face(True, o.face(f), o.face_internal(f));
           --  We mimic the old, direct, Display_face with redundant color, material, etc.
           --  instructions by passing True for First_Face.
         end loop;
       when No_List_Optimized | Generate_List =>
         for f in o.face'Range loop
-          Display_face_optimized.Display_face(f = o.face'First, o.face(f), o.face_invariant(f));
+          Display_face_optimized.Display_face(f = o.face'First, o.face(f), o.face_internal(f));
         end loop;
       when Is_List =>
         GL.CallList (GL.Uint (o.List_Id));
@@ -689,15 +689,15 @@ package body GLOBE_3D is
         bounding_of_face, intersection_clip_and_face: Clipping_area;
         success, non_empty_intersection: Boolean;
       begin
-        dot_product:= o.face_invariant(f).normal * clip.view_direction;
+        dot_product:= o.face_internal(f).normal * clip.view_direction;
         --  Culling #1: check if portal is in field of view's "dead angle"
         if dot_product < clip.max_dot_product then
           plane_to_eye:=
             clip.eye_position -
             --  We just choose any point of the face.
-            (o.point(o.face_invariant(f).P_compact(1)) + o.centre)
+            (o.point(o.face_internal(f).P_compact(1)) + o.centre)
           ;
-          dot_product:= plane_to_eye * o.face_invariant(f).normal;
+          dot_product:= plane_to_eye * o.face_internal(f).normal;
           --  Culling #2: check if we are on the right side of the portal
           --  dot_product = signed distance to the plane
           --  NB: this ignores o.auto_rotation !
@@ -740,13 +740,13 @@ package body GLOBE_3D is
              --  object A or B is not convex, and A and B see each other
              --  and the culling by clipping cannot stop the recursion:
              --  (e.g. origin2.proc, tomb.proc)
-             not o.face_invariant(f).portal_seen
+             not o.face_internal(f).portal_seen
              --  NB: drawing [different parts of] the same object several times
              --  is right, since portions can be seen through different portals,
              --  but walking more than once through the same *portal* with
 			 --  this algorithm is wrong, causing infinite recursion.
           then
-            o.face_invariant(f).portal_seen := True;
+            o.face_internal(f).portal_seen := True;
             --  Recursively calls Display_clipped for objects visible through face f.
             Try_portal(f);
           end if;
@@ -782,8 +782,8 @@ package body GLOBE_3D is
     procedure Reset_portal_seen(o: in out Object_3D'Class) is
     begin
       for f in o.face'Range loop
-        if o.face_invariant(f).portal_seen then
-          o.face_invariant(f).portal_seen := False;
+        if o.face_internal(f).portal_seen then
+          o.face_internal(f).portal_seen := False;
           Reset_portal_seen(o.face(f).connecting.all);
         end if;
       end loop;
@@ -964,11 +964,11 @@ package body GLOBE_3D is
     for f in o.face'Range loop
       -- 1/ Find texture IDs:
       if is_textured(o.face(f).skin) and then
-         o.face_invariant(f).texture_name /= empty
+         o.face_internal(f).texture_name /= empty
       then
         begin
           o.face(f).texture:=
-            Textures.Texture_ID( o.face_invariant(f).texture_name );
+            Textures.Texture_ID( o.face_internal(f).texture_name );
         exception
           when Textures.Texture_name_not_found =>
             if tolerant_tex then
@@ -980,11 +980,11 @@ package body GLOBE_3D is
         end;
       end if;
       -- 2/ Connections through portals:
-      if o.face_invariant(f).connect_name /= empty then
+      if o.face_internal(f).connect_name /= empty then
         found:= False;
         -- XX old linear search:
         --  for i in neighbouring'Range loop
-        --    if neighbouring(i).ID = o.face_invariant(f).connect_name then
+        --    if neighbouring(i).ID = o.face_internal(f).connect_name then
         --      o.face(f).connecting:= neighbouring(i);
         --      found:= True;
         --      exit;
@@ -993,7 +993,7 @@ package body GLOBE_3D is
         begin
           o.face(f).connecting:= p_Object_3D(Visuals_Mapping.Element(
             Visuals_Mapping.Map(neighbouring),
-            Ada.Strings.Unbounded.To_Unbounded_String(o.face_invariant(f).connect_name))
+            Ada.Strings.Unbounded.To_Unbounded_String(o.face_internal(f).connect_name))
           );
 
           found:= True;
@@ -1011,7 +1011,7 @@ package body GLOBE_3D is
               Portal_connection_failed'Identity,
               "For object name [" & Trim(o.ID,Right) &
               "], looking for [" &
-              Trim(o.face_invariant(f).connect_name,Right)
+              Trim(o.face_internal(f).connect_name,Right)
               & ']'
             );
           end if;
@@ -1028,8 +1028,8 @@ package body GLOBE_3D is
   is
   begin
     if name'Length > Ident'Length then raise Constraint_Error; end if;
-    o.face_invariant(face).texture_name:= empty;
-    o.face_invariant(face).texture_name(1..name'Length):= name;
+    o.face_internal(face).texture_name:= empty;
+    o.face_internal(face).texture_name(1..name'Length):= name;
   end Texture_name_hint;
 
   procedure Portal_name_hint(
@@ -1040,8 +1040,8 @@ package body GLOBE_3D is
   is
   begin
     if name'Length > Ident'Length then raise Constraint_Error; end if;
-    o.face_invariant(face).connect_name:= empty;
-    o.face_invariant(face).connect_name(1..name'Length):= name;
+    o.face_internal(face).connect_name:= empty;
+    o.face_internal(face).connect_name(1..name'Length):= name;
   end Portal_name_hint;
 
    ----------------------------------------

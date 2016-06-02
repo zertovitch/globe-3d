@@ -60,10 +60,10 @@ package body GLOBE_3D.Collision_detection is
       facteur: constant:= 1.05;
     begin
       -- Cycle through face's vertices
-      for sf in reverse 1..o.face_invariant(f).last_edge loop
-        sfp1:= 1 + sf mod o.face_invariant(f).last_edge;
-        Ps  := o.point( o.face_invariant(f).P_compact(sf)   );
-        Psp1:= o.point( o.face_invariant(f).P_compact(sfp1) );
+      for sf in reverse 1..o.face_internal(f).last_edge loop
+        sfp1:= 1 + sf mod o.face_internal(f).last_edge;
+        Ps  := o.point( o.face_internal(f).P_compact(sf)   );
+        Psp1:= o.point( o.face_internal(f).P_compact(sfp1) );
         edge_vector:= Psp1 - Ps;
         npa:= n * edge_vector;
         nnpa:= Norm(npa);
@@ -90,7 +90,7 @@ package body GLOBE_3D.Collision_detection is
     P_after_step:= ball.centre + step;
 
     for face in reverse 1..o.Max_faces loop
-      n:= o.face_invariant(face).normal;
+      n:= o.face_internal(face).normal;
       if check_normals then
         nn:= Norm(n);
         if Almost_zero(nn) then
@@ -102,7 +102,7 @@ package body GLOBE_3D.Collision_detection is
       --  put_line("step=" & step(0)'img & ' ' & step(1)'img & ' ' & step(2)'img);
       --  put_line("   n=" & n(0)'img & ' ' & n(1)'img & ' ' & n(2)'img);
       if step * n < 0.0 then
-        P_face:= o.point(o.face_invariant(face).P_compact(1)) + o.centre;
+        P_face:= o.point(o.face_internal(face).P_compact(1)) + o.centre;
         -- ^ any point on the face, to measure distance to face's plane.
         u:= ball.centre - P_face;
         dist_before:= u * n;

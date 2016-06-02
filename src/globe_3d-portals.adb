@@ -65,9 +65,9 @@ package body GLOBE_3D.Portals is
   begin
     b:= ( X1|Y1=> Integer'Last, X2|Y2=> Integer'First );
 
-    for sf in reverse 1 .. o.face_invariant(face).last_edge loop
+    for sf in reverse 1 .. o.face_internal(face).last_edge loop
       Projection(
-        o.point(o.face_invariant(face).P_compact(sf))+o.centre,
+        o.point(o.face_internal(face).P_compact(sf))+o.centre,
         x, y,
         proj_success
       );

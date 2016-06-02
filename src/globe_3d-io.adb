@@ -192,7 +192,7 @@ package body GLOBE_3D.IO is
     v8: U8;
     v32, mp32, mf32: U32;
 
-    procedure Read_face(face: out Face_type; face_invar: in out Face_invariant_type) is
+    procedure Read_face(face: out Face_type; face_invar: in out Face_internal_type) is
     begin
       -- 1/ Points
       for i in face.P'Range loop
@@ -261,7 +261,7 @@ package body GLOBE_3D.IO is
       Read_Point_3D(o.point(p));
     end loop;
     for f in o.face'Range loop
-      Read_face(o.face(f),o.face_invariant(f));
+      Read_face(o.face(f),o.face_internal(f));
     end loop;
     Read_Point_3D(o.centre);
     for i in Matrix_33'Range(1) loop
@@ -312,7 +312,7 @@ package body GLOBE_3D.IO is
       end loop;
     end Write_Map_idx_pair_array;
 
-    procedure Write_face(face: Face_type; face_invar: Face_invariant_type) is
+    procedure Write_face(face: Face_type; face_invar: Face_internal_type) is
     begin
       -- 1/ Points
       for i in face.P'Range loop
@@ -377,7 +377,7 @@ package body GLOBE_3D.IO is
       Write_Point_3D(o.point(p));
     end loop;
     for f in o.face'Range loop
-      Write_face(o.face(f), o.face_invariant(f));
+      Write_face(o.face(f), o.face_internal(f));
     end loop;
     Write_Point_3D(o.centre);
     for i in Matrix_33'Range(1) loop
