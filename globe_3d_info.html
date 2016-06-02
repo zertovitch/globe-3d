@@ -33,9 +33,9 @@ The Copyright statement appears in GLOBE_3D.ads.
  <li>full eye movements and rotations
  <li>displays combinations of colours, materials, textures
  <li>transparency
- <li>multiple area rendering with the portal technique, e.g. for large inner scenes
+ <li>multiple area rendering with the <b>portal</b> technique, e.g. for large inner scenes
  <li>collision detection
- <li>binary space partition (BSP)
+ <li>binary space partition (<b>BSP</b>)
  <li>easy management of resources like textures, stored in .zip files
  <li>input-output of 3D objects or linked groups of objects
  <li>screenshots and video captures 
@@ -89,7 +89,8 @@ The Copyright statement appears in GLOBE_3D.ads.
       GLOBE_3D organizes and facilitates the display of 3D meshes.
       Basically, it defines an object type, Object_3D, containing vertex coordinates, a list of
 	  faces referring to these vertices, and all informations about textures, colours,
-	  materials. That way, you prepare your objects, and once they are defined,
+	  materials. <br>
+    That way, you prepare your objects, and once they are defined,
 	  all you need is to call GLOBE_3D.Display( my_object ). The management and loading of
 	  textures is done by GLOBE_3D altogether. All you need there is to name one or two zip files
 	  containing the textures (in TGA or BMP formats) and to give the texture names
@@ -100,7 +101,35 @@ The Copyright statement appears in GLOBE_3D.ads.
   technique is used: buffer 1 is being drawn while the other, buffer 2, is shown, and when the
   drawing on buffer 1 is done, the buffers are swapped and buffer 2 will be drawn; and so on.
   It doesn't matter if the scenes are drawn too often, it is visually disturbing only when
-  they appear in a to slow rythm (less than 24 images per second).
+  they appear in a to slow rhythm (less than 24 images per second).
+  <li><b>Portal rendering</b>. Displaying, say, an entire city as a single object would be
+  too slow. Especially, the spectator only sees small portions of it, so most of the city's
+  polygons would be hidden by others. A solution to that is the portal rendering technique.
+  The city is then subdivided into many smaller objects. A house in the city will be typically
+  subdivided into rooms. Say the spectator is in room A and is looking in room's B direction<br>
+  <br>
+  <center>
+  <table border=1 cellspacing=5 cellpadding=10>
+    <tr><td rowspan=3>A &rarr;</td><td bgcolor=lightblue>3</td><td rowspan=3>B</td><td rowspan=5>C</td></tr>
+    <tr><td bgcolor=lightgreen>7</td></tr>
+    <tr><td bgcolor=cyan>17</td></tr>
+    <tr><td colspan=2>D       </td><td>E</td></tr>
+  </table>
+  </center>
+  <br>
+  During the construction of the scene, if there are 3 windows between room A and room B,
+  they will be, in room A, be faces, say, 3, 7, and 17. Then it is just a matter of setting
+  <tt>A.face(3).connecting:= B;</tt>,
+  <tt>A.face(7).connecting:= B;</tt>, and
+  <tt>A.face(17).connecting:= B;</tt> in order to have room B displayed correctly.
+  Perhaps the three portions of room B will have different colours if the windows are
+  coloured differently. Note that the Ada variable <tt>B</tt> is an access to the real
+  object, of type <tt>p_Object_3D</tt>. Of course, room C can be seen as well, so
+  through the magic of recursion, it will be displayed first.
+  For the details on how invisible parts are clipped away and stop the recursion in a 
+  natural, geometric way, see procedure <tt>Try_portal</tt> in <tt>GLOBE_3D</tt> main package body.
+  For displaying the portals, set <tt>show_portals</tt> to <tt>True;</tt> in 
+  <tt>GLOBE_3D.Options</tt>.
  </ol>
  </p>
 <li>

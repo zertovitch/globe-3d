@@ -684,24 +684,24 @@ package body GLOBE_3D is
     is
       procedure Try_portal(f: Positive) is
         use G3DM, GL;
-        dp: Real;
+        dot_product: Real;
         plane_to_eye: Vector_3D; -- vector from any point in plane to the eye
         bounding_of_face, intersection_clip_and_face: Clipping_area;
         success, non_empty_intersection: Boolean;
       begin
-        -- Culling #1: check if portal is in vield of view's "dead angle"
-        dp:= o.face_invariant(f).normal * clip.view_direction;
-        if dp < clip.max_dot_product then
-          -- Culling #2: check if we are on the right side of the portal
-          -- NB: ignores o.auto_rotation !
+        dot_product:= o.face_invariant(f).normal * clip.view_direction;
+        --  Culling #1: check if portal is in field of view's "dead angle"
+        if dot_product < clip.max_dot_product then
           plane_to_eye:=
             clip.eye_position -
-            (o.point(o.face_invariant(f).P_compact(1))+o.centre)
+            --  We just choose any point of the face.
+            (o.point(o.face_invariant(f).P_compact(1)) + o.centre)
           ;
-          dp:= plane_to_eye * o.face_invariant(f).normal;
-          -- dp = signed distance to the plane
-          if dp > 0.0 then
-            -- Culling #3: clipping rectangle
+          dot_product:= plane_to_eye * o.face_invariant(f).normal;
+          --  Culling #2: check if we are on the right side of the portal
+          --  dot_product = signed distance to the plane
+          --  NB: this ignores o.auto_rotation !
+          if dot_product > 0.0 then
             Find_bounding_box( o, f, bounding_of_face, success );
             if success then
               Intersect( clip_area, bounding_of_face,
@@ -711,8 +711,9 @@ package body GLOBE_3D is
               intersection_clip_and_face:= clip_area;
               non_empty_intersection:= True;
             end if;
+            --  Culling #3: clipping rectangle
             if non_empty_intersection then
-              -- Recursion here:
+              --  Recursion happens here:
               Display_clipped(
                 o            => o.face(f).connecting.all,
                 clip_area    => intersection_clip_and_face,
@@ -735,15 +736,14 @@ package body GLOBE_3D is
       then
         for f in o.face'Range loop
           if o.face(f).connecting /= null and then
+             --  Prevent infinite recursion on rare cases where
+             --  object A or B is not convex, and A and B see each other
+             --  and the culling by clipping cannot stop the recursion:
+             --  (e.g. origin2.proc, tomb.proc)
              not o.face_invariant(f).portal_seen
-             -- ^ prevents infinite recursion on rare cases where
-             -- object A or B is not convex, and A and B see each other
-             -- and the culling by clipping cannot stop the recursion
-             -- (e.g. origin2.proc, tomb.proc)
-             --
-             -- NB: drawing [different parts of] the same object several times
-             -- is right, since portions can be seen through different portals,
-             -- but going more than once through the same portal is wrong
+             --  NB: drawing [different parts of] the same object several times
+             --  is right, since portions can be seen through different portals,
+             --  but going more than once through the same portal is wrong.
           then
             o.face_invariant(f).portal_seen := True;
             Try_portal(f);
