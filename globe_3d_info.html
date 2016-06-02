@@ -35,7 +35,7 @@ The Copyright statement appears in GLOBE_3D.ads.
  <li>transparency
  <li>multiple area rendering with the <a href=#portal><b>portal</b> technique</a>, for large, complex scenes
  <li>collision detection
- <li>binary space partition (<b>BSP</b>)
+ <li><a href=#bsp>binary space partition (<b>BSP</b>)</a>, for locating objects in complex scenes
  <li>easy management of resources like textures, stored in .zip files
  <li>input-output of 3D objects or linked groups of objects
  <li>screenshots and video captures 
@@ -61,10 +61,11 @@ The Copyright statement appears in GLOBE_3D.ads.
   a clever design that avoids the momentaneous hardware or operating system constraints,
   allowing to perfectly survive, along with the code developed in these languages,
   to changes of hardware and systems.
-  
+  <br>
+  <br>
   <li><b>Drawing with the plain GL / OpenGL</b>.<br> 
-  You can summarize the steps to perform a rendering as:
-  <ol>
+   You can summarize the steps to perform a rendering as:
+   <ol>
     <li>Prepare the link between the computer and GL. GLUT does it in a totally portable way,
 	    but you have gateways between many GUI systems (Windows, GTk, X Window,...) and GL.
 		(see Start_GLUTs in the <tt>Mini.adb</tt> demo)
@@ -84,7 +85,9 @@ The Copyright statement appears in GLOBE_3D.ads.
 		in the various modes of infography: diffuse, emissive, etc.
 		You can play with transparency.
 		It's where it begins to be complicated...
-  </ol>
+   </ol>
+   <br>
+   <br>
   <li><b>What GLOBE_3D does</b>.<br>
       GLOBE_3D organizes and facilitates the display of 3D meshes.
       Basically, it defines an object type, Object_3D, containing vertex coordinates, a list of
@@ -95,6 +98,7 @@ The Copyright statement appears in GLOBE_3D.ads.
 	  textures is done by GLOBE_3D altogether. All you need there is to name one or two zip files
 	  containing the textures (in TGA or BMP formats) and to give the texture names
 	  when defining the faces.
+  <br><br>
   <li><b>Animation</b>.<br>
   The animation is obtained by constantly redrawing the scene, with
   a moving point of view and/or moving objects. Since the drawing begins with a black sheet,
@@ -103,6 +107,7 @@ The Copyright statement appears in GLOBE_3D.ads.
   drawing on buffer 1 is done, the buffers are swapped and buffer 2 will be drawn; and so on.
   It doesn't matter if the scenes are drawn too often, it is visually disturbing only when
   they appear in a to slow rhythm (less than 24 images per second).
+  <br><br>
   <li>
   <a name=portal>
   <b>Portal rendering</b>.<br>
@@ -136,7 +141,43 @@ The Copyright statement appears in GLOBE_3D.ads.
   For the details on how invisible parts are clipped away and stop the recursion in a 
   natural, geometric way, see procedure <tt>Try_portal</tt> in <tt>GLOBE_3D</tt> main package body.
   For displaying the portals' frames to see how it works "in live",
-  set <tt>show_portals</tt> to <tt>True;</tt> in <tt>GLOBE_3D.Options</tt>.
+  set <tt>show_portals</tt> to <tt>True;</tt> in the package <tt>GLOBE_3D.Options</tt>.
+  <br><br>
+  <li>
+  <a name=bsp>
+  <b>Binary space partition (<b>BSP</b>)</b>.<br>
+  In order to locate an object among a multitude of a scene's objects,
+  there is a straightforward dichotomy method consisting in splitting
+  the space with planes until all objects can be found unambiguously.
+  This is practical for knowing in which object the spectator currently is,
+  given his coordinates. The package <tt>GLOBE_3D.BSP</tt> provides such a
+  <tt>Locate</tt> procedure. We reuse the above map for showing two possible
+  partitions, the second one being obviously better balanced.
+  <center>
+  <table>
+    <tr><td>
+      <table border=1 cellspacing=2 cellpadding=5>
+        <tr><td>front, front, front</td>
+            <td>front, back, front</td>
+            <td rowspan=2>back</td></tr>
+        <tr><td>front, front, back</td> 
+            <td>front, back, back</td></tr>
+      </table>
+      </td><td>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      </td><td>
+      <table border=1 cellspacing=2 cellpadding=5>
+        <tr><td>front, front</td>
+            <td>back, front, front</td>
+            <td rowspan=2>back, back</td></tr>
+        <tr><td>front, back</td> 
+            <td>back, front, back</td></tr>
+      </table>
+    </td></tr>
+  </table>
+  </center>
+  BSP trees can be conveniently written to files using <tt>GLOBE_3D.IO.Save_file</tt>
+  and read from a resource archive using <tt>GLOBE_3D.IO.Load</tt>.
  </ol>
  </p>
 <li>
@@ -374,7 +415,8 @@ or<br>
         with overloaded names for various GL routines with different C names
         for different parameter list. You find the result GL.ads in the <tt>./bindings</tt> subdirectory.
    <li> <b>check_tiling.htm</b>: a mini HTML file just to visually check if a texture is periodic enough.
-  </ul>
+  </ol>
+  <br>
   Note: the conversion tools from vrml and doom3 above are based on
   a grammar you may want to modify (the *.y and *.l files).
   To that aim, you need the AYACC and AYFLEX tools. They are available in the SVN repository on GLOBE_3D

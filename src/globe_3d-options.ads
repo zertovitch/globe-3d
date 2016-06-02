@@ -11,6 +11,10 @@ package GLOBE_3D.Options is
   full_check_objects  : constant Boolean:= False;
   strict_geometry     : constant Boolean:= False;
 
+  -- Misc.:
+  portal_tracking     : constant Boolean:= True;
+  BSP_tracking        : constant Boolean:= True;
+
   function Is_debug_mode return Boolean;
 
   arrow_inflator: constant:= 10.0;

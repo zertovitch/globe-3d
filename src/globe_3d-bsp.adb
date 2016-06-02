@@ -1,6 +1,6 @@
 with Ada.Unchecked_Deallocation;
 
-with GLOBE_3D.Math;
+with GLOBE_3D.Math, GLOBE_3D.Options;
 
 package body GLOBE_3D.BSP is
 
@@ -8,35 +8,45 @@ package body GLOBE_3D.BSP is
 
   procedure Locate( P: Point_3D; tree: p_BSP_node; area: out p_Object_3D ) is
 
-    procedure Locate_point( tree: p_BSP_node ) is
-      -- ^ internal, for skipping useless parameter passing
+    --  Internal, for skipping useless parameter passing
+    --
+    procedure Locate_point( node: p_BSP_node ) is
       use Math, GL;
     begin
-      info_b_str1:= info_b_str1 & " -> " & Integer'Image(tree.node_id);
-      info_b_ntl1:= info_b_ntl1 + 1;
-      if P * tree.normal + tree.distance > 0.0 then -- in front
-        if tree.front_child = null then
-          area:= tree.front_leaf;
+      --  Info / debug: keep track of the path through the BSP tree.
+      if Options.BSP_tracking then
+        info_b_str1:= info_b_str1 & " ->" & Integer'Image(node.node_id);
+        info_b_ntl1:= info_b_ntl1 + 1;
+      end if;
+      if P * node.normal + node.distance > 0.0 then
+        --  P is in front
+        if node.front_child = null then
+          area:= node.front_leaf;
         else
-          Locate_point( tree.front_child );
+          Locate_point( node.front_child );
         end if;
-      else -- in back
-        if tree.back_child = null then
-          area:= tree.back_leaf;
+      else
+        --  P is in back
+        if node.back_child = null then
+          area:= node.back_leaf;
         else
-          Locate_point( tree.back_child );
+          Locate_point( node.back_child );
         end if;
       end if;
     end Locate_point;
 
   begin
-    info_b_str1:= Null_Unbounded_String;
-    info_b_ntl1:= 0; -- depth counter
+    if Options.BSP_tracking then
+      info_b_str1:= Null_Unbounded_String;
+      info_b_ntl1:= 0; -- depth counter
+    end if;
     area:= null;
     if tree /= null then
       Locate_point(tree);
     end if;
-    info_b_bool1:= area /= null;
+    if Options.BSP_tracking then
+      info_b_bool1:= area /= null;
+    end if;
   end Locate;
 
   procedure Delete( tree: in out p_BSP_node ) is

@@ -521,9 +521,9 @@ package GLOBE_3D is
   procedure Dispose is
     new Ada.Unchecked_Deallocation( Face_array, p_Face_array );
 
-  ---------------------------------------------------------------
-  -- Trash: provisory variables for some development checkings --
-  ---------------------------------------------------------------
+  ----------------------------------------------------------------------
+  -- Trash: provisory global variables for some development checkings --
+  ----------------------------------------------------------------------
 
   -- info_?_... : ?= letter; change letter to clean-up debug infos
 

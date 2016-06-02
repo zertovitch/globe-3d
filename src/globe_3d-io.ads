@@ -1,6 +1,6 @@
-------------------------------------
--- Input and Output of 3D objects --
-------------------------------------
+--------------------------------------------------
+-- Input and Output of 3D objects and BSP trees --
+--------------------------------------------------
 
 -- NB: after reading/loading an object or a group of objects, don't
 --     forget to use Rebuild_links for linking them together and

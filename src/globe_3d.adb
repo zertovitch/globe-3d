@@ -744,7 +744,7 @@ package body GLOBE_3D is
              --  NB: drawing [different parts of] the same object several times
              --  is right, since portions can be seen through different portals,
              --  but walking more than once through the same *portal* with
-			 --  this algorithm is wrong, causing infinite recursion.
+             --  this algorithm is wrong, causing infinite recursion.
           then
             o.face_internal(f).portal_seen := True;
             --  Recursively calls Display_clipped for objects visible through face f.
@@ -770,8 +770,10 @@ package body GLOBE_3D is
         else
           GL.Disable(GL.SCISSOR_TEST);
         end if;
-        info_b_ntl2:= info_b_ntl2 + 1;
-        info_b_ntl3:= Natural'Max(portal_depth, info_b_ntl3);
+        if portal_tracking then
+          info_b_ntl2:= info_b_ntl2 + 1;
+          info_b_ntl3:= Natural'Max(portal_depth, info_b_ntl3);
+        end if;
         Display_one(o);
       end if;
       if show_portals and then portal_depth > 0 then
@@ -790,8 +792,10 @@ package body GLOBE_3D is
     end Reset_portal_seen;
 
   begin
-    info_b_ntl2:= 0; -- count amount of objects displayed, not distinct
-    info_b_ntl3:= 0; -- records max depth
+    if portal_tracking then
+      info_b_ntl2:= 0; -- count amount of objects displayed, not distinct
+      info_b_ntl3:= 0; -- records max depth
+    end if;
     Display_clipped( o, clip_area => clip.main_clipping, portal_depth => 0 );
     Reset_portal_seen(o);
   end Display;

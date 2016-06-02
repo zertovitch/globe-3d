@@ -697,10 +697,12 @@ procedure GLOBE_3D_Demo is
         end if;
       end loop;
       Msg(70, "Lights: [" & light_info & ']');
-      Msg(80,
-        "Objects seen:" & Natural'Image(info_b_ntl2) &
-        "; max portal depth:" & Natural'Image(info_b_ntl3));
-      if beast = level_idx then
+      if Options.portal_tracking then
+        Msg(80,
+          "Connected objects seen:" & Natural'Image(info_b_ntl2) &
+          "; max portal depth:" & Natural'Image(info_b_ntl3));
+      end if;
+      if Options.BSP_tracking and then beast = level_idx then
         Msg(90, "BSP depth: " & Natural'Image(info_b_ntl1) &
           ". Area found: " & Boolean'Image(info_b_bool1) &
           ". BSP path: " & To_String(info_b_str1));
@@ -1052,7 +1054,7 @@ procedure GLOBE_3D_Demo is
     InitWindowSize(Integer(main_size_x), Integer(main_size_y));
     InitWindowPosition(120, 120);
     if CreateWindow(
-      "GLOBE_3D / Demo_1 / Extra Debug = " &
+      "GLOBE_3D / Demo_1 / Any Debug = " &
       Boolean'Image(G3D.Options.Is_debug_mode)
     ) = 0
     then

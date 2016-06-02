@@ -18,7 +18,7 @@ package body GLOBE_3D.IO is
   ------------------------------------------------
 
   stop_type: constant Character:=
-    Character'Val(26); -- Ctrl-Z to stop typing a binary file
+    Character'Val(26); -- Ctrl-Z to stop displaying a binary file as a text
 
   signature_obj: constant String:=
     "GLOBE_3D 3D Binary Object File (" & object_extension & "). " &
@@ -505,7 +505,7 @@ package body GLOBE_3D.IO is
       if node /= null then
         Write_Intel(U32(node.node_id));
         if node.front_child = null then
-          Write_Intel(U32'(0));
+          Write_Intel(U32'(0)); --  Leaf nodes have index 0.
           if node.front_leaf = null then
             Write_String(s, empty);
           else
@@ -515,7 +515,7 @@ package body GLOBE_3D.IO is
           Write_Intel(U32(node.front_child.node_id));
         end if;
         if node.back_child = null then
-          Write_Intel(U32'(0));
+          Write_Intel(U32'(0)); --  Leaf nodes have index 0.
           if node.back_leaf = null then
             Write_String(s, empty);
           else
@@ -589,7 +589,7 @@ package body GLOBE_3D.IO is
         end if;
     end Find_object;
 
-    procedure Read(
+    procedure Read_BSP(
       s           : in  Ada.Streams.Stream_IO.Stream_Access;
       tree        : out BSP.p_BSP_node
     )
@@ -620,21 +620,23 @@ package body GLOBE_3D.IO is
         -- we can forget the farm and let the tree float...
         farm: array (0..n) of p_BSP_node;
       begin
-        farm(0):= null;
+        farm(0):= null;  --  Leaf nodes have index 0.
         for i in 1..n loop
           farm(i):= new BSP_node;
         end loop;
         for i in 1..n loop
           Read_Intel(buf, j); -- node_id
           farm(j).node_id:= Integer(j);
+          --  Front child:
           Read_Intel(buf, k);
-          farm(j).front_child:= farm(k);
+          farm(j).front_child:= farm(k);  --  Connect with an access.
           if k = 0 then -- it is a front leaf -> associate object
             Read_String(buf, ID);
             farm(j).front_leaf:= Find_object(ID, tol);
           end if;
+          --  Back child:
           Read_Intel(buf, k);
-          farm(j).back_child := farm(k);
+          farm(j).back_child := farm(k);  --  Connect with an access.
           if k = 0 then -- it is a back leaf -> associate object
             Read_String(buf, ID);
             farm(j).back_leaf := Find_object(ID, tol);
@@ -647,14 +649,14 @@ package body GLOBE_3D.IO is
         end loop;
         tree:= farm(1);
       end;
-    end Read;
+    end Read_BSP;
 
     procedure Load_Internal is
       new Load_generic(
         Anything  => BSP.p_BSP_node,
         extension => BSP_extension,
         animal    => "BSP tree",
-        Read      => Read
+        Read      => Read_BSP
       );
 
   begin
