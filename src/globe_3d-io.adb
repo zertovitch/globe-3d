@@ -564,29 +564,23 @@ package body GLOBE_3D.IO is
   is
 
     function Find_object(ID: Ident; tolerant: Boolean) return p_Object_3D is
+      use Visuals_Mapping;
+      c: Cursor;
     begin
       if ID = empty then
         return null;
-      else
-        return p_Object_3D(
-          Visuals_Mapping.Element(
-            Container => Visuals_Mapping.Map(referred),
-            Key       => Ada.Strings.Unbounded.To_Unbounded_String(ID)
-          )
-        );
       end if;
-    exception
-      when Constraint_Error =>
-        -- GNAT gives also the message:
-        -- no element available because key not in map
+      c:= referred.Find(To_Unbounded_String(ID));
+      if c = No_Element then
+        -- Key not found
         if tolerant then
           return null;
         else
-          Raise_Exception(
-            Missing_object_in_BSP'Identity,
-            "Object not found: [" & Trim(ID,Right) & ']'
-          );
+          raise Missing_object_in_BSP with "Object not found: [" & Trim(ID,Right) & ']';
         end if;
+      else
+        return p_Object_3D(Element(c));
+      end if;
     end Find_object;
 
     procedure Read_BSP(

@@ -9,6 +9,7 @@ with GL.Errors,
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Exceptions;                    use Ada.Exceptions;
 with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
 with Ada.Text_IO;                       use Ada.Text_IO;
 
 with System.Storage_Elements;
@@ -963,7 +964,8 @@ package body GLOBE_3D is
     tolerant_tex: in     Boolean          -- tolerant on missing textures
   )
   is
-    found: Boolean;
+    use Visuals_Mapping;
+    c: Cursor;
   begin
     for f in o.face'Range loop
       -- 1/ Find texture IDs:
@@ -985,29 +987,9 @@ package body GLOBE_3D is
       end if;
       -- 2/ Connections through portals:
       if o.face_internal(f).connect_name /= empty then
-        found:= False;
-        -- XX old linear search:
-        --  for i in neighbouring'Range loop
-        --    if neighbouring(i).ID = o.face_internal(f).connect_name then
-        --      o.face(f).connecting:= neighbouring(i);
-        --      found:= True;
-        --      exit;
-        --    end if;
-        --  end loop;
-        begin
-          o.face(f).connecting:= p_Object_3D(Visuals_Mapping.Element(
-            Visuals_Mapping.Map(neighbouring),
-            Ada.Strings.Unbounded.To_Unbounded_String(o.face_internal(f).connect_name))
-          );
-
-          found:= True;
-        exception
-          when Constraint_Error =>
-            -- GNAT gives also the message:
-            -- no element available because key not in map
-            null;
-        end;
-        if not found then
+        c:= neighbouring.Find(To_Unbounded_String(o.face_internal(f).connect_name));
+        if c = No_Element then
+          -- Key not found
           if tolerant_obj then
             o.face(f).connecting:= null;
           else
@@ -1019,6 +1001,8 @@ package body GLOBE_3D is
               & ']'
             );
           end if;
+        else
+          o.face(f).connecting:= p_Object_3D(Element(c));
         end if;
       end if;
     end loop;

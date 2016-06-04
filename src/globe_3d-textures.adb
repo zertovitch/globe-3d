@@ -232,12 +232,11 @@ package body GLOBE_3D.Textures is
   function Texture_ID( name: String ) return Image_ID is
     trimmed: constant String:= Trim(name,Both);
     up_name: constant String:= To_Upper(trimmed);
+    use Texture_Name_Mapping;
+    c: constant Cursor:= texture_2d_infos.map.Find(To_Unbounded_String(up_name));
   begin
-    return Texture_Name_Mapping.Element(
-            texture_2d_infos.map,
-            Ada.Strings.Unbounded.To_Unbounded_String(up_name));
-  exception
-    when Constraint_Error =>
+    if c = No_Element then
+      -- Key not found
       raise Undefined_texture_name with
         "Texture: " & trimmed & ", searched as " & up_name & "." &
         ASCII.CR & ASCII.LF &
@@ -247,7 +246,10 @@ package body GLOBE_3D.Textures is
         ASCII.CR & ASCII.LF &
         ' ' & To_String(level_data_name) & '.' &
         ASCII.CR & ASCII.LF &
-        "Check calls of Add_texture_name or Associate_textures.";
+        "Check calls to Add_texture_name or Associate_textures.";
+    else
+      return Element(c);
+    end if;
   end Texture_ID;
 
 end GLOBE_3D.Textures;
