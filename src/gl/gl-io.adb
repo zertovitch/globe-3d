@@ -335,10 +335,7 @@ package body GL.IO is
      Byte_array'Read( S, info );
 
      if TGA_type(1) /= GL.Ubyte'Val(0) then
-       Raise_Exception(
-         TGA_Unsupported_Image_Type'Identity,
-         "TGA: palette not supported, please use BMP"
-       );
+       raise TGA_Unsupported_Image_Type with "TGA: palette not supported, please use BMP";
      end if;
 
      -- Image type:
@@ -356,10 +353,7 @@ package body GL.IO is
        RLE_pixels_remaining:= 0;
      end if;
      if image_type /= 2 and image_type /= 3 then
-       Raise_Exception(
-         TGA_Unsupported_Image_Type'Identity,
-         "TGA type =" & Integer'Image(image_type)
-       );
+       raise TGA_Unsupported_Image_Type with "TGA type =" & Integer'Image(image_type);
      end if;
 
      the_Image.Width  := GL.Ubyte'Pos(info(0)) + GL.Ubyte'Pos(info(1)) * 256;
@@ -377,7 +371,7 @@ package body GL.IO is
 
      -- make sure we are loading a supported TGA_type
      if imageBits /= 32 and imageBits /= 24 and imageBits /= 8 then
-        raise TGA_Unsupported_Bits_per_pixel;
+       raise TGA_Unsupported_Bits_per_pixel with "Only 32, 24 or 8 bits per pixel supported";
      end if;
 
      -- Allocation
@@ -387,25 +381,23 @@ package body GL.IO is
      return the_Image;
   end to_TGA_Image;
 
-  function to_TGA_Image (Filename : in  String      -- Input data filename
-                        ) return Image
-  is
-     f: File_Type;
-     the_Image : Image;
+  function to_TGA_Image (file_name : in  String) return Image is
+    f: File_Type;
+    the_Image : Image;
   begin
-     begin
-        Open(f,In_File,Filename);
-     exception
-        when Name_Error => Raise_Exception(File_Not_Found'Identity, " file name:" & Filename);
-     end;
-     the_Image := to_TGA_Image ( Stream(f) );
-     Close(f);
-     return the_Image;
+    begin
+      Open(f,In_File,file_name);
+    exception
+      when Name_Error => raise File_Not_Found with "file name:" & file_name;
+    end;
+    the_Image := to_TGA_Image ( Stream(f) );
+    Close(f);
+    return the_Image;
   exception
-     when e:others =>
-        Close(f);
-        Raise_Exception(Exception_Identity(e), " file name:" & Filename);
-        return the_Image;
+    when e: others =>
+      Close(f);
+      Raise_Exception(Exception_Identity(e), "file name:" & file_name);
+      return the_Image;
   end to_TGA_Image;
 
   --  =============
@@ -446,22 +438,22 @@ package body GL.IO is
   -- Template for all loaders from a file
   generic
     with procedure Stream_Loader( S: Stream_Access; id: Integer; blending_hint: out Boolean );
-  procedure Load_XXX ( name: String; id: Integer; blending_hint: out Boolean );
+  procedure Load_XXX ( file_name: String; id: Integer; blending_hint: out Boolean );
 
-  procedure Load_XXX ( name: String; id: Integer; blending_hint: out Boolean ) is
+  procedure Load_XXX ( file_name: String; id: Integer; blending_hint: out Boolean ) is
     f: File_Type;
   begin
     begin
-      Open(f,In_File,name);
+      Open(f, In_File, file_name);
     exception
-      when Name_Error => Raise_Exception(File_Not_Found'Identity, " file name:" & name);
+      when Name_Error => raise File_Not_Found with "file name:" & file_name;
     end;
     Stream_Loader( Stream(f), id, blending_hint );
     Close(f);
   exception
     when e:others =>
       Close(f);
-      Raise_Exception(Exception_Identity(e), " file name:" & name);
+      Raise_Exception(Exception_Identity(e), "file name:" & file_name);
   end Load_XXX;
 
   procedure i_Load_TGA is new Load_XXX( Stream_Loader => Load_TGA );

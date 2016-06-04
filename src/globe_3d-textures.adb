@@ -70,7 +70,7 @@ package body GLOBE_3D.Textures is
       exception
         when Zip.File_name_not_found =>
           raise;
-        when e:others =>
+        when e: others =>
           Raise_Exception(
             Exception_Identity(e),
             Exception_Message(e) & " on texture: " & tex_name_ext
@@ -96,7 +96,7 @@ package body GLOBE_3D.Textures is
     when Zip.File_name_not_found |
          Zip.Zip_file_open_Error =>
       -- Never found - neither in level, nor in global pack
-      Raise_Exception(Missing_texture'Identity, "texture: " & tex_name);
+      raise Missing_texture with "texture: " & tex_name;
   end Load_texture_2D;
 
   function Valid_texture_ID(id: Image_ID) return Boolean is

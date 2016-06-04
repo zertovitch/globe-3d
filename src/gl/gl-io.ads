@@ -67,7 +67,7 @@ package GL.IO is
       Data             : Byte_array_ptr;
     end record;
 
-  function to_TGA_Image (Filename : in  String                            -- Input data tga filename
+  function to_TGA_Image (file_name : in  String                           -- Input data tga filename
                         ) return Image;
   function to_TGA_Image (S : in  Ada.Streams.Stream_IO.Stream_Access      -- Input data stream
                         ) return Image;

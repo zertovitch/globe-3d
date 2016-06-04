@@ -413,7 +413,7 @@ package body GLOBE_3D.IO is
     exception
       when Zip.File_name_not_found =>
         raise;
-      when e:others =>
+      when e: others =>
         Raise_Exception(
           Exception_Identity(e),
           Exception_Message(e) & " on " & animal & ": " & name_ext
@@ -432,10 +432,8 @@ package body GLOBE_3D.IO is
     when Zip.File_name_not_found |
          Zip.Zip_file_open_Error =>
       -- Never found - neither in level, nor in global pack
-      Raise_Exception(
-        Missing_object'Identity,
-        animal & " not found in any data resource pack: " & name_in_resource
-      );
+      raise Missing_object with
+        animal & " not found in any data resource pack: " & name_in_resource;
   end Load_generic;
 
   procedure Load_Internal is

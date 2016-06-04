@@ -61,13 +61,12 @@ package body GLOBE_3D is
       if Pn0=0 or Pn1=0 or Pn2=0 then return; end if;
       N_contrib:= (o.point(Pn1)-o.point(Pn0))*(o.point(Pn2)-o.point(Pn0)) ;
       if strict_geometry and then Almost_zero(Norm2(N_contrib)) then
-         Raise_Exception( zero_normal'Identity,
-                         Params &
-                         " P0=" & Coords(o.point(Pn0)) &
-                         " P1=" & Coords(o.point(Pn1)) &
-                         " P2=" & Coords(o.point(Pn2)) &
-                         " Nc=" & Coords(N_contrib)
-                        );
+        raise zero_normal with
+           Params &
+           " P0=" & Coords(o.point(Pn0)) &
+           " P1=" & Coords(o.point(Pn1)) &
+           " P2=" & Coords(o.point(Pn2)) &
+           " Nc=" & Coords(N_contrib);
       end if;
       N:= N + N_contrib;
    exception
@@ -172,9 +171,9 @@ package body GLOBE_3D is
       pragma Inline(Check);
       begin
         if v < 0 or else v > o.Max_points then
-          Raise_Exception(bad_vertex_number'Identity,
-               o.ID & " face="   & Integer'Image(f) &
-                      " vertex=" & Integer'Image(v));
+          raise bad_vertex_number with
+            o.ID & " face="   & Integer'Image(f) &
+                   " vertex=" & Integer'Image(v);
         end if;
       end Check;
 
@@ -185,15 +184,13 @@ package body GLOBE_3D is
         if Pn1=0 or else Pn2=0 then return; end if;
         -- Detect same point number
         if Pn1=Pn2 then
-          Raise_Exception(duplicated_vertex'Identity,
-               o.ID & " in face "   & Integer'Image(f) );
+          raise duplicated_vertex with o.ID & " in face"   & Integer'Image(f);
         end if;
         -- Detect same point coordinates (tolerated in an object,
         -- although inefficient, but harms as vertex of the same face!)
 
         if Almost_zero(Norm2(o.point(Pn1) - o.point(Pn2))) then
-          Raise_Exception(duplicated_vertex_location'Identity,
-               o.ID & " in face "   & Integer'Image(f) );
+          raise duplicated_vertex_location with o.ID & " in face" & Integer'Image(f);
         end if;
       end Check_duplicate;
 
@@ -242,7 +239,7 @@ package body GLOBE_3D is
       if l in Edge_count then
         fi.last_edge:= l;
       else
-        Raise_Exception( bad_edge_number'Identity, o.ID );
+        raise bad_edge_number with o.ID & " edge=" & Integer'Image(l);
       end if;
       -- * Face invariant : Textured face: extremities
       for e in 1..l loop
@@ -314,8 +311,7 @@ package body GLOBE_3D is
         o.transparent:= o.transparent or o.face_internal(i).blending;
       exception
         when zero_summed_normal =>
-              Raise_Exception( zero_summed_normal'Identity,
-               o.ID & " face=" & Integer'Image(i));
+          raise zero_summed_normal with o.ID & " face=" & Integer'Image(i);
       end;
     end loop;
 
@@ -354,24 +350,22 @@ package body GLOBE_3D is
           o.edge_vector(pf):= o.edge_vector(pf) + o.face_internal(f).normal;
         end if;
       end loop;
-      if is_textured(o.face(f).skin) and then
-         not Textures.Valid_texture_ID(o.face(f).texture)
-      then
-        Raise_Exception(Textures.Undefined_texture_ID'Identity,
-           Trim(o.ID, Right) &
-           " face="   & Integer'Image(f) &
-           " skin="   & Skin_type'Image(o.face(f).skin) &
-           " texture_id=" & Image_ID'Image(o.face(f).texture));
+      if is_textured(o.face(f).skin) and then not Textures.Valid_texture_ID(o.face(f).texture) then
+        raise Textures.Undefined_texture_ID with
+          Trim(o.ID, Right) &
+          " face="   & Integer'Image(f) &
+          " skin="   & Skin_type'Image(o.face(f).skin) &
+          " texture_id=" & Image_ID'Image(o.face(f).texture);
       end if;
     end loop;
     for p in o.point'Range loop
       if adjacent_faces(p) = 0 then
         if strict_geometry then
           -- Strict approach: detect any unmatched point:
-          Raise_Exception(point_unmatched'Identity,
+          raise point_unmatched with
             Trim(o.ID, Right) &
             " point " & Integer'Image(p) &
-            " belongs to none of the object's face");
+            " belongs to none of the object's face";
         end if;
       else
         length:= Norm( o.edge_vector(p) );
@@ -993,13 +987,12 @@ package body GLOBE_3D is
           if tolerant_obj then
             o.face(f).connecting:= null;
           else
-            Raise_Exception(
-              Portal_connection_failed'Identity,
+            raise
+              Portal_connection_failed with
               "For object name [" & Trim(o.ID,Right) &
-              "], looking for [" &
+              "], looking for object [" &
               Trim(o.face_internal(f).connect_name,Right)
-              & ']'
-            );
+              & ']';
           end if;
         else
           o.face(f).connecting:= p_Object_3D(Element(c));
