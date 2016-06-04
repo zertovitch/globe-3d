@@ -267,24 +267,30 @@ procedure GLOBE_3D_Demo is
   procedure Create_objects(load: Boolean; doom3_custom: String) is
     t: constant:= 20.0;
     f2: Natural;
-    use GL, G3D, G3D.Textures;
+    use GL, GL.Materials, G3D, G3D.Textures;
 
     function Basic_face(
       P       : G3D.Index_array;
       tex_name: String;
       colour  : GL.RGB_Color;
-      repeat  : Positive)
+      repeat  : Positive;
+      material: Material_type:= neutral_material)
     return Face_type
     is
       f: Face_type; -- takes defaults values
     begin
       f.P       := P;
-      f.skin    := coloured_texture;
       f.texture := Texture_ID(tex_name);
-      f.colour  := colour;
-      f.alpha   := alpha;
       f.repeat_U:= repeat;
       f.repeat_V:= repeat;
+      if material = neutral_material then
+        f.colour  := colour;
+        f.skin    := coloured_texture;
+      else
+        f.material := material;
+        f.skin     := material_texture;
+      end if;
+      f.alpha   := alpha;
       return f;
     end Basic_face;
 
@@ -298,7 +304,7 @@ procedure GLOBE_3D_Demo is
       ( (-t,-t,-t), (-t, t,-t), ( t, t,-t), ( t,-t,-t),
         (-t,-t, t), (-t, t, t), ( t, t, t), ( t,-t, t));
     cube.face:=
-      ( Basic_face((3,2,6,7),"face1",(1.0,0.0,0.0),1),
+      ( Basic_face((3,2,6,7),"face1",(1.0,0.0,0.0),1, Polished_Gold),
         Basic_face((4,3,7,8),"face2",(0.0,1.0,0.0),2),
         Basic_face((8,7,6,5),"face3",(0.0,0.0,1.0),3),
         Basic_face((1,4,8,5),"face4",(1.0,1.0,0.0),4),
@@ -326,7 +332,11 @@ procedure GLOBE_3D_Demo is
     Set_name(cube_bico.all,"Technicolor");
     for f in cube_bico.face'Range loop
       if f mod 2 = 0 then
-        cube_bico.face(f).skin:= colour_only;
+        if cube_bico.face(f).skin = coloured_texture then
+          cube_bico.face(f).skin:= colour_only;
+        else
+          cube_bico.face(f).skin:= material_only;
+        end if;
       end if;
     end loop;
 
