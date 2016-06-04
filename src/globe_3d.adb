@@ -436,7 +436,7 @@ package body GLOBE_3D is
       begin -- Display_face
 
         if fa.skin = invisible then
-          Previous_face           := fa;
+          Previous_face          := fa;
           Previous_face_internal := fi;
           return;
         end if;
@@ -449,6 +449,7 @@ package body GLOBE_3D is
           or else Previous_face.skin = invisible
           or else fa.skin /= Previous_face.skin
           or else (fa.skin = Previous_face.skin
+                   and then is_material(fa.skin)
                    and then fa.material /= Previous_face.material)
         then
           case fa.skin is
@@ -456,7 +457,7 @@ package body GLOBE_3D is
               Disable(COLOR_MATERIAL);
               Set_Material(fa.material);
             when others =>
-              Set_Material(GL.Materials.neutral_material);
+              Set_Material(neutral_material);
           end case;
         end if;
 
@@ -468,6 +469,7 @@ package body GLOBE_3D is
           or else Previous_face.skin = invisible
           or else fa.skin /= Previous_face.skin
           or else (fa.skin = Previous_face.skin
+                   and then is_coloured(fa.skin)
                    and then (fa.colour /= Previous_face.colour
                              or else fa.alpha /= Previous_face.alpha))
         then
@@ -499,8 +501,7 @@ package body GLOBE_3D is
           if blending_hint then
             fi.blending:= True;
             -- 13-Oct-2006: override the decision made at Pre_calculate.
-            -- If texture data contains an alpha layer, we switch
-            -- on transparency.
+            -- If texture data contains an alpha layer, we switch on transparency.
           end if;
         end if;
 
@@ -508,13 +509,13 @@ package body GLOBE_3D is
           or else Previous_face.skin = invisible
           or else fa.skin /= Previous_face.skin
           or else (fa.skin = Previous_face.skin
+                   and then is_textured(fa.skin)
                    and then fa.texture /= Previous_face.texture)
         then
           case fa.skin is
             when texture_only | coloured_texture | material_texture =>
               Enable( TEXTURE_2D );
               GL.BindTexture( GL.TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.texture)+1) );
-              -- ^ superfluous ?!!
             when colour_only | material_only =>
               Disable( TEXTURE_2D );
             when invisible =>
@@ -563,7 +564,7 @@ package body GLOBE_3D is
 
         GL_End;
 
-        Previous_face           := fa;
+        Previous_face          := fa;
         Previous_face_internal := fi;
       end Display_face;
 

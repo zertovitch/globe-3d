@@ -273,6 +273,16 @@ package GLOBE_3D is
       others => False
     );
 
+  is_coloured: constant Set_of_Skin:=
+    ( colour_only | coloured_texture => True,
+      others => False
+    );
+
+  is_material: constant Set_of_Skin:=
+    ( material_only | material_texture => True,
+      others => False
+    );
+
   null_colour: constant GL.Material_Float_vector:= (0.0,0.0,0.0,0.0);
 
   subtype Idx_3_array is Index_array(1..3);
