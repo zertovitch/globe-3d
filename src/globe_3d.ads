@@ -397,11 +397,11 @@ package GLOBE_3D is
     transparent    : Boolean:= False;
   end record; -- Object_3D
 
-  procedure Destroy        (o : in out Object_3D);
-  procedure Set_Alpha      (o : in out Object_3D;   Alpha : in GL.Double);
-  function  Is_Transparent (o : in Object_3D) return Boolean;
-  function  Face_Count     (o : in Object_3D) return Natural;
-  function  Bounds         (o : in Object_3D) return GL.Geometry.Bounds_record;
+  overriding procedure Destroy        (o : in out Object_3D);
+  overriding procedure Set_Alpha      (o : in out Object_3D;   Alpha : in GL.Double);
+  overriding function  Is_Transparent (o : in Object_3D) return Boolean;
+  overriding function  Face_Count     (o : in Object_3D) return Natural;
+  overriding function  Bounds         (o : in Object_3D) return GL.Geometry.Bounds_record;
 
   procedure Check_object(o: Object_3D);
   -- Check object for invalid or duplicate vertices
@@ -434,7 +434,7 @@ package GLOBE_3D is
   point_unmatched, too_many_adjacences: exception;
   bad_edge_number: exception;
 
-  procedure Pre_calculate(o: in out Object_3D);
+  overriding procedure Pre_calculate(o: in out Object_3D);
   -- Done automatically at first display, but sometimes
   -- it's better to do it before: operation can be long!
 
@@ -442,7 +442,7 @@ package GLOBE_3D is
   -- Display of a whole scene, viewed from a certain object --
   ------------------------------------------------------------
 
-  procedure Display(
+  overriding procedure Display(
     o          : in out Object_3D;
     clip       : in     Clipping_data
   );

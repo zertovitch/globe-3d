@@ -214,7 +214,7 @@ package body GLOBE_3D is
   -- Object initialization (1x in its life) --
   --------------------------------------------
 
-  procedure Pre_calculate(o: in out Object_3D) is
+  overriding procedure Pre_calculate(o: in out Object_3D) is
     use GL, G3DM;
 
     N: Vector_3D;
@@ -664,7 +664,7 @@ package body GLOBE_3D is
     --  GL.Translate( -o.centre );
   end Display_one;
 
-  procedure Display(
+  overriding procedure Display(
     o          : in out Object_3D;
     clip       : in     Clipping_data
   )
@@ -796,7 +796,7 @@ package body GLOBE_3D is
     Reset_portal_seen(o);
   end Display;
 
-  procedure Destroy (o : in out Object_3D) is
+  overriding procedure Destroy (o : in out Object_3D) is
     ol, ol_prev: p_Object_3D_list:= o.sub_objects;
     procedure Dispose is new Ada.Unchecked_Deallocation (Object_3D_list, p_Object_3D_list);
   begin
@@ -811,24 +811,24 @@ package body GLOBE_3D is
     end if;
   end Destroy;
 
-  procedure Set_Alpha(o: in out Object_3D; Alpha : in GL.Double) is
+  overriding procedure Set_Alpha(o: in out Object_3D; Alpha : in GL.Double) is
   begin
     for f in o.face'Range loop
       o.face(f).alpha := Alpha;
     end loop;
   end Set_Alpha;
 
-  function Is_Transparent(o: in Object_3D) return Boolean is
+  overriding function Is_Transparent(o: in Object_3D) return Boolean is
   begin
     return o.transparent;
   end Is_Transparent;
 
-  function Face_Count(o: in Object_3D) return Natural is
+  overriding function Face_Count(o: in Object_3D) return Natural is
   begin
     return o.Max_faces;
   end Face_Count;
 
-  function  Bounds(o: in Object_3D) return GL.Geometry.Bounds_record is
+  overriding function  Bounds(o: in Object_3D) return GL.Geometry.Bounds_record is
   begin
     return o.bounds;
   end Bounds;
