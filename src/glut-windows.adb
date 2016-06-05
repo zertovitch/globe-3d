@@ -525,6 +525,13 @@ package body GLUT.Windows is
                                         or else State = GLUT.FULLY_COVERED);
    end;
 
+   procedure Null_Display_Func
+   is
+   begin
+      null;
+   end;
+
+
    procedure Start_GLUTs (Self : in out Window)
    is
       use GL, GLUT;
@@ -552,6 +559,7 @@ package body GLUT.Windows is
 
       GLUT.CloseFunc        (Close_Window'Access);
       GLUT.ReshapeFunc      (Window_Resize'Access);
+      GLUT.DisplayFunc      (Null_Display_Func'Access);
       GLUT.WindowStatusFunc (update_Visibility'Access);
       GLUT.SetWindowData    (to_Address (GLOBE_3D.Window'Class (Self)'Unchecked_Access));
 

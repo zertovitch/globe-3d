@@ -1,6 +1,6 @@
 project Simple is
 
-   for Source_Dirs use (".", "../../../bindings", "../../../bindings/linux", "../../../src//**", "../../../ada05_proxy");
+   for Source_Dirs use (".", "../../../bindings", "../../../bindings/linux", "../../../src/**");
    for Main use ("simple.adb");
 
    package Ide is
@@ -20,7 +20,7 @@ project Simple is
    end Binder;
 
    package Linker is
-      for Default_Switches ("ada") use ("-g", "-lglut", "-lz", "--LINK=g++");
+      for Default_Switches ("ada") use ("-g", "-lglut", "-lz", "-lGL", "-lGLU");
    end Linker;
 
 end Simple;
