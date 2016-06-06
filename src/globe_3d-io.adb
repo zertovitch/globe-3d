@@ -1,6 +1,5 @@
 with Ada.Exceptions;                    use Ada.Exceptions;
 with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
 -- with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Unchecked_Conversion;
 
@@ -421,12 +420,12 @@ package body GLOBE_3D.IO is
     end Try;
   begin
     begin
-      Try( zif_level, To_String(level_data_name) );
+      Try( zif_level, S(level_data_name) );
     exception
       when Zip.File_name_not_found |
            Zip.Zip_file_open_Error =>
         -- Not found in level-specific pack
-        Try( zif_global, To_String(global_data_name) );
+        Try( zif_global, S(global_data_name) );
     end;
   exception
     when Zip.File_name_not_found |
@@ -568,7 +567,7 @@ package body GLOBE_3D.IO is
       if ID = empty then
         return null;
       end if;
-      c:= referred.Find(To_Unbounded_String(ID));
+      c:= referred.Find(U(ID));
       if c = No_Element then
         -- Key not found
         if tolerant then

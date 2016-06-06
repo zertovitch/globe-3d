@@ -61,7 +61,7 @@ with Ada.Numerics.Generic_Elementary_Functions;
 with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 with Ada.Containers.Hashed_Maps;
-with Ada.Strings.Unbounded.Hash;
+with Ada.Strings.Unbounded.Hash;        use Ada.Strings.Unbounded;
 
 package GLOBE_3D is
 
@@ -317,6 +317,7 @@ package GLOBE_3D is
                       GL.Materials.neutral_material;
      -- *** > texture-mapping part (data ignored when irrelevant):
      texture      : Image_ID:= null_image;
+     specular_map : Image_ID:= null_image;
      --  Alternative to setting an Image_id, if it is not known at
      --  time of building the object: use Texture_name_hint, then
      --  Rebuild_links
@@ -406,19 +407,19 @@ package GLOBE_3D is
   procedure Check_object(o: Object_3D);
   -- Check object for invalid or duplicate vertices
 
+  -- Indicate a texture's name that can be resolved later by Rebuild_links
   procedure Texture_name_hint(
     o   : in out Object_3D;
     face:        Positive;
-    name:        String
+    name:        String  --  give name as hint for texture
   );
-  -- Indicate a texture's name that can be resolved later by Rebuild_links
 
+  -- Indicate a portal's name that can be resolved later by Rebuild_links
   procedure Portal_name_hint(
     o   : in out Object_3D;
     face:        Positive;
-    name:        String
+    name:        String  --  give name as hint for connected object
   );
-  -- Indicate a portal's name that can be resolved later by Rebuild_links
 
   procedure Rebuild_links(
     o           : in out Object_3D'Class; -- object to be relinked
@@ -572,20 +573,23 @@ private
      --  texture_name. face(f).texture must be resolved using
      --  face_internal(f).texture_name.
      texture_name: Ident:= empty;
+     --  specular_name. optional with texture: a "glossy"-ness specular map.
+     specular_name: Ident:= empty;
      --  portal_seen is always False, except during Display to avoid possible infinite
      --  recursion; it is reset to False at the end of Display.
      portal_seen : Boolean:= False;
   end record;
+
+  function U (Source : String)  return Unbounded_String renames To_Unbounded_String;
+  function S (Source : Unbounded_String) return String renames To_String;
 
   -- A few global variables - shocking! Don't look, it's private here :-)
 
   -- Name of Zip archives containing the Level / Global data
   -- If an item is not found in the level data, it is
   -- searched in the global one
-  level_data_name  : Ada.Strings.Unbounded.Unbounded_String:=
-    Ada.Strings.Unbounded.To_Unbounded_String("*undefined_level_data*");
-  global_data_name : Ada.Strings.Unbounded.Unbounded_String:=
-    Ada.Strings.Unbounded.To_Unbounded_String("*undefined_global_data*");
+  level_data_name  : Unbounded_String:= U("*undefined_level_data*");
+  global_data_name : Unbounded_String:= U("*undefined_global_data*");
 
   -- Corresponding zip file infos for quick search
   zif_level, zif_global: Zip.Zip_info;

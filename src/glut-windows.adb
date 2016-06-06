@@ -531,7 +531,6 @@ package body GLUT.Windows is
       null;
    end;
 
-
    procedure Start_GLUTs (Self : in out Window)
    is
       use GL, GLUT;

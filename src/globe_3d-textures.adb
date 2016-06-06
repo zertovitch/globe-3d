@@ -3,7 +3,6 @@ with GL, GL.IO, UnZip.Streams;
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Exceptions;                    use Ada.Exceptions;
 with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 with Ada.Containers.Hashed_Maps;
 with Ada.Streams.Stream_IO;
@@ -85,12 +84,12 @@ package body GLOBE_3D.Textures is
     end Try;
   begin
     begin
-      Try( zif_level, To_String(level_data_name) );
+      Try( zif_level, S(level_data_name) );
     exception
       when Zip.File_name_not_found |
            Zip.Zip_file_open_Error =>
         -- Not found in level-specific pack
-        Try( zif_global, To_String(global_data_name) );
+        Try( zif_global, S(global_data_name) );
     end;
   exception
     when Zip.File_name_not_found |
@@ -168,7 +167,7 @@ package body GLOBE_3D.Textures is
     -- Feed the name dictionary with the new name:
     Texture_Name_Mapping.Insert(
       texture_2d_infos.map,
-      Ada.Strings.Unbounded.To_Unbounded_String(up_name),
+      U(up_name),
       id,
       pos,
       success
@@ -202,8 +201,8 @@ package body GLOBE_3D.Textures is
     end Register;
 
   begin
-    Register( zif_level,  To_String(level_data_name) );
-    Register( zif_global, To_String(global_data_name) );
+    Register( zif_level,  S(level_data_name) );
+    Register( zif_global, S(global_data_name) );
   end Register_textures_from_resources;
 
   procedure Associate_textures is
@@ -233,7 +232,7 @@ package body GLOBE_3D.Textures is
     trimmed: constant String:= Trim(name,Both);
     up_name: constant String:= To_Upper(trimmed);
     use Texture_Name_Mapping;
-    c: constant Cursor:= texture_2d_infos.map.Find(To_Unbounded_String(up_name));
+    c: constant Cursor:= texture_2d_infos.map.Find(U(up_name));
   begin
     if c = No_Element then
       -- Key not found
@@ -242,9 +241,9 @@ package body GLOBE_3D.Textures is
         ASCII.CR & ASCII.LF &
         "Check data files:" &
         ASCII.CR & ASCII.LF &
-        ' ' & To_String(global_data_name) &
+        ' ' & S(global_data_name) &
         ASCII.CR & ASCII.LF &
-        ' ' & To_String(level_data_name) & '.' &
+        ' ' & S(level_data_name) & '.' &
         ASCII.CR & ASCII.LF &
         "Check calls to Add_texture_name or Associate_textures.";
     else

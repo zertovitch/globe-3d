@@ -9,7 +9,6 @@ with GL.Errors,
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Exceptions;                    use Ada.Exceptions;
 with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
 with Ada.Text_IO;                       use Ada.Text_IO;
 
 with System.Storage_Elements;
@@ -534,7 +533,7 @@ package body GLOBE_3D is
           if fi.blending then
             Enable( BLEND ); -- See 4.1.7 Blending
             BlendFunc( sfactor => SRC_ALPHA,
-                      dfactor => ONE_MINUS_SRC_ALPHA );
+                       dfactor => ONE_MINUS_SRC_ALPHA );
             -- Disable( DEPTH_TEST );
             -- Disable( CULL_FACE );
           else
@@ -920,7 +919,7 @@ package body GLOBE_3D is
       Zip.Delete( zif_level );
     end if;
     -- ^ Possible resource name change -> need this, will be reloaded on next use
-    level_data_name:= Ada.Strings.Unbounded.To_Unbounded_String(s);
+    level_data_name:= U(s);
     if not Zip.Exists(s) then
       raise data_file_not_found with s;
     end if;
@@ -932,7 +931,7 @@ package body GLOBE_3D is
       Zip.Delete( zif_global );
     end if;
     -- ^ Possible resource name change -> need this, will be reloaded on next use
-    global_data_name:= Ada.Strings.Unbounded.To_Unbounded_String(s);
+    global_data_name:= U(s);
     if not Zip.Exists(s) then
       raise data_file_not_found with s;
     end if;
@@ -963,13 +962,22 @@ package body GLOBE_3D is
     c: Cursor;
   begin
     for f in o.face'Range loop
-      -- 1/ Find texture IDs:
-      if is_textured(o.face(f).skin) and then
-         o.face_internal(f).texture_name /= empty
-      then
+      --  1/ Find texture IDs:
+      if is_textured(o.face(f).skin) and then o.face_internal(f).texture_name /= empty then
         begin
-          o.face(f).texture:=
-            Textures.Texture_ID( o.face_internal(f).texture_name );
+          o.face(f).texture:= Textures.Texture_ID( o.face_internal(f).texture_name );
+          if o.face_internal(f).specular_name /= empty then
+            begin
+              o.face(f).specular_map:= Textures.Texture_ID( o.face_internal(f).specular_name );
+            exception
+              when Textures.Texture_name_not_found =>
+                if tolerant_tex then
+                  o.face(f).specular_map:= null_image;
+                else
+                  raise;
+                end if;
+            end;
+          end if;
         exception
           when Textures.Texture_name_not_found =>
             if tolerant_tex then
@@ -980,9 +988,9 @@ package body GLOBE_3D is
             end if;
         end;
       end if;
-      -- 2/ Connections through portals:
+      --  2/ Connections through portals:
       if o.face_internal(f).connect_name /= empty then
-        c:= neighbouring.Find(To_Unbounded_String(o.face_internal(f).connect_name));
+        c:= neighbouring.Find(U(o.face_internal(f).connect_name));
         if c = No_Element then
           -- Key not found
           if tolerant_obj then
@@ -990,10 +998,8 @@ package body GLOBE_3D is
           else
             raise
               Portal_connection_failed with
-              "For object name [" & Trim(o.ID,Right) &
-              "], looking for object [" &
-              Trim(o.face_internal(f).connect_name,Right)
-              & ']';
+              "For object name [" & Trim(o.ID,Right) & "], looking for object [" &
+              Trim(o.face_internal(f).connect_name,Right) & ']';
           end if;
         else
           o.face(f).connecting:= p_Object_3D(Element(c));
@@ -1005,7 +1011,7 @@ package body GLOBE_3D is
   procedure Texture_name_hint(
     o   : in out Object_3D;
     face:        Positive;
-    name:        String
+    name:        String  --  give name as hint for texture
   )
   is
   begin
@@ -1017,7 +1023,7 @@ package body GLOBE_3D is
   procedure Portal_name_hint(
     o   : in out Object_3D;
     face:        Positive;
-    name:        String
+    name:        String  --  give name as hint for connected object
   )
   is
   begin
@@ -1253,7 +1259,7 @@ package body GLOBE_3D is
    begin
       Visuals_Mapping.Insert(
         Visuals_Mapping.Map(to_map),
-        Ada.Strings.Unbounded.To_Unbounded_String(what.ID),
+        U(what.ID),
         what,
         pos,
         success

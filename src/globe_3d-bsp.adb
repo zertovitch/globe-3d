@@ -4,8 +4,6 @@ with GLOBE_3D.Math, GLOBE_3D.Options;
 
 package body GLOBE_3D.BSP is
 
-  use Ada.Strings.Unbounded;
-
   procedure Locate( P: Point_3D; tree: p_BSP_node; area: out p_Object_3D ) is
 
     --  Internal, for skipping useless parameter passing
