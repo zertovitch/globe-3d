@@ -27,7 +27,7 @@ package GL.Materials is
     diffuse,
     specular,
     emission  : GL.Material_Float_vector;
-    shininess : GL.Float; -- 0.0 .. 128.0
+    shininess : GL.Float;  --  Range is 0.0 .. 128.0
   end record;
 
   function is_Transparent (Self : in Material_type) return Boolean;

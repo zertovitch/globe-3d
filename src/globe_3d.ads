@@ -322,14 +322,14 @@ package GLOBE_3D is
      --  time of building the object: use Texture_name_hint, then
      --  Rebuild_links
      --
-     --    Whole texture or part of one ?
+     --    Whole texture, or part of one ?
      whole_texture: Boolean:= True;
      --    - in case of a whole texture, automatic mapping, we just need
      --      to know how many times is it tiled:
      repeat_U,
      repeat_V     : Positive:= 1;
-     --    - in case of a partial texture (e.g. for a texture spread
-     --      across several faces), we need a deterministic mapping:
+     --    - in case of a partial texture (e.g. a texture spread across several faces
+     --      or used only in part), we need a deterministic coordinate mapping:
      texture_edge_map :
                     Map_idx_pair_4_array;
   end record;

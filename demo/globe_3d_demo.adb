@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  File:            GLOBE_3D_Demo.adb
 --  Description:     A small demo for GLOBE_3D
---  Copyright (c) Gautier de Montmollin 2002, 2005, 2006, 2008, 2010, 2014
+--  Copyright (c) Gautier de Montmollin 2002 .. 2016
 ------------------------------------------------------------------------------
 
 with GL,
@@ -296,6 +296,13 @@ procedure GLOBE_3D_Demo is
 
     portal1, portal2: Brick.Cubic_Face_index;
 
+    Shiny : constant Material_type:= (
+      ambient =>        (0.24725, 0.2245, 0.0645, 1.0),
+      diffuse =>        (0.34615, 0.3143, 0.0903, 1.0),
+      specular =>       (1.0, 1.0, 1.0, 1.0),
+      emission =>       (0.0, 0.0, 0.0, 0.0),
+      shininess =>      64.0);
+
   begin
     -- Basic cube
     cube:= new G3D.Object_3D( Max_points=> 8, Max_faces=> 6 );
@@ -305,7 +312,7 @@ procedure GLOBE_3D_Demo is
         (-t,-t, t), (-t, t, t), ( t, t, t), ( t,-t, t));
     cube.face:=
       ( Basic_face((3,2,6,7),"face1",(1.0,0.0,0.0),1, Polished_Gold),
-        Basic_face((4,3,7,8),"face2",(0.0,1.0,0.0),2),
+        Basic_face((4,3,7,8),"face2",(0.0,1.0,0.0),2, Shiny),
         Basic_face((8,7,6,5),"face3",(0.0,0.0,1.0),3),
         Basic_face((1,4,8,5),"face4",(1.0,1.0,0.0),4),
         Basic_face((2,1,5,6),"face5",(0.0,1.0,1.0),5),
