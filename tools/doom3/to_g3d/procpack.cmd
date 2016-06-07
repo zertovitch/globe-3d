@@ -12,9 +12,9 @@ if not exist %1.proc goto syntaxe
 call make_d3g -O
 
 echo.
-echo **************
-echo ** D3G TOOL ** Build and save objects, BSP, etc. from %1.proc into %1.zip
-echo **************
+echo *********************
+echo ** Invoke D3G TOOL ** Build and save objects, BSP, etc. from %1.proc into %1.zip
+echo *********************
 echo.
 
 if     "%2"=="" d3g -j -a %1.proc -c0
@@ -30,9 +30,9 @@ zip %1.zip %1*.g3d %1.bsp
 del *.g3d
 del *.bsp
 
-echo **************
-echo ** Add textures to %1.zip...
-echo **************
+echo ******************************************
+echo ** Extract as many textures as possible **
+echo ******************************************
 
 md tmp
 cd tmp
@@ -52,7 +52,7 @@ rem * Fast
 rem * Slow, but with standard unzip
 rem call ..\%1_textures_unzip2
 
-echo   ** Put: Textures from the PK4 file
+echo   ** Put: Textures from the custom level (%1) PK4 file
 unzip -j -n ..\%1.PK4 *.tga
 
 echo   ** Put: *Already stored* textures
@@ -67,7 +67,10 @@ call ..\%1_textures_copy_fakes
 echo   ** Do some filtering
 call ..\%1_textures_add_tex_suffix2
 
-echo   ** Store all these pictures
+echo **************
+echo ** Add or update textures to %1.zip...
+echo **************
+
 zip ..\%1.zip *.bmp *.tga
 
 cd..
@@ -89,9 +92,12 @@ echo Eventually: unpacks mylevel.proc first from mylevel.zip
 echo If present, mylevel.pk4 will be used for finding mylevel.proc
 echo if not found before; textures from mylevel.pk4 will be used too.
 echo Other sources of textures:
-echo   d3tex.zip          (original game textures)
-echo   q4tex.zip          (original game textures)
-echo   palettex.zip       (modified textures; names may overload original ones)
+echo.
+echo    d3tex.zip          (original game textures)
+echo    q4tex.zip          (original game textures)
+echo    palettex.zip       (modified textures; names may overload original ones)
+echo.
+echo Missing textures will be cloned from file "_fake.bmp".
 echo.
 pause
 

@@ -225,7 +225,7 @@ package body Doom3_Help is
       if p /= null then
         Traverse(p.left,style);
         declare
-          tex: constant String:= p.name(1..p.name_len-2); -- remove the "_d"
+          tex: constant String:= p.name(1..p.name_len-2); -- remove the "_d", added at insertion
         begin
           case style is
             when Ada_enum   =>
@@ -250,13 +250,14 @@ package body Doom3_Help is
               Put_Line(f,"unzip -o ..\palettex.zip " & p.name & ".*");
               Put_Line(f,"unzip -o ..\palettex.zip " & tex & ".*");
             when add_suffix1 =>
+              --  Example: if not exist black_d.tga ren black.tga black_d.tga
               Put_Line(f,"if not exist " & p.name & ".tga ren " & tex & ".tga " & p.name & ".tga");
             when copy_fakes =>
               Put_Line(f, "if not exist " & p.name & ".tga copy ..\_fake.bmp " & p.name & ".bmp");
             when add_suffix2 =>
               Put_Line(f,"if exist " & tex & ".tga       del " & tex & ".tga");
               Put_Line(f,"if exist " & tex & "_bmp.tga   del " & tex & "_bmp.tga");
-              Put_Line(f,"if exist " & tex & "_s.tga     del " & tex & "_s.tga");
+              --  Put_Line(f,"if exist " & tex & "_s.tga     del " & tex & "_s.tga");
               Put_Line(f,"if exist " & tex & "_h.tga     del " & tex & "_h.tga");
               Put_Line(f,"if exist " & tex & "_local.tga del " & tex & "_local.tga");
               Put_Line(f,"if exist " & p.name & ".bmp del " & p.name & ".tga");
@@ -342,8 +343,8 @@ package body Doom3_Help is
     base_name: constant String:= Optional_Junk(Strip_quotes(name_with_quotes));
     name: constant String:= base_name & "_d";
   begin
+    --  Insert the name with "diffuse" suffix (the image itself)
     Insert(name, catalogue);
-    -- insert the name with "diffuse" suffix (the image itself)
     surface_top:= surface_top + 1;
     declare
       st: Surface renames surface_stack(surface_top);
@@ -361,7 +362,7 @@ package body Doom3_Help is
       st.curr_uv   := 0;
       st.curr_tri  := 0;
     end;
-  end;
+  end Add_surface;
 
   procedure Set_current_surface_current_point(p: Point_3D) is
     st: Surface renames surface_stack(surface_top);
