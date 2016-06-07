@@ -40,6 +40,13 @@ package GL.Materials is
                               shininess =>      0.0);
                               -- ^ the values are GL defaults.
 
+  mirror_like :
+    constant Material_type:= (ambient =>        (0.1, 0.1, 0.1, 1.0),
+                              diffuse =>        (0.1, 0.1, 0.1, 1.0),
+                              specular =>       (1.0, 1.0, 1.0, 1.0),
+                              emission =>       (0.0, 0.0, 0.0, 1.0),
+                              shininess =>      96.0);  --  Like Glass
+
   -- A few colour-dominant materials:
 
   Red   : constant Material_type:= (

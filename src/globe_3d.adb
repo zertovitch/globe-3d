@@ -424,13 +424,27 @@ package body GLOBE_3D is
     end Display_face_optimized;
 
     package body Display_face_optimized is
-
       use GL.Materials;
 
       procedure Display_face (First_Face : Boolean; fa: Face_type; fi: in out Face_internal_type) is
-
         use GL;
         blending_hint: Boolean;
+
+        procedure Draw_polygon is
+        begin
+          case fi.last_edge is
+            when 3 => GL_Begin( TRIANGLES );
+            when 4 => GL_Begin( QUADS );
+          end case;
+          for i in 1..fi.last_edge loop
+            if is_textured(fa.skin) then
+              TexCoord(fi.UV_extrema(i).U, fi.UV_extrema(i).V);
+            end if;
+            Normal(o.edge_vector(fi.P_compact(i)));
+            Vertex(o.point(fi.P_compact(i)));
+          end loop;
+          GL_End;
+        end Draw_polygon;
 
       begin -- Display_face
 
@@ -509,12 +523,19 @@ package body GLOBE_3D is
           or else fa.skin /= Previous_face.skin
           or else (fa.skin = Previous_face.skin
                    and then is_textured(fa.skin)
-                   and then fa.texture /= Previous_face.texture)
+                   and then (fa.texture /= Previous_face.texture
+                             or else
+                             --  Even if the main texture is the same as the previous one,
+                             --  the use of a specular map (also a kind of texture) on
+                             --  previous face obliterates this optimization.
+                             Previous_face.specular_map /= null_image
+                            )
+                  )
         then
           case fa.skin is
             when texture_only | coloured_texture | material_texture =>
               Enable( TEXTURE_2D );
-              GL.BindTexture( GL.TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.texture)+1) );
+              BindTexture( TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.texture)+1) );
             when colour_only | material_only =>
               Disable( TEXTURE_2D );
             when invisible =>
@@ -529,6 +550,8 @@ package body GLOBE_3D is
         if First_Face
           or else Previous_face.skin = invisible
           or else fi.blending /= Previous_face_internal.blending
+          or else  --  Previous image had a specular map with a special blending
+            Previous_face.specular_map /= null_image
         then
           if fi.blending then
             Enable( BLEND ); -- See 4.1.7 Blending
@@ -548,20 +571,24 @@ package body GLOBE_3D is
         --  Now, draw the face  --
         --------------------------
 
-        case fi.last_edge is
-          when 3 => GL_Begin( TRIANGLES );
-          when 4 => GL_Begin( QUADS );
-        end case;
-
-        for i in 1..fi.last_edge loop
-          if is_textured(fa.skin) then
-            TexCoord(fi.UV_extrema(i).U, fi.UV_extrema(i).V);
+        --  Texture (diffuse) is drawn here:
+        Draw_polygon;
+        --  Specular map (the "glossy" or "shiny" image) is drawn here:
+        if is_textured(fa.skin) and then fa.specular_map /= null_image then
+          --  NB: only works when setting GL.DepthFunc(GL.LEQUAL)
+          --  Default is GL.LESS, and thus only first texture per face will be drawn.
+          G3DT.Check_2D_texture(fa.specular_map, blending_hint);
+          if is_coloured(fa.skin) then
+            Disable(COLOR_MATERIAL);
           end if;
-          Normal(o.edge_vector(fi.P_compact(i)));
-          Vertex(o.point(fi.P_compact(i)));
-        end loop;
-
-        GL_End;
+          Set_Material(mirror_like);
+          if not fi.blending then
+            Enable( BLEND );
+          end if;
+          BlendFunc( sfactor => ONE, dfactor => ONE );
+          BindTexture( TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.specular_map)+1) );
+          Draw_polygon;
+        end if;
 
         Previous_face          := fa;
         Previous_face_internal := fi;

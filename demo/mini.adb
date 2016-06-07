@@ -24,10 +24,10 @@ procedure Mini is
   procedure Prepare_demo_lighting(fact: GL.Float) is
     use GL, G3D;
     proto_light: Light_definition:=
-      (position => (3.0, 4.0, 10.0, 1.0),
+      (position => (10.0, 4.0, 10.0, 1.0),
        ambient  => (0.1, 0.1, 0.1, fact),
-       diffuse  => (0.9, 0.9, 0.9, fact),
-       specular => (0.05, 0.05, 0.01, fact));
+       diffuse  => (1.0, 0.8, 0.8, fact),
+       specular => (0.8, 0.8, 1.0, fact));
   begin
     Enable( LIGHTING );
     G3D.Define( 1, proto_light);
@@ -111,7 +111,7 @@ procedure Mini is
     t: constant:= 1.0;
     use GL, G3D, G3D.Textures;
 
-    function Basic_face(
+    function Basic_cube_face(
       P       : G3D.Index_array;
       tex_name: String;
       colour  : GL.RGB_Color;
@@ -120,15 +120,16 @@ procedure Mini is
     is
       f: Face_type; -- takes defaults values
     begin
-      f.P       := P;
-      f.skin    := coloured_texture;
-      f.texture := Texture_ID(tex_name);
-      f.colour  := colour;
-      f.alpha   := 1.0;
-      f.repeat_U:= repeat;
-      f.repeat_V:= repeat;
+      f.P            := P;
+      f.skin         := coloured_texture;
+      f.texture      := Texture_ID(tex_name);
+      f.specular_map := Texture_ID("face_specular");
+      f.colour       := colour;
+      f.alpha        := 1.0;
+      f.repeat_U     := repeat;
+      f.repeat_V     := repeat;
       return f;
-    end Basic_face;
+    end Basic_cube_face;
 
   begin
     cube.centre:= (0.0,0.0,0.0);
@@ -136,12 +137,12 @@ procedure Mini is
       ( (-t,-t,-t), (-t, t,-t), ( t, t,-t), ( t,-t,-t),
         (-t,-t, t), (-t, t, t), ( t, t, t), ( t,-t, t));
     cube.face:=
-      ( Basic_face((3,2,6,7),"face1",(1.0,0.0,0.0),1),
-        Basic_face((4,3,7,8),"face2",(0.0,1.0,0.0),2),
-        Basic_face((8,7,6,5),"face3",(0.0,0.0,1.0),3),
-        Basic_face((1,4,8,5),"face4",(1.0,1.0,0.0),4),
-        Basic_face((2,1,5,6),"face5",(0.0,1.0,1.0),5),
-        Basic_face((3,4,1,2),"face6",(1.0,0.0,1.0),6));
+      ( Basic_cube_face((3,2,6,7),"face1",(1.0,0.0,0.0),1),
+        Basic_cube_face((4,3,7,8),"face2",(0.0,1.0,0.0),2),
+        Basic_cube_face((8,7,6,5),"face3",(0.0,0.0,1.0),3),
+        Basic_cube_face((1,4,8,5),"face4",(1.0,1.0,0.0),4),
+        Basic_cube_face((2,1,5,6),"face5",(0.0,1.0,1.0),5),
+        Basic_cube_face((3,4,1,2),"face6",(1.0,0.0,1.0),6));
     Set_name(cube, "Trust the Cube !");
   end Create_objects;
 
@@ -154,6 +155,9 @@ procedure Mini is
     Clear( DEPTH_BUFFER_BIT );
     Disable( LIGHTING );
     Enable( DEPTH_TEST );
+    --  Depth comparison function set to LEQUAL is needed for multitexturing:
+    --  LESS (the default) prevents showing another texture onto the first one.
+    DepthFunc( LEQUAL );
     MatrixMode( MODELVIEW );
     Set_GL_Matrix( ego.world_rotation );
     Enable( LIGHTING );

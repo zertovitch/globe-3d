@@ -109,6 +109,7 @@ package body GLOBE_3D.Textures is
       raise Undefined_texture_ID;
     end if;
     if texture_2d_infos.tex(id).loaded then
+      --  Already loaded. We recall the information we had at loading time.
       blending_hint:= texture_2d_infos.tex(id).blending_hint;
     else
       Load_texture_2D(id, blending_hint);

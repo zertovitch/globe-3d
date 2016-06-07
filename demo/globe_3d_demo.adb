@@ -75,15 +75,16 @@ procedure GLOBE_3D_Demo is
     use GL, G3D;
     proto_light: Light_definition:=
       (position => (3.0, 4.0, 10.0, 1.0),
-       ambient  => (0.1, 0.1, 0.1, fact),
-       diffuse  => (0.9, 0.9, 0.9, fact),
-       specular => (0.05, 0.05, 0.01, fact));
+       ambient  => (0.2, 0.2, 0.2, fact),
+       diffuse  => (0.9, 0.9, 0.9, fact),  -- +/- a bulb
+       specular => (0.8, 0.8, 0.8, fact)); -- +/- a flashlight
   begin
     Enable( LIGHTING );
     G3D.Define( 1, proto_light);
     frontal_light:= proto_light;
     proto_light.diffuse:= (0.5, 0.9, 0.5, fact);
     G3D.Define( 2, proto_light);
+    proto_light.position:= (10.0, 0.0, 0.0, 1.0);
     proto_light.diffuse:= (0.2, 0.0, 0.9, fact);
     proto_light.specular:= (1.0, 1.0, 1.0, fact);
     G3D.Define( 3, proto_light);
@@ -217,7 +218,7 @@ procedure GLOBE_3D_Demo is
   dreadnought_ship,
   extrude_test_1, borg_star,
   sierp,
-  cube, cube_tri, cube_bico : G3D.p_Object_3D;
+  cube, cube_glossy, cube_tri, cube_bico : G3D.p_Object_3D;
 
   bestiaire, level_stuff: G3D.p_Object_3D_array:= null;
   level_idx, bri_idx, beast: Integer;
@@ -269,7 +270,7 @@ procedure GLOBE_3D_Demo is
     f2: Natural;
     use GL, GL.Materials, G3D, G3D.Textures;
 
-    function Basic_face(
+    function Basic_cube_face(
       P       : G3D.Index_array;
       tex_name: String;
       colour  : GL.RGB_Color;
@@ -292,7 +293,7 @@ procedure GLOBE_3D_Demo is
       end if;
       f.alpha   := alpha;
       return f;
-    end Basic_face;
+    end Basic_cube_face;
 
     portal1, portal2: Brick.Cubic_Face_index;
 
@@ -311,13 +312,19 @@ procedure GLOBE_3D_Demo is
       ( (-t,-t,-t), (-t, t,-t), ( t, t,-t), ( t,-t,-t),
         (-t,-t, t), (-t, t, t), ( t, t, t), ( t,-t, t));
     cube.face:=
-      ( Basic_face((3,2,6,7),"face1",(1.0,0.0,0.0),1, Polished_Gold),
-        Basic_face((4,3,7,8),"face2",(0.0,1.0,0.0),2, Shiny),
-        Basic_face((8,7,6,5),"face3",(0.0,0.0,1.0),3),
-        Basic_face((1,4,8,5),"face4",(1.0,1.0,0.0),4),
-        Basic_face((2,1,5,6),"face5",(0.0,1.0,1.0),5),
-        Basic_face((3,4,1,2),"face6",(1.0,0.0,1.0),6));
+      ( Basic_cube_face((3,2,6,7),"face1",(1.0,0.0,0.0),1, Polished_Gold),
+        Basic_cube_face((4,3,7,8),"face2",(0.0,1.0,0.0),2, Shiny),
+        Basic_cube_face((8,7,6,5),"face3",(0.0,0.0,1.0),3),
+        Basic_cube_face((1,4,8,5),"face4",(1.0,1.0,0.0),4),
+        Basic_cube_face((2,1,5,6),"face5",(0.0,1.0,1.0),5),
+        Basic_cube_face((3,4,1,2),"face6",(1.0,0.0,1.0),6));
     Set_name(cube.all,"Trust the Cube !");
+    --  Basic cube, but with a specular map. A glossy 'S' should appear...
+    cube_glossy:= new G3D.Object_3D'Class'(cube.all);  --  cloning
+    for f in cube.face'Range loop
+      cube_glossy.face(f).specular_map:= Texture_ID("face_specular");
+    end loop;
+    Set_name(cube_glossy.all,"Shiny cube (check the 'S' !)");
     --
     -- Basic cube, but with half-faces as triangles
     -- must look identical as the first one
@@ -596,6 +603,7 @@ procedure GLOBE_3D_Demo is
     -- Whole 3D zoo:
     bestiaire:= new Object_3D_array'(
       level_stuff(level_stuff'First), -- starting area in the DOOM 3 level is the first area
+      cube, cube_glossy, cube_tri, cube_bico,
       globe,
       sierp,
       extrude_test_1,
@@ -604,7 +612,6 @@ procedure GLOBE_3D_Demo is
       a319_plane,
       x29_plane,
       vhc_001, vhc_002,
-      cube, cube_tri, cube_bico,
       ico, icos,
       knot, liss,
       knot_10_102_obj, knot_link_obj,
@@ -661,6 +668,9 @@ procedure GLOBE_3D_Demo is
     Clear( DEPTH_BUFFER_BIT );
     Disable( LIGHTING );
     Enable( DEPTH_TEST );
+    --  Depth comparison function set to LEQUAL is needed for multitexturing:
+    --  LESS (the default) prevents showing another texture onto the first one.
+    DepthFunc( LEQUAL );
     MatrixMode( MODELVIEW );
     Set_GL_Matrix(ego.world_rotation);
     Stars.Display(ego.world_rotation);
@@ -694,7 +704,7 @@ procedure GLOBE_3D_Demo is
 
       Msg(10, "Press Space for next object/scene. Name: " & Get_name(o) &
         " points:" & Integer'Image(o.Max_points) &
-        " faces:"  & Integer'Image(o.Max_faces) &
+        "; faces:"  & Integer'Image(o.Max_faces) &
         ' ' & List_Cases'Image(o.List_Status));
       Msg(20, "Run mode (Shift): " &
         Boolean'Image(gc( Game_control.run_mode )));
