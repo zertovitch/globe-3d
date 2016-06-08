@@ -799,7 +799,7 @@ package body GLOBE_3D is
         Display_one(o);
       end if;
       if show_portals and then portal_depth > 0 then
-        Draw_boundary(clip.main_clipping, clip_area);
+        Draw_boundary(clip.main_clipping, clip_area, portal_depth);
       end if;
     end Display_clipped;
 

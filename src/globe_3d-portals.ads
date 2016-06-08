@@ -1,4 +1,5 @@
---  Methods provided for clipping through screen rectangles.
+--  Helpers for portal rendering.
+--  Methods for clipping through screen rectangles.
 
 package GLOBE_3D.Portals is
 
@@ -15,9 +16,8 @@ package GLOBE_3D.Portals is
     success: out Boolean
   );
 
-  --  This is for experimentation or debugging:
-  --  we show two bounding boxes for clipping.
+  --  This is for experimentation or debugging: we show current bounding box (clip) for clipping.
 
-  procedure Draw_boundary( main, clip: Rectangle );
+  procedure Draw_boundary( main, clip: Rectangle; portal_depth: Natural:= 0 );
 
 end GLOBE_3D.Portals;

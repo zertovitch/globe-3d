@@ -85,8 +85,8 @@ package body GLOBE_3D.Portals is
     success:= True;
   end Find_bounding_box;
 
-  procedure Draw_boundary( main, clip: Rectangle ) is
-    use GL;
+  procedure Draw_boundary( main, clip: Rectangle; portal_depth: Natural:= 0 ) is
+    use GL, REF;
     z: constant := 0.0;
     procedure Line(x1,y1,x2,y2: Integer) is
     begin
@@ -101,6 +101,7 @@ package body GLOBE_3D.Portals is
       Line(x1,y2,x1,y1);
     end Frame_Rect;
     rect: Rectangle;
+    val: constant Real:= 0.3 + 0.7 * Exp(-GL.Double(portal_depth));
   begin
     GL.Disable( GL.LIGHTING );
     GL.Disable( GL.TEXTURE_2D );
@@ -126,12 +127,12 @@ package body GLOBE_3D.Portals is
     GL.LoadIdentity;
 
     -- A green rectangle to signal the clipping area
-    GL.Color( 0.1, 1.0, 0.1, 1.0);
+    GL.Color( 0.1, val, 0.1, 1.0);
     GL_Begin(GL.LINES);
     Frame_Rect( rect.X1,  rect.Y1,  rect.X2,  rect.Y2 );
     GL_End;
     -- A red cross across the area
-    GL.Color( 1.0, 0.1, 0.1, 1.0);
+    GL.Color( val, 0.1, 0.1, 1.0);
     GL_Begin(GL.LINES);
     Line( clip.X1,clip.Y1,clip.X2,clip.Y2 );
     Line( clip.X2,clip.Y1,clip.X1,clip.Y2 );
