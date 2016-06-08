@@ -29,13 +29,14 @@ package GL.Simple_text is
 
   -- Specification inspired by package GLUT_2D.
 
-  type Font_type is (Simple);
+  type Font_type is (Simple, Complex);
 
   procedure Text_output(
-    p    : GL.Double_Vector_3D;
-    s    : String;
-    color: RGBA_Color;
-    font : Font_type:= Simple
+    p             : GL.Double_Vector_3D;
+    s             : String;
+    color         : RGBA_Color;
+    letter_height : GL.Double:= 1.0;
+    font          : Font_type:= Simple
   );
 
 end GL.Simple_text;
