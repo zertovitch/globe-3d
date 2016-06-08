@@ -5,6 +5,7 @@ package body GLOBE_3D.Options is
     return
       show_normals or
       show_portals or
+      show_texture_labels or
       full_check_objects or
       filter_portal_depth or
       portal_tracking or

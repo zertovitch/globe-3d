@@ -3,7 +3,8 @@ package GLOBE_3D.Options is
   -- Visual checks:
 
   show_normals        : constant Boolean:= False;
-  show_portals        : constant Boolean:= True;
+  show_portals        : constant Boolean:= False;
+  show_texture_labels : constant Boolean:= False;
   filter_portal_depth : constant Boolean:= False;
 
   -- Formal checks:

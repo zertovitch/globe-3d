@@ -565,15 +565,18 @@ private
                      -- 0 in P (triangle). Compact range : 1..3 for triangle
      normal      : Vector_3D;
      blending    : Boolean; -- is any alpha < 1 ?
-     --  connect_name is used for loading connected objects.
+     --  connect_name: helper. Can be used for loading connected objects.
      --  When the object group has been loaded, that name is set;
      --  the face(f).connecting accesses can be resolved using
-     --  the face_internal(f).connect_name .
+     --  the face_internal(f).connect_name . See procedure Rebuild_links.
      connect_name: Ident:= empty;
-     --  texture_name. face(f).texture must be resolved using
-     --  face_internal(f).texture_name.
+     --  texture_name: helper. face(f).texture can be resolved using
+     --  face_internal(f).texture_name and the function Texture_ID (in GLOBE_3D.Textures),
+     --  or the procedure Rebuild_links.
      texture_name: Ident:= empty;
-     --  specular_name. optional with texture: a "glossy"-ness specular map.
+     --  specular_name: helper. face(f).specular_map can be resolved using
+     --  face_internal(f).specular_name and the function Texture_ID (in GLOBE_3D.Textures),
+     --  or the procedure Rebuild_links.
      specular_name: Ident:= empty;
      --  portal_seen is always False, except during Display to avoid possible infinite
      --  recursion; it is reset to False at the end of Display.

@@ -4,7 +4,8 @@ with GLOBE_3D.Options,
      GLOBE_3D.Portals;
 
 with GL.Errors,
-     GL.Skins;
+     GL.Skins,
+     GL.Simple_text;
 
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Exceptions;                    use Ada.Exceptions;
@@ -446,6 +447,14 @@ package body GLOBE_3D is
           GL_End;
         end Draw_polygon;
 
+        procedure Display_texture_label(name: Ident; p: Point_3D) is
+          use GL.Simple_text;
+        begin
+          Disable( TEXTURE_2D );
+          Text_output(p, name, (0.7, 0.7, 0.9, 1.0), 5.0, Sans_Serif);
+          Enable( TEXTURE_2D );
+        end Display_texture_label;
+
       begin -- Display_face
 
         if fa.skin = invisible then
@@ -573,7 +582,10 @@ package body GLOBE_3D is
 
         --  Texture (diffuse) is drawn here:
         Draw_polygon;
-        --  Specular map (the "glossy" or "shiny" image) is drawn here:
+        if show_texture_labels then
+          Display_texture_label(fi.texture_name, o.point(fi.P_compact(1)));
+        end if;
+        --  Specular map (the optional "glossy" or "shiny" image) is drawn here:
         if is_textured(fa.skin) and then fa.specular_map /= null_image then
           --  NB: only works when setting GL.DepthFunc(GL.LEQUAL)
           --  Default is GL.LESS, and thus only first texture per face will be drawn.
@@ -1043,7 +1055,7 @@ package body GLOBE_3D is
   is
   begin
     if name'Length > Ident'Length then raise Constraint_Error; end if;
-    o.face_internal(face).texture_name:= empty;
+    o.face_internal(face).texture_name:= empty;  --  Stuff with blanks.
     o.face_internal(face).texture_name(1..name'Length):= name;
   end Texture_name_hint;
 
@@ -1055,7 +1067,7 @@ package body GLOBE_3D is
   is
   begin
     if name'Length > Ident'Length then raise Constraint_Error; end if;
-    o.face_internal(face).connect_name:= empty;
+    o.face_internal(face).connect_name:= empty;  --  Stuff with blanks.
     o.face_internal(face).connect_name(1..name'Length):= name;
   end Portal_name_hint;
 

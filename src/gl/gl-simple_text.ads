@@ -27,9 +27,7 @@
 
 package GL.Simple_text is
 
-  -- Specification inspired by package GLUT_2D.
-
-  type Font_type is (Simple, Complex);
+  type Font_type is (Simple, Complex, Sans_Serif);
 
   procedure Text_output(
     p             : GL.Double_Vector_3D;

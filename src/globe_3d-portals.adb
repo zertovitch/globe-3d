@@ -102,7 +102,7 @@ package body GLOBE_3D.Portals is
     end Frame_Rect;
     rect: Rectangle;
     val: constant Real:= 0.3 + 0.7 * Exp(-GL.Double(portal_depth));
-    text_size: constant:= 14.0;
+    text_size: constant:= 12.5;
   begin
     GL.Disable( GL.LIGHTING );
     GL.Disable( GL.TEXTURE_2D );
@@ -127,12 +127,13 @@ package body GLOBE_3D.Portals is
     GL.PushMatrix;
     GL.LoadIdentity;
 
+    -- Portal label
     GL.Simple_text.Text_output(
       (GL.Double(clip.X1),  GL.Double(clip.Y2) - text_size, 0.0),
       "Portal depth:" & Integer'Image(portal_depth),
-      (0.7, 0.7, val, 1.0),
+      (0.7, 0.7, val, 0.9),
       text_size,
-      GL.Simple_text.Complex
+      GL.Simple_text.Sans_Serif
     );
     -- A green rectangle to signal the clipping area
     GL.Color( 0.1, val, 0.1, 1.0);
