@@ -18,6 +18,7 @@ package GLUT_2D is
     Helvetica_18
   );
 
+  -- Text output from last GL.RasterPos position
   procedure Text_output(
     s    : String;
     font : Font_type

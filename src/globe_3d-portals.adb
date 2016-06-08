@@ -1,4 +1,4 @@
-with GLU;
+with GLU, GL.Simple_text;
 
 with GLOBE_3D.Math;
 
@@ -126,6 +126,11 @@ package body GLOBE_3D.Portals is
     GL.PushMatrix;
     GL.LoadIdentity;
 
+    GL.Simple_text.Text_output(
+      (GL.Double(clip.X1),  GL.Double(clip.Y2) - 30.0, 0.0),
+      "Portal depth:" & Integer'Image(portal_depth),
+      (0.7, 0.7, val, 1.0)
+    );
     -- A green rectangle to signal the clipping area
     GL.Color( 0.1, val, 0.1, 1.0);
     GL_Begin(GL.LINES);
