@@ -585,6 +585,7 @@ package body Doom3_Help is
           );
           -- Clone common part:
           new_obj.ID                   := m.obj.ID;
+          new_obj.centre               := m.obj.centre;
           new_obj.point(1..p)          := m.obj.point;
           new_obj.face(1..f)           := m.obj.face;
           new_obj.face_internal(1..f)  := m.obj.face_internal;
