@@ -400,6 +400,14 @@ package body GLOBE_3D is
     GL_End;
   end Arrow;
 
+  shiny_material :
+    constant GL.Materials.Material_type:=
+      (ambient =>        (0.1, 0.1, 0.1, 1.0),
+       diffuse =>        (0.2, 0.2, 0.2, 1.0),
+       specular =>       (0.7, 0.7, 0.7, 1.0),
+       emission =>       (0.0, 0.0, 0.0, 1.0),
+       shininess =>      77.0);  --  77: Chrome, 96: Glass
+
   -------------
   -- Display --
   -------------
@@ -593,7 +601,7 @@ package body GLOBE_3D is
           if is_coloured(fa.skin) then
             Disable(COLOR_MATERIAL);
           end if;
-          Set_Material(mirror_like);
+          Set_Material(shiny_material);
           if not fi.blending then
             Enable( BLEND );
           end if;
