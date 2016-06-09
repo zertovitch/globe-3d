@@ -807,8 +807,8 @@ procedure GLOBE_3D_Demo is
 
   video_count: Natural:= 0;
 
-  video_rate: constant:= 20;
-  video_declared_rate: constant:= 30;
+  video_rate: constant:= 24;                   --  was 20 (for an old machine...)
+  video_declared_rate: constant:= video_rate;  --  was 30 (for an old machine...)
   seconds_video: Long_Float; -- seconds since last captured image
   trigger_video: constant Long_Float:= 1.0 / Long_Float(video_rate);
 
