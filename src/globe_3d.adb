@@ -994,11 +994,25 @@ package body GLOBE_3D is
     o           : in out Object_3D'Class; -- object to be relinked
     neighbouring: in     Map_of_Visuals;  -- neighbourhood
     tolerant_obj: in     Boolean;         -- tolerant on missing objects
-    tolerant_tex: in     Boolean          -- tolerant on missing textures
+    tolerant_tex: in     Boolean;         -- tolerant on missing textures
+    tolerant_spc: in     Boolean          -- tolerant on missing specular maps
   )
   is
     use Visuals_Mapping;
     c: Cursor;
+    --
+    procedure Relink_specular(fa: in out Face_type; fi: Face_internal_type) is
+    begin
+      fa.specular_map:= Textures.Texture_ID( fi.specular_name );
+    exception
+      when Textures.Texture_name_not_found =>
+        if tolerant_spc then
+          fa.specular_map:= null_image;
+        else
+          raise;
+        end if;
+    end Relink_specular;
+    --
   begin
     for f in o.face'Range loop
       --  1/ Find texture IDs:
@@ -1006,16 +1020,7 @@ package body GLOBE_3D is
         begin
           o.face(f).texture:= Textures.Texture_ID( o.face_internal(f).texture_name );
           if o.face_internal(f).specular_name /= empty then
-            begin
-              o.face(f).specular_map:= Textures.Texture_ID( o.face_internal(f).specular_name );
-            exception
-              when Textures.Texture_name_not_found =>
-                if tolerant_tex then
-                  o.face(f).specular_map:= null_image;
-                else
-                  raise;
-                end if;
-            end;
+            Relink_specular(o.face(f), o.face_internal(f));
           end if;
         exception
           when Textures.Texture_name_not_found =>
@@ -1058,6 +1063,18 @@ package body GLOBE_3D is
     o.face_internal(face).texture_name:= empty;  --  Stuff with blanks.
     o.face_internal(face).texture_name(1..name'Length):= name;
   end Texture_name_hint;
+
+  procedure Specular_name_hint(
+    o   : in out Object_3D;
+    face:        Positive;
+    name:        String  --  give name as hint for texture
+  )
+  is
+  begin
+    if name'Length > Ident'Length then raise Constraint_Error; end if;
+    o.face_internal(face).specular_name:= empty;  --  Stuff with blanks.
+    o.face_internal(face).specular_name(1..name'Length):= name;
+  end Specular_name_hint;
 
   procedure Portal_name_hint(
     o   : in out Object_3D;

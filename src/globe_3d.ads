@@ -414,6 +414,13 @@ package GLOBE_3D is
     name:        String  --  give name as hint for texture
   );
 
+  -- Indicate a specular map's name that can be resolved later by Rebuild_links
+  procedure Specular_name_hint(
+    o   : in out Object_3D;
+    face:        Positive;
+    name:        String  --  give name as hint for texture
+  );
+
   -- Indicate a portal's name that can be resolved later by Rebuild_links
   procedure Portal_name_hint(
     o   : in out Object_3D;
@@ -425,7 +432,8 @@ package GLOBE_3D is
     o           : in out Object_3D'Class; -- object to be relinked
     neighbouring: in     Map_of_Visuals;  -- neighbourhood
     tolerant_obj: in     Boolean;         -- tolerant on missing objects
-    tolerant_tex: in     Boolean          -- tolerant on missing textures
+    tolerant_tex: in     Boolean;         -- tolerant on missing textures
+    tolerant_spc: in     Boolean          -- tolerant on missing specular maps
   );
   -- Does nothing when texture or object name is empty
   Portal_connection_failed: exception;

@@ -547,8 +547,8 @@ procedure GLOBE_3D_Demo is
       declare
         bricks_map: constant Map_of_Visuals:= Map_of((p_Visual(bri1),p_Visual(bri2)));
       begin
-        G3D.Rebuild_links(bri1.all,bricks_map,False,False);
-        G3D.Rebuild_links(bri2.all,bricks_map,False,False);
+        G3D.Rebuild_links(bri1.all,bricks_map,False,False,True);
+        G3D.Rebuild_links(bri2.all,bricks_map,False,False,True);
       end;
       Set_name(bri1.all,"Space station brick ONE (loaded)");
       Set_name(bri2.all,"Space station brick TWO (loaded)");
@@ -595,7 +595,7 @@ procedure GLOBE_3D_Demo is
         -- NB:
         -- - portals may have been already linked (if created, not loaded);
         -- - textures need to be linked
-        G3D.Rebuild_links(level_stuff(i).all, level_map,False,False);
+        G3D.Rebuild_links(level_stuff(i).all, level_map,False,False,True);
         G3D.Pre_calculate(level_stuff(i).all);
       end loop;
     end if;

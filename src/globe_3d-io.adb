@@ -19,9 +19,14 @@ package body GLOBE_3D.IO is
   stop_type: constant Character:=
     Character'Val(26); -- Ctrl-Z to stop displaying a binary file as a text
 
-  signature_obj: constant String:=
-    "GLOBE_3D 3D Binary Object File (" & object_extension & "). " &
+  signature_obj_root: constant String:=
+    "GLOBE_3D 3D Binary Object File (" & object_extension & "). ";
+
+  signature_obj_v2008: constant String:= signature_obj_root &
     "Format version: 2-Apr-2008." & stop_type;
+
+  signature_obj: constant String:= signature_obj_root &
+    "Format version: 09-Jun-2016" & stop_type;
 
   signature_bsp: constant String:=
     "GLOBE_3D Binary Space Partition File (" & BSP_extension & "). " &
@@ -190,6 +195,7 @@ package body GLOBE_3D.IO is
 
     v8: U8;
     v32, mp32, mf32: U32;
+    with_specular: Boolean:= True;
 
     procedure Read_face(face: out Face_type; face_invar: in out Face_internal_type) is
     begin
@@ -229,9 +235,11 @@ package body GLOBE_3D.IO is
         when others =>
           null;
       end case;
-      -- 8/ Texture: texture name is stored;
-      --    id must be found later
+      -- 8/ Texture: texture name is stored; id must be found later
       Read_String(buf, face_invar.texture_name);
+      if with_specular then
+        Read_String(buf, face_invar.specular_name);
+      end if;
       GL.IO.Get_Byte(buf,v8);
       face.whole_texture:= Boolean'Val(v8);
       GL.IO.Get_Byte(buf,v8);
@@ -246,8 +254,12 @@ package body GLOBE_3D.IO is
     ID: Ident;
   begin
     String'Read(s,test_signature);
-    if test_signature /= signature_obj then
-      raise Bad_data_format;
+    if test_signature = signature_obj then
+      null;
+    elsif test_signature = signature_obj_v2008 then
+      with_specular:= False;
+    else
+      raise Bad_data_format with "Signature not found: " & signature_obj_root;
     end if;
     GL.IO.Attach_Stream(b => buf, stm => s);
     Read_String(buf,ID);
@@ -350,14 +362,22 @@ package body GLOBE_3D.IO is
           null;
       end case;
       -- 8/ Texture: texture name is stored
+      -- First, the main (diffuse) bitmap.
       if face.texture = null_image then
         -- Maybe a texture name has been given with Texture_name_hint,
-        -- but was not yet attached to a GL ID number through Rebuild_Links
+        -- but was not yet attached to a GL ID number through Rebuild_Links (e.g., the d3g tool).
+        -- In doubt, we give the hinted name (better than losing that information).
         Write_String(s, face_invar.texture_name);
       else
         -- Usual way: We can get the texture name associated to the
         -- GL ID number; name is stored by GLOBE_3D.Textures.
-        Write_String(s, Textures.Texture_name(face.texture,False));
+        Write_String(s, Textures.Texture_name(face.texture, trim => False));
+      end if;
+      -- Next, the specular map.
+      if face.specular_map = null_image then
+        Write_String(s, face_invar.specular_name);
+      else
+        Write_String(s, Textures.Texture_name(face.specular_map, trim => False));
       end if;
       U8'Write(s,Boolean'Pos(face.whole_texture));
       U8'Write(s,Positive'Pos(face.repeat_U));

@@ -528,8 +528,12 @@ package body Doom3_Help is
 --            "surface " & i'img & " face " &
 --            f'img & "texture: " & Get_surface_texture_name(i)
 --         );
+        declare
+          tex_d: constant String:= Get_surface_texture_name(i);
+          tex: constant String:= tex_d(tex_d'First..tex_d'Last-2); -- remove the "_d"
         begin
-          Texture_name_hint(m.obj.all, f, Get_surface_texture_name(i));
+          Texture_name_hint(m.obj.all, f, tex_d);
+          Specular_name_hint(m.obj.all, f, tex & "_s");
         exception
           when Constraint_Error =>
             raise Constraint_Error with "Texture ident too long. Try with -j.";

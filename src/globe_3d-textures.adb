@@ -106,7 +106,7 @@ package body GLOBE_3D.Textures is
   procedure Check_2D_texture(id: Image_ID; blending_hint: out Boolean) is
   begin
     if not Valid_texture_ID(id) then
-      raise Undefined_texture_ID;
+      raise Undefined_texture_ID with "ID =" & Image_ID'Image(id);
     end if;
     if texture_2d_infos.tex(id).loaded then
       --  Already loaded. We recall the information we had at loading time.
@@ -219,7 +219,7 @@ package body GLOBE_3D.Textures is
     tn: Ident;
   begin
     if not Valid_texture_ID(id) then
-      raise Undefined_texture_ID;
+      raise Undefined_texture_ID with "ID =" & Image_ID'Image(id);
     end if;
     tn:= texture_2d_infos.tex(id).name;
     if trim then
@@ -237,7 +237,7 @@ package body GLOBE_3D.Textures is
   begin
     if c = No_Element then
       -- Key not found
-      raise Undefined_texture_name with
+      raise Texture_name_not_found with
         "Texture: " & trimmed & ", searched as " & up_name & "." &
         ASCII.CR & ASCII.LF &
         "Check data files:" &

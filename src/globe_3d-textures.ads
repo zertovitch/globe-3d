@@ -1,3 +1,5 @@
+--  Central (to the whole application) texture register
+
 package GLOBE_3D.Textures is
 
   -- The textures are stored by GL in that way:
@@ -67,7 +69,7 @@ package GLOBE_3D.Textures is
   -- When texture names are registered, you have the following tools --
   ---------------------------------------------------------------------
 
-  -- - Recall a texture's ID - you need it to define objects' faces.
+  -- - Recall a texture's ID by its name - you may need it to define objects' faces.
   function Texture_ID( name: String ) return Image_ID;
   Texture_name_not_found: exception;
 
@@ -83,15 +85,9 @@ package GLOBE_3D.Textures is
   -- same, but for all textures.
   procedure Check_all_textures;
 
+  Undefined_texture_ID  : exception;  --  raised by Texture_name or Check_2D_texture
+
   function Valid_texture_ID(id: Image_ID) return Boolean;
-
-  -- >= 16-apr-2008: no more need to reserve anything; unbounded collection
-  --
-  --  Textures_not_reserved: exception;
-  --  Texture_out_of_range: exception;
-
-  Undefined_texture_ID  : exception;
-  Undefined_texture_name: exception;
 
   -- - Erase the present texture collection
   --   (names, GL ID's, evenutally loaded images)
