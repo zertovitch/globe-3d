@@ -43,9 +43,9 @@ package GL.Materials is
   mirror_like :
     constant Material_type:= (ambient =>        (0.1, 0.1, 0.1, 1.0),
                               diffuse =>        (0.1, 0.1, 0.1, 1.0),
-                              specular =>       (1.0, 1.0, 1.0, 1.0),
+                              specular =>       (0.8, 0.8, 0.8, 1.0),
                               emission =>       (0.0, 0.0, 0.0, 1.0),
-                              shininess =>      96.0);  --  Like Glass
+                              shininess =>      77.0);  --  77: Chrome, 96: Glass
 
   -- A few colour-dominant materials:
 
