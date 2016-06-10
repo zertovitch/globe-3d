@@ -71,14 +71,17 @@ echo **************
 echo ** Add or update textures to %1.zip...
 echo **************
 
-zip ..\%1.zip *.bmp *.tga
+zip -9 ..\%1.zip *.bmp *.tga
 
 cd..
 
+echo GLOBE_3D_Demo.exe -load=%1 >%1.bat
+
+rem Preserve the precious .proc file
+zip -9 %1.zip %1.proc %1.bat
+
 echo.
 echo ** Display and Play!
-
-echo GLOBE_3D_Demo.exe -load=%1 >%1.bat
 
 start %1
 

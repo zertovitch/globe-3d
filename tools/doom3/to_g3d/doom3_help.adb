@@ -237,7 +237,8 @@ package body Doom3_Help is
               end;
             when Unzip_list =>
               Put_Line(f, tex & ".*");
-              Put_Line(f, p.name & ".*");
+              Put_Line(f, p.name & ".*");  --  name, with "_d" for diffuse
+              Put_Line(f, tex & "_s.*");   --  name, with "_s" for specular
             when Unzip_cmd1  =>
               if junk_dirs then
                 Put_Line(f,"unzip -o ..\d3tex.zip " & p.name & ".tga");
