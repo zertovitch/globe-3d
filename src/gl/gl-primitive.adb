@@ -10,9 +10,12 @@
 -------------------------------------------------------------------------
 
 with Ada.Numerics.Generic_Elementary_Functions;
+with Ada.Unchecked_Deallocation;
 with Ada.Text_IO; use Ada.Text_IO;
 
-package body GL.geometry.Primitives is
+with GL.Geometry;   use GL.Geometry;
+
+package body GL.Primitive is
 
    procedure destroy (Self : in out Primitive)
    is
@@ -50,14 +53,14 @@ package body GL.geometry.Primitives is
    is
    begin
       if Self.Vertices = null then
-         Self.Vertices      := new Vertex_array' (To.all);
+         Self.Vertices      := new Geometry.Vertex_array' (To.all);
          Self.owns_Vertices := True;
 
       elsif Self.Vertices'Length = To'Length then
          Self.Vertices.all := To.all;
       else
          free (Self.Vertices);
-         Self.Vertices      := new Vertex_array' (To.all);
+         Self.Vertices      := new Geometry.Vertex_array' (To.all);
          Self.owns_Vertices := True;
       end if;
    end;
@@ -82,7 +85,7 @@ package body GL.geometry.Primitives is
    is
    begin
       if Vertices = null then
-         return (Vertices         => new Vertex_array    (1 .. point_Count),
+         return (Vertices         => new Geometry.Vertex_array (1 .. point_Count),
                  owns_Vertices    => True,
                  Indices          => new vertex_Id_array (1 .. positive_uInt (point_Count)));
       else
@@ -106,7 +109,7 @@ package body GL.geometry.Primitives is
    indices_Count : constant positive_uInt := positive_uInt (2 * line_Count);
    begin
       if Vertices = null then
-         return (Vertices      => new Vertex_array (1 .. 2 * vertex_Id (line_Count)),
+         return (Vertices      => new Geometry.Vertex_array (1 .. 2 * vertex_Id (line_Count)),
                  owns_Vertices => True,
                  Indices       => new vertex_Id_array (1 .. indices_Count));
       else
@@ -146,7 +149,7 @@ package body GL.geometry.Primitives is
    indices_Count : constant positive_uInt := positive_uInt (line_Count + 1);
    begin
       if Vertices = null then
-         return (Vertices      => new Vertex_array (1 .. vertex_Id (line_Count) + 1),
+         return (Vertices      => new Geometry.Vertex_array (1 .. vertex_Id (line_Count) + 1),
                  owns_Vertices => True,
                  Indices       => new vertex_Id_array (1 .. indices_Count));
       else
@@ -186,7 +189,7 @@ package body GL.geometry.Primitives is
    indices_Count : constant positive_uInt :=  positive_uInt (line_Count) + 1;
    begin
       if Vertices = null then
-         return (Vertices => new Vertex_array (1 .. vertex_Id (line_Count) + 1),
+         return (Vertices => new Geometry.Vertex_array (1 .. vertex_Id (line_Count) + 1),
                  owns_Vertices => True,
                  Indices       => new vertex_Id_array (1 .. indices_Count));
       else
@@ -348,7 +351,7 @@ package body GL.geometry.Primitives is
    indices_Count : constant positive_uInt := 4 * positive_uInt (quad_Count);
    begin
       if Vertices = null then
-         return (Vertices      => new Vertex_array (1 .. vertex_Id (4 * quad_Count)),
+         return (Vertices      => new Geometry.Vertex_array (1 .. vertex_Id (4 * quad_Count)),
                  owns_Vertices => True,
                  Indices       => new vertex_Id_array ( 1 .. indices_Count));
       else
@@ -436,4 +439,4 @@ package body GL.geometry.Primitives is
       return GL.POLYGON;
    end;
 
-end GL.Geometry.Primitives;
+end GL.Primitive;

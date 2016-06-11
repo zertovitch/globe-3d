@@ -357,9 +357,9 @@ texture_Height           : constant GL.Sizei         := power_of_2_Ceiling (Natu
       return GL.Skins.p_Skin_transparent_unlit_textured (o.skinned_Geometry.Skin);
    end;
 
-   function Quads (o : in Impostor) return GL.Geometry.Primitives.p_Quads
+   function Quads (o : in Impostor) return GL.Primitive.p_Quads
    is
-      use GL.Geometry.Primitives, GL.Geometry.primal;
+      use GL.Primitive, GL.Geometry.primal;
    begin
       return p_Quads (p_primal_Geometry (o.skinned_Geometry.Geometry).Primitive);
    end;

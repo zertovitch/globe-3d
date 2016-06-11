@@ -9,7 +9,7 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GL.Geometry.Primitives,  GL.Geometry.primal, GL.Textures,  GL.Skins,  GL.Skinned_Geometry;
+with GL.Primitive,  GL.Geometry.primal, GL.Textures,  GL.Skins,  GL.Skinned_Geometry;
 
 package GLOBE_3D.Impostor is
 
@@ -87,7 +87,7 @@ private
    --
    -- convenience function to allow brief access to dynamically typed 'skinned_Geometry.Skin' component.
 
-   function Quads (o : in Impostor) return GL.Geometry.Primitives.p_Quads;
+   function Quads (o : in Impostor) return GL.Primitive.p_Quads;
    --
    -- convenience function to allow brief access to the 'skinned_Geometry.Geometry' component.
 
@@ -115,7 +115,7 @@ private
          skinned_Geometry                 : GL.Skinned_Geometry.Skinned_Geometry
                                           := (Geometry => new GL.Geometry.primal.primal_Geometry'
                                                                 (Bounds    => GL.Geometry.null_Bounds,
-                                                                 Primitive => GL.Geometry.Primitives.new_Quads (quad_Count => 1).all'Access),
+                                                                 Primitive => GL.Primitive.new_Quads (quad_Count => 1).all'Access),
                                               Skin      => new GL.Skins.Skin_transparent_unlit_textured,
                                               Veneer    => null);
 

@@ -73,7 +73,7 @@ package body GL.Geometry.primal is
 
    procedure destroy (Self : in out primal_Geometry)
    is
-      use Primitives;
+      use Primitive;
    begin
       free (Self.Primitive);
    end;

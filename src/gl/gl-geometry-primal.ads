@@ -9,13 +9,13 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GL.Geometry.Primitives;
+with GL.Primitive;
 
 package GL.Geometry.primal is
 
    type primal_Geometry is new Geometry with
       record
-         Primitive : Primitives.p_Primitive;
+         Primitive : GL.Primitive.p_Primitive;
       end record;
 
    type p_primal_Geometry is access all primal_Geometry;

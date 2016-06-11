@@ -9,14 +9,16 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-package GL.Geometry.Primitives is
+with GL.Geometry;
+
+package GL.Primitive is
 
    type Primitive is abstract tagged
       record
-         Vertices         : p_Vertex_array;
+         Vertices         : GL.Geometry.p_Vertex_array;
          owns_Vertices    : Boolean;
 
-         Indices          : p_vertex_Id_array;
+         Indices          : GL.Geometry.p_vertex_Id_array;
       end record;
 
    type p_Primitive is access all Primitive'Class;
@@ -40,7 +42,7 @@ package GL.Geometry.Primitives is
 
    type Points is new Primitive with null record;
 
-   function create_Points (point_Count : in vertex_Id;   Vertices : p_Vertex_array := null) return Points;
+   function create_Points (point_Count : in GL.Geometry.vertex_Id;   Vertices : GL.Geometry.p_Vertex_array := null) return Points;
 
    function primitive_Id  (Self : in     Points) return GL.ObjectTypeEnm;
 
@@ -48,49 +50,49 @@ package GL.Geometry.Primitives is
 
    type Lines is new Primitive with null record;
 
-   function create_Lines  (line_Count : in Natural;   Vertices : p_Vertex_array := null) return Lines;
+   function create_Lines  (line_Count : in Natural;   Vertices : GL.Geometry.p_Vertex_array := null) return Lines;
 
    function primitive_Id  (Self : in     Lines) return GL.ObjectTypeEnm;
 
    function get_vertex_Id (Self : in Lines;   Line   : in Positive;                     -- the line number
                                               Vertex : in Positive)                     -- 1 or 2
-                                                                    return vertex_Id;
+                                                                    return GL.Geometry.vertex_Id;
 
    procedure set_vertex_Id (Self : in out Lines;   Line   : in Positive;                     -- the line number
                                                    Vertex : in Positive;                     -- 1 or 2
-                                                   To     : in vertex_Id);
+                                                   To     : in GL.Geometry.vertex_Id);
 
    -- line strip
 
    type line_Strip is new Primitive with null record;
 
-   function create_line_Strip (line_Count : in Natural;   Vertices : p_Vertex_array := null) return line_Strip;
+   function create_line_Strip (line_Count : in Natural;   Vertices : GL.Geometry.p_Vertex_array := null) return line_Strip;
 
    function primitive_Id  (Self : in     line_Strip) return GL.ObjectTypeEnm;
 
    function get_vertex_Id (Self : in line_Strip;   Line   : in Positive;                     -- the line number
                                                    Vertex : in Positive)                     -- 1 or 2
-                                                                    return vertex_Id;
+                                                                    return GL.Geometry.vertex_Id;
 
    procedure set_vertex_Id (Self : in out line_Strip;   Line   : in Positive;                     -- the line number
                                                         Vertex : in Positive;                     -- 1 or 2
-                                                        To     : in vertex_Id);
+                                                        To     : in GL.Geometry.vertex_Id);
 
    -- line loop
 
    type line_Loop is new Primitive with null record;
 
-   function create_line_Loop (line_Count : in Natural;   Vertices : p_Vertex_array := null) return line_Loop;
+   function create_line_Loop (line_Count : in Natural;   Vertices : GL.Geometry.p_Vertex_array := null) return line_Loop;
 
    function primitive_Id  (Self : in     line_Loop) return GL.ObjectTypeEnm;
 
    function get_vertex_Id (Self : in line_Loop;   Line   : in Positive;                     -- the line number
                                                   Vertex : in Positive)                     -- 1 or 2
-                                                                    return vertex_Id;
+                                                                    return GL.Geometry.vertex_Id;
 
    procedure set_vertex_Id (Self : in out line_Loop;   Line   : in Positive;                     -- the line number
                                                        Vertex : in Positive;                     -- 1 or 2
-                                                       To     : in vertex_Id);
+                                                       To     : in GL.Geometry.vertex_Id);
 
    -- triangles
 
@@ -98,19 +100,19 @@ package GL.Geometry.Primitives is
 
    type p_Triangles is access all Triangles'Class;
 
-   function create_Triangles (triangle_Count : in Natural;   Vertices :        p_Vertex_array           ) return Triangles;
+   function create_Triangles (triangle_Count : in Natural;   Vertices :        GL.Geometry.p_Vertex_array           ) return Triangles;
 
-   function new_Triangles    (triangle_Count : in Natural;   Vertices : in     p_Vertex_array           ) return p_Triangles;
+   function new_Triangles    (triangle_Count : in Natural;   Vertices : in     GL.Geometry.p_Vertex_array           ) return p_Triangles;
 
    function primitive_Id  (Self : in     Triangles) return GL.ObjectTypeEnm;
 
    function get_vertex_Id (Self : in Triangles;   Triangle : in Positive;                     -- the triangle ordinal number
                                                   Vertex   : in Positive)                     -- 1, 2 or 3
-                                                                        return vertex_Id;
+                                                                        return GL.Geometry.vertex_Id;
 
    procedure set_vertex_Id (Self : in out Triangles;   Triangle : in Positive;                     -- the triangle ordinal number
                                                        Vertex   : in Positive;                     -- 1, 2 or 3
-                                                       To       : in vertex_Id);
+                                                       To       : in GL.Geometry.vertex_Id);
 
    -- triangle strip
 
@@ -120,76 +122,76 @@ package GL.Geometry.Primitives is
 
    type triangle_Strips is array (Positive range <>) of p_triangle_Strip;
 
-   function create_triangle_Strip (triangle_Count : in Natural;   vertices : p_Vertex_array) return triangle_Strip'Class;
+   function create_triangle_Strip (triangle_Count : in Natural;   vertices : GL.Geometry.p_Vertex_array) return triangle_Strip'Class;
 
-   function new_triangle_Strip (triangle_Count : in Natural;   vertices : in p_Vertex_array       ) return p_triangle_Strip;
+   function new_triangle_Strip (triangle_Count : in Natural;   vertices : in GL.Geometry.p_Vertex_array       ) return p_triangle_Strip;
 
    function primitive_Id  (Self : in     triangle_Strip) return GL.ObjectTypeEnm;
 
    function get_vertex_Id (Self : in triangle_Strip;   Triangle : in Positive;                     -- the triangle ordinal number
                                                        Vertex   : in Positive)                     -- 1, 2 or 3
-                                                                               return vertex_Id;
+                                                                               return GL.Geometry.vertex_Id;
 
    procedure set_vertex_Id (Self : in out triangle_Strip;   Triangle : in Positive;                     -- the triangle ordinal number
                                                             Vertex   : in Positive;                     -- 1, 2 or 3
-                                                            To       : in vertex_Id);
+                                                            To       : in GL.Geometry.vertex_Id);
 
    -- triangle fan
 
    type triangle_Fan is new Primitive with null record;
 
-   function create_triangle_Fan (triangle_Count : in Natural;   vertices :        p_Vertex_array           ) return triangle_Fan;
+   function create_triangle_Fan (triangle_Count : in Natural;   vertices :        GL.Geometry.p_Vertex_array           ) return triangle_Fan;
 
    function primitive_Id  (Self : in     triangle_Fan) return GL.ObjectTypeEnm;
 
    function get_vertex_Id (Self : in triangle_Fan;   Triangle : in Positive;                     -- the triangle ordinal number
                                                      Vertex   : in Positive)                     -- 1, 2 or 3
-                                                                             return vertex_Id;
+                                                                             return GL.Geometry.vertex_Id;
 
    procedure set_vertex_Id (Self : in out triangle_Fan;   Triangle : in Positive;                     -- the triangle ordinal number
                                                           Vertex   : in Positive;                     -- 1, 2 or 3
-                                                          To       : in vertex_Id);
+                                                          To       : in GL.Geometry.vertex_Id);
 
    -- quads
 
    type Quads is new Primitive with null record;
    type p_Quads is access all Quads'Class;
 
-   function create_Quads  (quad_Count : in Natural;   Vertices : in     p_Vertex_array := null          ) return Quads;
-   function new_Quads     (quad_Count : in Natural;   Vertices : in     p_Vertex_array := null          ) return p_Quads;
+   function create_Quads  (quad_Count : in Natural;   Vertices : in     GL.Geometry.p_Vertex_array := null          ) return Quads;
+   function new_Quads     (quad_Count : in Natural;   Vertices : in     GL.Geometry.p_Vertex_array := null          ) return p_Quads;
 
    function primitive_Id  (Self : in     Quads) return GL.ObjectTypeEnm;
 
    function get_vertex_Id (Self : in Quads;   Quad   : in Positive;                     -- the quad's ordinal number
                                               Vertex : in Positive)                     -- 1, 2, 3 or 4
-                                                                        return vertex_Id;
+                                                                        return GL.Geometry.vertex_Id;
 
    procedure set_vertex_Id (Self : in out Quads;   Quad   : in Positive;                     -- the quad's ordinal number
                                                    Vertex : in Positive;                     -- 1, 2, 3 or 4
-                                                   To     : in vertex_Id);
+                                                   To     : in GL.Geometry.vertex_Id);
 
    -- quad strip
 
    type quad_Strip is new Primitive with null record;
 
-   function create_quad_Strip (quad_Count : in Natural;   Vertices : in     p_Vertex_array        ) return quad_Strip;
+   function create_quad_Strip (quad_Count : in Natural;   Vertices : in     GL.Geometry.p_Vertex_array        ) return quad_Strip;
 
    function primitive_Id  (Self : in     quad_Strip) return GL.ObjectTypeEnm;
 
    function get_vertex_Id (Self : in quad_Strip;   Quad   : in Positive;                     -- the quad's ordinal number
                                                    Vertex : in Positive)                     -- 1, 2, 3 or 4
-                                                                        return vertex_Id;
+                                                                        return GL.Geometry.vertex_Id;
 
    procedure set_vertex_Id (Self : in out quad_Strip;   Quad   : in Positive;                     -- the quad's ordinal number
                                                         Vertex : in Positive;                     -- 1, 2, 3 or 4
-                                                        To     : in vertex_Id);
+                                                        To     : in GL.Geometry.vertex_Id);
 
    -- polygon
 
    type Polygon is new Primitive with null record;
 
-   function create_Polygon (vertex_Count : in Natural;   Vertices : in     p_Vertex_array        ) return Polygon;
+   function create_Polygon (vertex_Count : in Natural;   Vertices : in     GL.Geometry.p_Vertex_array        ) return Polygon;
 
    function primitive_Id  (Self : in     Polygon) return GL.ObjectTypeEnm;
 
-end GL.Geometry.Primitives;
+end GL.Primitive;
