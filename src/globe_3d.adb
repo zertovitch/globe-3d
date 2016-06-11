@@ -402,11 +402,11 @@ package body GLOBE_3D is
 
   shiny_material :
     constant GL.Materials.Material_type:=
-      (ambient =>        (0.1, 0.1, 0.1, 1.0),
-       diffuse =>        (0.2, 0.2, 0.2, 1.0),
-       specular =>       (0.7, 0.7, 0.7, 1.0),
+      (ambient =>        (0.0, 0.0, 0.0, 1.0),
+       diffuse =>        (0.0, 0.0, 0.0, 1.0),
+       specular =>       (1.0, 1.0, 1.0, 1.0),
        emission =>       (0.0, 0.0, 0.0, 1.0),
-       shininess =>      77.0);  --  77: Chrome, 96: Glass
+       shininess =>      50.0);  --  77: Chrome, 96: Glass
 
   -------------
   -- Display --
@@ -481,11 +481,15 @@ package body GLOBE_3D is
           or else (fa.skin = Previous_face.skin
                    and then is_material(fa.skin)
                    and then fa.material /= Previous_face.material)
+          or else (is_textured(fa.skin)
+                   and then Is_textured_specular(Previous_face))
         then
           case fa.skin is
             when material_only | material_texture =>
               Disable(COLOR_MATERIAL);
               Set_Material(fa.material);
+            when invisible =>
+              null;
             when others =>
               Set_Material(neutral_material);
           end case;
@@ -498,28 +502,32 @@ package body GLOBE_3D is
         if First_Face
           or else Previous_face.skin = invisible
           or else fa.skin /= Previous_face.skin
-          or else (fa.skin = Previous_face.skin
-                   and then is_coloured(fa.skin)
-                   and then (fa.colour /= Previous_face.colour
-                             or else fa.alpha /= Previous_face.alpha))
         then
           case fa.skin is
             when material_only | material_texture =>
               null; -- done above
             when colour_only | coloured_texture =>
               Enable(COLOR_MATERIAL);
-              ColorMaterial(FRONT_AND_BACK, AMBIENT_AND_DIFFUSE);
-              Color(
-                    red   => fa.colour.red,
-                    green => fa.colour.green,
-                    blue  => fa.colour.blue,
-                    alpha => fa.alpha
-                   );
             when texture_only =>
               Disable(COLOR_MATERIAL);
             when invisible =>
               null;
           end case;
+        end if;
+
+        if is_coloured(fa.skin) and then
+          (First_Face
+             or else Previous_face.skin = invisible
+             or else not (fa.colour = Previous_face.colour and fa.alpha = Previous_face.alpha)
+           )
+        then
+          ColorMaterial(FRONT_AND_BACK, AMBIENT_AND_DIFFUSE);
+          Color(
+                red   => fa.colour.red,
+                green => fa.colour.green,
+                blue  => fa.colour.blue,
+                alpha => fa.alpha
+               );
         end if;
 
         -----------------------------
@@ -537,27 +545,29 @@ package body GLOBE_3D is
 
         if First_Face
           or else Previous_face.skin = invisible
-          or else fa.skin /= Previous_face.skin
-          or else (fa.skin = Previous_face.skin
-                   and then is_textured(fa.skin)
-                   and then (fa.texture /= Previous_face.texture
-                             or else
-                             --  Even if the main texture is the same as the previous one,
-                             --  the use of a specular map (also a kind of texture) on
-                             --  previous face obliterates this optimization.
-                             Previous_face.specular_map /= null_image
-                            )
-                  )
+          or else is_textured(fa.skin) /= is_textured(Previous_face.skin)
         then
           case fa.skin is
             when texture_only | coloured_texture | material_texture =>
               Enable( TEXTURE_2D );
-              BindTexture( TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.texture)+1) );
             when colour_only | material_only =>
               Disable( TEXTURE_2D );
             when invisible =>
               null;
           end case;
+        end if;
+
+        if is_textured(fa.skin) and then
+          (First_Face
+             or else not
+                ( --  In this case we don't need to bind again the same image ID
+                  is_textured(Previous_face.skin) and then
+                  fa.texture = Previous_face.texture and then
+                  Previous_face.specular_map = null_image
+                )
+          )
+        then
+          BindTexture( TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.texture)+1) );
         end if;
 
         ------------------------------------------
@@ -841,6 +851,11 @@ package body GLOBE_3D is
     Display_clipped( o, clip_area => clip.main_clipping, portal_depth => 0 );
     Reset_portal_seen(o);
   end Display;
+
+  function Is_textured_specular(fa: Face_type) return Boolean is
+  begin
+    return is_textured(fa.skin) and then fa.specular_map /= null_image;
+  end;
 
   overriding procedure Destroy (o : in out Object_3D) is
     ol, ol_prev: p_Object_3D_list:= o.sub_objects;

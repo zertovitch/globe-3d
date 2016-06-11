@@ -334,6 +334,8 @@ package GLOBE_3D is
                     Map_idx_pair_4_array;
   end record;
 
+  function Is_textured_specular(fa: Face_type) return Boolean;
+
   type Face_array is array(Natural range <>) of aliased Face_type;
   type p_Face_array is access Face_array;
 
