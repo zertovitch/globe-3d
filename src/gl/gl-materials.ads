@@ -32,6 +32,8 @@ package GL.Materials is
 
   function is_Transparent (Self : in Material_type) return Boolean;
 
+  procedure Set_Material (m: Material_type);
+
   neutral_material :
     constant Material_type:= (ambient =>        (0.2, 0.2, 0.2, 1.0),
                               diffuse =>        (0.8, 0.8, 0.8, 1.0),

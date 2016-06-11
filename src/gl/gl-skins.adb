@@ -14,6 +14,7 @@ with Ada.Unchecked_Deallocation;
 package body GL.Skins is
 
    use GL.Geometry;
+   use GL.Materials;
    use GL.Textures;
 
    -----------------------------------------------------------------
@@ -50,16 +51,6 @@ package body GL.Skins is
       destroy    (Self.all);
       deallocate (Self);
    end;
-
-   procedure Set_Material (m: Materials.Material_type) is
-      use GL;
-   begin
-      Material (FRONT_AND_BACK, AMBIENT,   m.ambient);
-      Material (FRONT_AND_BACK, DIFFUSE,   m.diffuse);
-      Material (FRONT_AND_BACK, SPECULAR,  m.specular);
-      Material (FRONT_AND_BACK, EMISSION,  m.emission);
-      Material (FRONT_AND_BACK, SHININESS, m.shininess);
-   end Set_Material;
 
    -- Skin_opaque_unlit_mono_color
    --
@@ -128,7 +119,6 @@ package body GL.Skins is
 
    function  is_Transparent (Self : in     Skin_opaque_lit_mono_color) return Boolean
    is
-      use GL.Materials;
    begin
       return is_Transparent (Self.Material);
    end;

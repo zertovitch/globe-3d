@@ -619,10 +619,6 @@ private
   function Is_to_blend (m: GL.Material_Float_vector)   return Boolean;
   function Is_to_blend (m: GL.Materials.Material_type) return Boolean;
 
-  -- material support
-  --
-  procedure Set_Material (m: GL.Materials.Material_type);
-
   -- Maps of Visuals - quick dictionary search
   --
   package Visuals_Mapping is new Ada.Containers.Hashed_Maps

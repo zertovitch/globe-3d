@@ -1,6 +1,6 @@
 project Simple_Win32 is
 
-   for Source_Dirs use (".", "..\..\bindings", "..\..\bindings\win32", "..\..\src\/**", "..\..\ada05_proxy");
+   for Source_Dirs use (".", "..\..\bindings", "..\..\bindings\win32", "..\..\src\/**");
    for Main use ("simple.adb");
    for Object_Dir use "..\..\obj\gnatdebg";
 

@@ -106,19 +106,6 @@ package body GLOBE_3D is
       -- m.emission, m.shininess not relevant
   end Is_to_blend;
 
-  -- material support
-  --
-
-  procedure Set_Material(m: GL.Materials.Material_type) is
-     use GL;
-  begin
-     Material(FRONT_AND_BACK, AMBIENT,   m.ambient);
-     Material(FRONT_AND_BACK, DIFFUSE,   m.diffuse);
-     Material(FRONT_AND_BACK, SPECULAR,  m.specular);
-     Material(FRONT_AND_BACK, EMISSION,  m.emission);
-     Material(FRONT_AND_BACK, SHININESS, m.shininess);
-  end Set_Material;
-
   -- 'Visual'
   --
 
@@ -402,9 +389,9 @@ package body GLOBE_3D is
 
   shiny_material :
     constant GL.Materials.Material_type:=
-      (ambient =>        (0.0, 0.0, 0.0, 1.0),
-       diffuse =>        (0.0, 0.0, 0.0, 1.0),
-       specular =>       (1.0, 1.0, 1.0, 1.0),
+      (ambient =>        (0.1, 0.1, 0.1, 1.0),
+       diffuse =>        (0.1, 0.1, 0.1, 1.0),
+       specular =>       (0.8, 0.8, 0.8, 1.0),
        emission =>       (0.0, 0.0, 0.0, 1.0),
        shininess =>      50.0);  --  77: Chrome, 96: Glass
 
@@ -489,7 +476,7 @@ package body GLOBE_3D is
               Disable(COLOR_MATERIAL);
               Set_Material(fa.material);
             when invisible =>
-              null;
+              null;  --  NB: this case doesn't happen since procedure was quitted before
             when others =>
               Set_Material(neutral_material);
           end case;

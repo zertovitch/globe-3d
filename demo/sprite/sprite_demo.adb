@@ -32,15 +32,15 @@ begin
    define (the_Viewer);
 
 
-   the_Sprite := new g3d.sprite.Sprite (max_Geometrys => 1);
+   the_Sprite := new g3d.sprite.Sprite (max_Geometries => 1);
 
 
 
    -- using vbo geometry
    --
    declare
-      the_Geometry : gl.geometry.vbo.p_vbo_Geometry        := new gl.geometry.vbo.vbo_Geometry;
-      the_Skin     : p_Skin_transparent_unlit_textured := new Skin_transparent_unlit_textured;
+      the_Geometry : constant gl.geometry.vbo.p_vbo_Geometry    := new gl.geometry.vbo.vbo_Geometry;
+      the_Skin     : constant p_Skin_transparent_unlit_textured := new Skin_transparent_unlit_textured;
 
       the_Vertices : aliased gl.geometry.vertex_Array := (1 => (-100.0, -100.0, 0.0),
                                                           2 => ( 100.0, -100.0, 0.0),
