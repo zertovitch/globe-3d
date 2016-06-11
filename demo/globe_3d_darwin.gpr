@@ -1,6 +1,6 @@
 -- This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
 -- for the GLOBE_3D ( http://sf.net/projects/globe3d/ ) demos
--- Build me with "gnatmake -P globe_3d_gps_darwin.gpr", or open me with GPS
+-- Build me with "gnatmake -P globe_3d_darwin.gpr", or open me with GPS
 --
 project GLOBE_3D_Darwin is
 
@@ -18,8 +18,10 @@ project GLOBE_3D_Darwin is
    end Builder;
 
    package Linker is
-      for Default_Switches ("ada") use ("-g", "-bind_at_load", "-framework", "/GLUT", "/System/Library/Frameworks/OpenGL.framework/Libraries/libGL.dylib", 
-"/System/Library/Frameworks/OpenGL.framework/Libraries/libGLU.dylib", "-lm");
+      for Default_Switches ("ada") use ("-g", "-bind_at_load", "-framework", "/GLUT", "-framework", "/OpenGL", "-lm");
+      --  Was, after "/GLUT": 
+      --    "/System/Library/Frameworks/OpenGL.framework/Libraries/libGL.dylib", 
+      --    "/System/Library/Frameworks/OpenGL.framework/Libraries/libGLU.dylib", "-lm"
    end Linker;
 
    package Compiler is

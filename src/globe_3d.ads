@@ -375,10 +375,12 @@ package GLOBE_3D is
   );
   subtype List_Ids is Positive;
 
-  --  Typical performances (HP Phoenix h9-1161ez of 2012, single-textured demo's 1st scene):
-  --    No_List           :    102 FPS
-  --    No_List_Optimized :    144 FPS
-  --    Generate_List     :    156 FPS
+  --  Typical performances
+  --  Machine: HP Phoenix h9-1161ez of 2012, unchanged
+  --    Single-textured demo's 1st scene (1); double texture (with specular) (2)
+  --    No_List           :    102 FPS (1);  99 FPS (2)
+  --    No_List_Optimized :    144 FPS (1); 135 FPS (2)
+  --    Generate_List     :    156 FPS (1); 156 FPS (2)
 
   -------------------------------------
   --  Now: the Object_3D definition  --
