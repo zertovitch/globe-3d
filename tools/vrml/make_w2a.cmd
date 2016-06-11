@@ -25,7 +25,7 @@ rem
 :comp
 echo 3) gnatmake Wrl2Ada
 rem
-gnatmake -g -gnato wrl2ada -largs -Wl,--stack=0x10000000
+gnatmake -Pw2a.gpr
 rem
 echo 4) New wrl2ada.exe is built (or should...) !
 :fin

@@ -409,26 +409,7 @@ package GLOBE_3D is
   procedure Check_object(o: Object_3D);
   -- Check object for invalid or duplicate vertices
 
-  -- Indicate a texture's name that can be resolved later by Rebuild_links
-  procedure Texture_name_hint(
-    o   : in out Object_3D;
-    face:        Positive;
-    name:        String  --  give name as hint for texture
-  );
-
-  -- Indicate a specular map's name that can be resolved later by Rebuild_links
-  procedure Specular_name_hint(
-    o   : in out Object_3D;
-    face:        Positive;
-    name:        String  --  give name as hint for texture
-  );
-
-  -- Indicate a portal's name that can be resolved later by Rebuild_links
-  procedure Portal_name_hint(
-    o   : in out Object_3D;
-    face:        Positive;
-    name:        String  --  give name as hint for connected object
-  );
+  -- NB: Texture_name_hint, Specular_name_hint, Portal_name_hint were moved to GLOBE_3D.Aux.
 
   procedure Rebuild_links(
     o           : in out Object_3D'Class; -- object to be relinked
@@ -522,15 +503,7 @@ package GLOBE_3D is
 
   function Is_light_switched(which: Light_ident) return Boolean;
 
-  ----------
-  -- Misc --
-  ----------
-
-  function Image( r: Real ) return String;
-
-  function Coords( p: Point_3D ) return String;
-
-  procedure Angles_modulo_360( v: in out Vector_3D );
+  -- NB: Image, Coords, Angles_modulo_360 were moved to GLOBE_3D.Aux.
 
   --------------------------------
   -- Free heap-allocated memory --

@@ -9,7 +9,8 @@
 with GL, GL.IO, GL.Frustums, GLU,  GLUT;
 
 with GLOBE_3D.Math,
-     GLOBE_3D.Software_Anti_Aliasing;
+     GLOBE_3D.Software_Anti_Aliasing,
+     GLOBE_3D.Aux;
 
 with Actors;
 with GLUT_2D;  --, GLUT_Exit;
@@ -223,7 +224,7 @@ package body GLUT.Windows is
    procedure Display_status (Self : in out Window;
                              sec  : GLOBE_3D.Real)
    is
-      use GL, G3D, G3D.REF, G3DM;
+      use GL, G3D, G3D.Aux, G3D.REF, G3DM;
       light_info : String(1..8);
    begin
       PushMatrix;

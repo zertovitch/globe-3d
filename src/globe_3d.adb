@@ -1,7 +1,8 @@
 with GLOBE_3D.Options,
      GLOBE_3D.Textures,
      GLOBE_3D.Math,
-     GLOBE_3D.Portals;
+     GLOBE_3D.Portals,
+     GLOBE_3D.Aux;
 
 with GL.Errors,
      GL.Skins,
@@ -22,31 +23,13 @@ package body GLOBE_3D is
   package G3DT renames GLOBE_3D.Textures;
   package G3DM renames GLOBE_3D.Math;
 
-  function Image( r: Real ) return String is
-    s: String(1..10);
-  begin
-    RIO.Put(s,r,4,0);
-    return s;
-  exception
-    when Ada.Text_IO.Layout_Error =>
-      return Real'Image(r);
-  end Image;
-
-  function Coords( p: Point_3D ) return String is
-  begin
-    return '(' & Image(p(0)) &
-           ',' & Image(p(1)) &
-           ',' & Image(p(2)) &
-           ')';
-  end Coords;
-
    -- normal support
    --
 
    procedure Add_Normal_of_3p (o             : in     Object_3D'Class;
                                Pn0, Pn1, Pn2 : in     Integer;
                                N             : in out Vector_3D) is
-      use GL, G3DM;
+      use GL, G3DM, GLOBE_3D.Aux;
 
       function Params return String is
       begin
@@ -932,20 +915,6 @@ package body GLOBE_3D is
     Switch_light(which, not Is_light_switched(which));
   end Reverse_light_switch;
 
-  prec_a360    : constant:= 10000;
-  r_prec_a360  : constant:= 10000.0;
-  i_r_prec_a360: constant:= 1.0 / r_prec_a360;
-
-  procedure Angles_modulo_360( v: in out Vector_3D )is
-    use GL;
-  begin
-    for i in v'Range loop
-      v(i):=
-        GL.Double(Integer(r_prec_a360 * v(i)) mod (360*prec_a360))
-        * i_r_prec_a360;
-    end loop;
-  end Angles_modulo_360;
-
   ------------------
   -- Resource I/O --
   ------------------
@@ -1061,42 +1030,6 @@ package body GLOBE_3D is
       end if;
     end loop;
   end Rebuild_links;
-
-  procedure Texture_name_hint(
-    o   : in out Object_3D;
-    face:        Positive;
-    name:        String  --  give name as hint for texture
-  )
-  is
-  begin
-    if name'Length > Ident'Length then raise Constraint_Error; end if;
-    o.face_internal(face).texture_name:= empty;  --  Stuff with blanks.
-    o.face_internal(face).texture_name(1..name'Length):= name;
-  end Texture_name_hint;
-
-  procedure Specular_name_hint(
-    o   : in out Object_3D;
-    face:        Positive;
-    name:        String  --  give name as hint for texture
-  )
-  is
-  begin
-    if name'Length > Ident'Length then raise Constraint_Error; end if;
-    o.face_internal(face).specular_name:= empty;  --  Stuff with blanks.
-    o.face_internal(face).specular_name(1..name'Length):= name;
-  end Specular_name_hint;
-
-  procedure Portal_name_hint(
-    o   : in out Object_3D;
-    face:        Positive;
-    name:        String  --  give name as hint for connected object
-  )
-  is
-  begin
-    if name'Length > Ident'Length then raise Constraint_Error; end if;
-    o.face_internal(face).connect_name:= empty;  --  Stuff with blanks.
-    o.face_internal(face).connect_name(1..name'Length):= name;
-  end Portal_name_hint;
 
    ----------------------------------------
    -- tbd: has been moved (for the moment) external to 'render' for performance, but this makes package task unsafe !

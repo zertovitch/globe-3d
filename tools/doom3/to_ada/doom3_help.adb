@@ -668,7 +668,7 @@ package body Doom3_Help is
   end Ada_create;
 
   procedure Ada_Begin is
-    pretty_mem: Boolean:= pretty;
+    pretty_mem: constant Boolean:= pretty;
   begin
     pretty:= True; -- For the spec. we want a pretty one !
     Ada_Put_Line("with GLOBE_3D, GLOBE_3D.BSP;");
@@ -745,6 +745,7 @@ package body Doom3_Help is
 
   procedure YY_Accept is
     nb_points, nb_polys: Natural;
+    pragma Unreferenced (nb_polys, nb_points);
   begin
     Ada_Create;
     indent:= 1;

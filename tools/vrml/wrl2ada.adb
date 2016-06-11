@@ -22,8 +22,8 @@ procedure Wrl2Ada is
 begin
   for i in 1..Argument_Count loop
     declare
-      arg: String:= Argument(i);
-      u_arg: String:= To_Upper( arg );
+      arg: constant String:= Argument(i);
+      u_arg: constant String:= To_Upper( arg );
     begin
       if u_arg'length > 1 and then
         (u_arg(1) = '-' or u_arg(1) = '/') then

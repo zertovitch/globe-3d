@@ -16,7 +16,8 @@ with GLOBE_3D,
      GLOBE_3D.Textures,
      GLOBE_3D.Software_Anti_Aliasing,
      GLOBE_3D.Stars_sky,
-     GLOBE_3D.Collision_detection;
+     GLOBE_3D.Collision_detection,
+     GLOBE_3D.Aux;
 
 with GLU, GLUT.Devices, GLUT_2D;
 
@@ -662,7 +663,7 @@ procedure GLOBE_3D_Demo is
         0,line,main_size_x, main_size_y, s, GLUT_2D.Helvetica_10
       );
     end Msg;
-    use GL, G3D, G3D.REF, G3DM;
+    use GL, G3D, G3D.Aux, G3D.REF, G3DM;
     light_info: String(1..8);
   begin
     Clear( DEPTH_BUFFER_BIT );

@@ -1,15 +1,15 @@
 -- This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
--- for the D3G tool (Doom 3 to GLOBE_3D)
--- Build me with "gnatmake -P d3g.gpr", or open me with GPS
+-- for the D3A tool (Doom 3 to GLOBE_3D)
+-- Build me with "gnatmake -P d3a.gpr", or open me with GPS
 --
-project D3G is
+project D3A is
 
    type Build_Mode_Type is
       ("Debug", "Fast", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
    for Source_Dirs use (".", "..", "..\..\..\bindings", "..\..\..\bindings\win32", "..\..\..\bindings\win32\gcc_fmt", "..\..\..\src\/**");
    for Exec_Dir use ".";
-   for Main use ("d3g.adb");
+   for Main use ("d3a.adb");
 
    case Build_Mode is
       when "Small" =>
@@ -74,4 +74,4 @@ project D3G is
       for Default_Switches ("adacontrol") use ("-F", "gnat_short");
    end Ide;
 
-end D3G;
+end D3A;

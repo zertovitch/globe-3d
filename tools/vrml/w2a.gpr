@@ -1,23 +1,23 @@
 -- This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
--- for the D3G tool (Doom 3 to GLOBE_3D)
--- Build me with "gnatmake -P d3g.gpr", or open me with GPS
+-- for the W2A tool (VRML World to Ada (GLOBE_3D))
+-- Build me with "gnatmake -P w2a.gpr", or open me with GPS
 --
-project D3G is
+project W2A is
 
    type Build_Mode_Type is
       ("Debug", "Fast", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
-   for Source_Dirs use (".", "..", "..\..\..\bindings", "..\..\..\bindings\win32", "..\..\..\bindings\win32\gcc_fmt", "..\..\..\src\/**");
+   for Source_Dirs use (".", "..\..\bindings", "..\..\bindings\win32", "..\..\bindings\win32\gcc_fmt", "..\..\src\/**");
    for Exec_Dir use ".";
-   for Main use ("d3g.adb");
+   for Main use ("wrl2ada.adb");
 
    case Build_Mode is
       when "Small" =>
-         for Object_Dir use "..\..\..\obj\gnatsmal";
+         for Object_Dir use "..\..\obj\gnatsmal";
       when "Fast" =>
-         for Object_Dir use "..\..\..\obj\gnatfast";
+         for Object_Dir use "..\..\obj\gnatfast";
       when "Debug" =>
-         for Object_Dir use "..\..\..\obj\gnatdebg";
+         for Object_Dir use "..\..\obj\gnatdebg";
    end case;
 
    package Binder is
@@ -46,13 +46,13 @@ project D3G is
       case Build_Mode is
 
          when "Small" =>
-            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "..\..\..\obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L..\..\..\obj/libwin32");
+            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "..\..\obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L..\..\obj/libwin32");
 
          when "Fast" =>
-            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "..\..\..\obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L..\..\..\obj/libwin32");
+            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "..\..\obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L..\..\obj/libwin32");
 
          when "Debug" =>
-            for Default_Switches ("ada") use ("-g", "-lopengl32", "..\..\..\obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L..\..\..\obj/libwin32");
+            for Default_Switches ("ada") use ("-g",                      "-lopengl32", "..\..\obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L..\..\obj/libwin32");
       end case;
    end Linker;
 
@@ -74,4 +74,4 @@ project D3G is
       for Default_Switches ("adacontrol") use ("-F", "gnat_short");
    end Ide;
 
-end D3G;
+end W2A;

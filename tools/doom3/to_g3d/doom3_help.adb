@@ -1,4 +1,4 @@
-with GLOBE_3D.IO, GLOBE_3D.BSP, GLOBE_3D.Math;
+with GLOBE_3D.Aux, GLOBE_3D.IO, GLOBE_3D.BSP, GLOBE_3D.Math;
 
 with Ada.Command_Line;                  use Ada.Command_Line;
 with Ada.Text_IO;                       use Ada.Text_IO;
@@ -532,6 +532,7 @@ package body Doom3_Help is
         declare
           tex_d: constant String:= Get_surface_texture_name(i);
           tex: constant String:= tex_d(tex_d'First..tex_d'Last-2); -- remove the "_d"
+          use GLOBE_3D.Aux;
         begin
           Texture_name_hint(m.obj.all, f, tex_d);
           Specular_name_hint(m.obj.all, f, tex & "_s");
@@ -705,7 +706,7 @@ package body Doom3_Help is
   end Compute_Averages;
 
   procedure Write_Summary(name: String) is
-    use GL, GLOBE_3D.Math;
+    use GL, GLOBE_3D.Math, GLOBE_3D.Aux;
     log: File_Type;
   begin
     Create(log, out_file, name);

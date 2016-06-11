@@ -21,7 +21,7 @@ package body VRML_Help is
   begin
     RIO.Put(s,r,6,0);
     declare
-      t: String:= Fac_trim(s);
+      t: constant String:= Fac_trim(s);
       l: Natural:= t'Last;
       p: Natural;
     begin

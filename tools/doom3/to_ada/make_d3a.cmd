@@ -15,6 +15,6 @@ rem
 :comp
 echo.
 rem
-gnatmake -i -g %1 %2 -I.. -I../..  -aO..\..\..\obj\gnatdebg -gnato -gnatVa -gnatec../../../obj/gnatdebg/debug.pra d3a -largs -Wl,--stack=0x10000000 -bargs -E
+gnatmake -Pd3a.gpr
 rem
 :fin
