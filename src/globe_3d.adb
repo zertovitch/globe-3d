@@ -368,9 +368,11 @@ package body GLOBE_3D is
     --
     package Display_face_optimized is
       procedure Display_face (First_Face : Boolean; fa: Face_type; fi: in out Face_internal_type);
+      procedure Display_specular (fa: Face_type; fi: Face_internal_type);
     private
-      Previous_face           : Face_type;
+      Previous_face          : Face_type;
       Previous_face_internal : Face_internal_type;
+      Previous_specular_face : Face_type;
     end Display_face_optimized;
 
     package body Display_face_optimized is
@@ -421,8 +423,6 @@ package body GLOBE_3D is
           or else (fa.skin = Previous_face.skin
                    and then is_material(fa.skin)
                    and then fa.material /= Previous_face.material)
-          or else (is_textured(fa.skin)
-                   and then Is_textured_specular(Previous_face))
         then
           case fa.skin is
             when material_only | material_texture =>
@@ -502,8 +502,7 @@ package body GLOBE_3D is
              or else not
                 ( --  In this case we don't need to bind again the same image ID
                   is_textured(Previous_face.skin) and then
-                  fa.texture = Previous_face.texture and then
-                  Previous_face.specular_map = null_image
+                  fa.texture = Previous_face.texture
                 )
           )
         then
@@ -517,8 +516,6 @@ package body GLOBE_3D is
         if First_Face
           or else Previous_face.skin = invisible
           or else fi.blending /= Previous_face_internal.blending
-          or else  --  Previous image had a specular map with a special blending
-            Previous_face.specular_map /= null_image
         then
           if fi.blending then
             Enable( BLEND ); -- See 4.1.7 Blending
@@ -543,26 +540,26 @@ package body GLOBE_3D is
         if show_texture_labels then
           Display_texture_label(fi.texture_name, o.point(fi.P_compact(1)));
         end if;
-        --  Specular map (the optional "glossy" or "shiny" image) is drawn here:
-        if is_textured(fa.skin) and then fa.specular_map /= null_image then
-          --  NB: only works when setting GL.DepthFunc(GL.LEQUAL)
-          --  Default is GL.LESS, and thus only first texture per face will be drawn.
-          G3DT.Check_2D_texture(fa.specular_map, blending_hint);
-          if is_coloured(fa.skin) then
-            Disable(COLOR_MATERIAL);
-          end if;
-          Set_Material(shiny_material);
-          if not fi.blending then
-            Enable( BLEND );
-          end if;
-          BlendFunc( sfactor => ONE, dfactor => ONE );
-          BindTexture( TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.specular_map)+1) );
-          Draw_polygon(fa, fi);
-        end if;
 
         Previous_face          := fa;
         Previous_face_internal := fi;
       end Display_face;
+
+      procedure Display_specular (fa: Face_type; fi: Face_internal_type) is
+        blending_hint: Boolean;
+      begin
+        --  Specular map (the optional "glossy" or "shiny" image) is drawn here:
+        if is_textured(fa.skin) and then fa.specular_map /= null_image then
+          G3DT.Check_2D_texture(fa.specular_map, blending_hint);
+          if fa.specular_map /= Previous_specular_face.specular_map then
+            BindTexture( TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.specular_map)+1) );
+          end if;
+          --  NB: display only works when setting GL.DepthFunc(GL.LEQUAL)
+          --  Default is GL.LESS, and thus only first texture per face will be drawn.
+          Draw_polygon(fa, fi);
+          Previous_specular_face := fa;
+        end if;
+      end Display_specular;
 
     end Display_face_optimized;
 
@@ -586,6 +583,15 @@ package body GLOBE_3D is
         Arrow(C, arrow_inflator * o.face_internal(f).normal);
       end loop;
     end Display_normals;
+
+    procedure Set_for_specular is
+      use GL, GL.Materials;
+    begin
+      Disable(COLOR_MATERIAL);
+      Set_Material(shiny_material);
+      Enable( BLEND );
+      BlendFunc( sfactor => ONE, dfactor => ONE );
+    end Set_for_specular;
 
     use GL, G3DM;
 
@@ -623,9 +629,17 @@ package body GLOBE_3D is
           --  We mimic the old, direct, Display_face with redundant color, material, etc.
           --  instructions by passing True for First_Face.
         end loop;
+        Set_for_specular;
+        for f in o.face'Range loop
+          Display_face_optimized.Display_specular(o.face(f), o.face_internal(f));
+        end loop;
       when No_List_Optimized | Generate_List =>
         for f in o.face'Range loop
           Display_face_optimized.Display_face(f = o.face'First, o.face(f), o.face_internal(f));
+        end loop;
+        Set_for_specular;
+        for f in o.face'Range loop
+          Display_face_optimized.Display_specular(o.face(f), o.face_internal(f));
         end loop;
       when Is_List =>
         GL.CallList (GL.Uint (o.List_Id));
