@@ -11,7 +11,11 @@
 
 with GL.Primitive;
 
-package GL.Geometry.VA is
+package GL.Geometry.VA
+--
+-- Provides a Geometry subclass which uses Vertex Array based primitives.
+--
+is
 
    type primal_Geometry is new Geometry with
       record

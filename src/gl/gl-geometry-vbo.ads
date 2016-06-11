@@ -13,7 +13,11 @@ with GL.Buffer.Vertex;
 with GL.Buffer.Indices;
 -- with ada.unchecked_Deallocation;
 
-package GL.Geometry.VBO is
+package GL.Geometry.VBO
+--
+-- Provides a Geometry subclass which uses VBO based primitives.
+--
+is
 
    -- vertex buffer object geometry
    --
