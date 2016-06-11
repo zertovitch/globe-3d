@@ -11,7 +11,7 @@
 
 with GL.Primitive;
 
-package GL.Geometry.primal is
+package GL.Geometry.VA is
 
    type primal_Geometry is new Geometry with
       record
@@ -36,4 +36,4 @@ package GL.Geometry.primal is
 
    procedure destroy (Self : in out primal_Geometry);
 
-end GL.Geometry.primal;
+end GL.Geometry.VA;

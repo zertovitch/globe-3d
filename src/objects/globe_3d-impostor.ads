@@ -9,7 +9,7 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GL.Primitive,  GL.Geometry.primal, GL.Textures,  GL.Skins,  GL.Skinned_Geometry;
+with GL.Primitive,  GL.Geometry.VA, GL.Textures,  GL.Skins,  GL.Skinned_Geometry;
 
 package GLOBE_3D.Impostor is
 
@@ -113,7 +113,7 @@ private
          Target                           : p_Visual;
          --skinned_Geometry      : gl.skinned_geometry.skinned_Geometry := (geometry => gl.geometry.new_Quads (1, lit => False).all'access,
          skinned_Geometry                 : GL.Skinned_Geometry.Skinned_Geometry
-                                          := (Geometry => new GL.Geometry.primal.primal_Geometry'
+                                          := (Geometry => new GL.Geometry.VA.primal_Geometry'
                                                                 (Bounds    => GL.Geometry.null_Bounds,
                                                                  Primitive => GL.Primitive.new_Quads (quad_Count => 1).all'Access),
                                               Skin      => new GL.Skins.Skin_transparent_unlit_textured,

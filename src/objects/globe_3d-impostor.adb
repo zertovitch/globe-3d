@@ -359,7 +359,7 @@ texture_Height           : constant GL.Sizei         := power_of_2_Ceiling (Natu
 
    function Quads (o : in Impostor) return GL.Primitive.p_Quads
    is
-      use GL.Primitive, GL.Geometry.primal;
+      use GL.Primitive, GL.Geometry.VA;
    begin
       return p_Quads (p_primal_Geometry (o.skinned_Geometry.Geometry).Primitive);
    end;

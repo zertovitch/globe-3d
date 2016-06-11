@@ -8,7 +8,7 @@ project Simple is
    end Ide;
 
    package Builder is
-      for Default_Switches ("ada") use ("-g", "-k");
+      for Default_Switches ("ada") use ("-g", "-k", "-j13");
    end Builder;
 
    package Compiler is

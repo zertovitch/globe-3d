@@ -12,7 +12,7 @@
 with Ada.Numerics.Generic_Elementary_Functions;
 with Ada.Text_IO; use Ada.Text_IO;
 
-package body GL.Geometry.primal is
+package body GL.Geometry.VA is
 
    function  primitive_Id (Self : in     primal_Geometry) return GL.ObjectTypeEnm
    is
@@ -78,4 +78,4 @@ package body GL.Geometry.primal is
       free (Self.Primitive);
    end;
 
-end GL.Geometry.primal;
+end GL.Geometry.VA;
