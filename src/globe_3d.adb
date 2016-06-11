@@ -374,27 +374,26 @@ package body GLOBE_3D is
     end Display_face_optimized;
 
     package body Display_face_optimized is
-      use GL.Materials;
+      use GL, GL.Materials;
+
+      procedure Draw_polygon (fa: Face_type; fi: Face_internal_type) is
+      begin
+        case fi.last_edge is
+          when 3 => GL_Begin( TRIANGLES );
+          when 4 => GL_Begin( QUADS );
+        end case;
+        for i in 1..fi.last_edge loop
+          if is_textured(fa.skin) then
+            TexCoord(fi.UV_extrema(i).U, fi.UV_extrema(i).V);
+          end if;
+          Normal(o.edge_vector(fi.P_compact(i)));
+          Vertex(o.point(fi.P_compact(i)));
+        end loop;
+        GL_End;
+      end Draw_polygon;
 
       procedure Display_face (First_Face : Boolean; fa: Face_type; fi: in out Face_internal_type) is
-        use GL;
         blending_hint: Boolean;
-
-        procedure Draw_polygon is
-        begin
-          case fi.last_edge is
-            when 3 => GL_Begin( TRIANGLES );
-            when 4 => GL_Begin( QUADS );
-          end case;
-          for i in 1..fi.last_edge loop
-            if is_textured(fa.skin) then
-              TexCoord(fi.UV_extrema(i).U, fi.UV_extrema(i).V);
-            end if;
-            Normal(o.edge_vector(fi.P_compact(i)));
-            Vertex(o.point(fi.P_compact(i)));
-          end loop;
-          GL_End;
-        end Draw_polygon;
 
         procedure Display_texture_label(name: Ident; p: Point_3D) is
           use GL.Simple_text;
@@ -540,7 +539,7 @@ package body GLOBE_3D is
         --------------------------
 
         --  Texture (diffuse) is drawn here:
-        Draw_polygon;
+        Draw_polygon(fa, fi);
         if show_texture_labels then
           Display_texture_label(fi.texture_name, o.point(fi.P_compact(1)));
         end if;
@@ -558,7 +557,7 @@ package body GLOBE_3D is
           end if;
           BlendFunc( sfactor => ONE, dfactor => ONE );
           BindTexture( TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.specular_map)+1) );
-          Draw_polygon;
+          Draw_polygon(fa, fi);
         end if;
 
         Previous_face          := fa;
