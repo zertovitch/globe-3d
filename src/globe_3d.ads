@@ -582,15 +582,7 @@ private
 
   procedure Load_if_needed( zif: in out Zip.Zip_info; name: String);
 
-  -- General support functions available to child packages ...
-  --
-
-  -- blending support
-  --
-  function Is_to_blend (m: GL.Double)                  return Boolean;
-  function Is_to_blend (m: GL.Float)                   return Boolean;
-  function Is_to_blend (m: GL.Material_Float_vector)   return Boolean;
-  function Is_to_blend (m: GL.Materials.Material_type) return Boolean;
+  -- NB: Is_to_blend functions were moved to GLOBE_3D.Aux.
 
   -- Maps of Visuals - quick dictionary search
   --

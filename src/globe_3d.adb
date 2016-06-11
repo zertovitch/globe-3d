@@ -60,35 +60,6 @@ package body GLOBE_3D is
                         );
    end Add_Normal_of_3p;
 
-  -- blending support
-  --
-
-  function Is_to_blend(m: GL.Double) return Boolean is
-     use GL, G3DM;
-  begin
-    return not Almost_zero(m-1.0);
-  end Is_to_blend;
-
-  function Is_to_blend(m: GL.Float) return Boolean is
-    use GL, G3DM;
-  begin
-    return not Almost_zero(m-1.0);
-  end Is_to_blend;
-
-  function Is_to_blend(m: GL.Material_Float_vector) return Boolean is
-  begin
-    return Is_to_blend(m(3));
-  end Is_to_blend;
-
-  function Is_to_blend(m: GL.Materials.Material_type) return Boolean  is
-  begin
-    return
-      Is_to_blend(m.ambient) or
-      Is_to_blend(m.diffuse) or
-      Is_to_blend(m.specular);
-      -- m.emission, m.shininess not relevant
-  end Is_to_blend;
-
   -- 'Visual'
   --
 
@@ -185,7 +156,7 @@ package body GLOBE_3D is
   --------------------------------------------
 
   overriding procedure Pre_calculate(o: in out Object_3D) is
-    use GL, G3DM;
+    use GL, G3DM, GLOBE_3D.Aux;
 
     N: Vector_3D;
     length_N : Real;
