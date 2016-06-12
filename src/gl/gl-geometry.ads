@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GL.Geometry - GL geometry primitives
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2007 .. 2016
 --  AUSTRALIA
 --
 --  Permission granted to use this software, without any warranty,
@@ -9,7 +9,6 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with Ada.Unchecked_Deallocation;
 with Interfaces.C.Pointers;
 with Ada.Unchecked_Conversion;
 
@@ -75,7 +74,7 @@ package GL.Geometry is
    procedure decrement (Self : in out vertex_Id_array);
 
    function  to_void_Pointer is new Ada.Unchecked_Conversion   (p_vertex_Id,     GL.pointer);
-   procedure free            is new Ada.Unchecked_Deallocation (vertex_Id_array, p_vertex_Id_array);
+   procedure free (vert_Id_array : in out p_vertex_Id_array);
 
    subtype positive_Vertex_Id is vertex_Id range 1 .. vertex_Id'Last;
 
@@ -94,7 +93,7 @@ package GL.Geometry is
 
    null_Vertex : constant Vertex := (GL.Double'Last, GL.Double'Last, GL.Double'Last); -- tbd: use NAN instead of 'Last ?
 
-   procedure free is new Ada.Unchecked_Deallocation (Vertex_array, p_Vertex_array);
+   procedure free (Vert_array : in out p_Vertex_array);
 
    function Bounds (Self : in     Vertex_array) return GL.Geometry.Bounds_record;
    function Image  (Self : in     Vertex_array) return String;

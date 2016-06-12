@@ -14,6 +14,7 @@ with Ada.Numerics.Generic_Elementary_Functions;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 --  with Ada.Text_IO;           use Ada.Text_IO;
 with Ada.Characters.Latin_1;
+with Ada.Unchecked_Deallocation;
 
 package body GL.Geometry is
 
@@ -299,5 +300,23 @@ package body GL.Geometry is
 
       --  return Normal_array'(1..0 => (others => 0.0));  --  GNAT: unreachable code
    end;
+
+
+   procedure free (vert_Id_array : in out p_vertex_Id_array)
+   is
+      procedure deallocate is new Ada.Unchecked_Deallocation (vertex_Id_array, p_vertex_Id_array);
+   begin
+      deallocate (vert_Id_array);
+   end;
+
+
+
+   procedure free (Vert_array : in out p_Vertex_array)
+   is
+      procedure deallocate is new Ada.Unchecked_Deallocation (Vertex_array, p_Vertex_array);
+   begin
+      deallocate (Vert_array);
+   end;
+
 
 end GL.Geometry;
