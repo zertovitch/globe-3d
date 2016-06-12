@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GL.Geometry - GL geometry primitives
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2007 .. 2016
 --  AUSTRALIA
 --
 --  Permission granted to use this software, without any warranty,
@@ -9,9 +9,9 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GL.Buffer.Vertex;
-with GL.Buffer.Indices;
--- with ada.unchecked_Deallocation;
+with
+     GL.Buffer.Vertex,
+     GL.Buffer.Indices;
 
 package GL.Geometry.VBO
 --
@@ -19,7 +19,7 @@ package GL.Geometry.VBO
 --
 is
 
-   -- vertex buffer object geometry
+   -- Vertex Buffer Object Geometry
    --
 
    type vbo_Geometry is new Geometry with
@@ -43,8 +43,7 @@ is
 
    function  Bounds        (Self : in     vbo_Geometry) return GL.Geometry.Bounds_record;
 
-   procedure Draw          (Self : in     vbo_Geometry);
-
+   procedure draw          (Self : in     vbo_Geometry);
    procedure destroy       (Self : in out vbo_Geometry);
 
 end GL.Geometry.VBO;
