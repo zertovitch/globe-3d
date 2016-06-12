@@ -70,7 +70,6 @@ package GL.Geometry is
    subtype positive_Vertex_Id is vertex_Id range 1 .. vertex_Id'Last;
 
    function to_gl_Pointer   is new Ada.Unchecked_Conversion (p_vertex_Id, GL.pointer);   -- tbd: one of these is redundant.
-   function to_void_Pointer is new Ada.Unchecked_Conversion (p_vertex_Id, GL.pointer);
 
 
    type   vertex_Id_array is array (GL.positive_uInt range <>) of aliased vertex_Id;

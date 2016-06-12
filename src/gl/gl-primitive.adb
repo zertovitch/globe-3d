@@ -46,7 +46,7 @@ package body GL.Primitive is
       GL.DrawElements      (primitive_Id (Self.all),
                             Self.Indices'Length,
                             GL.UNSIGNED_INT,
-                            to_void_Pointer (Self.Indices (1)'Unchecked_Access));
+                            to_gl_Pointer (Self.Indices (1)'Unchecked_Access));
    end;
 
    procedure set_Vertices  (Self : in out Primitive;   To : access GL.Geometry.Vertex_array)
