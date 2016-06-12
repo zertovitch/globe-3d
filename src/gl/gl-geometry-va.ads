@@ -26,18 +26,17 @@ is
 
    function  primitive_Id  (Self : in     primal_Geometry) return GL.ObjectTypeEnm;
 
-   function  vertex_Count  (Self : in     primal_Geometry) return GL.Geometry.vertex_Id;
-   function  Vertices      (Self : in     primal_Geometry) return GL.Geometry.Vertex_array;
+   function  vertex_Count  (Self : in     primal_Geometry)        return GL.Geometry.vertex_Id;
+   function  Vertices      (Self : in     primal_Geometry)        return GL.Geometry.Vertex_array;
    procedure set_Vertices  (Self : in out primal_Geometry;   To : access GL.Geometry.Vertex_array);
 
-   function  indices_Count (Self : in     primal_Geometry) return GL.positive_uInt;
-   function  Indices       (Self : in     primal_Geometry) return GL.Geometry.vertex_Id_array;
+   function  indices_Count (Self : in     primal_Geometry)        return GL.positive_uInt;
+   function  Indices       (Self : in     primal_Geometry)        return GL.Geometry.vertex_Id_array;
    procedure set_Indices   (Self : in out primal_Geometry;   To : access GL.Geometry.vertex_Id_array);
 
    function  Bounds        (Self : in     primal_Geometry) return GL.Geometry.Bounds_record;
 
-   procedure Draw          (Self : in     primal_Geometry);
-
-   procedure destroy (Self : in out primal_Geometry);
+   procedure draw          (Self : in     primal_Geometry);
+   procedure destroy       (Self : in out primal_Geometry);
 
 end GL.Geometry.VA;
