@@ -1,4 +1,4 @@
-with GLOBE_3D.Aux, GLOBE_3D.IO, GLOBE_3D.BSP, GLOBE_3D.Math;
+with GLOBE_3D.Aux, GLOBE_3D.IO, GLOBE_3D.BSP, GL.Math;
 
 with Ada.Command_Line;                  use Ada.Command_Line;
 with Ada.Text_IO;                       use Ada.Text_IO;
@@ -59,13 +59,13 @@ package body Doom3_Help is
 
   type Model is record
     name               : Unbounded_String;
-    area               : Integer:= -1;
-    portals_to_be_added: Natural:= 0;
+    area               : Integer              := -1;
+    portals_to_be_added: Natural              := 0;
+    --  Last defined; used for IAP post-processing:
     last_point,
-    last_face          : Natural:= 0;
-    -- last defined; used for IAP post-processing
-    obj                : GLOBE_3D.p_Object_3D;
-    avg_point          : GLOBE_3D.Point_3D;
+    last_face          : Natural              := 0;
+    obj                : GLOBE_3D.p_Object_3D := null;
+    avg_point          : GLOBE_3D.Point_3D    := (0.0, 0.0, 0.0);
   end record;
 
   model_stack: array(1..10_000) of Model;
@@ -367,7 +367,7 @@ package body Doom3_Help is
 
   procedure Set_current_surface_current_point(p: Point_3D) is
     st: Surface renames surface_stack(surface_top);
-    use GLOBE_3D.Math;
+    use GL.Math;
   begin
     st.curr_d3_pt:= st.curr_d3_pt + 1;
     for i in 1..st.curr_pt loop
@@ -398,7 +398,7 @@ package body Doom3_Help is
     w1: constant Integer:= st.d3_pt_to_pt(v1+1);
     w2: constant Integer:= st.d3_pt_to_pt(v2+1);
     w3: constant Integer:= st.d3_pt_to_pt(v3+1);
-    use GLOBE_3D.Math;
+    use GL.Math;
   begin
     if (v1=v2 or v2=v3 or v1=v3 or        -- <- original idx same
         w1=w2 or w2=w3 or w1=w3) or else  -- <- distinct vertices same
@@ -651,7 +651,7 @@ package body Doom3_Help is
   end;
 
   procedure Process_BSP_Node is
-    use GLOBE_3D.BSP, GLOBE_3D.Math, GL;
+    use GLOBE_3D.BSP, GL.Math, GL;
     n: BSP_Node renames farm(current_BSP_node).all;
   begin
     -- In .proc files:
@@ -680,7 +680,7 @@ package body Doom3_Help is
   end Process_BSP_Node;
 
   procedure Compute_Averages is
-    use GL, GLOBE_3D.Math;
+    use GL, GL.Math;
   begin
     for i in 1..model_top loop
       declare
@@ -706,7 +706,7 @@ package body Doom3_Help is
   end Compute_Averages;
 
   procedure Write_Summary(name: String) is
-    use GL, GLOBE_3D.Math, GLOBE_3D.Aux;
+    use GL, GL.Math, GLOBE_3D.Aux;
     log: File_Type;
   begin
     Create(log, out_file, name);
