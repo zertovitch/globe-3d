@@ -1,8 +1,8 @@
-with GL, GL.Materials, GLOBE_3D.Math;
+with GL, GL.Materials, GL.Math;
 
 package body Dreadnought is
   -- Pretty output: false
-  use GL, GLOBE_3D, GLOBE_3D.Math;
+  use GL, GLOBE_3D, GL.Math;
 
   -- List of nodes for Scene Root :
   -- node 1 : hull

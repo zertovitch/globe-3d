@@ -2,6 +2,8 @@
 
 package GLOBE_3D.Aux is
 
+  function Simplify(o: Object_3D) return Object_3D;
+
   --  Indicate a texture's name that can be resolved later by Rebuild_links
   procedure Texture_name_hint(
     o   : in out Object_3D'Class;

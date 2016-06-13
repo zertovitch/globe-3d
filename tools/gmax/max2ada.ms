@@ -104,11 +104,11 @@
     proc_decl()
     format ";\n"
     format "end %;\n" gmax_scene
-    format "with GL, GL.Materials, GLOBE_3D.Math;\n"
+    format "with GL.Materials, GL.Math;\n"
     format "\n"
     format "package body % is\n" gmax_scene
     format "  -- Pretty output: %\n" pretty
-    format "  use GL, GLOBE_3D, GLOBE_3D.Math;\n"
+    format "  use GL, GL.Math, GLOBE_3D;\n"
     format "\n" 
   ) 
 

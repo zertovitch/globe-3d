@@ -6,7 +6,8 @@
 
 with GL,
      GL.IO,
-     GL.Materials;
+     GL.Materials,
+     GL.Math;
 
 with GLOBE_3D,
      GLOBE_3D.IO,
@@ -663,7 +664,7 @@ procedure GLOBE_3D_Demo is
         0,line,main_size_x, main_size_y, s, GLUT_2D.Helvetica_10
       );
     end Msg;
-    use GL, G3D, G3D.Aux, G3D.REF, G3DM;
+    use GL, G3D, G3D.Aux, G3D.REF, G3DM, GL.Math;
     light_info: String(1..8);
   begin
     Clear( DEPTH_BUFFER_BIT );

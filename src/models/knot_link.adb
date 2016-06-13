@@ -1,8 +1,8 @@
-with GL, GL.Materials, GLOBE_3D.Math;
+with GL, GL.Materials, GL.Math;
 
 package body Knot_link is
   -- Pretty output: FALSE
-  use GL, GL.Materials, GLOBE_3D, GLOBE_3D.Math;
+  use GL, GL.Materials, GL.Math, GLOBE_3D;
 
 -- begin Separator # 1
 -- VRML Info: ["Knot model created by KnotPlot

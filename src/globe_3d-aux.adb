@@ -1,8 +1,90 @@
-with GLOBE_3D.Math;
+with GL.Math;
 
 package body GLOBE_3D.Aux is
 
-  package G3DM renames GLOBE_3D.Math;
+  use GL, GL.Math;
+
+  subtype Tri_count is Integer range 1..3;
+  subtype Zero_or_tri_count is Integer range 0..3;
+
+  function Is_right_angled_rectangle(
+    o        : Object_3D;
+    face_num : Positive
+  )
+  return Zero_or_tri_count
+  is
+    P1, P2, P3: Point_3D;
+  begin
+    if o.face_internal(face_num).last_edge = 4 then
+      return 0;
+    end if;
+    P1:= o.point(o.face_internal(face_num).P_compact(1));
+    P2:= o.point(o.face_internal(face_num).P_compact(2));
+    P3:= o.point(o.face_internal(face_num).P_compact(3));
+    --
+    return 0; -- !!
+  end Is_right_angled_rectangle;
+
+  function Matching_right_angled_rectangle(
+    o        : Object_3D;
+    fa, fb   : Positive;   --  Face index of both triangles
+    raa, rab : Tri_count   --  Right angle vertex index of both triangles in P_compact arrays.
+  )
+  return Boolean
+  is
+    match_count: Natural:= 0;
+  begin
+    for ia in Tri_count loop
+      if ia /= raa then
+        for ib in Tri_count loop
+          if ib /= rab then
+            if Identical(  --  !! We might relax this condition
+              o.point(o.face_internal(fa).P_compact(ia)),
+              o.point(o.face_internal(fb).P_compact(ib))
+            )
+            then
+              match_count:= match_count + 1;
+            end if;
+          end if;
+        end loop;
+      end if;
+    end loop;
+    if match_count /= 2 then  --  if match_count = 3 or 4, we have 1 or 2 degenerated triangles.
+      return False;
+    end if;
+    return False;  -- !!
+  end Matching_right_angled_rectangle;
+
+  function Simplify(o: Object_3D) return Object_3D is
+    res: Object_3D( Max_points=> 8, Max_faces=> 6 );  -- !!
+    right_angled_triangle_flag: array(1..o.Max_faces) of Zero_or_tri_count;
+    matching_index: array(1..o.Max_faces) of Natural:= (others => 0);
+    raa, rab: Zero_or_tri_count;
+    face_reduction: Natural:= 0;
+  begin
+    --  First, flag all right-angled triangles.
+    for f in 1..o.Max_faces loop
+      right_angled_triangle_flag(f):= Is_right_angled_rectangle(o, f);
+    end loop;
+    --  Find matching pairs of right-angled triangles.
+    for fa in 1..o.Max_faces loop
+      raa:= right_angled_triangle_flag(fa);
+      if raa > 0 then
+        for fb in fa+1..o.Max_faces loop
+          rab:= right_angled_triangle_flag(fb);
+          if rab > 0 then
+            if Matching_right_angled_rectangle(o, fa, fb, raa, rab) then
+              --  fa will become a rectangle in new object.
+              --  fb will be ignored in new object.
+              matching_index(fa):= fb;
+              face_reduction:= face_reduction + 1;
+            end if;
+          end if;
+        end loop;
+      end if;
+    end loop;
+    return res;
+  end;
 
   procedure Set_ident(i: out Ident; name: String)
   is
@@ -67,7 +149,6 @@ package body GLOBE_3D.Aux is
   i_r_prec_a360: constant:= 1.0 / r_prec_a360;
 
   procedure Angles_modulo_360( v: in out Vector_3D )is
-    use GL;
   begin
     for i in v'Range loop
       v(i):=
@@ -80,13 +161,11 @@ package body GLOBE_3D.Aux is
   --
 
   function Is_to_blend(m: GL.Double) return Boolean is
-     use GL, G3DM;
   begin
     return not Almost_zero(m-1.0);
   end Is_to_blend;
 
   function Is_to_blend(m: GL.Float) return Boolean is
-    use GL, G3DM;
   begin
     return not Almost_zero(m-1.0);
   end Is_to_blend;

@@ -58,6 +58,14 @@ package body GL.Math is
     return a * (1.0 / Norm(a));
   end Normalized;
 
+  function Identical(a, b: Double_Vector_3D) return Boolean is
+  begin
+    return
+      Almost_zero(a(0)-b(0)) and then
+      Almost_zero(a(1)-b(1)) and then
+      Almost_zero(a(2)-b(2));
+  end Identical;
+
    -- Angles
    --
 
@@ -67,8 +75,10 @@ package body GL.Math is
       Vector_2  : constant Double_Vector_3D := Normalized (Point_3 - Point_2);
       Cos_Theta : constant Double      := Vector_1 * Vector_2;
    begin
-      if Cos_Theta >= 1.0 then
+      if Cos_Theta <= -1.0 then
          return Ada.Numerics.Pi;
+      elsif Cos_Theta >= 1.0 then
+         return 0.0;
       else
          return Arccos (Cos_Theta);
       end if;

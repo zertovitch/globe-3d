@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GLOBE_3D.Collision_detection
 --
---  Copyright (c) Gautier de Montmollin 1999..2014
+--  Copyright (c) Gautier de Montmollin 1999 .. 2016
 --  SWITZERLAND
 --
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,7 +27,8 @@
 
 -------------------------------------------------------------------------
 
-with GLOBE_3D.Math;                     use GLOBE_3D.Math;
+with GL.Math;
+
 with GLOBE_3D.Options;
 
 -- with Ada.Text_IO;                       use Ada.Text_IO; -- for debugging
@@ -44,6 +45,7 @@ package body GLOBE_3D.Collision_detection is
     reacted     : out Real          -- in proportion to step
   )
   is
+    use GL.Math;
     P_after_step, P_face: Point_3D;
     u,n : Vector_3D;
     dist_after, dist_before, nn: Real; -- distance orientee

@@ -1,92 +1,8 @@
+with GL.Math;
+
 package body GLOBE_3D.Math is
 
-  use GL, REF;
-
-  -------------
-  -- Vectors --
-  -------------
-
-  function "*"(l: Real; v: Vector_3D) return Vector_3D is
-  begin
-    return (l*v(0),l*v(1),l*v(2));
-  end "*";
-
-  function "*"(v: Vector_3D; l: Real) return Vector_3D is
-  begin
-    return (l*v(0),l*v(1),l*v(2));
-  end "*";
-
-  function "+"(a,b: Vector_3D) return Vector_3D is
-  begin
-    return (a(0)+b(0),a(1)+b(1),a(2)+b(2));
-  end "+";
-
-  function "-"(a: Vector_3D) return Vector_3D is
-  begin
-    return (-a(0),-a(1),-a(2));
-  end "-";
-
-  function "-"(a,b: Vector_3D) return Vector_3D is
-  begin
-    return (a(0)-b(0),a(1)-b(1),a(2)-b(2));
-  end "-";
-
-  function "*"(a,b: Vector_3D) return Real is      -- dot product
-  begin
-    return a(0)*b(0)+a(1)*b(1)+a(2)*b(2);
-  end "*";
-
-  function "*"(a,b: Vector_3D) return Vector_3D is -- cross product
-  begin
-    return ( a(1)*b(2) - a(2)*b(1),
-             a(2)*b(0) - a(0)*b(2),
-             a(0)*b(1) - a(1)*b(0) );
-  end "*";
-
-  function Norm(a: Vector_3D) return Real is
-  begin
-    return Sqrt(a(0)*a(0)+a(1)*a(1)+a(2)*a(2));
-  end Norm;
-
-  function Norm2(a: Vector_3D) return Real is
-  begin
-    return a(0)*a(0)+a(1)*a(1)+a(2)*a(2);
-  end Norm2;
-
-  function Normalized(a: Vector_3D) return Vector_3D is
-  begin
-    return a * (1.0 / Norm(a));
-  end Normalized;
-
-  -- Angles
-  --
-
-  function Angle (Point_1, Point_2, Point_3 : Vector_3D) return Real
-  is
-     Vector_1  : constant Vector_3D := Normalized (Point_1 - Point_2);
-     Vector_2  : constant Vector_3D := Normalized (Point_3 - Point_2);
-     Cos_Theta : constant Real      := Vector_1 * Vector_2;
-  begin
-     if Cos_Theta >= 1.0 then
-        return Ada.Numerics.Pi;
-     else
-        return Arccos (Cos_Theta);
-     end if;
-  end Angle;
-
-  function to_Degrees (Radians : Real) return Real
-  is
-     use Ada.Numerics;
-  begin
-     return Radians * 180.0 / Pi;
-  end to_Degrees;
-
-  function to_Radians (Degrees : Real) return Real
-  is
-     use Ada.Numerics;
-  begin
-     return Degrees * Pi / 180.0;
-  end to_Radians;
+  use GL, GL.Math, REF;
 
   --------------
   -- Matrices --
@@ -322,29 +238,6 @@ package body GLOBE_3D.Math is
     GL.LoadIdentity;
     Multiply_GL_Matrix( A );
   end Set_GL_Matrix;
-
-  -- Ada 95 Quality and Style Guide, 7.2.7:
-  -- Tests for
-  --
-  -- (1) absolute "equality" to 0 in storage,
-  -- (2) absolute "equality" to 0 in computation,
-  -- (3) relative "equality" to 0 in storage, and
-  -- (4) relative "equality" to 0 in computation:
-  --
-  --  abs X <= Float_Type'Model_Small                      -- (1)
-  --  abs X <= Float_Type'Base'Model_Small                 -- (2)
-  --  abs X <= abs X * Float_Type'Model_Epsilon            -- (3)
-  --  abs X <= abs X * Float_Type'Base'Model_Epsilon       -- (4)
-
-  function Almost_zero(x: Real) return Boolean is
-  begin
-    return  abs x <= Real'Base'Model_Small;
-  end Almost_zero;
-
-  function Almost_zero(x: GL.Float) return Boolean is
-  begin
-    return  abs x <= GL.Float'Base'Model_Small;
-  end Almost_zero;
 
 begin
   for i in 0..2 loop

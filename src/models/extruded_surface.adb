@@ -1,7 +1,7 @@
 with GL;
 
 with GLOBE_3D.Random_extrusions,
-     GLOBE_3D.Math;
+     GL.Math;
 
 with Ada.Numerics;                      use Ada.Numerics;
 
@@ -26,7 +26,7 @@ package body Extruded_surface is
     use GLOBE_3D;
 
   procedure Geo(u: in Point_3D; x: out Point_3D) is
-    use GLOBE_3D.Math, GLOBE_3D.REF, GL;
+    use GL.Math, GLOBE_3D.REF, GL;
     phi, theta, sin_phi: Real;
   begin
     case surface is

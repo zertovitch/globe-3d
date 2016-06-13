@@ -5,6 +5,7 @@ with GLOBE_3D.Options,
      GLOBE_3D.Aux;
 
 with GL.Errors,
+     GL.Math,
      GL.Skins,
      GL.Simple_text;
 
@@ -29,7 +30,7 @@ package body GLOBE_3D is
    procedure Add_Normal_of_3p (o             : in     Object_3D'Class;
                                Pn0, Pn1, Pn2 : in     Integer;
                                N             : in out Vector_3D) is
-      use GL, G3DM, GLOBE_3D.Aux;
+      use GL, G3DM, GL.Math, GLOBE_3D.Aux;
 
       function Params return String is
       begin
@@ -104,7 +105,7 @@ package body GLOBE_3D is
 
   procedure Check_object(o: Object_3D) is
 
-    use G3DM;
+    use GL.Math, G3DM;
 
     procedure Check_faces is
 
@@ -156,7 +157,7 @@ package body GLOBE_3D is
   --------------------------------------------
 
   overriding procedure Pre_calculate(o: in out Object_3D) is
-    use GL, G3DM, GLOBE_3D.Aux;
+    use GL, GL.Math, G3DM, GLOBE_3D.Aux;
 
     N: Vector_3D;
     length_N : Real;
@@ -321,7 +322,7 @@ package body GLOBE_3D is
   end Pre_calculate;
 
   procedure Arrow(P: Point_3D; D: Vector_3D) is
-    use GL,G3DM;
+    use GL, GL.Math, G3DM;
     V,V1,V2: Vector_3D;
   begin
     if Almost_zero(Norm2(D)) then
@@ -564,7 +565,7 @@ package body GLOBE_3D is
     end Display_face_optimized;
 
     procedure Display_normals is
-      use GL,G3DM;
+      use GL, GL.Math, G3DM;
       C: Vector_3D;
     begin
       GL.Color( 0.5, 0.5, 1.0, 1.0);
@@ -689,7 +690,7 @@ package body GLOBE_3D is
     )
     is
       procedure Try_portal(f: Positive) is
-        use G3DM, GL;
+        use G3DM, GL, GL.Math;
         dot_product: Real;
         plane_to_eye: Vector_3D; -- vector from any point in plane to the eye
         bounding_of_face, intersection_clip_and_face: Clipping_area;
@@ -1130,7 +1131,7 @@ package body GLOBE_3D is
             end if;
 
             if all_Geometries (Each).Visual = current_Visual then
-               Draw (all_Geometries (Each).Geometry.Geometry.all);
+               draw (all_Geometries (Each).Geometry.Geometry.all);
                GL.Errors.Log;
             else
                GL.PopMatrix;
@@ -1138,7 +1139,7 @@ package body GLOBE_3D is
                GL.Translate       (all_Geometries (Each).Visual.centre);
                Multiply_GL_Matrix (all_Geometries (Each).Visual.rotation);
 
-               Draw (all_Geometries (Each).Geometry.Geometry.all);
+               draw (all_Geometries (Each).Geometry.Geometry.all);
                GL.Errors.Log;
 
                current_Visual := all_Geometries (Each).Visual;
@@ -1164,6 +1165,7 @@ package body GLOBE_3D is
          procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
                                                                   GLOBE_3D.p_Visual,
                                                                   GLOBE_3D.Visual_array);
+         use GL.Math;
       begin
          for Each in 1 .. transparent_Count loop  -- pre-calculate each visuals Centre in camera space.
             all_Transparents (Each).centre_camera_space :=   the_Camera.world_rotation
@@ -1211,7 +1213,7 @@ package body GLOBE_3D is
                      GL.Translate       (the_Visual.centre);
                      Multiply_GL_Matrix (the_Visual.rotation);
 
-                     Draw (the_Geometry.Geometry.all);
+                     draw (the_Geometry.Geometry.all);
                      GL.Errors.Log;
 
                      GL.PopMatrix;

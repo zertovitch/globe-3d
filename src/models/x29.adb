@@ -4,11 +4,11 @@
 --  Copyright: (c) Evans & Sutherland -- ok to distribute if copyright appears
 ------------------------------------------------------------------------------
 
-with GL, GLOBE_3D.Math, GL.Materials;
+with GL.Math, GL.Materials;
 
 package body X29 is
 
-  use GL, GLOBE_3D, GLOBE_3D.Math, GL.Materials;
+  use GL, GL.Math, GL.Materials, GLOBE_3D;
 
   procedure Create(
     object: in out GLOBE_3D.p_Object_3D;

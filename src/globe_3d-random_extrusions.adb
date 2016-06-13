@@ -13,7 +13,7 @@
 --  24-May-2006: added explicit bound checks
 --  14-May-2006: created
 
-with GLOBE_3D.Math;
+with GL.Math;
 
 with Ada.Numerics.Float_Random;         use Ada.Numerics.Float_Random;
 
@@ -35,7 +35,7 @@ package body GLOBE_3D.Random_extrusions is
     random_initiator:  in Integer:= 0    -- default 0 -> time-dependent seed
   )
   is
-    use GL, GLOBE_3D.Math;
+    use GL, GL.Math;
     po, fa: Natural:= 0;
     face_proto : Face_type; -- takes defaults values
 

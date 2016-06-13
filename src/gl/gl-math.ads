@@ -50,6 +50,8 @@ package GL.Math is
 
   function Normalized(a: Double_Vector_3D) return Double_Vector_3D;
 
+  function Identical(a, b: Double_Vector_3D) return Boolean;  --  Points numerically identical
+
   type Vector_4D is array (0 .. 3) of Double;
 
    -- Angles

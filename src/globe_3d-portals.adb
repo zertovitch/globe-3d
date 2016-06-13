@@ -1,6 +1,4 @@
-with GLU, GL.Simple_text;
-
-with GLOBE_3D.Math;
+with GL.Simple_text, GL.Math, GLU;
 
 package body GLOBE_3D.Portals is
 
@@ -61,7 +59,7 @@ package body GLOBE_3D.Portals is
   is
     x,y: Integer;
     proj_success: Boolean;
-    use GLOBE_3D.Math;
+    use GL.Math;
   begin
     b:= ( X1|Y1=> Integer'Last, X2|Y2=> Integer'First );
 

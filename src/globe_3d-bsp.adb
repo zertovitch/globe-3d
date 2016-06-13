@@ -1,6 +1,6 @@
 with Ada.Unchecked_Deallocation;
 
-with GLOBE_3D.Math, GLOBE_3D.Options;
+with GL.Math, GLOBE_3D.Options;
 
 package body GLOBE_3D.BSP is
 
@@ -9,7 +9,7 @@ package body GLOBE_3D.BSP is
     --  Internal, for skipping useless parameter passing
     --
     procedure Locate_point( node: p_BSP_node ) is
-      use Math, GL;
+      use GL.Math;
     begin
       --  Info / debug: keep track of the path through the BSP tree.
       if Options.BSP_tracking then

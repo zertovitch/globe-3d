@@ -1,47 +1,7 @@
 package GLOBE_3D.Math is
 
-  -------------
-  -- Vectors --
-  -------------
-
-  function "*"(l: Real; v: Vector_3D) return Vector_3D;
-  pragma Inline("*");
-
-  function "*"(v: Vector_3D; l: Real) return Vector_3D;
-  pragma Inline("*");
-
-  function "+"(a,b: Vector_3D) return Vector_3D;
-  pragma Inline("+");
-
-  function "-"(a: Vector_3D) return Vector_3D;
-  pragma Inline("-");
-
-  function "-"(a,b: Vector_3D) return Vector_3D;
-  pragma Inline("-");
-
-  function "*"(a,b: Vector_3D) return Real;      -- dot product
-  pragma Inline("*");
-
-  function "*"(a,b: Vector_3D) return Vector_3D; -- cross product
-  pragma Inline("*");
-
-  function Norm(a: Vector_3D) return Real;
-  pragma Inline(Norm);
-
-  function Norm2(a: Vector_3D) return Real;
-  pragma Inline(Norm2);
-
-  function Normalized(a: Vector_3D) return Vector_3D;
-
-   -- Angles
-   --
-
-   function Angle (Point_1, Point_2, Point_3 : Vector_3D) return Real;
-   --
-   -- returns the angle between the vector Point_1 to Point_2 and the vector Point_3 to Point_2.
-
-   function to_Degrees (Radians : Real) return Real;
-   function to_Radians (Degrees : Real) return Real;
+  --  NB: "*", "+", "-", Norm, Norm2, Normalized,
+  --  Angle, to_Degrees, to_Radians, Almost_zero are now in GL.Math.
 
   --------------
   -- Matrices --
@@ -78,12 +38,6 @@ package GLOBE_3D.Math is
 
   -- Impose A as current matrix
   procedure Set_GL_Matrix( A: Matrix_33 );
-
-  -- For replacing the " = 0.0" test which is a Bad Thing
-  function Almost_zero(x: Real) return Boolean;
-  pragma Inline(Almost_zero);
-  function Almost_zero(x: GL.Float) return Boolean;
-  pragma Inline(Almost_zero);
 
   function sub_Matrix (Self : in Matrix;   start_Row, end_Row : in Positive;
                                            start_Col, end_Col : in Positive) return Matrix;

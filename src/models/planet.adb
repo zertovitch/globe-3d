@@ -1,5 +1,4 @@
-with GL;
-with GLOBE_3D.Math;
+with GL.Math;
 with Ada.Numerics;                      use Ada.Numerics;
 
 package body Planet is
@@ -12,7 +11,7 @@ package body Planet is
     parts   :        Positive:= 30
   )
   is
-    use GLOBE_3D, GL, GLOBE_3D.REF, GLOBE_3D.Math;
+    use GL, GL.Math, GLOBE_3D, GLOBE_3D.REF;
     n: constant Positive:= parts;
     step_i     : constant Real:= 1.0 / Real(n);
     step_j     : constant Real:= 1.0 / Real(n-1);

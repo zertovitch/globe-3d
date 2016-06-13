@@ -1,4 +1,4 @@
-with GL, GLOBE_3D.Math;
+with GL.Math;
 
 -- with Ada.Text_IO; use Ada.Text_IO;
 -- with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
@@ -18,7 +18,7 @@ package body Sierpinski is
     fractal_level:        Natural
   )
   is
-    use GL, GLOBE_3D, GLOBE_3D.Math;
+    use GL, GL.Math, GLOBE_3D;
 
     side: constant Integer:= 3**fractal_level;
     -- We put a layer of empty cubes all around the main one.

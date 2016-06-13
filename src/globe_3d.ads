@@ -397,7 +397,7 @@ package GLOBE_3D is
     List_Status    : List_Cases := Generate_List;
     -- private:
     List_Id        : List_Ids;
-    face_internal : Face_internal_array(1..Max_faces);
+    face_internal  : Face_internal_array(1..Max_faces);
     bounds         : GL.Geometry.Bounds_record;
     transparent    : Boolean:= False;
   end record; -- Object_3D
@@ -545,9 +545,9 @@ private
                      -- indices of the edges (anticlockwise),
                      -- in compact range : 1..3 for triangle
      last_edge   : Edge_count;
+     --  Mapping of texture edges as set by Calculate_face_internals.
+     --  The range is compact, 1..3, for triangles, matching P_compact.
      UV_extrema  : Map_idx_pair_4_array;
-                     -- mapping of texture edges according to an eventual
-                     -- 0 in P (triangle). Compact range : 1..3 for triangle
      normal      : Vector_3D;
      blending    : Boolean; -- is any alpha < 1 ?
      --  connect_name: helper. Can be used for loading connected objects.

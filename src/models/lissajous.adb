@@ -1,8 +1,8 @@
-with GL, GLOBE_3D.Math, GL.Materials;
+with GL, GL.Math, GL.Materials;
 
 package body Lissajous is
   -- Pretty output: FALSE
-  use GL, GLOBE_3D, GLOBE_3D.Math, GL.Materials;
+  use GL, GL.Math, GL.Materials, GLOBE_3D;
 
 -- begin Separator # 1
 -- VRML Info: ["Knot model created by KnotPlot

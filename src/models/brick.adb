@@ -5,7 +5,7 @@
 --  Permission granted to use the herein contained 3D model for any purpose,
 --  provided this copyright note remains attached and unmodified.
 
-with GL, GLOBE_3D.Math;
+with GL, GL.Math;
 
 package body Brick is
 
@@ -19,7 +19,7 @@ package body Brick is
     texture:        Cubic_Face_texture
   )
   is
-    use GL, GLOBE_3D, GLOBE_3D.Math;
+    use GL, GL.Math, GLOBE_3D;
 
     type Ipoint is array(1..3) of Natural;
 

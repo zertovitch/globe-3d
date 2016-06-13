@@ -1,12 +1,13 @@
+with GL.Math, GLOBE_3D;
+
+with Doom3_IO;
+with Doom3_Help;
+
 with YYParse;
 
 with Ada.Command_Line;                  use Ada.Command_Line;
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Text_IO;                       use Ada.Text_IO;
-with Doom3_IO;
-with GLOBE_3D, GLOBE_3D.Math;
-
-with Doom3_Help;
 
 procedure D3G is
   Inp_Opened  : Boolean := False;
@@ -26,7 +27,7 @@ procedure D3G is
   end Syntax;
 
   procedure Set_new_centre(ps: String) is
-    use GLOBE_3D.Math;
+    use GL.Math;
     p: GLOBE_3D.Point_3D;
     j1,j2: Natural;
   begin

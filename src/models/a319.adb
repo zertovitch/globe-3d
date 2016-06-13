@@ -1,9 +1,9 @@
-with GL, GL.Materials, GLOBE_3D.Math;
+with GL.Materials, GL.Math;
 with GLOBE_3D.Textures;
 
 package body A319 is
   -- Pretty output: false
-  use GL, GLOBE_3D, GLOBE_3D.Math, GL.Materials;
+  use GL, GL.Materials, GL.Math, GLOBE_3D;
 
   -- List of nodes for Scene Root :
   -- node 1 : door_passenger

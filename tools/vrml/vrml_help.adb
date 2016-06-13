@@ -269,11 +269,11 @@ package body VRML_Help is
       Ada_Put_Line(";");
       Ada_New_Line;
       Ada_Put_Line("end;");
-      Ada_Put_Line("with GL, GL.Materials, GLOBE_3D.Math;");
+      Ada_Put_Line("with GL.Materials, GL.Math;");
       Ada_New_Line;
       Ada_Put_Line("package body " & pkg &" is");
       Ada_Put_Line("  -- Pretty output: " & Boolean'Image(pretty));
-      Ada_Put_Line("  use GL, GL.Materials, GLOBE_3D, GLOBE_3D.Math;");
+      Ada_Put_Line("  use GL, GL.Materials, GL.Math, GLOBE_3D;");
       Ada_New_Line;
       header_done:= True;
       table_area:= True;

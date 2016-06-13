@@ -4,7 +4,7 @@
 --  Copyright (c) Gautier de Montmollin 2008
 ------------------------------------------------------------------------------
 
-with GL, GLU, GLUT.Devices;
+with GL, GL.Math, GLU, GLUT.Devices;
 
 with GLOBE_3D,
      GLOBE_3D.Math,
@@ -13,7 +13,6 @@ with GLOBE_3D,
 procedure Mini is
 
   package G3D  renames GLOBE_3D;
-  package G3DM renames G3D.Math;
 
   GLUT_Problem: exception;
 
@@ -150,7 +149,7 @@ procedure Mini is
     o: in out G3D.Object_3D'Class
   )
   is
-    use GL, G3D, G3D.REF, G3DM;
+    use GL, G3D, G3D.REF, GLOBE_3D.Math, GL.Math;
   begin
     Clear( DEPTH_BUFFER_BIT );
     Disable( LIGHTING );
@@ -194,7 +193,7 @@ procedure Mini is
   totrot: G3D.Real:= 0.0;
 
   procedure Main_Operations is
-    use GL, G3D, G3DM, G3D.REF;
+    use GL, G3D, G3D.REF, GLOBE_3D.Math;
     rot_speed: constant:= 400.0;
     elaps, time_now: Integer;
   begin
