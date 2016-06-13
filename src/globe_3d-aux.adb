@@ -22,7 +22,15 @@ package body GLOBE_3D.Aux is
     P2:= o.point(o.face_internal(face_num).P_compact(2));
     P3:= o.point(o.face_internal(face_num).P_compact(3));
     --
-    return 0; -- !!
+    if    Almost_zero((P2-P1) * (P3-P1)) then
+      return 1;
+    elsif Almost_zero((P1-P2) * (P3-P2)) then
+      return 2;
+    elsif Almost_zero((P2-P3) * (P1-P3)) then
+      return 3;
+    else
+      return 0;
+    end if;
   end Is_right_angled_rectangle;
 
   function Matching_right_angled_rectangle(
@@ -52,7 +60,7 @@ package body GLOBE_3D.Aux is
     if match_count /= 2 then  --  if match_count = 3 or 4, we have 1 or 2 degenerated triangles.
       return False;
     end if;
-    return False;  -- !!
+    return False;  -- !!! Not finished !!!
   end Matching_right_angled_rectangle;
 
   function Simplify(o: Object_3D) return Object_3D is
@@ -83,7 +91,9 @@ package body GLOBE_3D.Aux is
         end loop;
       end if;
     end loop;
-    return res;
+    --  Build compacted object
+    --  !!! Not finished !!!
+    return res;  -- !!
   end;
 
   procedure Set_ident(i: out Ident; name: String)

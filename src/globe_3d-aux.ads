@@ -2,8 +2,6 @@
 
 package GLOBE_3D.Aux is
 
-  function Simplify(o: Object_3D) return Object_3D;
-
   --  Indicate a texture's name that can be resolved later by Rebuild_links
   procedure Texture_name_hint(
     o   : in out Object_3D'Class;
@@ -39,5 +37,7 @@ package GLOBE_3D.Aux is
   function Coords( p: Point_3D ) return String;
 
   procedure Angles_modulo_360( v: in out Vector_3D );
+
+  --  !!! [finish body] function Simplify(o: Object_3D) return Object_3D;
 
 end GLOBE_3D.Aux;
