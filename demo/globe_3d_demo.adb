@@ -220,7 +220,7 @@ procedure GLOBE_3D_Demo is
   dreadnought_ship,
   extrude_test_1, borg_star,
   sierp,
-  cube, cube_glossy, cube_tri, cube_bico : G3D.p_Object_3D;
+  cube, cube_glossy, cube_tri, cube_tri_quad, cube_bico : G3D.p_Object_3D;
 
   bestiaire, level_stuff: G3D.p_Object_3D_array:= null;
   level_idx, bri_idx, beast: Integer;
@@ -342,6 +342,9 @@ procedure GLOBE_3D_Demo is
       -- Now we have killed opposite edges, one on each triangle :-)
     end loop;
     Set_name(cube_tri.all,"Triangular Cube !");
+
+    cube_tri_quad:= new G3D.Object_3D'(GLOBE_3D.Aux.Merge_triangles(Object_3D(cube_tri.all)));
+    Set_name(cube_tri_quad.all,"Cube, triangles merged to squares");
 
     -- Also a cube with half-faces, but playing with colour/texture
     cube_bico:= new G3D.Object_3D'Class'(cube_tri.all); -- cloning
@@ -605,7 +608,7 @@ procedure GLOBE_3D_Demo is
     -- Whole 3D zoo:
     bestiaire:= new Object_3D_array'(
       level_stuff(level_stuff'First), -- starting area in the DOOM 3 level is the first area
-      cube, cube_glossy, cube_tri, cube_bico,
+      cube, cube_glossy, cube_tri, cube_tri_quad, cube_bico,
       globe,
       sierp,
       extrude_test_1,

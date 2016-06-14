@@ -52,8 +52,8 @@ package body GLOBE_3D.Aux is
     u: constant Vector_3D:= o.face_internal(face_num).normal;
     --  R: Rotate around axis = face's normal
     R: constant Matrix_33:=
-      ( (2.0*u(0)*u(0) - 1.0, 2.0*u(1)*u(0),       2.0*u(0)*u(2)      ),
-        (2.0*u(0)*u(1)      , 2.0*u(1)*u(1) - 1.0, 2.0*u(1)*u(2)      ),
+      ( (2.0*u(0)*u(0) - 1.0, 2.0*u(1)*u(0),       2.0*u(2)*u(0)      ),
+        (2.0*u(0)*u(1)      , 2.0*u(1)*u(1) - 1.0, 2.0*u(2)*u(1)      ),
         (2.0*u(0)*u(2)      , 2.0*u(1)*u(2)      , 2.0*u(2)*u(2) - 1.0) );
   begin
     for i in Tri_count loop
@@ -67,8 +67,43 @@ package body GLOBE_3D.Aux is
         V2:= P;
       end if;
     end loop;
-    C:= (V1 + V2) * 0.5;
+    C:= 0.5 * (V1 + V2);
     return C + R * (VR - C);
+  end Rectangle_completion;
+
+  --  Same for texture coordinates
+  --  Assumption: textured skin, o.face.whole_texture(face_num) = False
+
+  --  VR----- V2
+  --    |  /|
+  --    | / |
+  --    |/__|
+  --  V1     Point returned
+  --
+  function Rectangle_completion(
+    o           : Object_3D;
+    face_num    : Positive;
+    right_angle : Tri_count
+  )
+  return Map_idx_pair
+  is
+    use GLOBE_3D.Math;
+    first: Boolean:= True;
+    C, P, V1, V2, VR: Map_idx_pair;
+  begin
+    for i in Tri_count loop
+      P:= o.face_internal(face_num).UV_extrema(i);
+      if i = right_angle then
+        VR:= P;
+      elsif first then
+        V1:= P;
+        first:= False;
+      else
+        V2:= P;
+      end if;
+    end loop;
+    C:= 0.5 * (V1 + V2);
+    return C + (-1.0) * (VR - C);
   end Rectangle_completion;
 
   --  -----
@@ -142,7 +177,11 @@ package body GLOBE_3D.Aux is
           return False;
         end if;
       end if;
-        --  !!! UV should match too
+      --  Now we check if the points in texture coordinates would match
+      --  !! use almost_zero match
+      if Rectangle_completion(o, fa, raa) /= o.face_internal(fb).UV_extrema(rab) then
+        return False;  --  Picture wouldn't match the one of both triangles.
+      end if;
     end if;
     --  !! use almost_zero match
     if is_coloured(o.face(fa).skin) then
@@ -161,14 +200,17 @@ package body GLOBE_3D.Aux is
     return True;
   end Matching_right_angled_triangles;
 
-  function Merge_triangles(o: Object_3D) return Object_3D is
-    --  o must have been Pre_calculated.
+  function Merge_triangles(obj: Object_3D) return Object_3D is
+    o: Object_3D:= obj;  --  Clone, for pre-calculating if needed.
     right_angled_triangle_idx_0123: array(1..o.Max_faces) of Zero_or_tri_count;
     matching_index: array(1..o.Max_faces) of Natural:= (others => 0);
     matched: array(1..o.Max_faces) of Boolean:= (others => False);
     raa, rab: Zero_or_tri_count;
     face_reduction: Natural:= 0;
   begin
+    if not o.pre_calculated then
+      o.Pre_calculate;
+    end if;
     --  First, flag all right-angled triangles.
     for f in 1..o.Max_faces loop
       right_angled_triangle_idx_0123(f):= Is_right_angled_triangle(o, f);
@@ -198,19 +240,23 @@ package body GLOBE_3D.Aux is
       fb: Natural;
       new_vertex_id: Positive;
     begin
-      res.point:= o.point;
+      --  Clone basic features
+      res.ID     := o.ID;
+      res.centre := o.centre;
+      res.point  := o.point;
       for f in 1..o.Face_Count loop
         if matched(f) then
           null;  --  skip this face
         else
           nf:= nf + 1;
+          --  Clone face features
           res.face(nf):= o.face(f);
           res.face_internal(nf):= o.face_internal(f);
           fb:= matching_index(f);
           if fb > 0 then
             --  We transform the triangle into a rectangle, taking the extra vertex from fb.
-            new_vertex_id:=
-              o.face_internal(fb).P_compact(right_angled_triangle_idx_0123(fb));
+            rab:= right_angled_triangle_idx_0123(fb);
+            new_vertex_id:= o.face_internal(fb).P_compact(rab);
             for i in 1..4 loop
               if res.face(nf).P(i) = 0 then  --  Here is the "blind edge"
                 res.face(nf).P(i):= new_vertex_id;
@@ -218,7 +264,12 @@ package body GLOBE_3D.Aux is
                   if res.face(nf).whole_texture then
                     null;  --  Nothing to do, edges calculated in Calculate_face_internals
                   else
-                    res.face(nf).texture_edge_map(i):= (0.0, 0.0); -- !!! tbd
+                    --  Shift (shouldn't happen, i = 4 here, with whole_texture = False)
+                    for k in reverse i .. 3 loop
+                      res.face(nf).texture_edge_map(k+1):=
+                      res.face(nf).texture_edge_map(k);
+                    end loop;
+                    res.face(nf).texture_edge_map(i):= o.face_internal(fb).UV_extrema(rab);
                   end if;
                 end if;
               end if;
@@ -226,6 +277,7 @@ package body GLOBE_3D.Aux is
           end if;
         end if;
       end loop;
+      res.Pre_calculate;
       return res;
     end;
   end Merge_triangles;

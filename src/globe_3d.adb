@@ -152,6 +152,19 @@ package body GLOBE_3D is
     Check_faces;
   end Check_object;
 
+  procedure Check_textures(o: Object_3D) is
+  begin
+    for f in o.face'Range loop
+      if is_textured(o.face(f).skin) and then not Textures.Valid_texture_ID(o.face(f).texture) then
+        raise Textures.Undefined_texture_ID with
+            Trim(o.ID, Right) &
+            " face="   & Integer'Image(f) &
+            " skin="   & Skin_type'Image(o.face(f).skin) &
+            " texture_id=" & Image_ID'Image(o.face(f).texture);
+      end if;
+    end loop;
+  end Check_textures;
+
   --------------------------------------------
   -- Object initialization (1x in its life) --
   --------------------------------------------
@@ -190,10 +203,10 @@ package body GLOBE_3D is
           ex_U:= Real(fa.repeat_U);
           ex_V:= Real(fa.repeat_V);
           case quadri_edge(e) is
-            when 1=> fi.UV_extrema(e):= (0.0, 0.0 ); -- bottom, left  4--<--3
-            when 2=> fi.UV_extrema(e):= (ex_U,0.0 ); -- bottom, right |     |
-            when 3=> fi.UV_extrema(e):= (ex_U,ex_V); -- top, right    1-->--2
-            when 4=> fi.UV_extrema(e):= (0.0, ex_V); -- top, left
+            when 1 => fi.UV_extrema(e):= (0.0, 0.0 );  --  bottom, left  4--<--3
+            when 2 => fi.UV_extrema(e):= (ex_U,0.0 );  --  bottom, right |     |
+            when 3 => fi.UV_extrema(e):= (ex_U,ex_V);  --  top, right    1-->--2
+            when 4 => fi.UV_extrema(e):= (0.0, ex_V);  --  top, left
             when others => null;
           end case;
         else
@@ -213,8 +226,8 @@ package body GLOBE_3D is
           );
         when 4 =>
           Add_Normal_of_3p(o, fa.P(1), fa.P(2), fa.P(4), N);
-          -- We sum other normals for not perfectly flat faces,
-          -- in order to have a convenient average...
+          --  We sum other normals for not perfectly flat faces,
+          --  in order to have a convenient average...
           Add_Normal_of_3p(o, fa.P(2), fa.P(3), fa.P(1), N);
           Add_Normal_of_3p(o, fa.P(3), fa.P(4), fa.P(2), N);
           Add_Normal_of_3p(o, fa.P(4), fa.P(1), fa.P(3), N);
@@ -236,7 +249,9 @@ package body GLOBE_3D is
     length: Real;
 
   begin --Pre_calculate
-    if full_check_objects then Check_object(o); end if;
+    if full_check_objects then
+      Check_object(o);
+    end if;
 
     for i in o.face'Range loop
       begin
@@ -293,13 +308,6 @@ package body GLOBE_3D is
           o.edge_vector(pf):= o.edge_vector(pf) + o.face_internal(f).normal;
         end if;
       end loop;
-      if is_textured(o.face(f).skin) and then not Textures.Valid_texture_ID(o.face(f).texture) then
-        raise Textures.Undefined_texture_ID with
-          Trim(o.ID, Right) &
-          " face="   & Integer'Image(f) &
-          " skin="   & Skin_type'Image(o.face(f).skin) &
-          " texture_id=" & Image_ID'Image(o.face(f).texture);
-      end if;
     end loop;
     for p in o.point'Range loop
       if adjacent_faces(p) = 0 then
@@ -807,6 +815,21 @@ package body GLOBE_3D is
     Display_clipped( o, clip_area => clip.main_clipping, portal_depth => 0 );
     Reset_portal_seen(o);
   end Display;
+
+  function "+" (a, b: Map_idx_pair) return Map_idx_pair is
+  begin
+    return (a.U + b.U, a.V + b.V);
+  end;
+
+  function "-" (a, b: Map_idx_pair) return Map_idx_pair is
+  begin
+    return (a.U - b.U, a.V - b.V);
+  end;
+
+  function "*" (l: GL.Double; p: Map_idx_pair) return Map_idx_pair is
+  begin
+    return (l * p.U, l * p.V);
+  end;
 
   function Is_textured_specular(fa: Face_type) return Boolean is
   begin

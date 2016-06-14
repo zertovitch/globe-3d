@@ -476,6 +476,7 @@ package body Doom3_Help is
   face_0      : GLOBE_3D.Face_type; -- takes defaults values
   face_portal : GLOBE_3D.Face_type; -- prototype for portals
 
+  --  Statistics
   whole_pts, whole_tris, whole_d3_pts, whole_d3_tris: Natural:= 0;
 
   procedure Build_Model is
@@ -621,7 +622,9 @@ package body Doom3_Help is
       end if;
       -- ** Direct connection (needs all areas being created):
       face_portal.connecting:= model_stack(area_stack(other_side)).obj;
+      --  Clone invisible portal face:
       m.obj.face(f+1):= face_portal;
+      --  There are 4 more points, 1 more face:
       p:= p + 4;
       f:= f + 1;
       m.last_point:= p;
@@ -705,6 +708,18 @@ package body Doom3_Help is
     end if;
   end Compute_Averages;
 
+  --  Other statistics
+  whole_merged_triangles: Natural:= 0;
+
+  function Merge_triangles_trace(o: Object_3D) return Object_3D is
+    o2: constant Object_3D:= o;
+      -- GLOBE_3D.Aux.Merge_triangles(o);
+      -- 2016-06-14: not an obvious performance win in display; glitches with textures.
+  begin
+    whole_merged_triangles:= whole_merged_triangles + (o.Max_faces - o2.Max_faces);
+    return o2;
+  end;
+
   procedure Write_Summary(name: String) is
     use GL, GL.Math, GLOBE_3D.Aux;
     log: File_Type;
@@ -725,6 +740,12 @@ package body Doom3_Help is
       "All valid triangles" & Integer'Image(whole_tris) &
       "  from" & Integer'Image(whole_d3_tris) &
       ", i.e." & Integer'Image((100*whole_tris)/whole_d3_tris) &
+      '%'
+    );
+    Put_Line(log,
+      "All merged triangles" & Integer'Image(whole_merged_triangles) &
+      "  from" & Integer'Image(whole_tris) &
+      ", i.e." & Integer'Image((100*whole_merged_triangles)/whole_tris) &
       '%'
     );
     for i in 1..model_top loop
@@ -756,7 +777,7 @@ package body Doom3_Help is
 
   procedure YY_Accept is
   begin
-    -- Include_portals_to_areas : done at beginning of BSP.
+    --  Include_portals_to_areas : done at beginning of BSP.
     for i in 1..model_top loop
       if not (bypass_portals or model_stack(i).portals_to_be_added = 0) then
         Complete_area_with_portals(i);
@@ -765,12 +786,15 @@ package body Doom3_Help is
         "Writing object file (.g3d) for: " &
         Trim(model_stack(i).obj.ID, Right) & '.'
       );
-      GLOBE_3D.IO.Save_file(model_stack(i).obj.all); -- Save each object
+      --  Save each object
+      GLOBE_3D.IO.Save_file(
+        Merge_triangles_trace(Object_3D(model_stack(i).obj.all))
+      );
     end loop;
     -- Some custom levels like the Reims Cathedral have no BSP
     if farm /= null then
       Put_Line(Standard_Error, "Writing BSP tree (.bsp).");
-      GLOBE_3D.IO.Save_file(pkg,farm(0)); -- Save BSP tree.
+      GLOBE_3D.IO.Save_file(pkg, farm(0)); -- Save BSP tree.
     end if;
     Put_Line(Standard_Error, "Writing texture catalogue (.txt).");
     Write_catalogue; -- Save a list of textures

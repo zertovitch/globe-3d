@@ -291,6 +291,10 @@ package GLOBE_3D is
   type Idx_4_array_array is array(Positive range <>) of Idx_4_array;
 
   type Map_idx_pair is record U,V: aliased GL.Double; end record;
+  function "+" (a, b: Map_idx_pair) return Map_idx_pair;
+  function "-" (a, b: Map_idx_pair) return Map_idx_pair;
+  function "*" (l: GL.Double; p: Map_idx_pair) return Map_idx_pair;
+
   type Map_idx_pair_array is array(Natural range <>) of Map_idx_pair;
   subtype Map_idx_pair_4_array is Map_idx_pair_array(1..4);
 
@@ -408,8 +412,11 @@ package GLOBE_3D is
   overriding function  Face_Count     (o : in Object_3D) return Natural;
   overriding function  Bounds         (o : in Object_3D) return GL.Geometry.Bounds_record;
 
-  procedure Check_object(o: Object_3D);
   -- Check object for invalid or duplicate vertices
+  procedure Check_object(o: Object_3D);
+
+  -- Check object for undefined textures
+  procedure Check_textures(o: Object_3D);
 
   -- NB: Texture_name_hint, Specular_name_hint, Portal_name_hint were moved to GLOBE_3D.Aux.
 
