@@ -69,7 +69,7 @@ project D3G is
    end Naming;
 
    package Builder is
-      for Default_Switches ("ada") use ("-j2", "-C");
+      for Default_Switches ("ada") use ("-j2");
    end Builder;
 
    package Ide is

@@ -712,9 +712,8 @@ package body Doom3_Help is
   whole_merged_triangles: Natural:= 0;
 
   function Merge_triangles_trace(o: Object_3D) return Object_3D is
-    o2: constant Object_3D:= o;
-      -- GLOBE_3D.Aux.Merge_triangles(o);
-      -- 2016-06-14: not an obvious performance win in display; glitches with textures.
+    o2: constant Object_3D:= GLOBE_3D.Aux.Merge_triangles(o);
+    -- Added 2016-06-14. Needs some tuning.
   begin
     whole_merged_triangles:= whole_merged_triangles + (o.Max_faces - o2.Max_faces);
     return o2;

@@ -238,7 +238,9 @@ package body GLOBE_3D.Aux is
       res: Object_3D( Max_points=> o.Max_points, Max_faces=> o.Max_faces - face_reduction );
       nf: Natural:= 0;
       fb: Natural;
+      ra: Tri_count;
       new_vertex_id: Positive;
+      new_UV: Map_idx_pair;
     begin
       --  Clone basic features
       res.ID     := o.ID;
@@ -255,25 +257,57 @@ package body GLOBE_3D.Aux is
           fb:= matching_index(f);
           if fb > 0 then
             --  We transform the triangle into a rectangle, taking the extra vertex from fb.
+            ra := right_angled_triangle_idx_0123(f);
             rab:= right_angled_triangle_idx_0123(fb);
             new_vertex_id:= o.face_internal(fb).P_compact(rab);
-            for i in 1..4 loop
-              if res.face(nf).P(i) = 0 then  --  Here is the "blind edge"
-                res.face(nf).P(i):= new_vertex_id;
-                if is_textured(res.face(nf).skin) then
-                  if res.face(nf).whole_texture then
-                    null;  --  Nothing to do, edges calculated in Calculate_face_internals
-                  else
-                    --  Shift (shouldn't happen, i = 4 here, with whole_texture = False)
-                    for k in reverse i .. 3 loop
-                      res.face(nf).texture_edge_map(k+1):=
-                      res.face(nf).texture_edge_map(k);
-                    end loop;
-                    res.face(nf).texture_edge_map(i):= o.face_internal(fb).UV_extrema(rab);
-                  end if;
-                end if;
+            new_UV:= o.face_internal(fb).UV_extrema(rab);
+            --  Now, we need to have a correct orientation for the new rectangle.
+            --  It depends on which vertex has the right angle.
+            --  The new vertex need to be on the other side, and you need to take everybody
+            --  without making a 'Z'.
+            --  Ouch! But with a drawing it's easy...
+            case ra is
+              when 1 =>  --  New vertex to be inserted between 2 and 3. 1 and 2 are ok.
+                res.face(nf).P(1):= o.face_internal(f).P_compact(1);
+                res.face(nf).P(2):= o.face_internal(f).P_compact(2);
+                res.face(nf).P(3):= new_vertex_id;
+                res.face(nf).P(4):= o.face_internal(f).P_compact(3);
+              when 2 =>  --  New vertex to be inserted after 3.
+                res.face(nf).P(1):= o.face_internal(f).P_compact(1);
+                res.face(nf).P(2):= o.face_internal(f).P_compact(2);
+                res.face(nf).P(3):= o.face_internal(f).P_compact(3);
+                res.face(nf).P(4):= new_vertex_id;
+              when 3 =>  --  New vertex to be inserted between 1 and 2.
+                res.face(nf).P(1):= o.face_internal(f).P_compact(1);
+                res.face(nf).P(2):= new_vertex_id;
+                res.face(nf).P(3):= o.face_internal(f).P_compact(2);
+                res.face(nf).P(4):= o.face_internal(f).P_compact(3);
+            end case;
+            if is_textured(res.face(nf).skin) then
+              if res.face(nf).whole_texture then
+                --  Nothing to do, edges are calculated in Calculate_face_internals (Pre_calculate)
+                null;
+              else
+                --  Re-ouch!
+                case ra is
+                  when 1 =>  --  New vertex to be inserted between 2 and 3. 1 and 2 are ok.
+                    res.face(nf).texture_edge_map(1):= o.face_internal(f).UV_extrema(1);
+                    res.face(nf).texture_edge_map(2):= o.face_internal(f).UV_extrema(2);
+                    res.face(nf).texture_edge_map(3):= new_UV;
+                    res.face(nf).texture_edge_map(4):= o.face_internal(f).UV_extrema(3);
+                  when 2 =>  --  New vertex to be inserted after 3.
+                    res.face(nf).texture_edge_map(1):= o.face_internal(f).UV_extrema(1);
+                    res.face(nf).texture_edge_map(2):= o.face_internal(f).UV_extrema(2);
+                    res.face(nf).texture_edge_map(3):= o.face_internal(f).UV_extrema(3);
+                    res.face(nf).texture_edge_map(4):= new_UV;
+                  when 3 =>  --  New vertex to be inserted between 1 and 2.
+                    res.face(nf).texture_edge_map(1):= o.face_internal(f).UV_extrema(1);
+                    res.face(nf).texture_edge_map(2):= new_UV;
+                    res.face(nf).texture_edge_map(3):= o.face_internal(f).UV_extrema(2);
+                    res.face(nf).texture_edge_map(4):= o.face_internal(f).UV_extrema(3);
+                end case;
               end if;
-            end loop;
+            end if;
           end if;
         end if;
       end loop;
