@@ -387,17 +387,17 @@ package GLOBE_3D is
   -------------------------------------
 
   type Object_3D (Max_points, Max_faces: Integer) is new Visual with record
-    point          : Point_3D_array  (1..Max_points);  -- vertices
-    edge_vector    : Vector_3D_array (1..Max_points);  -- normals for lighting
+    point          : Point_3D_array  (1..Max_points);  --  Vertices
     face           : Face_array(1..Max_faces);
+    --  List of objects to be drawn AFTER the object itself e.g., things inside a room:
     sub_objects    : p_Object_3D_list:= null;
-    -- List of objects to be drawn AFTER the
-    -- object itself e.g., things inside a room
-    pre_calculated : Boolean:= False;
     List_Status    : List_Cases := Generate_List;
-    -- private:
+    --  Private:
     List_Id        : List_Ids;
     face_internal  : Face_internal_array(1..Max_faces);
+    --  Private, computed by Pre_calculate:
+    pre_calculated : Boolean:= False;
+    edge_vector    : Vector_3D_array (1..Max_points);  --  Normals for lighting
     bounds         : GL.Geometry.Bounds_record;
     transparent    : Boolean:= False;
   end record; -- Object_3D

@@ -63,10 +63,10 @@ package body GLOBE_3D.Aux is
     return False;  -- !!! Not finished !!!
   end Matching_right_angled_rectangle;
 
-  function Simplify(o: Object_3D) return Object_3D is
-    res: Object_3D( Max_points=> 8, Max_faces=> 6 );  -- !!
+  function Merge_triangles(o: Object_3D) return Object_3D is
     right_angled_triangle_flag: array(1..o.Max_faces) of Zero_or_tri_count;
     matching_index: array(1..o.Max_faces) of Natural:= (others => 0);
+    matched: array(1..o.Max_faces) of Boolean:= (others => False);
     raa, rab: Zero_or_tri_count;
     face_reduction: Natural:= 0;
   begin
@@ -85,6 +85,7 @@ package body GLOBE_3D.Aux is
               --  fa will become a rectangle in new object.
               --  fb will be ignored in new object.
               matching_index(fa):= fb;
+              matched(fb):= True;
               face_reduction:= face_reduction + 1;
             end if;
           end if;
@@ -92,9 +93,27 @@ package body GLOBE_3D.Aux is
       end if;
     end loop;
     --  Build compacted object
-    --  !!! Not finished !!!
-    return res;  -- !!
-  end;
+    declare
+      res: Object_3D( Max_points=> o.Max_points, Max_faces=> o.Max_faces - face_reduction );
+      nf: Natural:= 0;
+    begin
+      res.point:= o.point;
+      for f in 1..o.Face_Count loop
+        if matched(f) then
+          null;  --  skip this face
+        else
+          nf:= nf + 1;
+          res.face(nf):= o.face(f);
+          res.face_internal(nf):= o.face_internal(f);
+          if matching_index(f) > 0 then
+            --  We transform the triangle into a rectangle.
+            null;  --  !!! Not finished - merge happens here
+          end if;
+        end if;
+      end loop;
+      return res;
+    end;
+  end Merge_triangles;
 
   procedure Set_ident(i: out Ident; name: String)
   is
