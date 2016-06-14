@@ -38,6 +38,6 @@ package GLOBE_3D.Aux is
 
   procedure Angles_modulo_360( v: in out Vector_3D );
 
-  --  !!! [finish body] function Simplify(o: Object_3D) return Object_3D;
+  function Merge_triangles(o: Object_3D) return Object_3D;
 
 end GLOBE_3D.Aux;

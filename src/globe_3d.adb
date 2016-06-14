@@ -165,7 +165,8 @@ package body GLOBE_3D is
     procedure Calculate_face_internals(
       fa:  in Face_type;
       fi: out Face_internal_type
-    ) is
+    )
+    is
       l: Natural:= 0;
       quadri_edge:  array(fa.P'Range) of Natural;
       ex_U, ex_V: Real;

@@ -1,4 +1,4 @@
-with GL.Math;
+with GL.Math, GLOBE_3D.Math;
 
 package body GLOBE_3D.Aux is
 
@@ -7,7 +7,7 @@ package body GLOBE_3D.Aux is
   subtype Tri_count is Integer range 1..3;
   subtype Zero_or_tri_count is Integer range 0..3;
 
-  function Is_right_angled_rectangle(
+  function Is_right_angled_triangle(
     o        : Object_3D;
     face_num : Positive
   )
@@ -31,22 +31,77 @@ package body GLOBE_3D.Aux is
     else
       return 0;
     end if;
-  end Is_right_angled_rectangle;
+  end Is_right_angled_triangle;
 
-  function Matching_right_angled_rectangle(
+  --  VR----- V2
+  --    |  /|
+  --    | / |
+  --    |/__|
+  --  V1     Point returned
+  --
+  function Rectangle_completion(
+    o           : Object_3D;
+    face_num    : Positive;
+    right_angle : Tri_count
+  )
+  return Point_3D
+  is
+    use GLOBE_3D.Math;
+    first: Boolean:= True;
+    C, P, V1, V2, VR: Point_3D;
+    u: constant Vector_3D:= o.face_internal(face_num).normal;
+    --  R: Rotate around axis = face's normal
+    R: constant Matrix_33:=
+      ( (2.0*u(0)*u(0) - 1.0, 2.0*u(1)*u(0),       2.0*u(0)*u(2)      ),
+        (2.0*u(0)*u(1)      , 2.0*u(1)*u(1) - 1.0, 2.0*u(1)*u(2)      ),
+        (2.0*u(0)*u(2)      , 2.0*u(1)*u(2)      , 2.0*u(2)*u(2) - 1.0) );
+  begin
+    for i in Tri_count loop
+      P:= o.point(o.face_internal(face_num).P_compact(i));
+      if i = right_angle then
+        VR:= P;
+      elsif first then
+        V1:= P;
+        first:= False;
+      else
+        V2:= P;
+      end if;
+    end loop;
+    C:= (V1 + V2) * 0.5;
+    return C + R * (VR - C);
+  end Rectangle_completion;
+
+  --  -----
+  --  |A /|
+  --  | /B|
+  --  |/__|
+  --
+  function Matching_right_angled_triangles(
     o        : Object_3D;
-    fa, fb   : Positive;   --  Face index of both triangles
+    fa, fb   : Positive;   --  Face index of both right-angled triangles
     raa, rab : Tri_count   --  Right angle vertex index of both triangles in P_compact arrays.
   )
   return Boolean
   is
+    use GL.Materials;
+    --  !! We might relax the condition of Match_point
+    function Match_point(P1, P2: Point_3D) return Boolean renames GL.Math.Identical;
+    function Match_vector(P1, P2: Vector_3D) return Boolean renames GL.Math.Identical;
     match_count: Natural:= 0;
   begin
+    if not Match_vector(o.face_internal(fa).normal, o.face_internal(fb).normal) then
+      return False;
+    end if;
+    if o.face(fa).skin /= o.face(fb).skin then
+      return False;
+    end if;
+    --  We look if two vertices, not with the right angle, of rectangle A match
+    --  two vertices of rectangle B (again, not with the right angle)
     for ia in Tri_count loop
       if ia /= raa then
         for ib in Tri_count loop
           if ib /= rab then
-            if Identical(  --  !! We might relax this condition
+            if Match_point(
               o.point(o.face_internal(fa).P_compact(ia)),
               o.point(o.face_internal(fb).P_compact(ib))
             )
@@ -60,11 +115,55 @@ package body GLOBE_3D.Aux is
     if match_count /= 2 then  --  if match_count = 3 or 4, we have 1 or 2 degenerated triangles.
       return False;
     end if;
-    return False;  -- !!! Not finished !!!
-  end Matching_right_angled_rectangle;
+    if not Match_point(
+      Rectangle_completion(o, fa, raa),
+      o.point(o.face_internal(fb).P_compact(rab))
+    )
+    then
+      return False;
+    end if;
+    --  At this point, triangles can be merged geometrically and have the same skin type.
+    --  We check if they are compatible.
+    if o.face(fa).skin = invisible then
+      return True;
+    end if;
+    if is_textured(o.face(fa).skin) then
+      if o.face(fa).texture = null_image then
+        --  Names not yet resolved
+        if o.face_internal(fa).texture_name  /= o.face_internal(fb).texture_name or else
+           o.face_internal(fa).specular_name /= o.face_internal(fb).specular_name
+        then
+          return False;
+        end if;
+      else
+        if o.face(fa).texture      /= o.face(fb).texture or else
+           o.face(fa).specular_map /= o.face(fb).specular_map
+        then
+          return False;
+        end if;
+      end if;
+        --  !!! UV should match too
+    end if;
+    --  !! use almost_zero match
+    if is_coloured(o.face(fa).skin) then
+      if o.face(fa).colour /= o.face(fb).colour or else
+         o.face(fa).alpha  /= o.face(fb).alpha
+      then
+        return False;
+      end if;
+    end if;
+    --  !! use almost_zero match
+    if is_material(o.face(fa).skin) then
+      if o.face(fa).material /= o.face(fb).material then
+        return False;
+      end if;
+    end if;
+    return True;
+  end Matching_right_angled_triangles;
 
   function Merge_triangles(o: Object_3D) return Object_3D is
-    right_angled_triangle_flag: array(1..o.Max_faces) of Zero_or_tri_count;
+    --  o must have been Pre_calculated.
+    right_angled_triangle_idx_0123: array(1..o.Max_faces) of Zero_or_tri_count;
     matching_index: array(1..o.Max_faces) of Natural:= (others => 0);
     matched: array(1..o.Max_faces) of Boolean:= (others => False);
     raa, rab: Zero_or_tri_count;
@@ -72,16 +171,16 @@ package body GLOBE_3D.Aux is
   begin
     --  First, flag all right-angled triangles.
     for f in 1..o.Max_faces loop
-      right_angled_triangle_flag(f):= Is_right_angled_rectangle(o, f);
+      right_angled_triangle_idx_0123(f):= Is_right_angled_triangle(o, f);
     end loop;
     --  Find matching pairs of right-angled triangles.
     for fa in 1..o.Max_faces loop
-      raa:= right_angled_triangle_flag(fa);
+      raa:= right_angled_triangle_idx_0123(fa);
       if raa > 0 then
         for fb in fa+1..o.Max_faces loop
-          rab:= right_angled_triangle_flag(fb);
+          rab:= right_angled_triangle_idx_0123(fb);
           if rab > 0 then
-            if Matching_right_angled_rectangle(o, fa, fb, raa, rab) then
+            if Matching_right_angled_triangles(o, fa, fb, raa, rab) then
               --  fa will become a rectangle in new object.
               --  fb will be ignored in new object.
               matching_index(fa):= fb;
@@ -96,6 +195,8 @@ package body GLOBE_3D.Aux is
     declare
       res: Object_3D( Max_points=> o.Max_points, Max_faces=> o.Max_faces - face_reduction );
       nf: Natural:= 0;
+      fb: Natural;
+      new_vertex_id: Positive;
     begin
       res.point:= o.point;
       for f in 1..o.Face_Count loop
@@ -105,9 +206,23 @@ package body GLOBE_3D.Aux is
           nf:= nf + 1;
           res.face(nf):= o.face(f);
           res.face_internal(nf):= o.face_internal(f);
-          if matching_index(f) > 0 then
-            --  We transform the triangle into a rectangle.
-            null;  --  !!! Not finished - merge happens here
+          fb:= matching_index(f);
+          if fb > 0 then
+            --  We transform the triangle into a rectangle, taking the extra vertex from fb.
+            new_vertex_id:=
+              o.face_internal(fb).P_compact(right_angled_triangle_idx_0123(fb));
+            for i in 1..4 loop
+              if res.face(nf).P(i) = 0 then  --  Here is the "blind edge"
+                res.face(nf).P(i):= new_vertex_id;
+                if is_textured(res.face(nf).skin) then
+                  if res.face(nf).whole_texture then
+                    null;  --  Nothing to do, edges calculated in Calculate_face_internals
+                  else
+                    res.face(nf).texture_edge_map(i):= (0.0, 0.0); -- !!! tbd
+                  end if;
+                end if;
+              end if;
+            end loop;
           end if;
         end if;
       end loop;
