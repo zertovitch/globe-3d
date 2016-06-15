@@ -96,6 +96,7 @@ package Doom3_Help is
 
   procedure D3G_Init;
 
+  --  All "surfaces" have been parsed, we can build the object corresponding to the D3 model
   procedure Build_Model;
 
   procedure Doom3_Comment(s: String); -- dummy

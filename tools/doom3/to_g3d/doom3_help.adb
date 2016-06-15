@@ -75,8 +75,6 @@ package body Doom3_Help is
   area_stack: array(0..10_000) of Positive;
   area_top: Integer:= -1;
 
-  current_area_number: Integer:= -1;
-
   procedure Add_Model(name_with_quotes: String) is
     un: Unbounded_String;
     name: constant String:= Strip_quotes(name_with_quotes);
@@ -92,9 +90,8 @@ package body Doom3_Help is
         if name'Length > 4 and then
            name(name'First+1..name'First+4)="area"
         then
-          current_area_number:= current_area_number + 1;
-          mt.area:= current_area_number;
           area_top:= area_top + 1;
+          mt.area:= area_top;
           area_stack(area_top):= model_top;
           is_area:= True;
         else
@@ -332,7 +329,7 @@ package body Doom3_Help is
     end loop;
     surface_top:= 0;
     surface_count:= 0;
-  end;
+  end Reset_surfaces;
 
   procedure Add_surface(
     name_with_quotes: String;
@@ -479,6 +476,7 @@ package body Doom3_Help is
   --  Statistics
   whole_pts, whole_tris, whole_d3_pts, whole_d3_tris: Natural:= 0;
 
+  --  All "surfaces" have been parsed, we can build the object corresponding to the D3 model
   procedure Build_Model is
     p,f, p_mem: Natural:= 0;
     local_vertex_number: Integer;
@@ -539,7 +537,7 @@ package body Doom3_Help is
           Specular_name_hint(m.obj.all, f, tex & "_s");
         exception
           when Constraint_Error =>
-            raise Constraint_Error with "Texture ident too long. Try with -j.";
+            raise Constraint_Error with "Texture ident too long. Try with -j (no directory names).";
         end;
       end loop;
     end loop;
@@ -597,7 +595,8 @@ package body Doom3_Help is
         end if;
       end;
     end loop;
-    -- Details and linking are done with Complete_area_with_portals later.
+    --  Details of the portals and linking between objects are
+    --  done later with Complete_area_with_portals.
   end Include_portals_to_areas;
 
   procedure Complete_area_with_portals(model_nb: Positive) is
@@ -773,13 +772,22 @@ package body Doom3_Help is
     Close(log);
   end Write_Summary;
 
-  bypass_portals: constant Boolean:= False;
-
+  --  Here the parsing is finished.
+  --  Time to dump everything into files and produce a nice report.
+  --
   procedure YY_Accept is
   begin
-    --  Include_portals_to_areas : done at beginning of BSP.
+    if farm = null then
+      -- Some custom levels like the Reims Cathedral have no BSP
+      null;
+    else
+      Put_Line(Standard_Error, "Writing BSP tree (.bsp).");
+      GLOBE_3D.IO.Save_file(pkg, farm(0)); -- Save BSP tree.
+    end if;
+    --  Include_portals_to_areas : already done at beginning of BSP parsing
+    --  (see doom3.pry) because the BSP tree uses access types.
     for i in 1..model_top loop
-      if not (bypass_portals or model_stack(i).portals_to_be_added = 0) then
+      if model_stack(i).portals_to_be_added > 0 then
         Complete_area_with_portals(i);
       end if;
       Put_Line(Standard_Error,
@@ -791,11 +799,6 @@ package body Doom3_Help is
         Merge_triangles_trace(Object_3D(model_stack(i).obj.all))
       );
     end loop;
-    -- Some custom levels like the Reims Cathedral have no BSP
-    if farm /= null then
-      Put_Line(Standard_Error, "Writing BSP tree (.bsp).");
-      GLOBE_3D.IO.Save_file(pkg, farm(0)); -- Save BSP tree.
-    end if;
     Put_Line(Standard_Error, "Writing texture catalogue (.txt).");
     Write_catalogue; -- Save a list of textures
     Put_Line(Standard_Error, "Writing a summary (.log).");
