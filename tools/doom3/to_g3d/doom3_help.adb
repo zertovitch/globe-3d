@@ -713,7 +713,7 @@ package body Doom3_Help is
 
   function Merge_triangles_trace(o: Object_3D) return Object_3D is
     o2: constant Object_3D:= GLOBE_3D.Aux.Merge_triangles(o);
-    -- Added 2016-06-14. Needs some tuning.
+    -- Added 2016-06-14.
   begin
     whole_merged_triangles:= whole_merged_triangles + (o.Max_faces - o2.Max_faces);
     return o2;
@@ -724,29 +724,30 @@ package body Doom3_Help is
     log: File_Type;
   begin
     Create(log, out_file, name);
-    Put_Line(log, "Coords of main imposed centre: " & Coords(main_centre));
+    Put_Line(log, "Coordinates of main imposed centre: " & Coords(main_centre));
     if area_centering >= 0 then
       Put_Line(log, "Centered on area #: " & Integer'Image(area_centering));
     end if;
     New_Line(log);
     Put_Line(log,
       "All vertices, distinct per model" & Integer'Image(whole_pts) &
-      "  from" & Integer'Image(whole_d3_pts) &
+      " from" & Integer'Image(whole_d3_pts) &
       ", i.e." & Integer'Image((100*whole_pts)/whole_d3_pts) &
       '%'
     );
     Put_Line(log,
       "All valid triangles" & Integer'Image(whole_tris) &
-      "  from" & Integer'Image(whole_d3_tris) &
+      " from" & Integer'Image(whole_d3_tris) &
       ", i.e." & Integer'Image((100*whole_tris)/whole_d3_tris) &
       '%'
     );
     Put_Line(log,
       "All merged triangles" & Integer'Image(whole_merged_triangles) &
-      "  from" & Integer'Image(whole_tris) &
+      " from" & Integer'Image(whole_tris) &
       ", i.e." & Integer'Image((100*whole_merged_triangles)/whole_tris) &
       '%'
     );
+    New_Line(log);
     for i in 1..model_top loop
       declare
         m: Model renames model_stack(i);

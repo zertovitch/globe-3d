@@ -294,6 +294,7 @@ package GLOBE_3D is
   function "+" (a, b: Map_idx_pair) return Map_idx_pair;
   function "-" (a, b: Map_idx_pair) return Map_idx_pair;
   function "*" (l: GL.Double; p: Map_idx_pair) return Map_idx_pair;
+  function Identical(a, b: Map_idx_pair) return Boolean;  --  Points numerically identical
 
   type Map_idx_pair_array is array(Natural range <>) of Map_idx_pair;
   subtype Map_idx_pair_4_array is Map_idx_pair_array(1..4);

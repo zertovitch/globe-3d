@@ -50,7 +50,7 @@ package body GLOBE_3D.Aux is
     first: Boolean:= True;
     C, P, V1, V2, VR: Point_3D;
     u: constant Vector_3D:= o.face_internal(face_num).normal;
-    --  R: Rotate around axis = face's normal
+    --  R: Rotate half-turn around axis = face's normal
     R: constant Matrix_33:=
       ( (2.0*u(0)*u(0) - 1.0, 2.0*u(1)*u(0),       2.0*u(2)*u(0)      ),
         (2.0*u(0)*u(1)      , 2.0*u(1)*u(1) - 1.0, 2.0*u(2)*u(1)      ),
@@ -118,11 +118,19 @@ package body GLOBE_3D.Aux is
   )
   return Boolean
   is
-    use GL.Materials;
-    --  !! We might relax the condition of Match_point
+    --  Conditions with numerical identity
     function Match_point(P1, P2: Point_3D) return Boolean renames GL.Math.Identical;
     function Match_vector(P1, P2: Vector_3D) return Boolean renames GL.Math.Identical;
+    function Match_UV(P1, P2: Map_idx_pair) return Boolean renames GLOBE_3D.Identical;
+    function Match_color(P1, P2: RGB_Color) return Boolean renames GL.Math.Identical;
+    function Match_alpha(a1, a2: GL.Double) return Boolean is
+    begin
+      return GL.Math.Almost_zero(a1-a2);
+    end;
+    function Match_material(M1, M2: GL.Materials.Material_type) return Boolean
+      renames GL.Materials.Identical;
     match_count: Natural:= 0;
+    use GL.Materials;
   begin
     if not Match_vector(o.face_internal(fa).normal, o.face_internal(fb).normal) then
       return False;
@@ -178,22 +186,19 @@ package body GLOBE_3D.Aux is
         end if;
       end if;
       --  Now we check if the points in texture coordinates would match
-      --  !! use almost_zero match
-      if Rectangle_completion(o, fa, raa) /= o.face_internal(fb).UV_extrema(rab) then
-        return False;  --  Picture wouldn't match the one of both triangles.
+      if not Match_UV(Rectangle_completion(o, fa, raa), o.face_internal(fb).UV_extrema(rab)) then
+        return False;  --  Picture would not match the one of both triangles.
       end if;
     end if;
-    --  !! use almost_zero match
     if is_coloured(o.face(fa).skin) then
-      if o.face(fa).colour /= o.face(fb).colour or else
-         o.face(fa).alpha  /= o.face(fb).alpha
+      if (not Match_color(o.face(fa).colour, o.face(fb).colour)) or else
+         (not Match_alpha(o.face(fa).alpha,  o.face(fb).alpha))
       then
         return False;
       end if;
     end if;
-    --  !! use almost_zero match
     if is_material(o.face(fa).skin) then
-      if o.face(fa).material /= o.face(fb).material then
+      if not Match_material(o.face(fa).material, o.face(fb).material) then
         return False;
       end if;
     end if;

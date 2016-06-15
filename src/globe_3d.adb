@@ -432,7 +432,7 @@ package body GLOBE_3D is
           or else fa.skin /= Previous_face.skin
           or else (fa.skin = Previous_face.skin
                    and then is_material(fa.skin)
-                   and then fa.material /= Previous_face.material)
+                   and then not Identical(fa.material, Previous_face.material))
         then
           case fa.skin is
             when material_only | material_texture =>
@@ -458,6 +458,7 @@ package body GLOBE_3D is
               null; -- done above
             when colour_only | coloured_texture =>
               Enable(COLOR_MATERIAL);
+              ColorMaterial(FRONT_AND_BACK, AMBIENT_AND_DIFFUSE);
             when texture_only =>
               Disable(COLOR_MATERIAL);
             when invisible =>
@@ -468,10 +469,10 @@ package body GLOBE_3D is
         if is_coloured(fa.skin) and then
           (First_Face
              or else Previous_face.skin = invisible
-             or else not (fa.colour = Previous_face.colour and fa.alpha = Previous_face.alpha)
+             or else not (GL.Math.Identical(fa.colour, Previous_face.colour) and then
+                          GL.Math.Almost_zero(fa.alpha - Previous_face.alpha))
            )
         then
-          ColorMaterial(FRONT_AND_BACK, AMBIENT_AND_DIFFUSE);
           Color(
                 red   => fa.colour.red,
                 green => fa.colour.green,
@@ -829,6 +830,13 @@ package body GLOBE_3D is
   function "*" (l: GL.Double; p: Map_idx_pair) return Map_idx_pair is
   begin
     return (l * p.U, l * p.V);
+  end;
+
+  function Identical(a, b: Map_idx_pair) return Boolean is
+    use GL.Math;
+  begin
+    return
+      Almost_zero(a.U-b.U) and then Almost_zero(a.V-b.V);
   end;
 
   function Is_textured_specular(fa: Face_type) return Boolean is

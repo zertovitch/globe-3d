@@ -66,6 +66,23 @@ package body GL.Math is
       Almost_zero(a(2)-b(2));
   end Identical;
 
+  function Identical(a, b: RGB_Color) return Boolean is
+  begin
+    return
+      Almost_zero(a.red   - b.red)   and then
+      Almost_zero(a.green - b.green) and then
+      Almost_zero(a.blue  - b.blue);
+  end Identical;
+
+  function Identical(a, b: RGBA_Color) return Boolean is
+  begin
+    return
+      Almost_zero(a.red   - b.red)   and then
+      Almost_zero(a.green - b.green) and then
+      Almost_zero(a.blue  - b.blue)  and then
+      Almost_zero(a.alpha - b.alpha);
+  end Identical;
+
    -- Angles
    --
 

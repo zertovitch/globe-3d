@@ -54,6 +54,13 @@ package GL.Math is
 
   type Vector_4D is array (0 .. 3) of Double;
 
+  -------------
+  -- Colors --
+  -------------
+
+  function Identical(a, b: RGB_Color) return Boolean;  --  R, G, B numerically identical
+  function Identical(a, b: RGBA_Color) return Boolean;  --  R, G, B, A numerically identical
+
    -- Angles
    --
 
