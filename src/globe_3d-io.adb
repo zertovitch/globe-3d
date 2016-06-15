@@ -25,8 +25,11 @@ package body GLOBE_3D.IO is
   signature_obj_v2008: constant String:= signature_obj_root &
     "Format version: 2-Apr-2008." & stop_type;
 
-  signature_obj: constant String:= signature_obj_root &
+  signature_obj_v2016a: constant String:= signature_obj_root &
     "Format version: 09-Jun-2016" & stop_type;
+
+  signature_obj: constant String:= signature_obj_root &
+    "Format version: 15-Jun-2016" & stop_type;
 
   signature_bsp: constant String:=
     "GLOBE_3D Binary Space Partition File (" & BSP_extension & "). " &
@@ -196,6 +199,7 @@ package body GLOBE_3D.IO is
     v8: U8;
     v32, mp32, mf32: U32;
     with_specular: Boolean:= True;
+    with_sub_objects: Boolean:= True;
 
     procedure Read_face(face: out Face_type; face_invar: in out Face_internal_type) is
     begin
@@ -206,7 +210,7 @@ package body GLOBE_3D.IO is
       end loop;
       -- 2/ Portal connection: object name is stored;
       --    access must be found later
-      Read_String(buf,face_invar.connect_name);
+      Read_String(buf, face_invar.connect_name);
       -- 3/ Skin
       GL.IO.Get_Byte(buf,v8);
       face.skin:= Skin_type'Val(v8);
@@ -250,19 +254,23 @@ package body GLOBE_3D.IO is
         Read_Map_idx_pair_array(face.texture_edge_map);
       end if;
     end Read_face;
+    --
     test_signature: String(signature_obj'Range);
     ID: Ident;
   begin
     String'Read(s,test_signature);
     if test_signature = signature_obj then
       null;
+    elsif test_signature = signature_obj_v2016a then
+      with_sub_objects := False;
     elsif test_signature = signature_obj_v2008 then
-      with_specular:= False;
+      with_sub_objects := False;
+      with_specular    := False;
     else
       raise Bad_data_format with "Signature not found: " & signature_obj_root;
     end if;
     GL.IO.Attach_Stream(b => buf, stm => s);
-    Read_String(buf,ID);
+    Read_String(buf, ID);
     -- Read the object's dimensions, create object, read its contents
     Read_Intel(buf, mp32);
     Read_Intel(buf, mf32);
@@ -280,7 +288,14 @@ package body GLOBE_3D.IO is
         Read_Double(buf, o.rotation(i,j));
       end loop;
     end loop;
-    -- !! sub-objects: skipped !!
+    if with_sub_objects then
+      loop
+        GL.IO.Get_Byte(buf,v8);
+        exit when Boolean'Val(v8);
+        Read_String(buf, ID);
+        o.sub_obj_ids.Append(ID);
+      end loop;
+    end if;
     -- Main operation done!
   end Read;
 
@@ -387,6 +402,9 @@ package body GLOBE_3D.IO is
       end if;
     end Write_face;
 
+    sub_obj_lst: p_Object_3D_list:= o.sub_objects;
+    last: Boolean;
+
   begin
     String'Write(s, signature_obj);
     Write_String(s, o.ID);
@@ -404,7 +422,13 @@ package body GLOBE_3D.IO is
         Write_Double(s, o.rotation(i,j));
       end loop;
     end loop;
-    -- !! sub-objects: skipped !!
+    loop
+      last:= sub_obj_lst = null;
+      U8'Write(s, Boolean'Pos(last));
+      exit when last;
+      Write_String(s, sub_obj_lst.objc.ID);
+      sub_obj_lst:= sub_obj_lst.next;
+    end loop;
     -- Main operation done!
   end Write;
 
@@ -419,7 +443,7 @@ package body GLOBE_3D.IO is
   procedure Load_generic(name_in_resource: String; a: out Anything);
 
   procedure Load_generic(name_in_resource: String; a: out Anything) is
-    name_ext: constant String:= name_in_resource & extension;
+    name_ext: constant String:= Trim(name_in_resource, Both) & extension;
 
     procedure Try( zif: in out Zip.Zip_info; name: String ) is
       use UnZip.Streams;

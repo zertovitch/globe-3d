@@ -248,9 +248,10 @@ package body GLOBE_3D.Aux is
       new_UV: Map_idx_pair;
     begin
       --  Clone basic features
-      res.ID     := o.ID;
-      res.centre := o.centre;
-      res.point  := o.point;
+      res.ID          := o.ID;
+      res.centre      := o.centre;
+      res.point       := o.point;
+      res.sub_objects := o.sub_objects;
       for f in 1..o.Face_Count loop
         if matched(f) then
           null;  --  skip this face

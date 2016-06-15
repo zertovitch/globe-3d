@@ -17,8 +17,8 @@ echo ** Invoke D3G TOOL ** Build and save objects, BSP, etc. from %1.proc into %
 echo *********************
 echo.
 
-if     "%2"=="" d3g -j -a %1.proc -c0
-if not "%2"=="" d3g -j -a %1.proc %2 %3 %4 %5 %6 %7 %8
+if     "%2"=="" d3g -j %1.proc -c0
+if not "%2"=="" d3g -j %1.proc %2 %3 %4 %5 %6 %7 %8
 
 
 echo.
@@ -51,6 +51,8 @@ rem * Fast
 7z e -y -i@..\%1_textures_unzip_list.txt ..\palettex.zip
 rem * Slow, but with standard unzip
 rem call ..\%1_textures_unzip2
+
+for %%I in (*.bmp) do if exist %%~nI.tga del %%~nI.tga
 
 echo   ** Put: Textures from the custom level (%1) PK4 file
 unzip -j -n ..\%1.PK4 *.tga

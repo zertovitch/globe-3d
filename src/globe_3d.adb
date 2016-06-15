@@ -741,6 +741,8 @@ package body GLOBE_3D is
         end if;
       end Try_portal;
 
+      so: p_Object_3D_list;
+
     begin -- Display_clipped
       if not o.pre_calculated then
         Pre_calculate(o);
@@ -792,6 +794,11 @@ package body GLOBE_3D is
           info_b_ntl3:= Natural'Max(portal_depth, info_b_ntl3);
         end if;
         Display_one(o);
+        so:= o.sub_objects;
+        while so /= null loop
+          Display_one(so.objc.all);  -- No portals, sub-obj recursion in this call - may want it.
+          so:= so.next;
+        end loop;
       end if;
       if show_portals and then portal_depth > 0 then
         Draw_boundary(clip.main_clipping, clip_area, portal_depth);
@@ -1044,6 +1051,28 @@ package body GLOBE_3D is
         else
           o.face(f).connecting:= p_Object_3D(Element(c));
         end if;
+      end if;
+    end loop;
+    for id of o.sub_obj_ids loop
+      c:= neighbouring.Find(U(id));
+      if c = No_Element then
+        -- Key not found
+        if tolerant_obj then
+          null;
+        else
+          raise
+            Sub_object_connection_failed with
+              "For object name [" & Trim(o.ID, Right) & "], looking for object [" &
+              Trim(id, Right) & ']';
+        end if;
+      else
+        o.sub_objects:= new Object_3D_list'(
+          objc => p_Object_3D(Element(c)),
+          next => o.sub_objects
+        );
+        Rebuild_links(
+          p_Object_3D(Element(c)).all, neighbouring, tolerant_obj, tolerant_tex, tolerant_spc
+        );
       end if;
     end loop;
   end Rebuild_links;

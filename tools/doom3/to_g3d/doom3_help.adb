@@ -548,7 +548,8 @@ package body Doom3_Help is
     Reset_surfaces;
   end Build_Model;
 
-  -- Portals must be inserted as supplemental (transparent) faces of areas
+  --  Portals must be inserted as supplemental (transparent) faces of areas.
+  --  This procedure does only enlargement of objects and access reallocation.
 
   procedure Include_portals_to_areas is
 
@@ -765,7 +766,7 @@ package body Doom3_Help is
           " and" &
           Integer'Image(m.portals_to_be_added * 4) &
           " for portals");
-        Put_Line(log, "  Coords of average vertex: " & Coords(m.avg_point));
+        Put_Line(log, "  Coordinates of average model vertex: " & Coords(m.avg_point));
       end;
       New_Line(log);
     end loop;
@@ -776,6 +777,7 @@ package body Doom3_Help is
   --  Time to dump everything into files and produce a nice report.
   --
   procedure YY_Accept is
+    target_area: p_Object_3D;
   begin
     if farm = null then
       -- Some custom levels like the Reims Cathedral have no BSP
@@ -790,6 +792,23 @@ package body Doom3_Help is
       if model_stack(i).portals_to_be_added > 0 then
         Complete_area_with_portals(i);
       end if;
+    end loop;
+    --  Include other models as sub-objects in areas
+    for i in 1..model_top loop
+      if model_stack(i).area < 0 then
+        GLOBE_3D.BSP.Locate(model_stack(i).avg_point, farm(0), target_area);
+        if target_area /= null then
+          Put_Line(Standard_Error, "Sub-object " & model_stack(i).obj.ID);
+          Put_Line(Standard_Error, "  ... is put in area: " & target_area.ID);
+          --  Insert model in front of sub-object list.
+          target_area.sub_objects:=
+            new Object_3D_list'(
+              objc => model_stack(i).obj,
+              next => target_area.sub_objects);
+        end if;
+      end if;
+    end loop;
+    for i in 1..model_top loop
       Put_Line(Standard_Error,
         "Writing object file (.g3d) for: " &
         Trim(model_stack(i).obj.ID, Right) & '.'

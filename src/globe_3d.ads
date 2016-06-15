@@ -61,6 +61,7 @@ with Ada.Numerics.Generic_Elementary_Functions;
 with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 with Ada.Containers.Hashed_Maps;
+with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded.Hash;        use Ada.Strings.Unbounded;
 
 package GLOBE_3D is
@@ -70,6 +71,7 @@ package GLOBE_3D is
   -- Identifiers are case insensitive and stored as UPPER_CASE
 
   empty: constant Ident:= (others=> ' ');
+  package Ident_Vectors is new Ada.Containers.Vectors(Positive, Ident);
 
   -- Set the name of Zip archives containing the data.
   --
@@ -372,6 +374,13 @@ package GLOBE_3D is
   --
   --  Uwe R. Zimmer, July 2011
   --
+  --  Typical performances
+  --  Machine: HP Phoenix h9-1161ez of 2012, unchanged
+  --    Single-textured demo's 1st scene (1); double texture (with specular) (2)
+  --    No_List           :    102 FPS (1);  99 FPS (2)
+  --    No_List_Optimized :    144 FPS (1); 135 FPS (2)
+  --    Generate_List     :    156 FPS (1); 156 FPS (2)
+  --
   type List_Cases  is (
     No_List,             --  Old way: all colors, texture IDs, coordinates are sent at each frame
     No_List_Optimized,   --  Old way, but removing redundant commands across faces (for tests only)
@@ -379,13 +388,6 @@ package GLOBE_3D is
     Is_List              --  Call the previously generated list
   );
   subtype List_Ids is Positive;
-
-  --  Typical performances
-  --  Machine: HP Phoenix h9-1161ez of 2012, unchanged
-  --    Single-textured demo's 1st scene (1); double texture (with specular) (2)
-  --    No_List           :    102 FPS (1);  99 FPS (2)
-  --    No_List_Optimized :    144 FPS (1); 135 FPS (2)
-  --    Generate_List     :    156 FPS (1); 156 FPS (2)
 
   -------------------------------------
   --  Now: the Object_3D definition  --
@@ -405,6 +407,8 @@ package GLOBE_3D is
     edge_vector    : Vector_3D_array (1..Max_points);  --  Normals for lighting
     bounds         : GL.Geometry.Bounds_record;
     transparent    : Boolean:= False;
+    --  Private, resolved by Rebuild_links:
+    sub_obj_ids    : Ident_Vectors.Vector;  --  Sub-object names to be resolved with Rebuild_links.
   end record; -- Object_3D
 
   overriding procedure Destroy        (o : in out Object_3D);
@@ -430,6 +434,7 @@ package GLOBE_3D is
   );
   -- Does nothing when texture or object name is empty
   Portal_connection_failed: exception;
+  Sub_object_connection_failed: exception;
 
   bad_vertex_number, duplicated_vertex,
     duplicated_vertex_location: exception;

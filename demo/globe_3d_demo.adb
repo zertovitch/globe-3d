@@ -230,9 +230,10 @@ procedure GLOBE_3D_Demo is
   procedure Load_Doom(name: String) is
     area_max: Natural:= 0;
     ls: G3D.Object_3D_array(1..1_000);
+    so: G3D.p_Object_3D;
     empty_level: exception;
   begin
-    for i in ls'Range loop
+    Area_loop: for i in ls'Range loop
       begin
         G3D.IO.Load(
           name & "_$_area" & Trim(Integer'Image(i-1),Left),
@@ -240,11 +241,20 @@ procedure GLOBE_3D_Demo is
         );
       exception
         when G3D.Missing_object =>
-          exit;
+          exit Area_loop;
       end;
       area_max:= i;
       G3D.Add(level_map, G3D.p_Visual(ls(i))); -- add to dictionary
-    end loop;
+      --  Sub-objects
+      for id of ls(i).sub_obj_ids loop
+        G3D.IO.Load(id, so);
+        ls(i).sub_objects:= new G3D.Object_3D_list'(
+          objc => so,
+          next => ls(i).sub_objects
+        );
+        G3D.Add(level_map, G3D.p_Visual(so)); -- add to dictionary
+      end loop;
+    end loop Area_loop;
     begin
       G3D.IO.Load(name, level_map, level_BSP); -- load BSP tree
     exception
