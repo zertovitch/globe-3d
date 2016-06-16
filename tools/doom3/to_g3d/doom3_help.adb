@@ -1,9 +1,11 @@
 with GLOBE_3D.Aux, GLOBE_3D.IO, GLOBE_3D.BSP, GL.Math;
 
 with Ada.Command_Line;                  use Ada.Command_Line;
+with Ada.Containers.Hashed_Maps;
 with Ada.Text_IO;                       use Ada.Text_IO;
 -- with Ada.Characters.Handling;
 with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
+with Ada.Strings.Unbounded.Hash;
 with Ada.Unchecked_Deallocation;
 
 package body Doom3_Help is
@@ -53,6 +55,74 @@ package body Doom3_Help is
     end if;
   end Optional_Junk;
 
+  function pkg return String;
+
+  --------------------------------------------------------------------------------------
+  --  Map file : origins of models are not in the .proc file but in the .map file...  --
+  --------------------------------------------------------------------------------------
+
+  map_file_found: Boolean:= False;
+
+  package Model_Origins is new Ada.Containers.Hashed_Maps
+     (Key_Type        => Ada.Strings.Unbounded.Unbounded_String,
+      Element_Type    => GL.Double_Vector_3D,
+      Hash            => Ada.Strings.Unbounded.Hash,
+      Equivalent_Keys => Ada.Strings.Unbounded."=",
+      "="             => GL.Math.Identical);
+
+  origin_cat: Model_Origins.Map;
+
+  procedure Parse_map_file is
+    use Ada.Text_IO;
+    f: File_type;
+    P: GL.Double_Vector_3D;
+    model: Unbounded_String;
+    map_file_name: constant String:= pkg & ".map";
+    prev_line_model: Boolean:= False;
+  begin
+    Put_Line(Standard_Error, "Parsing map file: " & map_file_name);
+    Open(f, In_File, map_file_name);
+    while not End_Of_File(f) loop
+      declare
+        s: constant String:= Get_Line(f);
+      begin
+        if s'Length >= 10 then
+          if s(s'First..s'First+8) = """model"" """ then     --  e.g. "model" "func_static_754"
+            model:= U(s(s'First+9..s'Last-1));
+            prev_line_model:= True;
+          elsif s(s'First..s'First+9)= """origin"" """ and prev_line_model then  -- e.g. "origin" "128 0 744"
+            declare
+              vec: constant String:= s(s'First+10..s'Last-1);
+              j: Natural:= 0;
+              dim : Natural:= 0;
+            begin
+              j:= vec'First;
+              for i in vec'Range loop
+                if vec(i)=' ' then
+                  P(dim):= Real'Value(vec(j..i-1));
+                  j:= i+1;
+                  dim:= dim + 1;
+                end if;
+              end loop;
+              P(2):= Real'Value(vec(j..vec'Last));
+            end;
+            origin_cat.Include(model, P);
+            Put_Line(Standard_Error, "Model " & To_String(model) & " has origin " & GLOBE_3D.Aux.Coords(P));
+            prev_line_model:= False;
+          else
+            prev_line_model:= False;
+          end if;
+        end if;
+      end;
+    end loop;
+    Close(f);
+    map_file_found:= True;
+  exception
+    when Name_Error =>
+      null;
+  end Parse_map_file;
+
+
   ------------
   -- Models --
   ------------
@@ -66,6 +136,7 @@ package body Doom3_Help is
     last_face          : Natural              := 0;
     obj                : GLOBE_3D.p_Object_3D := null;
     avg_point          : GLOBE_3D.Point_3D    := (0.0, 0.0, 0.0);
+    origin             : GLOBE_3D.Point_3D    := (0.0, 0.0, 0.0);
   end record;
 
   model_stack: array(1..10_000) of Model;
@@ -767,7 +838,9 @@ package body Doom3_Help is
           " and" &
           Integer'Image(m.portals_to_be_added * 4) &
           " for portals");
-        Put_Line(log, "  Coordinates of average model vertex: " & Coords(m.avg_point));
+        Put_Line(log, "  Coordinates of average non-translated model vertex: " &
+          Coords(m.avg_point));
+        Put_Line(log, "  Coordinates of model centre: " & Coords(m.obj.centre));
         Put_Line(log, "  Sub-objects:" & Boolean'Image(so /= null));
         while so /= null loop
           Put_Line(log, "    " & Trim(so.objc.ID, Right));
@@ -784,7 +857,8 @@ package body Doom3_Help is
   --
   procedure YY_Accept is
     target_area: p_Object_3D:= null;
-    use GL.Math;
+    use GL.Math, Model_Origins;
+    c: Cursor;
   begin
     if farm = null then
       -- Some custom levels like the Reims Cathedral have no BSP
@@ -800,24 +874,31 @@ package body Doom3_Help is
         Complete_area_with_portals(i);
       end if;
     end loop;
-    --  Include other models as sub-objects in areas
-    for i in 1..model_top loop
-      if model_stack(i).area < 0 then
-        --  GLOBE_3D.BSP.Locate(model_stack(i).avg_point, farm(0), target_area);
-        --  !! Other models are (0,0,0)-centered, their appearance in an area is described elsewhere...
-        if target_area /= null then
-          Put_Line(Standard_Error,
-            "Sub-object " & Trim(model_stack(i).obj.ID, Both) &
-            " is put into area: " & target_area.ID
-          );
-          --  Insert model in front of sub-object list.
-          target_area.sub_objects:=
-            new Object_3D_list'(
-              objc => model_stack(i).obj,
-              next => target_area.sub_objects);
+    --  We need to parse the map file for finding model origins.
+    Parse_map_file;
+    if map_file_found then  --  without origins, non-area models are bogus (0-centered)
+      --  Include other models as sub-objects in areas
+      for i in 1..model_top loop
+        if model_stack(i).area < 0 then
+          c:= origin_cat.Find(model_stack(i).name);
+          if c /= No_Element then
+            model_stack(i).obj.centre:= model_stack(i).obj.centre + Element(c);
+          end if;
+          GLOBE_3D.BSP.Locate(model_stack(i).avg_point + model_stack(i).obj.centre, farm(0), target_area);
+          if target_area /= null then
+            Put_Line(Standard_Error,
+              "Sub-object " & Trim(model_stack(i).obj.ID, Both) &
+              " is put into area: " & target_area.ID
+            );
+            --  Insert model in front of sub-object list.
+            target_area.sub_objects:=
+              new Object_3D_list'(
+                objc => model_stack(i).obj,
+                next => target_area.sub_objects);
+          end if;
         end if;
-      end if;
-    end loop;
+      end loop;
+    end if;
     for i in 1..model_top loop
       Put_Line(Standard_Error,
         "Writing object file (.g3d) for: " &

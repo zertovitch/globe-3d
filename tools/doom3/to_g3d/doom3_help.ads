@@ -1,3 +1,5 @@
+--  Helper functions for the Doom3 .proc parser.
+
 with GLOBE_3D, GL.Materials;
 
 with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
