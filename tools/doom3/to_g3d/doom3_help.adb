@@ -75,7 +75,7 @@ package body Doom3_Help is
   procedure Parse_map_file is
     use Ada.Text_IO;
     f: File_type;
-    P: GL.Double_Vector_3D;
+    P_id, P: GL.Double_Vector_3D;
     model: Unbounded_String;
     map_file_name: constant String:= pkg & ".map";
     prev_line_model: Boolean:= False;
@@ -99,13 +99,14 @@ package body Doom3_Help is
               j:= vec'First;
               for i in vec'Range loop
                 if vec(i)=' ' then
-                  P(dim):= Real'Value(vec(j..i-1));
+                  P_id(dim):= Real'Value(vec(j..i-1));
                   j:= i+1;
                   dim:= dim + 1;
                 end if;
               end loop;
-              P(2):= Real'Value(vec(j..vec'Last));
+              P_id(2):= Real'Value(vec(j..vec'Last));
             end;
+            P:= (P_id(1), P_id(2), P_id(0));  -- id Software to GL coord. conversion
             origin_cat.Include(model, P);
             Put_Line(Standard_Error, "Model " & To_String(model) & " has origin " & GLOBE_3D.Aux.Coords(P));
             prev_line_model:= False;
@@ -119,7 +120,9 @@ package body Doom3_Help is
     map_file_found:= True;
   exception
     when Name_Error =>
-      null;
+      Put_Line(Standard_Error,
+        "*** Caution: map file: " & map_file_name &
+        " not found; models except areas won't have a correct origin.");
   end Parse_map_file;
 
 

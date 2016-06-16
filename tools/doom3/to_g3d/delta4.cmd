@@ -7,7 +7,7 @@ rem call make_d3g -O
 
 if not exist delta4g1.proc goto bug
 
-d3g delta4g1.proc -j -a -s(-174.0,+616.0,-2524.0)
+d3g delta4g1.proc -j -s(-174.0,+616.0,-2524.0)
 
 rem Update local copy of level resource data
 zip -f -9 g3demo_level_resources.zip

@@ -371,7 +371,8 @@ package body GL.IO is
 
      -- make sure we are loading a supported TGA_type
      if imageBits /= 32 and imageBits /= 24 and imageBits /= 8 then
-       raise TGA_Unsupported_Bits_per_pixel with "Only 32, 24 or 8 bits per pixel supported";
+       raise TGA_Unsupported_Bits_per_pixel with
+         Integer'Image(imageBits) & "bpp. Only 32, 24 or 8 bits per pixel supported";
      end if;
 
      -- Allocation
