@@ -751,6 +751,7 @@ package body Doom3_Help is
     for i in 1..model_top loop
       declare
         m: Model renames model_stack(i);
+        so: p_Object_3D_list:= m.obj.sub_objects;
       begin
         Put_Line(log, "Model: " & Trim(m.obj.ID, Right));
         Put_Line(log, "=====");
@@ -767,6 +768,11 @@ package body Doom3_Help is
           Integer'Image(m.portals_to_be_added * 4) &
           " for portals");
         Put_Line(log, "  Coordinates of average model vertex: " & Coords(m.avg_point));
+        Put_Line(log, "  Sub-objects:" & Boolean'Image(so /= null));
+        while so /= null loop
+          Put_Line(log, "    " & Trim(so.objc.ID, Right));
+          so:= so.next;
+        end loop;
       end;
       New_Line(log);
     end loop;
@@ -777,7 +783,8 @@ package body Doom3_Help is
   --  Time to dump everything into files and produce a nice report.
   --
   procedure YY_Accept is
-    target_area: p_Object_3D;
+    target_area: p_Object_3D:= null;
+    use GL.Math;
   begin
     if farm = null then
       -- Some custom levels like the Reims Cathedral have no BSP
@@ -796,10 +803,13 @@ package body Doom3_Help is
     --  Include other models as sub-objects in areas
     for i in 1..model_top loop
       if model_stack(i).area < 0 then
-        GLOBE_3D.BSP.Locate(model_stack(i).avg_point, farm(0), target_area);
+        --  GLOBE_3D.BSP.Locate(model_stack(i).avg_point, farm(0), target_area);
+        --  !! Other models are (0,0,0)-centered, their appearance in an area is described elsewhere...
         if target_area /= null then
-          Put_Line(Standard_Error, "Sub-object " & model_stack(i).obj.ID);
-          Put_Line(Standard_Error, "  ... is put in area: " & target_area.ID);
+          Put_Line(Standard_Error,
+            "Sub-object " & Trim(model_stack(i).obj.ID, Both) &
+            " is put into area: " & target_area.ID
+          );
           --  Insert model in front of sub-object list.
           target_area.sub_objects:=
             new Object_3D_list'(
