@@ -246,6 +246,7 @@ package body GLOBE_3D.Aux is
       ra: Tri_count;
       new_vertex_id: Positive;
       new_UV: Map_idx_pair;
+      aux: Positive;
     begin
       --  Clone basic features
       res.ID          := o.ID;
@@ -291,8 +292,21 @@ package body GLOBE_3D.Aux is
             end case;
             if is_textured(res.face(nf).skin) then
               if res.face(nf).whole_texture then
-                --  Nothing to do, edges are calculated in Calculate_face_internals (Pre_calculate)
-                null;
+                --  Edges are calculated in Calculate_face_internals (Pre_calculate).
+                --    - either the (0,0) point in texture was with the original triangle,
+                --      the P(1) was already = P_compact(1) and is preserved by the above ordering
+                --    - or the new edge has the (0,0): then we need to reorder...
+                if Identical(new_UV, (0.0, 0.0)) then
+                  for count in 1..4 loop
+                    --  Rotate the edge indices
+                    aux:= res.face(nf).P(1);
+                    res.face(nf).P(1):= res.face(nf).P(2);
+                    res.face(nf).P(2):= res.face(nf).P(3);
+                    res.face(nf).P(3):= res.face(nf).P(4);
+                    res.face(nf).P(4):= aux;
+                    exit when res.face(nf).P(1) = new_vertex_id;  --  Now (0,0) is on P(1).
+                  end loop;
+                end if;
               else
                 --  Re-ouch!
                 case ra is
