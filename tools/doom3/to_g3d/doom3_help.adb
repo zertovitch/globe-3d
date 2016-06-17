@@ -887,7 +887,14 @@ package body Doom3_Help is
           if c /= No_Element then
             model_stack(i).obj.centre:= model_stack(i).obj.centre + Element(c);
           end if;
-          GLOBE_3D.BSP.Locate(model_stack(i).avg_point + model_stack(i).obj.centre, farm(0), target_area);
+          if farm = null then
+            --  No BSP, and in principle, one area (we could search fo best fit if more areas)
+            if area_top >= 0 then
+              target_area:= model_stack(area_stack(0)).obj;
+            end if;
+          else
+            GLOBE_3D.BSP.Locate(model_stack(i).avg_point + model_stack(i).obj.centre, farm(0), target_area);
+          end if;
           if target_area /= null then
             Put_Line(Standard_Error,
               "Sub-object " & Trim(model_stack(i).obj.ID, Both) &
