@@ -125,7 +125,6 @@ package body Doom3_Help is
         " not found; models except areas won't have a correct origin.");
   end Parse_map_file;
 
-
   ------------
   -- Models --
   ------------
@@ -793,11 +792,17 @@ package body Doom3_Help is
     return o2;
   end;
 
-  procedure Write_Summary(name: String) is
+  procedure Write_Summary(log_name, root_name: String) is
     use GL, GL.Math, GLOBE_3D.Aux;
     log: File_Type;
   begin
-    Create(log, out_file, name);
+    Create(log, out_file, log_name);
+    if not map_file_found then
+      Put_Line(log,
+        "*** Caution: map file: " & root_name &
+        ".map not found; models except areas haven't a correct origin."
+      );
+    end if;
     Put_Line(log, "Coordinates of main imposed centre: " & Coords(main_centre));
     if area_centering >= 0 then
       Put_Line(log, "Centered on area #: " & Integer'Image(area_centering));
@@ -922,7 +927,7 @@ package body Doom3_Help is
     Put_Line(Standard_Error, "Writing texture catalogue (.txt).");
     Write_catalogue; -- Save a list of textures
     Put_Line(Standard_Error, "Writing a summary (.log).");
-    Write_Summary(pkg & ".log");
+    Write_Summary(pkg & ".log", pkg);
   end YY_Accept;
 
   procedure D3G_Init is

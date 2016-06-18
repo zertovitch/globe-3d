@@ -2,12 +2,16 @@
 
 if "%1"=="" goto syntaxe
 
+rem The .zip file may contain the .proc file, although useless for globe_3d
 if not exist %1.proc unzip %1.zip %1.proc
-rem ^ the .zip file may contain the .proc file, although useless for globe_3d
+rem Look for the .proc file in the PK4 file
 if not exist %1.proc unzip -j %1.pk4 *.proc
-rem ^ look for the .proc file in the PK4 file
-if not exist %1.proc echo Processed map file was "%1.proc" not found!
+if not exist %1.proc echo Processed map file was "%1.proc" not found, neither in %1.zip, nor in %1.pk4!
 if not exist %1.proc goto syntaxe
+
+rem We also may need the .map file.
+if not exist %1.map unzip %1.zip %1.map
+if not exist %1.map unzip -j %1.pk4 *.map
 
 call make_d3g -O
 
@@ -79,8 +83,8 @@ cd..
 
 echo GLOBE_3D_Demo.exe -load=%1 >%1.bat
 
-rem Preserve the precious .proc file
-zip -9 %1.zip %1.proc %1.bat
+rem Preserve the precious .proc and .map files
+zip -9 %1.zip %1.proc %.map %1.bat
 
 echo.
 echo ** Display and Play!
