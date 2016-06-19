@@ -1,16 +1,13 @@
 -------------------------------------------------------------------------
---  GL.Geometry - GL geometry primitives
+--  GL.Geometry
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --
 --  Permission granted to use this software, without any warranty,
 --  for any purpose, provided this copyright note remains attached
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
-
---  with Ada.Numerics.Generic_Elementary_Functions;
---  with Ada.Text_IO; use Ada.Text_IO;
 
 package body GL.Geometry.VA is
 
@@ -20,7 +17,7 @@ package body GL.Geometry.VA is
       return Self.Primitive.primitive_Id;
    end;
 
-   function  vertex_Count  (Self : in     primal_Geometry) return GL.Geometry.vertex_Id
+   function  vertex_Count (Self : in     primal_Geometry) return GL.Geometry.vertex_Id
    is
    begin
       return Self.Primitive.Vertices'Length;

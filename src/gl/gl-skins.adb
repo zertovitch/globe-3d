@@ -1,14 +1,13 @@
 -------------------------------------------------------------------------
 --  GL.Skins - models a 'skin' which describes the surface appearance of geometry.
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --  Permission granted to use this software, without any warranty,
 --  for any purpose, provided this copyright note remains attached
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
---  with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
 package body GL.Skins is
@@ -21,7 +20,7 @@ package body GL.Skins is
    -- tbd: ensure *all* skins disable *all* unneeded GL states !!!!!
    -----------------------------------------------------------------
 
-   -- veneers
+   -- Veneers
    --
 
    procedure destroy (Self : in out Veneer)
@@ -55,7 +54,7 @@ package body GL.Skins is
    -- Skin_opaque_unlit_mono_color
    --
 
-   function  new_Veneer (Self : in     Skin_opaque_unlit_mono_color;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
+   function  new_Veneer (Self : in Skin_opaque_unlit_mono_color;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
    is
    pragma Unreferenced (for_Geometry, Self);
    begin
@@ -67,15 +66,15 @@ package body GL.Skins is
    begin
       GL.Disable (LIGHTING);
       GL.Disable (ALPHA_TEST);
-      GL.Disable            (TEXTURE_2D);
-      GL.Disable            (COLOR_MATERIAL);
+      GL.Disable (TEXTURE_2D);
+      GL.Disable (COLOR_MATERIAL);
       GL.DisableClientState (TEXTURE_COORD_ARRAY);
 
       Enable (BLEND); -- See 4.1.7 Blending
       BlendFunc (sfactor => SRC_ALPHA,
                  dfactor => ONE_MINUS_SRC_ALPHA);
 
-      GL.Color   (Self.Color.red,  Self.Color.green,  Self.Color.blue,  1.0);
+      GL.Color (Self.Color.red,  Self.Color.green,  Self.Color.blue,  1.0);
    end;
 
    function  is_Transparent (Self : in     Skin_opaque_unlit_mono_color) return Boolean
@@ -91,7 +90,7 @@ package body GL.Skins is
    procedure enable (Self : in out Veneer_opaque_lit_mono_color)
    is
    begin
-      GL.BindBuffer        (GL.ARRAY_BUFFER, 0);    -- disable 'vertex buffer objects'
+      GL.BindBuffer        (GL.ARRAY_BUFFER, 0);    -- Disable 'vertex buffer objects'.
       GL.EnableClientState (GL.NORMAL_ARRAY);
       GL.NormalPointer     (GL_DOUBLE,  0,  to_Pointer (Self.Normals (1)(0)'Unchecked_Access));
    end;
@@ -117,7 +116,7 @@ package body GL.Skins is
       Set_Material (Self.Material);
    end;
 
-   function  is_Transparent (Self : in     Skin_opaque_lit_mono_color) return Boolean
+   function is_Transparent (Self : in Skin_opaque_lit_mono_color) return Boolean
    is
    begin
       return is_Transparent (Self.Material);
@@ -129,7 +128,7 @@ package body GL.Skins is
    procedure enable (Self : in out Veneer_transparent_unlit_textured)
    is
    begin
-      GL.BindBuffer        (GL.ARRAY_BUFFER, 0);    -- disable 'vertex buffer objects'
+      GL.BindBuffer        (GL.ARRAY_BUFFER, 0);    -- Disable 'vertex buffer objects'.
       GL.EnableClientState (GL.TEXTURE_COORD_ARRAY);
       GL.TexCoordPointer   (2,  GL_DOUBLE,  0,  to_Pointer (Self.texture_Coordinates (1).S'Unchecked_Access));
    end;
@@ -140,11 +139,11 @@ package body GL.Skins is
       destroy (Self.Texture);
    end;
 
-   function new_Veneer (Self : in     Skin_transparent_unlit_textured;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
+   function new_Veneer (Self : in Skin_transparent_unlit_textured;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
    is
       the_Veneer : constant p_Veneer_transparent_unlit_textured
-        :=   new Veneer_transparent_unlit_textured '(num_Coordinates     => vertex_Count (for_Geometry),
-                                                     texture_coordinates => (others => (S => 0.0,  T => 0.0)));
+        := new Veneer_transparent_unlit_textured '(num_Coordinates     => vertex_Count (for_Geometry),
+                                                   texture_coordinates => (others => (S => 0.0,  T => 0.0)));
    begin
       if Self.coordinate_Generator /= null then
          the_Veneer.texture_Coordinates := to_Coordinates (Self.coordinate_Generator.all, Vertices (for_Geometry));
@@ -158,7 +157,7 @@ package body GL.Skins is
    begin
       GL.Disable    (LIGHTING);
       GL.Disable    (COLOR_MATERIAL);
-      GL.BindBuffer (GL.ARRAY_BUFFER, 0);    -- disable 'vertex buffer objects'
+      GL.BindBuffer (GL.ARRAY_BUFFER, 0);    -- Disable 'vertex buffer objects'.
 
       GL.Color     (1.0, 1.0, 1.0, 1.0);
 
@@ -168,7 +167,7 @@ package body GL.Skins is
       enable (Self.Texture);
    end;
 
-   function  is_Transparent (Self : in     Skin_transparent_unlit_textured) return Boolean
+   function is_Transparent (Self : in Skin_transparent_unlit_textured) return Boolean
    is
    begin
       return is_Transparent (Self.Texture);
@@ -192,9 +191,9 @@ package body GL.Skins is
       null;
    end;
 
-   function  new_Veneer (Self : in     Skin_unlit_textured_vbo;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
+   function new_Veneer (Self : in Skin_unlit_textured_vbo;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
    is
-   pragma Unreferenced (for_Geometry, Self);
+      pragma Unreferenced (for_Geometry, Self);
    begin
       return new Veneer_unlit_textured_vbo;
    end;
@@ -208,7 +207,7 @@ package body GL.Skins is
       enable (Self.Texture);
    end;
 
-   function  is_Transparent (Self : in     Skin_unlit_textured_vbo) return Boolean
+   function is_Transparent (Self : in Skin_unlit_textured_vbo) return Boolean
    is
    begin
       return is_Transparent (Self.Texture);

@@ -1,20 +1,21 @@
 -------------------------------------------------------------------------
---  GL.Geometry - GL geometry primitives
+--  GL.Geometry
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --  Permission granted to use this software, without any warranty,
 --  for any purpose, provided this copyright note remains attached
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GL.Math; use GL.Math;
+with GL.Math,
+     Ada.Numerics.Generic_Elementary_Functions,
+     Ada.Strings.Unbounded,
+     Ada.Characters.Latin_1,
+     Ada.Unchecked_Deallocation;
 
-with Ada.Numerics.Generic_Elementary_Functions;
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
---  with Ada.Text_IO;           use Ada.Text_IO;
-with Ada.Characters.Latin_1;
-with Ada.Unchecked_Deallocation;
+use GL.Math,
+    Ada.Strings.Unbounded;
 
 package body GL.Geometry is
 
@@ -65,7 +66,7 @@ package body GL.Geometry is
       the_Max : Bounds_record := null_Bounds;
    begin
       the_Max.sphere_Radius := GL.Double'Max (L.sphere_Radius, R.sphere_Radius);
-      the_Max.Box           :=      Max (L.Box, R.Box);
+      the_Max.Box           :=           Max (L.Box,           R.Box);
 
       return the_Max;
    end;
@@ -102,7 +103,7 @@ package body GL.Geometry is
    is
       use REF;
       the_Bounds     : Bounds_record := null_Bounds;
-      max_Distance_2 : GL.Double     := 0.0;      -- current maximum distance squared.
+      max_Distance_2 : GL.Double     := 0.0;           -- Current maximum distance squared.
    begin
       for p in Self'Range loop
          max_Distance_2 := GL.Double'Max (  Self (p)(0) * Self (p)(0)
@@ -110,12 +111,12 @@ package body GL.Geometry is
                                           + Self (p)(2) * Self (p)(2),
                                           max_Distance_2);
 
-         the_Bounds.Box.X_Extent.Min   := GL.Double'Min (the_Bounds.Box.X_Extent.Min,  Self (p)(0));
-         the_Bounds.Box.X_Extent.Max   := GL.Double'Max (the_Bounds.Box.X_Extent.Max,  Self (p)(0));
-         the_Bounds.Box.Y_Extent.Min   := GL.Double'Min (the_Bounds.Box.Y_Extent.Min,  Self (p)(1));
-         the_Bounds.Box.Y_Extent.Max   := GL.Double'Max (the_Bounds.Box.Y_Extent.Max,  Self (p)(1));
-         the_Bounds.Box.Z_Extent.Min   := GL.Double'Min (the_Bounds.Box.Z_Extent.Min,  Self (p)(2));
-         the_Bounds.Box.Z_Extent.Max   := GL.Double'Max (the_Bounds.Box.Z_Extent.Max,  Self (p)(2));
+         the_Bounds.Box.X_Extent.Min := GL.Double'Min (the_Bounds.Box.X_Extent.Min,  Self (p)(0));
+         the_Bounds.Box.X_Extent.Max := GL.Double'Max (the_Bounds.Box.X_Extent.Max,  Self (p)(0));
+         the_Bounds.Box.Y_Extent.Min := GL.Double'Min (the_Bounds.Box.Y_Extent.Min,  Self (p)(1));
+         the_Bounds.Box.Y_Extent.Max := GL.Double'Max (the_Bounds.Box.Y_Extent.Max,  Self (p)(1));
+         the_Bounds.Box.Z_Extent.Min := GL.Double'Min (the_Bounds.Box.Z_Extent.Min,  Self (p)(2));
+         the_Bounds.Box.Z_Extent.Max := GL.Double'Max (the_Bounds.Box.Z_Extent.Max,  Self (p)(2));
       end loop;
 
       the_Bounds.sphere_Radius := Sqrt (max_Distance_2);
@@ -127,7 +128,7 @@ package body GL.Geometry is
    is
       use REF;
       the_Bounds     : Bounds_record := null_Bounds;
-      max_Distance_2 : GL.Double     := 0.0;      -- current maximum distance squared.
+      max_Distance_2 : GL.Double     := 0.0;           -- Current maximum distance squared.
    begin
       for Each in Indices'Range loop
          declare
@@ -156,35 +157,16 @@ package body GL.Geometry is
       the_Count : Natural;
    begin
       case primitive_Id (Self) is
-         when POINTS =>
-            the_Count := Natural (indices_Count (Self));
-
-         when LINES =>
-            the_Count := Natural (indices_Count (Self) / 2);
-
-         when LINE_LOOP =>
-            the_Count := Natural (indices_Count (Self));
-
-         when LINE_STRIP =>
-            the_Count := Natural'Max (Natural (indices_Count (Self) - 1),  0);
-
-         when TRIANGLES =>
-            the_Count := Natural (indices_Count (Self) / 3);
-
-         when TRIANGLE_STRIP =>
-            the_Count := Natural'Max (Natural (indices_Count (Self) - 2),  0);
-
-         when TRIANGLE_FAN =>
-            the_Count := Natural'Max (Natural (indices_Count (Self) - 2),  0);
-
-         when QUADS =>
-            the_Count := Natural (indices_Count (Self) / 4);
-
-         when QUAD_STRIP =>
-            the_Count := Natural (indices_Count (Self) / 2  -  1);
-
-         when POLYGON =>
-            the_Count := 1;
+         when POINTS         =>   the_Count :=              Natural (indices_Count (Self));
+         when LINES          =>   the_Count :=              Natural (indices_Count (Self) / 2);
+         when LINE_LOOP      =>   the_Count :=              Natural (indices_Count (Self));
+         when LINE_STRIP     =>   the_Count := Natural'Max (Natural (indices_Count (Self) - 1),  0);
+         when TRIANGLES      =>   the_Count :=              Natural (indices_Count (Self) / 3);
+         when TRIANGLE_STRIP =>   the_Count := Natural'Max (Natural (indices_Count (Self) - 2),  0);
+         when TRIANGLE_FAN   =>   the_Count := Natural'Max (Natural (indices_Count (Self) - 2),  0);
+         when QUADS          =>   the_Count :=              Natural (indices_Count (Self) / 4);
+         when QUAD_STRIP     =>   the_Count :=              Natural (indices_Count (Self) / 2  -  1);
+         when POLYGON        =>   the_Count := 1;
       end case;
 
       return the_Count;
@@ -196,15 +178,17 @@ package body GL.Geometry is
       NL        : constant String := (1 => Ada.Characters.Latin_1.LF);   -- NL: New Line
    begin
       Append (the_Image, "(" & NL);
+
       for Each in Self'Range loop
          Append (the_Image, " " & vertex_Id'Image (Each) & " => " & Image (Self (Each)) & NL);
       end loop;
+
       Append (the_Image, ")" & NL);
 
       return To_String (the_Image);
    end;
 
-   -- abstract base geometry class
+   -- Abstract Base Geometry Class
    --
 
    procedure free (Self : in out p_Geometry)
@@ -225,8 +209,8 @@ package body GL.Geometry is
                the_Indices  : vertex_Id_array renames Indices (Self);
                the_Normals  : Normal_array (the_Vertices'Range);
 
-               face_Count   : constant Positive         := the_Indices'Length / 3;
-               face_Normals : Normals  (1 .. face_Count);
+               face_Count   : constant Positive                 := the_Indices'Length / 3;
+               face_Normals :          Normals (1 .. face_Count);
 
                N            : GL.Double_Vector_3D;
                length_N     : GL.Double;
@@ -273,22 +257,16 @@ package body GL.Geometry is
                      end loop;
                   end loop;
 
-                  declare
-                     --  use GL.Math.REF;
-                     --  max_Distance_2 : constant Double := 0.0;      -- current maximum distance squared.
-                  begin
-                     for p in the_Vertices'Range loop
+                  for p in the_Vertices'Range loop
 
-                        length:= Norm (the_Normals (p));
+                     length:= Norm (the_Normals (p));
 
-                        if not Almost_zero(length) then
-                           the_Normals (p) := (1.0 / length) * the_Normals (p);
-                        else
-                           null; --raise Constraint_Error;  -- tbd: proper exception as usual.
-                        end if;
-                     end loop;
-
-                  end;
+                     if not Almost_zero(length) then
+                        the_Normals (p) := (1.0 / length) * the_Normals (p);
+                     else
+                        null; --raise Constraint_Error;  -- tbd: proper exception as usual.
+                     end if;
+                  end loop;
                end;
 
                return the_Normals;
@@ -297,8 +275,6 @@ package body GL.Geometry is
          when others =>
             raise Constraint_Error; -- tbd: finish these
       end case;
-
-      --  return Normal_array'(1..0 => (others => 0.0));  --  GNAT: unreachable code
    end;
 
 
@@ -308,7 +284,6 @@ package body GL.Geometry is
    begin
       deallocate (vert_Id_array);
    end;
-
 
 
    procedure free (Vert_array : in out p_Vertex_array)

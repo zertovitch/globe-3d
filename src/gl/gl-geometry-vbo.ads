@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------
---  GL.Geometry - GL geometry primitives
+--  GL.Geometry.VBO
 --
 --  Copyright (c) Rod Kay 2007 .. 2016
 --  AUSTRALIA

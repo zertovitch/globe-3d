@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GL.Math
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --
 --  Permission granted to use this software, without any warranty,
@@ -9,8 +9,8 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with Ada.Numerics.Generic_Elementary_Functions;
-with Ada.Text_IO;
+with Ada.Numerics.Generic_Elementary_Functions,
+     Ada.Text_IO;
 
 package GL.Math is
 
@@ -36,10 +36,10 @@ package GL.Math is
   function "-"(a,b: Double_Vector_3D) return Double_Vector_3D;
   pragma Inline("-");
 
-  function "*"(a,b: Double_Vector_3D) return Double;      -- dot product
+  function "*"(a,b: Double_Vector_3D) return Double;             -- Dot product.
   pragma Inline("*");
 
-  function "*"(a,b: Double_Vector_3D) return Double_Vector_3D; -- cross product
+  function "*"(a,b: Double_Vector_3D) return Double_Vector_3D;   -- Cross product.
   pragma Inline("*");
 
   function Norm(a: Double_Vector_3D) return Double;
@@ -50,7 +50,7 @@ package GL.Math is
 
   function Normalized(a: Double_Vector_3D) return Double_Vector_3D;
 
-  function Identical(a, b: Double_Vector_3D) return Boolean;  --  Points numerically identical
+  function Identical(a, b: Double_Vector_3D) return Boolean;     --  Points numerically identical.
 
   type Vector_4D is array (0 .. 3) of Double;
 
@@ -58,7 +58,7 @@ package GL.Math is
   -- Colors --
   -------------
 
-  function Identical(a, b: RGB_Color) return Boolean;  --  R, G, B numerically identical
+  function Identical(a, b: RGB_Color)  return Boolean;  --  R, G, B    numerically identical
   function Identical(a, b: RGBA_Color) return Boolean;  --  R, G, B, A numerically identical
 
    -- Angles
@@ -66,7 +66,7 @@ package GL.Math is
 
    function Angle (Point_1, Point_2, Point_3 : Double_Vector_3D) return Double;
    --
-   -- returns the angle between the vector Point_1 to Point_2 and the vector Point_3 to Point_2.
+   -- Returns the angle between the vector Point_1 to Point_2 and the vector Point_3 to Point_2.
 
    function to_Degrees (Radians : Double) return Double;
    function to_Radians (Degrees : Double) return Double;
@@ -96,30 +96,30 @@ package GL.Math is
 
   function Det(A: Matrix_33) return Double;
 
-  function XYZ_rotation(ax,ay,az: Double) return Matrix_33;
-
-  function XYZ_rotation(v: Double_Vector_3D) return Matrix_33;
+  function XYZ_rotation(ax,ay,az: Double)           return Matrix_33;
+  function XYZ_rotation(v       : Double_Vector_3D) return Matrix_33;
 
   -- Gives a rotation matrix that corresponds to look into a certain
   -- direction. Camera swing rotation is arbitrary.
   -- Left-multiply by XYZ_Rotation(0.0,0.0,az) to correct it.
   function Look_at(direction: Double_Vector_3D) return Matrix_33;
 
-   function Look_at (eye, center, up : Double_Vector_3D) return Matrix_33;
+  function Look_at(eye, center, up : Double_Vector_3D) return Matrix_33;
 
   -- This is for correcting cumulation of small computational
-  -- errors, making the rotation matrix no more orthogonal
+  -- errors, making the rotation matrix no more orthogonal.
   procedure Re_Orthonormalize(M: in out Matrix_33);
 
-  -- Right-multiply current matrix by A
+  -- Right-multiply current matrix by A.
   procedure Multiply_GL_Matrix( A: Matrix_33 );
 
-  -- Impose A as current matrix
+  -- Impose A as current matrix.
   procedure Set_GL_Matrix( A: Matrix_33 );
 
-  -- For replacing the " = 0.0" test which is a Bad Thing
+  -- For replacing the " = 0.0" test which is a Bad Thing.
   function Almost_zero(x: Double) return Boolean;
   pragma Inline(Almost_zero);
+
   function Almost_zero(x: GL.Float) return Boolean;
   pragma Inline(Almost_zero);
 

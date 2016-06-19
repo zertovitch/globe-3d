@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GL.Frustums
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --
 --  Permission granted to:
@@ -25,6 +25,6 @@ package GL.Frustums is
 
    function current_Planes return plane_Array;
    --
-   -- returns the frustum planes calculated from the current GL projection and modelview matrices.
+   -- Returns the frustum planes calculated from the current GL projection and modelview matrices.
 
 end GL.Frustums;

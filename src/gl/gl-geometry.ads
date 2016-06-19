@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------
---  GL.Geometry - GL geometry primitives
+--  GL.Geometry - Base Geometry class.
 --
 --  Copyright (c) Rod Kay 2007 .. 2016
 --  AUSTRALIA

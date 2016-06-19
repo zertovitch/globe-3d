@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
---  GL.Skins - appearance of the surfaces of geometry primitives
+--  GL.Skins - appearance of the surfaces of geometry primitives.
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --
 --  Permission granted to use this software, without any warranty,
@@ -9,13 +9,14 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GL.Geometry, GL.Textures, GL.Materials;
-with GL.Buffer.Texture_coords;
---  with GL.Buffer.Normals;
+with GL.Geometry,
+     GL.Textures,
+     GL.Materials,
+     GL.Buffer.Texture_coords;
 
 package GL.Skins is
 
-   type Veneer is abstract tagged null record;   -- contains skin data specific to a particular geometric primitive.
+   type Veneer is abstract tagged null record;   -- Contains skin data specific to a particular geometric primitive.
 
    type p_Veneer is access all Veneer'Class;
 
@@ -24,7 +25,7 @@ package GL.Skins is
 
    procedure enable (Self : in out Veneer)   is abstract;
 
-   -- 'Skin': base of skin class
+   -- 'Skin': base of skin subclasses.
 
    type Skin is abstract tagged
       record
@@ -32,7 +33,7 @@ package GL.Skins is
       end record;
 
    type p_Skin is access all Skin'Class;
-   type Skins is array (Positive range <>) of p_Skin;
+   type Skins  is array (Positive range <>) of p_Skin;
 
    procedure destroy (Self : in out Skin);
    procedure free    (Self : in out p_Skin);
@@ -107,7 +108,6 @@ package GL.Skins is
 
    type Veneer_unlit_textured_vbo is new Veneer with
       record
-         --texture_Coordinates : gl.Buffer.vertex_buffer_Object;
          texture_Coordinates : GL.Buffer.Texture_coords.Object;
       end record;
 
@@ -146,5 +146,3 @@ package GL.Skins is
    -- ... other standard skins
 
 end GL.Skins;
-
--- tbd: use consistent naming for Max_* vs Num_*

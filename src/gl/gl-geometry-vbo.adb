@@ -1,15 +1,12 @@
 -------------------------------------------------------------------------
---  GL.Geometry - GL geometry primitives
+--  GL.Geometry
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --  Permission granted to use this software, without any warranty,
 --  for any purpose, provided this copyright note remains attached
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
-
--- with Ada.Numerics.Generic_Elementary_functions;
--- with Ada.Text_IO; use Ada.Text_IO;
 
 package body GL.Geometry.VBO is
 
@@ -21,7 +18,7 @@ package body GL.Geometry.VBO is
       return Self.primitive_Id;
    end;
 
-   function  vertex_Count  (Self : in     vbo_Geometry) return GL.Geometry.vertex_Id
+   function  vertex_Count (Self : in     vbo_Geometry) return GL.Geometry.vertex_Id
    is
    begin
       return vertex_Id (Self.vertex_Count);
@@ -49,14 +46,14 @@ package body GL.Geometry.VBO is
 
       GL.EnableClientState  (GL.VERTEX_ARRAY);
 
-      GL.DrawElements       (Self.primitive_Id,  Self.indices_Count, GL.UNSIGNED_INT, null);
+      GL.DrawElements       (Self.primitive_Id, Self.indices_Count, GL.UNSIGNED_INT, null);
       GL.DisableClientState (GL.VERTEX_ARRAY);
    end;
 
    --  Modified by zheng, 2011.1.20
    function Vertices (Self : in     vbo_Geometry) return GL.Geometry.Vertex_array
    is
-      self_buf: aliased vbo_Geometry:=Self;
+      self_buf : aliased vbo_Geometry := Self;
    begin
       return self_buf.Vertices.get;
    end;
@@ -64,8 +61,8 @@ package body GL.Geometry.VBO is
    --  Modified by zheng, 2011.1.20
    function Indices (Self : in     vbo_Geometry) return GL.Geometry.vertex_Id_array
    is
-      self_buf: aliased vbo_Geometry:=Self;
-      gl_Indices : vertex_Id_array := self_buf.Indices.get;
+      self_buf   : aliased vbo_Geometry    := Self;
+      gl_Indices :         vertex_Id_array := self_buf.Indices.get;
    begin
       increment (gl_Indices);
       return gl_Indices;

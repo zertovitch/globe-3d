@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
---  GL.Geometry - GL geometry primitives
+--  GL.Primitive
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --
 --  Permission granted to use this software, without any warranty,
@@ -9,11 +9,10 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
---  with Ada.Numerics.Generic_Elementary_Functions;
-with Ada.Unchecked_Deallocation;
---  with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Unchecked_Deallocation,
+     GL.Geometry;
 
-with GL.Geometry;   use GL.Geometry;
+use GL.Geometry;
 
 package body GL.Primitive is
 
@@ -38,8 +37,8 @@ package body GL.Primitive is
    procedure Draw (Self : access Primitive'Class)
    is
    begin
-      GL.BindBuffer    (GL.ARRAY_BUFFER, 0);                            -- disable 'vertex buffer objects'
-      GL.BindBuffer    (GL.ELEMENT_ARRAY_BUFFER, 0);                    -- disable 'vertex buffer objects' indices
+      GL.BindBuffer (GL.ARRAY_BUFFER, 0);           -- Disable 'vertex buffer objects'.
+      GL.BindBuffer (GL.ELEMENT_ARRAY_BUFFER, 0);   -- Disable 'vertex buffer objects' indices.
 
       GL.EnableClientState (GL.VERTEX_ARRAY);
       GL.VertexPointer     (3, GL_DOUBLE,  0,  GL.to_Pointer (Self.Vertices (1)(0)'Unchecked_Access));
@@ -189,7 +188,7 @@ package body GL.Primitive is
 
    function create_line_Loop (line_Count : in Natural;   Vertices: p_Vertex_array := null) return line_Loop
    is
-   indices_Count : constant positive_uInt :=  positive_uInt (line_Count) + 1;
+      indices_Count : constant positive_uInt :=  positive_uInt (line_Count) + 1;
    begin
       if Vertices = null then
          return (Vertices => new Geometry.Vertex_array (1 .. vertex_Id (line_Count) + 1),
@@ -210,8 +209,7 @@ package body GL.Primitive is
    end;
 
    function get_vertex_Id (Self : in line_Loop;   Line   : in Positive;
-                                                  Vertex : in Positive)
-                                                                         return vertex_Id
+                                                  Vertex : in Positive) return vertex_Id
    is
    begin
       return Self.Indices (positive_uInt (Line - 1  +  Vertex)) + 1;
@@ -236,7 +234,7 @@ package body GL.Primitive is
                Indices       => new vertex_Id_array (1 .. 3 * positive_uInt (triangle_Count)));
    end;
 
-   function new_Triangles    (triangle_Count : in Natural;   Vertices : in     p_Vertex_array) return p_Triangles
+   function new_Triangles (triangle_Count : in Natural;   Vertices : in     p_Vertex_array) return p_Triangles
    is
    begin
       return new Triangles'(create_Triangles (triangle_Count, Vertices));
@@ -250,8 +248,7 @@ package body GL.Primitive is
    end;
 
    function get_vertex_Id (Self : in Triangles;   Triangle : in Positive;
-                                                  Vertex   : in Positive)
-                                                                          return vertex_Id
+                                                  Vertex   : in Positive) return vertex_Id
    is
    begin
       return Self.Indices (positive_uInt (3 * (Triangle - 1)  +  Vertex)) + 1;
@@ -293,8 +290,7 @@ package body GL.Primitive is
    end;
 
    function get_vertex_Id (Self : in triangle_Strip;   Triangle : in Positive;
-                                                       Vertex   : in Positive)
-                                                                              return vertex_Id
+                                                       Vertex   : in Positive) return vertex_Id
    is
    begin
       return Self.Indices (positive_uInt (Triangle + Vertex - 1)) + 1;
@@ -327,8 +323,7 @@ package body GL.Primitive is
    end;
 
    function get_vertex_Id (Self : in triangle_Fan;   Triangle : in Positive;
-                                                     Vertex   : in Positive)
-                                                                              return vertex_Id
+                                                     Vertex   : in Positive) return vertex_Id
    is
    begin
       if Vertex = 1 then
@@ -355,7 +350,7 @@ package body GL.Primitive is
 
    function create_Quads (quad_Count : in Natural;   Vertices: p_Vertex_array := null) return Quads
    is
-   indices_Count : constant positive_uInt := 4 * positive_uInt (quad_Count);
+      indices_Count : constant positive_uInt := 4 * positive_uInt (quad_Count);
    begin
       if Vertices = null then
          return (Vertices      => new Geometry.Vertex_array (1 .. vertex_Id (4 * quad_Count)),
@@ -383,8 +378,7 @@ package body GL.Primitive is
    end;
 
    function get_vertex_Id (Self : in Quads;   Quad   : in Positive;
-                                              Vertex : in Positive)
-                                                                          return vertex_Id
+                                              Vertex : in Positive) return vertex_Id
    is
    begin
       return Self.Indices (positive_uInt (4 * (Quad - 1)  +  Vertex)) + 1;
@@ -417,8 +411,7 @@ package body GL.Primitive is
    end;
 
    function get_vertex_Id (Self : in quad_Strip;   Quad     : in Positive;
-                                                   Vertex   : in Positive)
-                                                                              return vertex_Id
+                                                   Vertex   : in Positive) return vertex_Id
    is
    begin
       return Self.Indices (positive_uInt (2 * (Quad - 1) + Vertex)) + 1;

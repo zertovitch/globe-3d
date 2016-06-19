@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GL.Errors - error support sub-programs.
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --
 --  Permission granted to use this software, without any warranty,
@@ -15,20 +15,20 @@ package GL.Errors is
 
    function Current return String;
    --
-   -- returns a descriptive string of the last occuring openGL error.
-   -- returns "", when no error exists.
-   -- clears any existing error.
+   -- Returns a descriptive string of the last occuring openGL error.
+   -- Returns "", when no error exists.
+   -- Clears any existing error.
 
    procedure Log (Prefix : in String := "");
    --
-   -- displays 'Current' error via Ada.Text_IO.Put_Line.
-   -- clears any existing error.
-   -- raises 'openGL_Error' when an opengl error has been detected.
+   -- Displays 'Current' error via Ada.Text_IO.Put_Line.
+   -- Clears any existing error.
+   -- Raises 'openGL_Error' when an opengl error has been detected.
 
    procedure Log (Prefix : in String := "";   error_Occurred : out Boolean);
    --
-   -- displays 'Current' via Ada.Text_IO.Put_Line.
-   -- clears any existing error.
-   -- sets error_Occurred to true, if a GL error was detected.
+   -- Displays 'Current' via Ada.Text_IO.Put_Line.
+   -- Clears any existing error.
+   -- Sets error_Occurred to true, if a GL error was detected.
 
 end GL.Errors;

@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GL.Textures - GL Texture model
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --
 --  Permission granted to use this software, without any warranty,
@@ -9,16 +9,15 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GL.Geometry;
-
-with Ada.Unchecked_Deallocation;
+with GL.Geometry,
+     Ada.Unchecked_Deallocation;
 
 package GL.Textures is
 
-   -- core types
+   -- Core Types
    --
 
-   subtype texture_Name is GL.Uint;     -- an openGL texture 'name', which is a natural integer.
+   subtype texture_Name is GL.Uint;     -- An openGL texture 'name', which is a natural integer.
 
    type texture_Transform is
      record
@@ -26,7 +25,7 @@ package GL.Textures is
        Scale  : Double;
      end record;
 
-   -- texture co-ordinates
+   -- Texture Coordinates
    --
 
    type Coordinate_1D is
@@ -47,20 +46,20 @@ package GL.Textures is
    procedure free is new Ada.Unchecked_Deallocation (Coordinate_2D_array, p_Coordinate_2D_array);
 
    function to_texture_Coordinates_xz (the_Points  : in GL.Geometry.Vertex_array;
-                                       Transform_S : in texture_Transform;          -- transforms point X ordinate.
-                                       Transform_T : in texture_Transform)          -- transforms point Z ordinate.
-                                       return p_Coordinate_2D_array;                -- using heap to avoid storage_Error with large numbers of points.
+                                       Transform_S : in texture_Transform;          -- Transforms point X ordinate.
+                                       Transform_T : in texture_Transform)          -- Transforms point Z ordinate.
+                                       return p_Coordinate_2D_array;                -- Using heap to avoid storage_Error with large numbers of points.
 
    type coordinate_Generator   is abstract tagged null record;
    type p_coordinate_Generator is access all coordinate_Generator'Class;
 
    function to_Coordinates (Self : in coordinate_Generator;   the_Vertices : in GL.Geometry.Vertex_array) return GL.Textures.p_Coordinate_2D_array is abstract;
-   function to_Coordinates (Self : in coordinate_Generator;   the_Vertices : in GL.Geometry.Vertex_array) return GL.Textures.Coordinate_2D_array is abstract;
+   function to_Coordinates (Self : in coordinate_Generator;   the_Vertices : in GL.Geometry.Vertex_array) return GL.Textures.Coordinate_2D_array   is abstract;
 
    type xz_Generator is new coordinate_Generator with
       record
-         Transform_S : texture_Transform;          -- transforms point X ordinate.
-         Transform_T : texture_Transform;          -- transforms point Z ordinate.
+         Transform_S : texture_Transform;          -- Transforms point X ordinate.
+         Transform_T : texture_Transform;          -- Transforms point Z ordinate.
       end record;
 
    function to_Coordinates (Self : in xz_Generator;   the_Vertices : in GL.Geometry.Vertex_array) return GL.Textures.p_Coordinate_2D_array;
@@ -92,12 +91,12 @@ package GL.Textures is
 
    function new_Texture (image_Filename : in String) return Object;
 
-   unsupported_format_Error : exception;    -- raised when image filename is not of 'bmp' or 'tga' format.
+   unsupported_format_Error : exception;    -- Raised when image filename is not of 'bmp' or 'tga' format.
 
    procedure destroy (Self : in out Object);
 
    procedure set_Name (Self : in out Object;   To : in texture_Name);
-   function  Name     (Self : in     Object)                         return texture_Name;
+   function  Name     (Self : in     Object)    return texture_Name;
 
    procedure enable (Self : in out Object);
 
@@ -115,18 +114,18 @@ package GL.Textures is
    function new_Texture (From : access Pool;   min_Width  : in Positive;
                                                min_Height : in Positive) return Object;
    --
-   -- returns a texture object, whose width and height are powers of two, sufficient to contain the requested minimums.
+   -- Returns a texture object, whose width and height are powers of two, sufficient to contain the requested minimums.
    -- tbd: add texture properties to construction parameters !
 
    procedure free (Self : in out Pool;   the_Texture : in Object);
    --
-   -- free's a texture, for future use.
+   -- Free's a texture, for future use.
 
    procedure vacuum (Self : in out Pool);
    --
-   -- releases any allocated, but unused, texture objects.
+   -- Releases any allocated, but unused, texture objects.
 
-   -- support
+   -- Support
    --
 
    function power_of_2_Ceiling (From : in Positive) return GL.Sizei;
@@ -135,18 +134,16 @@ private
 
    type Object is tagged
       record
-         Name   : aliased texture_Name := 0;
+         Name           : aliased texture_Name := 0;
          Width,
-         Height :         Size := Unknown;
-
+         Height         : Size   := Unknown;
          is_Transparent : Boolean;
-
-         Pool   : Textures.p_Pool;
+         Pool           : Textures.p_Pool;
       end record;
 
-   -- pool
+   -- Pool
    --
-   -- re-uses existing textures when possible for performance.
+   -- Re-uses existing textures when possible for performance.
 
    type pool_texture_List is
       record

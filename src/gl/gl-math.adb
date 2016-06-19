@@ -1,3 +1,14 @@
+-------------------------------------------------------------------------
+--  GL.Math
+--
+--  Copyright (c) Rod Kay 2016
+--  AUSTRALIA
+--
+--  Permission granted to use this software, without any warranty,
+--  for any purpose, provided this copyright note remains attached
+--  and unmodified if sources are distributed further.
+-------------------------------------------------------------------------
+
 package body GL.Math is
 
   use GL, REF;
@@ -31,12 +42,12 @@ package body GL.Math is
     return (a(0)-b(0),a(1)-b(1),a(2)-b(2));
   end "-";
 
-  function "*"(a,b: Double_Vector_3D) return Double is      -- dot product
+  function "*"(a,b: Double_Vector_3D) return Double is             -- Dot product.
   begin
     return a(0)*b(0)+a(1)*b(1)+a(2)*b(2);
   end "*";
 
-  function "*"(a,b: Double_Vector_3D) return Double_Vector_3D is -- cross product
+  function "*"(a,b: Double_Vector_3D) return Double_Vector_3D is   -- Cross product.
   begin
     return ( a(1)*b(2) - a(2)*b(1),
              a(2)*b(0) - a(0)*b(2),
@@ -90,12 +101,14 @@ package body GL.Math is
    is
       Vector_1  : constant Double_Vector_3D := Normalized (Point_1 - Point_2);
       Vector_2  : constant Double_Vector_3D := Normalized (Point_3 - Point_2);
-      Cos_Theta : constant Double      := Vector_1 * Vector_2;
+      Cos_Theta : constant Double           := Vector_1 * Vector_2;
    begin
       if Cos_Theta <= -1.0 then
          return Ada.Numerics.Pi;
+
       elsif Cos_Theta >= 1.0 then
          return 0.0;
+
       else
          return Arccos (Cos_Theta);
       end if;
@@ -215,19 +228,19 @@ package body GL.Math is
   function XYZ_rotation(ax,ay,az: Double) return Matrix_33 is
     Mx, My, Mz: Matrix_33; c,s: Double;
   begin
-    -- Around X
+    -- Around X.
     c:= Cos( ax );
     s:= Sin( ax );
     Mx:= ( (1.0,0.0,0.0),
            (0.0,  c, -s),
            (0.0,  s,  c) );
-    -- Around Y
+    -- Around Y.
     c:= Cos( ay );
     s:= Sin( ay );
     My:= ( (  c,0.0, -s),
            (0.0,1.0,0.0),
            (  s,0.0,  c) );
-    -- Around Z
+    -- Around Z.
     c:= Cos( az );
     s:= Sin( az );
     Mz:= ( (  c, -s,0.0),
@@ -246,7 +259,7 @@ package body GL.Math is
   function Look_at(direction: Double_Vector_3D) return Matrix_33 is
     v1, v2, v3: Double_Vector_3D;
   begin
-    -- GL's look direction is the 3rd dimension (z)
+    -- GL's look direction is the 3rd dimension (z).
     v3:= Normalized(direction);
     v2:= Normalized((v3(2),0.0,-v3(0)));
     v1:= v2 * v3;
@@ -284,7 +297,8 @@ package body GL.Math is
               (-forward (0),   -forward (1),   -forward (2)));
    end;
 
-  -- Following procedure is from Project Spandex, by Paul Nettle
+  -- Following procedure is from Project Spandex, by Paul Nettle.
+  --
   procedure Re_Orthonormalize(M: in out Matrix_33) is
     dot1,dot2,vlen: Double;
   begin
@@ -324,10 +338,10 @@ package body GL.Math is
   end Re_Orthonormalize;
 
 --    type Matrix_44 is array(0..3,0..3) of aliased Double; -- for GL.MultMatrix
---    pragma Convention(Fortran, Matrix_44);  -- GL stores matrices columnwise
+--    pragma Convention(Fortran, Matrix_44);                -- GL stores matrices columnwise
 
   M: Matrix_44;
-  -- M is a global variable for a clean 'Access and for setting once 4th dim
+  -- M is a global variable for a clean 'Access and for setting once 4th dim.
   pM: constant GL.doublePtr:= M (1, 1)'Unchecked_Access;
 
   procedure Multiply_GL_Matrix( A: Matrix_33 ) is

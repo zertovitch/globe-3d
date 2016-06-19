@@ -1,17 +1,19 @@
 -------------------------------------------------------------------------
 --  GL.Errors - GL error support
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 20016
 --  AUSTRALIA
 --  Permission granted to use this software, without any warranty,
 --  for any purpose, provided this copyright note remains attached
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GLU;
-with Interfaces.C.Strings; use Interfaces.C.Strings;
-with Ada.Unchecked_Conversion;
-with Ada.Text_IO;
+with GLU,
+     Interfaces.C.Strings,
+     Ada.Unchecked_Conversion,
+     Ada.Text_IO;
+
+use Interfaces.C.Strings;
 
 package body GL.Errors is
 
@@ -24,6 +26,7 @@ package body GL.Errors is
 
    procedure Log (Prefix : in String := "")
    is
+      use Ada.Text_IO;
       current_Error : constant String:= Current;
    begin
       if current_Error = "no error" then
@@ -31,9 +34,9 @@ package body GL.Errors is
       end if;
 
       if Prefix = "" then
-         Ada.Text_IO.Put_Line ("openGL error: '" & current_Error & "'");
+         Put_Line ("openGL error: '" & current_Error & "'");
       else
-         Ada.Text_IO.Put_Line (Prefix & ": '" & current_Error & "'");
+         Put_Line (Prefix & ": '" & current_Error & "'");
       end if;
 
       raise openGL_Error with current_Error;
@@ -41,6 +44,7 @@ package body GL.Errors is
 
    procedure Log (Prefix : in String := "";   error_Occurred : out Boolean)
    is
+      use Ada.Text_IO;
       current_Error : constant String:= Current;
    begin
       if current_Error = "no error" then
@@ -51,9 +55,9 @@ package body GL.Errors is
       error_Occurred := True;
 
       if Prefix = "" then
-         Ada.Text_IO.Put_Line ("openGL error: '" & current_Error & "'");
+         Put_Line ("openGL error: '" & current_Error & "'");
       else
-         Ada.Text_IO.Put_Line (Prefix & ": '" & current_Error & "'");
+         Put_Line (Prefix & ": '" & current_Error & "'");
       end if;
    end;
 
