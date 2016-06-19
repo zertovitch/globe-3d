@@ -6,8 +6,6 @@ with GL.Math;
 
 with Ada.Containers.Generic_Array_Sort;
 
-with ada.text_IO;       use ada.text_IO;
-with ada.exceptions;    use ada.exceptions;
 with ada.unchecked_Deallocation;
 
 
@@ -20,7 +18,7 @@ package body globe_3d.Culler.impostoring_frustum is
 
    procedure add (Self : in out Culler;   the_Visual : in globe_3d.p_Visual)
    is
-      new_sprite_Set : sprite_Set_view := new sprite_Set;
+      new_sprite_Set : constant sprite_Set_view := new sprite_Set;
    begin
 
       new_sprite_Set.Visual   := the_Visual;
@@ -127,7 +125,7 @@ package body globe_3d.Culler.impostoring_frustum is
       Last            : Natural                                        := 0;
       the_Object      : p_Visual;
 
-      Frustum : gl.frustums.Plane_array := self.Viewer.Camera.frustum_Planes;
+      Frustum : constant gl.frustums.Plane_array := self.Viewer.Camera.frustum_Planes;
    begin
 
       -- apply 'frustum' and 'apparent size' culling
@@ -138,14 +136,14 @@ package body globe_3d.Culler.impostoring_frustum is
 
          declare
             use gl.Frustums, gl.Math;
-            the_Size      : Real := the_Object.bounds.sphere_Radius;
-            the_Distance  : Real := Norm (self.viewer.camera.clipper.eye_Position - the_Object.Centre);
-            apparent_Size : Real := the_Size / the_Distance;
+            the_Size      : constant Real := the_Object.bounds.sphere_Radius;
+            the_Distance  : constant Real := Norm (self.viewer.camera.clipper.eye_Position - the_Object.Centre);
+            apparent_Size : constant Real := the_Size / the_Distance;
 
             function is_visible_for_plane (Which : in gl.frustums.plane_Id) return Boolean
             is
                the_Site       : Vector_3D renames the_Object.Centre;
-               plane_Distance : Real              :=   Frustum (Which) (0) * the_Site (0)
+               plane_Distance : constant Real              :=   Frustum (Which) (0) * the_Site (0)
                                                      + Frustum (Which) (1) * the_Site (1)
                                                      + Frustum (Which) (2) * the_Site (2)
                                                      + Frustum (Which) (3);
@@ -177,11 +175,11 @@ package body globe_3d.Culler.impostoring_frustum is
       --
       declare
          the_Sprites                : Visual_array (1 .. Last);
-         transposed_camera_Attitude : Matrix_33               := Transpose (self.Viewer.Camera.world_Rotation);
+         transposed_camera_Attitude : constant Matrix_33               := Transpose (self.Viewer.Camera.world_Rotation);
          new_Last                   : Natural                 := 0;
 
       begin
-         for Each in self.impostor_load_Slots'range loop
+         for Each in self.impostor_load_Slots'Range loop
             self.impostor_load_Slots (Each).impostors_Count := 0;        -- empty each slot's contents.
          end loop;
 
@@ -197,28 +195,28 @@ package body globe_3d.Culler.impostoring_frustum is
                      the_Impostor      : impostor.p_Impostor renames the_Object.sprite_Set.Impostor;
                   begin
                      declare
-                        Impostor_update_required : Boolean := the_Impostor.update_Required (self.viewer.Camera'access);
-                        Impostor_is_valid        : Boolean := the_Impostor.is_Valid;
-                        Impostor_never_updated   : Boolean := the_Impostor.never_Updated;
+                        Impostor_update_required : constant Boolean := the_Impostor.update_Required (self.viewer.Camera'Access);
+                        Impostor_is_valid        : constant Boolean := the_Impostor.is_Valid;
+                        Impostor_never_updated   : constant Boolean := the_Impostor.never_Updated;
                      begin
                         if Impostor_is_valid then
 
                            if Impostor_update_required then
 
                               if Impostor_never_updated then
-                                 the_Impostor.update (self.viewer.Camera'access,  self.Texture_Pool'unchecked_access);     -- do immediate update to generate initial texture.
+                                 the_Impostor.update (self.viewer.Camera'Access,  self.Texture_Pool'Unchecked_Access);     -- do immediate update to generate initial texture.
                               else
                                  declare  -- add impostor to appropriate load balancing slot.
-                                    target_face_Count : Positive := impostor_Target.face_Count;
+                                    target_face_Count : constant Positive := impostor_Target.face_Count;
 
                                     function Slot_Id return Positive is
                                     begin
-                                       for Each in self.impostor_load_Slots.all'range loop
+                                       for Each in self.impostor_load_Slots.all'Range loop
                                           if target_face_Count <= self.impostor_load_Slots (Each).max_Faces then
                                              return Each;
                                           end if;
                                        end loop;
-                                       raise program_Error;  -- self.impostor_load_Slots is not valid !   (tbd: use better exception ?)
+                                       raise Program_Error;  -- self.impostor_load_Slots is not valid !   (tbd: use better exception ?)
                                     end;
 
                                     the_Slot : impostor_load_Balancer.Slot renames self.impostor_load_Slots (Slot_Id);
@@ -235,7 +233,7 @@ package body globe_3d.Culler.impostoring_frustum is
                            the_Impostor.Rotation := transposed_camera_Attitude;
 
                            new_Last               := new_Last + 1;
-                           the_Sprites (new_Last) := the_Impostor.all'access;
+                           the_Sprites (new_Last) := the_Impostor.all'Access;
                         end if;
                      end;
                   end;
@@ -251,10 +249,10 @@ package body globe_3d.Culler.impostoring_frustum is
          -- do the load balanced impostor updates
          --
 
-         for Each in self.impostor_load_Slots'range loop
+         for Each in self.impostor_load_Slots'Range loop
             declare
                the_Slot    : impostor_load_Balancer.Slot renames self.impostor_load_Slots (Each);
-               num_Updates : Natural                          := Natural'Min (the_Slot.max_Updates, the_Slot.impostors_Count);
+               num_Updates : constant Natural                          := Natural'Min (the_Slot.max_Updates, the_Slot.impostors_Count);
 
                function "<" (L, R : in impostor.p_Impostor) return Boolean
                is
@@ -271,7 +269,7 @@ package body globe_3d.Culler.impostoring_frustum is
                sort (the_Slot.Impostors (1 .. the_Slot.impostors_Count));
 
                for Each in 1 .. num_Updates loop
-                  the_slot.Impostors (Each).update (self.viewer.Camera'access, self.texture_Pool'unchecked_access);
+                  the_slot.Impostors (Each).update (self.viewer.Camera'Access, self.texture_Pool'Unchecked_Access);
                   -- tbd: would 'flush' improve performance here ?
                end loop;
             end;

@@ -39,7 +39,7 @@ package body GL.Geometry.VBO is
       return Self.Bounds;
    end;
 
-   procedure Draw (Self : in     vbo_Geometry)
+   procedure draw (Self : in     vbo_Geometry)
    is
    begin
       Self.Vertices.enable;

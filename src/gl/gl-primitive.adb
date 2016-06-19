@@ -9,9 +9,9 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with Ada.Numerics.Generic_Elementary_Functions;
+--  with Ada.Numerics.Generic_Elementary_Functions;
 with Ada.Unchecked_Deallocation;
-with Ada.Text_IO; use Ada.Text_IO;
+--  with Ada.Text_IO; use Ada.Text_IO;
 
 with GL.Geometry;   use GL.Geometry;
 
@@ -97,6 +97,7 @@ package body GL.Primitive is
 
    function primitive_Id (Self : in Points) return GL.ObjectTypeEnm
    is
+      pragma Unreferenced (Self);
    begin
       return GL.POINTS;
    end;
@@ -121,6 +122,7 @@ package body GL.Primitive is
 
    function primitive_Id (Self : in Lines) return GL.ObjectTypeEnm
    is
+      pragma Unreferenced (Self);
    begin
       return GL.LINES;
    end;
@@ -161,6 +163,7 @@ package body GL.Primitive is
 
    function primitive_Id (Self : in line_Strip) return GL.ObjectTypeEnm
    is
+      pragma Unreferenced (Self);
    begin
       return GL.LINE_STRIP;
    end;
@@ -201,6 +204,7 @@ package body GL.Primitive is
 
    function primitive_Id (Self : in line_Loop) return GL.ObjectTypeEnm
    is
+      pragma Unreferenced (Self);
    begin
       return GL.LINE_LOOP;
    end;
@@ -240,6 +244,7 @@ package body GL.Primitive is
 
    function primitive_Id (Self : in Triangles) return GL.ObjectTypeEnm
    is
+      pragma Unreferenced (Self);
    begin
       return GL.TRIANGLES;
    end;
@@ -282,6 +287,7 @@ package body GL.Primitive is
 
    function primitive_Id (Self : in triangle_Strip) return GL.ObjectTypeEnm
    is
+      pragma Unreferenced (Self);
    begin
       return GL.TRIANGLE_STRIP;
    end;
@@ -315,6 +321,7 @@ package body GL.Primitive is
 
    function primitive_Id (Self : in triangle_Fan) return GL.ObjectTypeEnm
    is
+      pragma Unreferenced (Self);
    begin
       return GL.TRIANGLE_FAN;
    end;
@@ -370,6 +377,7 @@ package body GL.Primitive is
 
    function primitive_Id (Self : in Quads) return GL.ObjectTypeEnm
    is
+      pragma Unreferenced (Self);
    begin
       return GL.QUADS;
    end;
@@ -403,6 +411,7 @@ package body GL.Primitive is
 
    function primitive_Id (Self : in quad_Strip) return GL.ObjectTypeEnm
    is
+      pragma Unreferenced (Self);
    begin
       return GL.QUAD_STRIP;
    end;
@@ -435,6 +444,7 @@ package body GL.Primitive is
 
    function primitive_Id (Self : in Polygon) return GL.ObjectTypeEnm
    is
+      pragma Unreferenced (Self);
    begin
       return GL.POLYGON;
    end;

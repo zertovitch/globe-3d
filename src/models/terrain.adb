@@ -8,7 +8,7 @@ with GL;
 --  with GL.Skinned_Geometry;
 with GL.IO;
 
-with GLOBE_3D.Math;                            use GLOBE_3D.Math;
+--  with GLOBE_3D.Math;                            use GLOBE_3D.Math;
 with GL.Math;
 --  with GLOBE_3D.tri_Mesh;
 

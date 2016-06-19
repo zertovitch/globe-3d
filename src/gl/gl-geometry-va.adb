@@ -9,8 +9,8 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with Ada.Numerics.Generic_Elementary_Functions;
-with Ada.Text_IO; use Ada.Text_IO;
+--  with Ada.Numerics.Generic_Elementary_Functions;
+--  with Ada.Text_IO; use Ada.Text_IO;
 
 package body GL.Geometry.VA is
 
