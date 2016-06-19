@@ -1,5 +1,6 @@
 --  with GLOBE_3D.Textures,
 with GLOBE_3D.Math;
+with GL.Math;
 
 --  with GLUT.Windows; use GLUT.Windows;
 with GL.Errors;
@@ -105,7 +106,7 @@ package body GLOBE_3D.Impostor is
                                                             the_pixel_Region : in pixel_Region) return Boolean
    is
    pragma Unreferenced (the_pixel_Region);
-      use GL, GLOBE_3D.Math;
+      use GL, GLOBE_3D.Math, GL.Math;
       Camera_has_moved : constant Boolean  :=  the_Camera.clipper.eye_position /= o.prior_camera_Position;
       Target_has_moved : constant Boolean  :=  o.Target.centre                 /= o.prior_target_Position;
    begin
@@ -147,7 +148,7 @@ package body GLOBE_3D.Impostor is
 
    function get_pixel_Region (o : access Impostor'Class;   the_Camera : in GLOBE_3D.p_Camera) return pixel_Region
    is
-      use GL, GLOBE_3D.Math;
+      use GL, GLOBE_3D.Math, GL.Math;
 
       target_Centre            : constant Vector_3D    := the_Camera.world_rotation * (o.Target.centre - the_Camera.clipper.eye_position);
       target_lower_Left        : constant Vector_3D    := target_Centre - (o.Target.Bounds.sphere_Radius, o.Target.Bounds.sphere_Radius, 0.0);
@@ -372,7 +373,7 @@ texture_Height           : constant GL.Sizei         := power_of_2_Ceiling (Natu
    --
    procedure enable_Rotation (o : in Impostor;   camera_Site : in Vector_3D)
    is
-      use GLOBE_3D.Math, GLOBE_3D.REF, GL;
+      use GLOBE_3D.Math, GL.Math, GLOBE_3D.REF, GL;
       lookAt       : constant Vector_3D := (0.0,  0.0,  1.0);
       objToCamProj : constant Vector_3D := Normalized ((camera_Site (0) - o.centre (0),  0.0,  camera_Site (2) - o.centre (2)));
       upAux        : constant Vector_3D := lookAt * objToCamProj;

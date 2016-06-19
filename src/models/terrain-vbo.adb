@@ -9,7 +9,7 @@ with GL.Skinned_Geometry;
 --  with GL.IO;
 
 with GLOBE_3D.Math;                            use GLOBE_3D.Math;
-
+with GL.Math;
 --  with Ada.Numerics;                             use Ada.Numerics;
 --  with Ada.Text_IO;                              use Ada.Text_IO;
 
@@ -234,10 +234,11 @@ package body Terrain.VBO is
                        Y_Offset            => site_Y_Offset);
 
                declare
-               the_Site : constant Vector_3D  :=
-                                           (site_X_offset - (total_Width / 2.0) * Scale (0),
-                                            site_Y_Offset,
-                                            site_Z_offset - (total_Depth / 2.0) * Scale (2));
+                  use GL.Math;
+                  the_Site : constant Vector_3D  :=
+                    (site_X_offset - (total_Width / 2.0) * Scale (0),
+                     site_Y_Offset,
+                     site_Z_offset - (total_Depth / 2.0) * Scale (2));
                begin
                   the_sprite_Grid (Row, Col).centre := the_Site + base_Centre;
                end;

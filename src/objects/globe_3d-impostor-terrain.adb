@@ -1,5 +1,6 @@
 --  with GLOBE_3D.Textures,
 with GLOBE_3D.Math;
+with GL.Math;
 
 --  with GLUT.Windows; use GLUT.Windows;
 --  with GL.Errors;
@@ -174,7 +175,7 @@ package body GLOBE_3D.Impostor.Terrain is
    procedure update (o : in out Impostor;   the_Camera   : in     p_Camera;
                                             texture_Pool : in     GL.Textures.p_Pool)
    is
-      use GLOBE_3D.Math;
+      use GLOBE_3D.Math, GL.Math;
       maximum_Expansion : constant := 0.05;
       Distance          : constant Real     := Norm (o.centre - the_Camera.clipper.eye_position);
       Expansion         : constant Real     := Real'Max (0.02,

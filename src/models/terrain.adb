@@ -9,6 +9,7 @@ with GL;
 with GL.IO;
 
 with GLOBE_3D.Math;                            use GLOBE_3D.Math;
+with GL.Math;
 --  with GLOBE_3D.tri_Mesh;
 
 --  with Ada.Numerics;                             use Ada.Numerics;
@@ -97,7 +98,7 @@ package body Terrain is
       for Row in from_height_Map.Heights'Range (1) loop
          for Col in from_height_Map.Heights'Range (2) loop
             declare
-               --  use type GL.Geometry.Vertex;
+               use GL.Math;
                the_Point : GL.Geometry.Vertex renames the_Vertices (Vertex_Id_for (from_height_Map,  Row, Col));
             begin
                the_Point := GL.Geometry.Vertex'(Real (Col) - 1.0,          -- '- 1.0' adjusts for '1 based' indexing.

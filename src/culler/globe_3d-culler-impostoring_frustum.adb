@@ -2,6 +2,7 @@
 with globe_3d.Impostor.simple;
 with globe_3d.Impostor.terrain;
 with globe_3d.Math;               use globe_3d.Math;
+with GL.Math;
 
 with Ada.Containers.Generic_Array_Sort;
 
@@ -136,7 +137,7 @@ package body globe_3d.Culler.impostoring_frustum is
          the_Object := Element (Cursor).Visual;
 
          declare
-            use gl.Frustums;
+            use gl.Frustums, gl.Math;
             the_Size      : Real := the_Object.bounds.sphere_Radius;
             the_Distance  : Real := Norm (self.viewer.camera.clipper.eye_Position - the_Object.Centre);
             apparent_Size : Real := the_Size / the_Distance;
