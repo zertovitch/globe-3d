@@ -1,0 +1,62 @@
+/*
+    OpenDDL 1.1 Formal Grammar
+
+    http://openddl.org/
+
+    Copyright 2014 by Eric Lengyel
+*/
+
+
+identifier          ::= [A-Za-z_] [0-9A-Za-z_]*
+
+name                ::= ("$" | "%") identifier
+
+reference           ::= name ("%" identifier)* | "null"
+
+hex-digit           ::= [0-9A-Fa-f]
+
+escape-char         ::= '\"' | "\'" | "\?" | "\\" | "\a" | "\b" | "\f" | "\n" | "\r" | "\t" | "\v"
+                      | "\x" hex-digit hex-digit
+
+bool-literal        ::= "false" | "true"
+
+decimal-literal     ::= [0-9] ("_"? [0-9])*
+
+hex-literal         ::= ("0x" | "0X") hex-digit ("_"? hex-digit)*
+
+octal-literal       ::= ("0o" | "0O") [0-7] ("_"? [0-7])*
+
+binary-literal      ::= ("0b" | "0B") ("0" | "1") ("_"? ("0" | "1"))*
+
+char-literal        ::= "'" ([#x20-#x26#x28-#x5B#x5D-#x7E] | escape-char)+ "'"
+
+integer-literal     ::= ("+" | "-")? (decimal-literal | hex-literal | octal-literal | binary-literal | char-literal)
+
+float-literal       ::= ("+" | "-")? (([0-9] ("_"? [0-9])* ("." ([0-9] ("_"? [0-9])*)?)? | "." [0-9] ("_"? [0-9])*) (("e" | "E") ("+" | "-")? [0-9] ("_"? [0-9])*)?
+                      | hex-literal | octal-literal | binary-literal)
+
+string-literal      ::= ('"' ([#x20-#x21#x23-#x5B#x5D-#x7E#xA0-#xD7FF#xE000-#xFFFD#x010000-#x10FFFF] | escape-char | "\u" hex-digit hex-digit hex-digit hex-digit | "\U" hex-digit hex-digit hex-digit hex-digit hex-digit hex-digit)* '"')+
+
+data-type           ::= "bool" | "int8" | "int16" | "int32" | "int64" | "unsigned_int8" | "unsigned_int16" | "unsigned_int32" | "unsigned_int64"
+                      | "half" | "float" | "double" | "string" | "ref" | "type"
+
+data-list           ::= bool-literal ("," bool-literal)*
+                      | integer-literal ("," integer-literal)*
+                      | float-literal ("," float-literal)*
+                      | string-literal ("," string-literal)*
+                      | reference ("," reference)*
+                      | data-type ("," data-type)*
+
+data-array-list     ::= "{" bool-literal ("," bool-literal)* "}" ("," "{" bool-literal ("," bool-literal)* "}")*
+                      | "{" integer-literal ("," integer-literal)* "}" ("," "{" integer-literal ("," integer-literal)* "}")*
+                      | "{" float-literal ("," float-literal)* "}" ("," "{" float-literal ("," float-literal)* "}")*
+                      | "{" string-literal ("," string-literal)* "}" ("," "{" string-literal ("," string-literal)* "}")*
+                      | "{" reference ("," reference)* "}" ("," "{" reference ("," reference)* "}")*
+                      | "{" data-type ("," data-type)* "}" ("," "{" data-type ("," data-type)* "}")*
+
+property            ::= identifier "=" (bool-literal | integer-literal | float-literal | string-literal | reference | data-type)
+
+structure           ::= data-type (name? "{" data-list? "}" | "[" integer-literal "]" name? "{" data-array-list? "}")
+                      | identifier name? ("(" (property ("," property)*)? ")")? "{" structure* "}"
+
+file                ::= structure*
