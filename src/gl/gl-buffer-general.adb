@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GL.Buffer.General
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --  Permission granted to use this software, without any warranty,
 --  for any purpose, provided this copyright note remains attached
@@ -9,12 +9,6 @@
 -------------------------------------------------------------------------
 
 with GL.Errors;
---  with GL.Geometry;
-
---  with Ada.Numerics.Generic_Elementary_Functions;
---  with Ada.Text_IO; use Ada.Text_IO;
-
---  with System;
 
 package body GL.Buffer.General is
 
@@ -23,7 +17,7 @@ package body GL.Buffer.General is
    function to_gl_Pointer      is new Ada.Unchecked_Conversion (Element_Pointers.Pointer, GL.pointer);
    function to_element_Pointer is new Ada.Unchecked_Conversion (GL.pointer,               Element_Pointers.Pointer);
 
-   -- vertex buffer object
+   -- Vertex Buffer Object
    --
 
    function to_Buffer (From : access Element_Array;   Usage : VBO_Usage) return Object
@@ -42,11 +36,11 @@ package body GL.Buffer.General is
    end;
 
    procedure set (Self : in out Object;   Position : in Positive := 1;
-                                                   To       : in Element_Array)
+                                          To       : in Element_Array)
    is
       use type GL.sizeiPtr;
-      new_Vertices        : aliased Element_Array := To;
-      Vertex_Size_in_bits : constant Natural                 := To (To'First)'Size;
+      new_Vertices        : aliased  Element_Array := To;
+      Vertex_Size_in_bits : constant Natural       := To (To'First)'Size;
    begin
       enable (Self);
       GL.BufferSubData (VBO_Target (Self),  offset => GL.intPtr ((Position - 1) * Vertex_Size_in_bits / 8),
@@ -55,18 +49,18 @@ package body GL.Buffer.General is
       GL.Errors.Log;
    end;
 
-   function  get (Self   : access    Object) return Element_Array
+   function  get (Self : access Object) return Element_Array
    is
-      use GL.Buffer;  --  GL.Geometry
+      use GL.Buffer;
 
-      the_Map      : read_only_Map'Class renames Map (Self);
+      the_Map      :          read_only_Map'Class renames Map (Self);
       the_Vertices : constant Element_Array            := get (the_Map, Index'First, Self.Length);
    begin
       release (the_Map);
       return the_Vertices;
    end;
 
-   -- memory Maps
+   -- Memory Maps
    --
 
    procedure release (Self : in    memory_Map)
@@ -80,16 +74,16 @@ package body GL.Buffer.General is
 
    function  get (Self : in memory_Map;   Position : in Index) return Element
    is
-      use Interfaces.C;  --  Element_Pointers
+      use Interfaces.C;
       Start : constant Element_Pointers.Pointer := Self.Data + ptrdiff_t (Position - 1);
    begin
       return Value (Start, 1) (1);
    end;
 
    function  get (Self : in memory_Map;   Position : in Index;
-                                          Count    : in Positive              ) return Element_Array
+                                          Count    : in Positive) return Element_Array
    is
-      use Interfaces.C;  --  Element_Pointers
+      use Interfaces.C;
       Start : constant Element_Pointers.Pointer := Self.Data + ptrdiff_t (Position - 1);
    begin
       return Value (Start, ptrdiff_t (Count));
@@ -98,9 +92,11 @@ package body GL.Buffer.General is
    procedure set (Self : in     memory_Map;   Position : in     Index;
                                               To       : access Element)
    is
-      use Interfaces.C;  --  GL.Geometry, Element_Pointers
+      use Interfaces.C;
    begin
-      Copy_Array (Element_Pointers.Pointer (To),  Self.Data + ptrdiff_t (Position - 1),  1);
+      Copy_Array (Element_Pointers.Pointer (To),
+                  Self.Data + ptrdiff_t (Position - 1),
+                  1);
    end;
 
    procedure set (Self : in     memory_Map;   Position : in Index;
@@ -115,12 +111,13 @@ package body GL.Buffer.General is
 
    function  Map (Self : access Object) return read_only_Map'Class
    is
-      --  use GL.Geometry;
       the_Map : read_only_Map;
    begin
       enable (Self.all);
 
-      the_Map.Data := to_element_Pointer (MapBuffer (VBO_Target (Self.all),  GL.READ_ONLY));
+      the_Map.Data := to_element_Pointer (MapBuffer (VBO_Target (Self.all),
+                                          GL.READ_ONLY));
+
       if the_Map.Data = null then
          raise GL.Buffer.no_platform_Support;
       end if;
@@ -138,22 +135,23 @@ package body GL.Buffer.General is
    end;
 
    function  get (Self : in read_only_Map;   Position : in Index;
-                                                    Count    : in Positive              ) return Element_Array
+                                             Count    : in Positive) return Element_Array
    is
    begin
-      return get (memory_Map (Self), Position, Count);
+      return get (memory_Map (Self),  Position,  Count);
    end;
 
    -- write-only
 
    function Map (Self : access Object) return write_only_Map'Class
    is
-      --  use GL.Geometry;
       the_Map : write_only_Map;
    begin
       enable (Self.all);
 
-      the_Map.Data := to_element_Pointer (MapBuffer (VBO_Target (Self.all), GL.WRITE_ONLY));
+      the_Map.Data := to_element_Pointer (MapBuffer (VBO_Target (Self.all),
+                                          GL.WRITE_ONLY));
+
       if the_Map.Data = null then
          raise GL.Buffer.no_platform_Support;
       end if;
@@ -165,29 +163,30 @@ package body GL.Buffer.General is
    end;
 
    procedure set (Self : in     write_only_Map;   Position : in     Index;
-                                                         To       : access Element)
+                                                  To       : access Element)
    is
    begin
-      set (memory_Map (Self), Position, To);
+      set (memory_Map (Self),  Position,  To);
    end;
 
    procedure set (Self : in     write_only_Map;   Position : in Index;
-                                                         To       : in Element)
+                                                  To       : in Element)
    is
    begin
-      set (memory_Map (Self), Position, To);
+      set (memory_Map (Self),  Position,  To);
    end;
 
    -- read-write
 
    function Map (Self : access Object) return read_write_Map'Class
    is
-      --  use GL.Geometry;
       the_Map : read_write_Map;
    begin
       enable (Self.all);
 
-      the_Map.Data := to_element_Pointer (MapBuffer (VBO_Target (Self.all), GL.READ_WRITE));
+      the_Map.Data := to_element_Pointer (MapBuffer (VBO_Target (Self.all),
+                                          GL.READ_WRITE));
+
       if the_Map.Data = null then
          raise GL.Buffer.no_platform_Support;
       end if;
@@ -201,28 +200,28 @@ package body GL.Buffer.General is
    function  get (Self : in read_write_Map;   Position : in Index) return Element
    is
    begin
-      return get (memory_Map (Self), Position);
+      return get (memory_Map (Self),  Position);
    end;
 
    function  get (Self : in read_write_Map;   Position : in Index;
-                                                     Count    : in Positive              ) return Element_Array
+                                              Count    : in Positive) return Element_Array
    is
    begin
-      return get (memory_Map (Self), Position, Count);
+      return get (memory_Map (Self),  Position,  Count);
    end;
 
    procedure set (Self : in     read_write_Map;   Position : in     Index;
-                                                         To       : access Element)
+                                                  To       : access Element)
    is
    begin
-      set (memory_Map (Self), Position, To);
+      set (memory_Map (Self),  Position,  To);
    end;
 
    procedure set (Self : in     read_write_Map;   Position : in Index;
-                                                         To       : in Element)
+                                                  To       : in Element)
    is
    begin
-      set (memory_Map (Self), Position, To);
+      set (memory_Map (Self),  Position,  To);
    end;
 
 end GL.Buffer.General;

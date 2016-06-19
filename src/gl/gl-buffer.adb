@@ -1,23 +1,16 @@
 -------------------------------------------------------------------------
 --  GL.Geometry - GL vertex buffer Object
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --  Permission granted to use this software, without any warranty,
 --  for any purpose, provided this copyright note remains attached
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
---  with GL.Errors;
-
---  with Ada.Numerics.Generic_Elementary_Functions;
---  with Ada.Text_IO; use Ada.Text_IO;
-
---  with System;
-
 package body GL.Buffer is
 
-   -- 'Name' support
+   -- VBO 'Name' Support
    --
 
    function new_vbo_Name return vbo_Name
@@ -35,7 +28,7 @@ package body GL.Buffer is
    end;
    pragma Unreferenced (free);
 
-   -- object
+   -- Object
    --
 
    procedure verify_Name (Self : in out Object'Class)
@@ -61,7 +54,7 @@ package body GL.Buffer is
       GL.DeleteBuffers (1, Self.Name'Unchecked_Access);
    end;
 
-   -- array object
+   -- Array Object
    --
 
    function vbo_Target (Self : in array_Object) return GL.VBO_Target
@@ -71,7 +64,7 @@ package body GL.Buffer is
       return GL.ARRAY_BUFFER;
    end;
 
-   -- element array object
+   -- Element Array Object
    --
 
    function vbo_Target (Self : in element_array_Object) return GL.VBO_Target

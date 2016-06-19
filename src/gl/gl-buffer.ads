@@ -1,21 +1,18 @@
 -------------------------------------------------------------------------
---  GL.Geometry - GL vertex buffer Object
+--  GL.Buffer - Provides a GL vertex buffer Object
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --  Permission granted to use this software, without any warranty,
 --  for any purpose, provided this copyright note remains attached
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
---  with GL.Geometry;
---  with GL.Textures;
-
 package GL.Buffer is
 
-   subtype vbo_Name is GL.Uint;     -- an openGL vertex buffer 'name', which is a natural integer.
+   subtype vbo_Name is GL.Uint;     -- A vertex buffer 'name'.
 
-   -- buffer object
+   -- Buffer Object
    --
    type Object is abstract tagged private;
 
@@ -24,13 +21,12 @@ package GL.Buffer is
 
    function VBO_Target (Self : in Object) return GL.VBO_Target is abstract;
 
-   -- 'array' and 'element array' base classes
+   -- 'array' and 'element array' Object subclasses.
    --
-
    type array_Object         is new Object with private;
    type element_array_Object is new Object with private;
 
-   -- refer to child packages, for specific buffers:
+   -- Refer to child packages, for specific buffers:
    --
    -- - gl.Buffer.vertex
    -- - gl.Buffer.texture_coords
@@ -41,7 +37,9 @@ package GL.Buffer is
 
    no_platform_Support : exception;
    --
-   -- raised by buffer 'Map' functions when OS platform does not support GL Buffer objects.
+   -- Raised by buffer 'Map' functions when OpenGL platform does not support GL Buffer objects.
+
+
 
 private
 
@@ -51,7 +49,7 @@ private
          Length :         Positive;
       end record;
 
-   function vbo_Target (Self : in array_Object)         return GL.VBO_Target;
+   function vbo_Target (Self : in         array_Object) return GL.VBO_Target;
    function vbo_Target (Self : in element_array_Object) return GL.VBO_Target;
 
    type array_Object         is new Object with null record;
@@ -59,7 +57,7 @@ private
 
    type vertex_buffer_Object is new array_Object with null record;
 
-   -- support
+   -- Support
 
    procedure verify_Name (Self : in out Object'Class);
 

@@ -2,7 +2,7 @@
 --  GL.Buffer.General - a generic for producing the
 --  various types of OpenGL vertex buffer objects.
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --
 --  Permission granted to use this software, without any warranty,
@@ -29,7 +29,7 @@ package GL.Buffer.General is
                                           To       : in Element_Array);
    function  get (Self : access Object) return Element_Array;
 
-   -- buffer memory map
+   -- Buffer Memory Map
    --
 
    type memory_Map is abstract tagged private;
@@ -42,7 +42,7 @@ package GL.Buffer.General is
    -- was initially mapped. This can occur for system-specific reasons that affect the availability of graphics memory,
    -- such as screen mode changes. In such situations, the data store contents are undefined, and an application
    -- reinitialize the data store.
-   --
+
    Corrupt_Buffer : exception;
 
    type read_only_Map  is new memory_Map with private;
@@ -79,7 +79,7 @@ private
 
    type Object is new base_Object with null record;
 
-   default_Terminator : Element;     -- no 'i.c.Pointers' subprogram is called which uses this, so a default 'Element' should suffice.
+   default_Terminator : Element;     -- No 'i.c.Pointers' subprogram is called which uses this, so a default 'Element' should suffice.
 
    package Element_Pointers is new interfaces.C.Pointers (Index, Element, Element_Array, default_Terminator);
 
