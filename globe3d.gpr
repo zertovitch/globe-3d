@@ -1,11 +1,30 @@
 project Globe3D is
 
-   for Library_Name use "globe3d";
-   for Library_Dir use "lib/gnatdebg/";
-   for Library_Ali_Dir use "lib/gnatdebg/";
-   for Object_Dir use "obj/gnatdebg/";
+   type OS_Kind is
+      ("win32", "linux", "macosx");
+   OS : OS_Kind := external ("OS", "win32");
 
-   for Source_Dirs use ("bindings", "bindings/linux", "src/**");
+   type Build_Mode_Type is
+      ("debug", "fast", "small");
+   Build_Mode : Build_Mode_Type := external ("Build_Mode", "debug");
+
+   Debug_Pragma_Option := "";
+
+   case Build_Mode 
+   is
+      when "debug" =>   Debug_Pragma_Option := ", ""-gnatecdebug.pra""";
+      when "fast" 
+         | "small" =>   Debug_Pragma_Option := "";
+   end case;
+
+   for Library_Name    use "globe3d";
+   for Library_Dir     use "lib/gnat" & external ("Build_Mode", "debug");
+   for Library_Ali_Dir use "lib/gnat" & external ("Build_Mode", "debug");
+   for Object_Dir      use "obj/gnat" & external ("Build_Mode", "debug");
+
+   for Source_Dirs use ("bindings",
+                        "bindings/" & external ("OS", "win32"), 
+                        "src/**");
 
    package Ide is
       for Default_Switches ("adacontrol") use ("-F`gnat_short");
@@ -16,7 +35,7 @@ project Globe3D is
    end Builder;
 
    package Compiler is
-      for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnata", "-gnat12", "-gnatVcdfimorst", "-gnatecdebug.pra");
+      for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnata", "-gnat12", "-gnatVcdfimorst" & Debug_Pragma_Option);
    end Compiler;
 
    package Binder is
