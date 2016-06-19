@@ -10,8 +10,8 @@
 -------------------------------------------------------------------------
 
 with GLOBE_3D.tri_Mesh;
-with GL.Geometry.Primitives;
-with GL.Geometry.primal;
+with GL.Primitive;
+with GL.Geometry.VA;
 --  with GL.Textures;
 --  with GLU; -- only for debug
 
@@ -23,9 +23,9 @@ package GLOBE_3D.tri_Mesh.vertex_array is
    type tri_Mesh is new GLOBE_3D.tri_Mesh.tri_Mesh with
       record
          skinned_Geometry : GL.Skinned_Geometry.Skinned_Geometry
-                          := (Geometry  => new GL.Geometry.primal.primal_Geometry'
+                          := (Geometry  => new GL.Geometry.VA.primal_Geometry'
                                                  (GL.Geometry.Geometry with
-                                                  Primitive  => new GL.Geometry.Primitives.Triangles),
+                                                  Primitive  => new GL.Primitive.Triangles),
                               Skin      => null,
                               Veneer    => null);
       end record;

@@ -2,7 +2,7 @@
 --       GLOBE_3D.Textures,
 --       GLOBE_3D.Math;
 
-with GL.Geometry.Primitives;   use GL.Geometry.Primitives;
+with GL.Primitive;   use GL.Primitive;
 
 --  with Ada.Exceptions; use Ada.Exceptions;
 --  with Ada.Text_IO;    use Ada.Text_IO;
@@ -60,19 +60,19 @@ package body GLOBE_3D.tri_Mesh.vertex_array is
 
    procedure set_Vertices (Self : in out tri_Mesh;   To : access GL.Geometry.Vertex_array)
    is
-      use GL.Geometry, GL.Geometry.primal;
+      use GL.Geometry, GL.Geometry.VA;
 
-      the_Geometry : GL.Geometry.primal.primal_Geometry
-                       renames GL.Geometry.primal.primal_Geometry (Self.skinned_Geometry.Geometry.all);
+      the_Geometry : GL.Geometry.VA.primal_Geometry
+                       renames GL.Geometry.VA.primal_Geometry (Self.skinned_Geometry.Geometry.all);
    begin
       the_Geometry.set_Vertices (To => To);
    end;
 
    procedure set_Indices  (Self : in out tri_Mesh;   To : access GL.Geometry.vertex_Id_array)
    is
-      use GL.Geometry, GL.Geometry.primal;
-      the_Geometry : GL.Geometry.primal.primal_Geometry
-                       renames GL.Geometry.primal.primal_Geometry (Self.skinned_Geometry.Geometry.all);
+      use GL.Geometry, GL.Geometry.VA;
+      the_Geometry : GL.Geometry.VA.primal_Geometry
+                       renames GL.Geometry.VA.primal_Geometry (Self.skinned_Geometry.Geometry.all);
    begin
       the_Geometry.set_Indices (To => To);
    end;
@@ -87,8 +87,8 @@ package body GLOBE_3D.tri_Mesh.vertex_array is
    function face_Count (o : in tri_Mesh) return Natural
    is
       use GL;
-      the_Geometry : GL.Geometry.primal.primal_Geometry
-                       renames GL.Geometry.primal.primal_Geometry (o.skinned_Geometry.Geometry.all);
+      the_Geometry : GL.Geometry.VA.primal_Geometry
+                       renames GL.Geometry.VA.primal_Geometry (o.skinned_Geometry.Geometry.all);
    begin
       return Natural (the_Geometry.Primitive.Indices'Length / 3);
    end;
