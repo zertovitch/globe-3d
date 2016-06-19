@@ -1,16 +1,18 @@
-with "../../../globe3d";
+project Globe3D is
 
-project Simple is
+   for Library_Name use "globe3d";
+   for Library_Dir use "lib/gnatdebg/";
+   for Library_Ali_Dir use "lib/gnatdebg/";
+   for Object_Dir use "obj/gnatdebg/";
 
-   for Source_Dirs use (".");
-   for Main use ("simple.adb");
+   for Source_Dirs use ("bindings", "bindings/linux", "src/**");
 
    package Ide is
       for Default_Switches ("adacontrol") use ("-F`gnat_short");
    end Ide;
 
    package Builder is
-      for Default_Switches ("ada") use ("-g", "-k", "-j13");
+      for Default_Switches ("ada") use ("-g", "-j5");
    end Builder;
 
    package Compiler is
@@ -21,9 +23,5 @@ project Simple is
       for Default_Switches ("ada") use ("-E");
    end Binder;
 
-   package Linker is
-      for Default_Switches ("ada") use ("-g", "-lglut", "-lz", "-lGL", "-lGLU");
-   end Linker;
-
-end Simple;
+end Globe3D;
 
