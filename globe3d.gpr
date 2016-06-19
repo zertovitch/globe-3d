@@ -8,14 +8,106 @@ project Globe3D is
       ("debug", "fast", "small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "debug");
 
-   Debug_Pragma_Option := "";
+   Binder_Options := ();
+
+   Style_Options  := ("-gnatyaknpr",  --  Style: check all casings: a:attribute, k:keywords, n:package Standard identifiers, p:pragma, r:identifier references
+                      "-gnatybfhiu",  --  Style: check b:no blanks at end of lines, f:no ff/vtabs, h: no htabs, i:if-then layout, u:no unnecessary blank lines
+                      "-gnatyx");     --  Style: check x:no extra parens
+
+   Compiler_Options :=   ("-gnat12",
+                          "-gnatwa",
+                          "-fno-strict-aliasing")
+                        & Style_Options;
+
+   Fast_Options := ("-O2", 
+                    "-gnatn",
+                    "-gnatp",
+                    "-funroll-loops",
+                    "-fpeel-loops",
+                    "-ftracer",
+                    "-funswitch-loops",
+                    "-fweb",
+                    "-frename-registers"); 
+
+   Small_Options := ("-Os",
+                     "-gnatp",
+                     "-fno-inline",
+                     "-march=i386",
+                     "-ffunction-sections",
+                     "-falign-jumps=0",
+                     "-falign-loops=0",
+                     "-falign-functions=0",
+                     "-mpreferred-stack-boundary=2");
 
    case Build_Mode 
    is
-      when "debug" =>   Debug_Pragma_Option := ", ""-gnatecdebug.pra""";
-      when "fast" 
-         | "small" =>   Debug_Pragma_Option := "";
+      when "debug" =>
+         Binder_Options   := Binder_Options   & "-E";
+         Compiler_Options := Compiler_Options & "-gnatecdebug.pra"
+                                              & "-gnato"
+                                              & "-fstack-check"
+                                              & "-g";
+         case OS
+         is
+            when "linux"  =>
+               Compiler_Options := Compiler_Options & "-gnatVa";
+
+            when "win32"  =>
+               Compiler_Options := Compiler_Options & "-fno-inline"
+                                                    & "-gnatVcdeimoprst";
+--                                                  & "-gnatVf"             -- (2016) turned off floating point validity check, seems to give false positives on a scalar product for collision detection
+            when "macosx" =>
+               null;
+         end case;
+
+      when "fast" =>
+         Compiler_Options := Compiler_Options & "-gnatec../../demo/g3d_elim.pra";
+         case OS
+         is
+            when "linux"  =>
+               Compiler_Options := Compiler_Options & Fast_Options 
+                                                    & "-fomit-frame-pointer";
+            when "win32"  =>
+               Compiler_Options := Compiler_Options & Fast_Options
+                                                    & "-fipa-cp-clone"
+                                                    & "-fgcse-after-reload" 
+                                                    & "-ftree-vectorize"
+                                                    & "-mfpmath=sse"
+                                                    & "-msse3";
+            when "macosx" =>
+               null;
+         end case;
+
+      when "small" =>
+         Compiler_Options := Compiler_Options & "-gnatec../../demo/g3d_elim.pra";
+         case OS
+         is
+            when "linux"  =>
+               Compiler_Options := Compiler_Options & Small_Options 
+                                                    & "-fdata-sections";
+            when "win32"  =>
+               Compiler_Options := Compiler_Options & Small_Options;
+
+            when "macosx" =>
+               null;
+         end case;
    end case;
+
+
+   case OS
+   is
+      when "macosx" =>
+         Compiler_Options := Compiler_Options & "-gnatf" 
+                                              & "-gnatE" 
+                                              & "-gnatVcfimorst"
+                                              & "-gnatyhiknp";
+      when "linux" =>
+         Binder_Options   := Binder_Options   & "-static";
+
+      when "win32" =>
+         null;
+   end case;
+
 
    for Library_Name    use "globe3d";
    for Library_Dir     use "lib/gnat" & external ("Build_Mode", "debug");
@@ -27,19 +119,24 @@ project Globe3D is
                         "src/**");
 
    package Ide is
-      for Default_Switches ("adacontrol") use ("-F`gnat_short");
+      case OS
+      is
+         when "linux"  =>   for Default_Switches ("adacontrol") use ("-Ftgnat_short");
+         when "win32"  =>   for Default_Switches ("adacontrol") use ("-F", "gnat_short");
+         when "macosx" =>   for Default_Switches ("adacontrol") use ();
+      end case;
    end Ide;
 
    package Builder is
-      for Default_Switches ("ada") use ("-g", "-j5");
+      for Default_Switches ("ada") use ("-C", "-j5");
    end Builder;
 
    package Compiler is
-      for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnata", "-gnat12", "-gnatVcdfimorst" & Debug_Pragma_Option);
+      for Default_Switches ("ada") use Compiler_Options;
    end Compiler;
 
    package Binder is
-      for Default_Switches ("ada") use ("-E");
+      for Default_Switches ("ada") use Binder_Options;
    end Binder;
 
 end Globe3D;
