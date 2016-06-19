@@ -4,7 +4,7 @@ with GLOBE_3D.Sprite;   use GLOBE_3D.Sprite;
 with globe_3d.Textures; use globe_3d.Textures;
 
 with gl.geometry.vbo;          use gl.Geometry.vbo;
-with gl.geometry.primitives;   use gl.Geometry.primitives;
+with gl.Primitive;             use gl.Primitive;
 
 with gl.Buffer.vertex;         use gl.Buffer.vertex;
 with gl.Buffer.indices;        use gl.Buffer.indices;

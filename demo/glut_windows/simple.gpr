@@ -1,10 +1,10 @@
 project Simple is
 
-   for Source_Dirs use (".", "../../bindings", "../../bindings/linux", "../../src//**", "../../ada05_proxy");
+   for Source_Dirs use (".", "../../bindings", "../../bindings/linux", "../../src/**");
    for Main use ("simple.adb");
 
    package Linker is
-      for Default_Switches ("ada") use ("-g", "-lglut", "--LINK=g++");
+      for Default_Switches ("ada") use ("-g", "-lglut", "-lGL", "-lGLU");
    end Linker;
 
    package Binder is
@@ -12,7 +12,7 @@ project Simple is
    end Binder;
 
    package Compiler is
-      for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnat95", "-gnat05", "-gnatVc", "-gnatVd", "-gnatVf", "-gnatVi", "-gnatVm", "-gnatVo", "-gnatVr", "-gnatVs", "-gnatVt", "-gnatecdebug.pra");
+      for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnat95", "-gnat05", "-gnatVcdfimorst", "-gnatecdebug.pra", "-gnat12");
    end Compiler;
 
    package Builder is
