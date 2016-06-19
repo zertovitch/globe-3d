@@ -10,7 +10,7 @@ with ada.Text_IO;                           use ada.Text_IO;
 
 
 
-procedure Simple
+procedure launch_Terrain_vbo
 is
    package g3d renames GLOBE_3D;
 
@@ -63,4 +63,4 @@ exception
    when gl.buffer.no_platform_Support =>
       put_Line ("OpenGL support on this platform does not appear to include 'vertex buffer objects'.");
       put_Line ("... unable to run demo.");
-end Simple;
+end launch_Terrain_vbo;

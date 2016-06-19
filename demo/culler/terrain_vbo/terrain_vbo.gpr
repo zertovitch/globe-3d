@@ -1,9 +1,21 @@
 with "../../../globe3d";
 
-project Simple is
+project Terrain_Vbo is
+
+   type Os_Kind is
+      ("win32", "linux", "macosx");
+
+   type Build_Mode_Type is
+      ("debug", "fast", "small");
 
    for Source_Dirs use (".");
-   for Main use ("simple.adb");
+   for Main use ("launch_terrain_vbo.adb");
+
+   Build_Mode : Build_Mode_Type := external ("Build_Mode");
+   OS         : Os_Kind         := external ("OS");
+
+   for Object_Dir use "build";
+   for Exec_Dir use ".";
 
    package Ide is
       for Default_Switches ("adacontrol") use ("-F`gnat_short");
@@ -25,5 +37,5 @@ project Simple is
       for Default_Switches ("ada") use ("-g", "-lglut", "-lz", "-lGL", "-lGLU");
    end Linker;
 
-end Simple;
+end Terrain_Vbo;
 
