@@ -188,6 +188,8 @@ procedure O2G is
   end Acquire_object;
 
   procedure Translate(o_name: String) is
+    object_name: constant String:= "delta4g1_$_area1"; --  !! for test
+      -- o_name(o_name'First..o_name'Last-4);
   begin
     Count_items(o_name);
     Put_Line(
@@ -203,7 +205,8 @@ procedure O2G is
       Acquire_texture_points(o_name, uvs);
       Put_Line("Second pass (acquisition of texture points) done.");
       Acquire_object(o_name, uvs, x);
-      Save_file(o_name(o_name'First..o_name'Last-4) & ".g3d", x);
+      Set_name(x, object_name);
+      Save_file(object_name & ".g3d", x);
     end;
     Put_Line("Third pass done.");
   end Translate;
