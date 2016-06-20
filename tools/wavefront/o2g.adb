@@ -6,10 +6,79 @@ with GLOBE_3D.IO;                       use GLOBE_3D.IO;
 with GL;
 
 with Ada.Command_Line;                  use Ada.Command_Line;
+with Ada.Containers.Hashed_Maps;
 with Ada.Strings.Fixed;                 use Ada.Strings.Fixed;
+with Ada.Strings.Unbounded.Hash;        use Ada.Strings.Unbounded;
 with Ada.Text_IO;                       use Ada.Text_IO;
 
 procedure O2G is
+  --
+  mat_idx: Natural:= 0;
+  --
+  type Mat_pack is record
+    diffuse_texture  : Unbounded_String;
+    specular_texture : Unbounded_String;
+  end record;
+  --
+  mat_stack: array(1..10_000) of Mat_pack;
+  --
+  package Material_Maps is new Ada.Containers.Hashed_Maps
+     (Key_Type        => Ada.Strings.Unbounded.Unbounded_String,
+      Element_Type    => Positive,
+      Hash            => Ada.Strings.Unbounded.Hash,
+      Equivalent_Keys => Ada.Strings.Unbounded."=");
+
+  mat_cat: Material_Maps.Map;
+
+  function No_ext(s: String) return String is
+    l: Natural:= s'Last;
+  begin
+    for i in reverse s'Range loop
+      if s(i)='.' then
+        l:= i-1;
+      end if; 
+    end loop;
+    return s(s'First..l);
+  end;
+
+  procedure Load_mat_lib(m_name: String) is
+    m: File_Type;
+    mat_name: Unbounded_String;
+  begin
+    Put_Line("  Loading material library: " & m_name);
+    Open(m, In_File, m_name);
+    while not End_Of_File(m) loop
+      declare
+        l: constant String:= Get_Line(m);
+      begin
+        if l'Length >= 7 then
+          declare
+            l7: constant String:= l(l'First..l'First+6);
+            r7: constant String:= l(l'First+7 .. l'Last);
+            r7n: constant String:= No_ext(r7);
+          begin
+            if l7 = "newmtl " then
+              mat_name:= To_Unbounded_String(r7);
+              Put_Line("    New material: " & r7);
+              mat_idx:= mat_idx + 1;
+              mat_cat.Include(mat_name, mat_idx);
+            elsif l7 = "map_Kd " then
+              Put_Line("      Diffuse texture : " & r7n);
+              mat_stack(mat_idx).diffuse_texture:= To_Unbounded_String(r7n);
+            elsif l7 = "map_Ks " then
+              Put_Line("      Specular texture: " & r7n);
+              mat_stack(mat_idx).specular_texture:= To_Unbounded_String(r7n);
+            end if;
+          end;
+        end if;
+      end;
+    end loop;
+    Close(m);
+  exception
+    when Name_Error =>
+      Put_Line(Current_Error, "  *** Warning, file not found: " & m_name);
+  end Load_mat_lib;
+  --
   vertices, faces, UV_pts: Natural:= 0;
   --
   --  Pass 1
@@ -34,6 +103,9 @@ procedure O2G is
               UV_pts:= UV_pts + 1;
             end if;
           end;
+          if l'Length >= 7 and then l(l'First..l'First+6) = "mtllib " then
+            Load_mat_lib(l(l'First+7 .. l'Last));
+          end if;
         end if;
       end;
     end loop;
@@ -98,8 +170,9 @@ procedure O2G is
     o: File_Type;
     vertex, face: Natural:= 0;
     current_face: Face_type;
+    current_mat_idx: Natural:= 0;
   begin
-    --  !! Will change upon "usemtl" commands
+    --  Face properties may change upon "usemtl" commands.
     current_face.whole_texture:= False;
     current_face.skin:= texture_only;
     --
@@ -177,10 +250,19 @@ procedure O2G is
                   end if;
                 end loop;
                 x.face(face):= f;
-                Texture_name_hint(x, face, "face1"); --  !! temp, should track "usemtl"
+                Texture_name_hint(x, face, To_String(mat_stack(current_mat_idx).diffuse_texture));
+                Specular_name_hint(x, face, To_String(mat_stack(current_mat_idx).specular_texture));
               end;
             end if;
           end;
+          if l'Length >= 7 and then l(l'First..l'First+6) = "usemtl " then
+            declare
+              r7: constant Unbounded_String:= To_Unbounded_String(l(l'First+7 .. l'Last));
+            begin
+              Put_Line("  Switch to material: " & To_String(r7));
+              current_mat_idx:= mat_cat.Element(r7);
+            end;
+          end if;
         end if;
       end;
     end loop;
@@ -188,9 +270,10 @@ procedure O2G is
   end Acquire_object;
 
   procedure Translate(o_name: String) is
-    object_name: constant String:= "delta4g1_$_area1"; --  !! for test
-      -- o_name(o_name'First..o_name'Last-4);
+    model_name: constant String:= o_name(o_name'First..o_name'Last-4);
+    --  "delta4g1_$_area1"; --  for test
   begin
+    Put_Line("Model name: " & model_name);
     Count_items(o_name);
     Put_Line(
       "First pass (sizes) done," &
@@ -205,20 +288,22 @@ procedure O2G is
       Acquire_texture_points(o_name, uvs);
       Put_Line("Second pass (acquisition of texture points) done.");
       Acquire_object(o_name, uvs, x);
-      Set_name(x, object_name);
-      Save_file(object_name & ".g3d", x);
+      Set_name(x, model_name);
+      Save_file(model_name & ".g3d", x);
     end;
     Put_Line("Third pass done.");
   end Translate;
 
 begin
+  Put_Line("O2G");
+  Put_Line("Wavefront Object (.obj), with Materials (.mtl), to GLOBE_3D object translator");
   if Argument_Count = 0 then
-    Put_Line(Standard_Error, "Syntax: o2g model[.obj]");
+    Put_Line(Current_Error, "Syntax: o2g model[.obj]");
   else
     declare
       o_name: constant String:= Argument(1);
     begin
-      if Index(".obj", o_name) = 0 then
+      if Index(o_name, ".obj") = 0 then
         Translate(o_name & ".obj");
       else
         Translate(o_name);

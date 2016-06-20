@@ -271,7 +271,7 @@ procedure GLOBE_3D_Demo is
         G3D.Add(level_map, G3D.p_Visual(ls(1))); -- add to dictionary
       exception
         when G3D.Missing_object =>
-          raise empty_level;
+          raise empty_level with "Object name " & name & " not found";
       end;
     end if;
     level_stuff:= new G3D.Object_3D_array'(ls(1..area_max));
