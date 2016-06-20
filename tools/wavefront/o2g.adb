@@ -289,7 +289,15 @@ procedure O2G is
       Put_Line("Second pass (acquisition of texture points) done.");
       Acquire_object(o_name, uvs, x);
       Set_name(x, model_name);
-      Save_file(model_name & ".g3d", x);
+      declare
+        opti: constant Object_3D:= Merge_triangles(x);
+      begin
+        Put_Line("Saving object with reduced merged faces:" & 
+          Integer'Image(faces) &" ->" & 
+          Integer'Image(opti.Max_faces)
+        );
+        Save_file(model_name & ".g3d", opti);
+      end;
     end;
     Put_Line("Third pass done.");
   end Translate;
