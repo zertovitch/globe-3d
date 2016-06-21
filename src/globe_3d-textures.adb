@@ -190,7 +190,10 @@ package body GLOBE_3D.Textures is
         dummy: Image_ID;
         ext: constant String:= To_Upper(name(name'Last-3..name'Last));
       begin
-        if ext = ".BMP" or ext = ".TGA" then
+        if ext = ".BMP" or else ext = ".TGA"
+          or else ext = ".JPG" or else ext = "JPEG"
+          or else ext = ".GIF" or else ext = ".PNG"
+        then
           Add_texture_name(name(name'First..name'Last-4), dummy);
         end if;
       end Action;
@@ -246,11 +249,13 @@ package body GLOBE_3D.Textures is
         ASCII.CR & ASCII.LF &
         "Check data files:" &
         ASCII.CR & ASCII.LF &
-        ' ' & S(global_data_name) &
+        "  - " & S(global_data_name) &
         ASCII.CR & ASCII.LF &
-        ' ' & S(level_data_name) & '.' &
+        "  - " & S(level_data_name) & '.' &
         ASCII.CR & ASCII.LF &
-        "Check calls to Add_texture_name or Associate_textures.";
+        "Or, check calls to Add_texture_name or Associate_textures." &
+        ASCII.CR & ASCII.LF &
+        "Or look if Register_textures_from_resources has browsed the right file extensions.";
     else
       return Element(c);
     end if;
