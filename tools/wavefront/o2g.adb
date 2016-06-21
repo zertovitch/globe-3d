@@ -205,7 +205,14 @@ procedure O2G is
                 x.point(vertex):= P;
               end;
             elsif l2 = "f " then
+              --  f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ....
+              --           ^ normal vector (ignored)
+              --       ^ vertex in texture
+              --    ^ vertex in 3D space
+              --  Examples
+              --  ========
               --  f 5939/3607/2716 10364/3609/2715 10520/3608/2715 10519/3606/2716
+              --  f 16//11 12//11 11//11 15//11
               face:= face + 1;
               declare
                 fd: constant String:= l(l'First+2..l'Last) & ' ';
@@ -218,14 +225,16 @@ procedure O2G is
                   Vertex_Normal_Indices
                 );
                 kind: Kind_Type:= Vertex_Indices;
-                idx: Positive;
+                idx: Natural;
               begin
                 f.P(4):= 0;
                 f.texture_edge_map(4):= (0.0, 0.0);
                 j:= fd'First;
                 for i in fd'Range loop
                   if fd(i) not in '0'..'9' then
-                    idx:= Integer'Value(fd(j..i-1));
+                    idx:= Integer'Value('0' & fd(j..i-1));
+                    --  Trick: we add 0 in front for the case of an empty string 
+                    --  (between the "//" in "f 16//11")
                     case kind is
                       when Vertex_Indices =>
                         if dim > 4 then 
@@ -233,7 +242,12 @@ procedure O2G is
                         end if;
                         f.P(dim):= idx;
                       when Vertex_Texture_Coordinate_Indices =>
-                        f.texture_edge_map(dim):= uvs(idx);
+                        if idx = 0 then
+                          f.whole_texture:= True;
+                        else
+                          f.whole_texture:= False;
+                          f.texture_edge_map(dim):= uvs(idx);
+                        end if;
                       when Vertex_Normal_Indices =>
                         null;  --  Needless, GLOBE_3D recomputes that.
                     end case;
