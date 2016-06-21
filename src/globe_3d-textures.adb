@@ -88,6 +88,14 @@ package body GLOBE_3D.Textures is
         return;
       end if;
       Try_image_type(tex_name & ".JPG");
+      if found then
+        return;
+      end if;
+      Try_image_type(tex_name & ".PNG");
+      if found then
+        return;
+      end if;
+      Try_image_type(tex_name & ".GIF");
     end Try_archive;
   begin
     Try_archive( zif_level, S(level_data_name) );

@@ -7,7 +7,8 @@ with GL;
 
 with Ada.Command_Line;                  use Ada.Command_Line;
 with Ada.Containers.Hashed_Maps;
-with Ada.Strings.Fixed;                 use Ada.Strings.Fixed;
+with Ada.Exceptions;                    use Ada.Exceptions;
+with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
 with Ada.Strings.Unbounded.Hash;        use Ada.Strings.Unbounded;
 with Ada.Text_IO;                       use Ada.Text_IO;
 
@@ -41,6 +42,21 @@ procedure O2G is
     return s(s'First..l);
   end;
 
+  --  # 3ds Max Wavefront OBJ Exporter puts some garbage in front of lines...
+  function My_trim(s: String) return String is
+    f: Natural:= S'First;
+  begin
+    for i in s'Range loop
+      case s(i) is
+        when ' ' | ASCII.HT =>
+          f:= i+1;
+        when others =>
+          exit;
+      end case;
+    end loop;
+    return s(f .. s'Last);
+  end;
+
   procedure Load_mat_lib(m_name: String) is
     m: File_Type;
     mat_name: Unbounded_String;
@@ -49,7 +65,7 @@ procedure O2G is
     Open(m, In_File, m_name);
     while not End_Of_File(m) loop
       declare
-        l: constant String:= Get_Line(m);
+        l: constant String:= My_trim(Get_Line(m));
       begin
         if l'Length >= 7 then
           declare
@@ -79,7 +95,7 @@ procedure O2G is
       Put_Line(Current_Error, "  *** Warning, file not found: " & m_name);
   end Load_mat_lib;
   --
-  vertices, faces, UV_pts: Natural:= 0;
+  vertices, faces, UV_pts, total_lines, pass_2_lines, pass_3_lines: Natural:= 0;
   --
   --  Pass 1
   --
@@ -91,6 +107,7 @@ procedure O2G is
       declare
         l: constant String:= Get_Line(o);
       begin
+        total_lines:= total_lines + 1;
         if l'Length >= 2 then
           declare
             l2: constant String:= l(l'First..l'First+1);
@@ -126,6 +143,7 @@ procedure O2G is
       declare
         l: constant String:= Get_Line(o);
       begin
+        pass_2_lines:= pass_2_lines + 1;
         if l'Length >= 2 then
           declare
             l2: constant String:= l(l'First..l'First+2);
@@ -181,6 +199,7 @@ procedure O2G is
       declare
         l: constant String:= Get_Line(o);
       begin
+        pass_3_lines:= pass_3_lines + 1;
         if l'Length >= 2 then
           declare
             l2: constant String:= l(l'First..l'First+1);
@@ -196,7 +215,7 @@ procedure O2G is
               begin
                 j:= vec'First;
                 for i in vec'Range loop
-                  if vec(i)=' ' then
+                  if vec(i)=' ' and then i > vec'First then
                     P(dim):= Real'Value(vec(j..i-1));
                     j:= i+1;
                     dim:= dim + 1;
@@ -273,8 +292,17 @@ procedure O2G is
             declare
               r7: constant Unbounded_String:= To_Unbounded_String(l(l'First+7 .. l'Last));
             begin
-              Put_Line("  Switch to material: " & To_String(r7));
+              Put_Line(
+                "  Line" & Integer'Image(pass_3_lines) & 
+                ": switching to material: " & To_String(r7));
               current_mat_idx:= mat_cat.Element(r7);
+              if mat_stack(current_mat_idx).diffuse_texture = "" then
+                current_face.skin:= colour_only;  
+                current_face.colour:= (0.5, 0.1, 0.1); --  !! used colours parsed in .mtl
+              else
+                current_face.skin:= texture_only;
+                current_face.whole_texture:= False;
+              end if;
             end;
           end if;
         end if;
@@ -332,4 +360,11 @@ begin
       end if;
     end;
   end if;        
+--  exception
+--    when e: others =>
+--      Raise_Exception(Exception_Identity(e), Exception_Message(e) & 
+--        " Pass 1:" & Integer'Image(total_lines) &
+--        " Pass 2:" & Integer'Image(pass_2_lines) &
+--        " Pass 3:" & Integer'Image(pass_3_lines)
+--      );
 end O2G;
