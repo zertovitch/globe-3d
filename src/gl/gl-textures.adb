@@ -10,7 +10,6 @@
 
 with GL.IO,
      GL.Errors,
-     Ada.Characters.Handling,
      Ada.Text_IO;
 
 use Ada.Text_IO;
@@ -93,22 +92,10 @@ package body GL.Textures is
 
    function new_Texture (image_Filename : in String) return Object
    is
-      use Ada.Characters.Handling;
-
-      Extension : constant String := image_Filename (image_Filename'Last - 2 .. image_Filename'Last);
-
       the_Texture : Object;
    begin
       the_Texture.Name := new_texture_Name;
-
-      if To_Lower (Extension) = "bmp" then
-         GL.IO.Load (image_Filename,  GL.IO.BMP,  Integer (the_Texture.Name),  blending_hint => the_Texture.is_Transparent);
-
-      elsif To_Lower (Extension) = "tga" then
-         GL.IO.Load (image_Filename,  GL.IO.TGA,  Integer (the_Texture.Name),  blending_hint => the_Texture.is_Transparent);
-      else
-         raise unsupported_format_Error;
-      end if;
+      GL.IO.Load (image_Filename,  Integer (the_Texture.Name),  blending_hint => the_Texture.is_Transparent);
 
       -- tbd: if not found, look in 'global' and 'level' zip files also, ala gautiers 'globe_3d.textures'.
       return the_Texture;

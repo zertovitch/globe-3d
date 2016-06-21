@@ -39,8 +39,6 @@ package GL.Buffer is
    --
    -- Raised by buffer 'Map' functions when OpenGL platform does not support GL Buffer objects.
 
-
-
 private
 
    type Object is abstract tagged

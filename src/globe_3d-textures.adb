@@ -53,49 +53,53 @@ package body GLOBE_3D.Textures is
   -----------------------------
 
   procedure Load_texture_2D (id: Image_ID; blending_hint: out Boolean) is
-    tex_name: constant String:= Trim(texture_2d_infos.tex(id).name,Right);
+    tex_name: constant String:= Trim(texture_2d_infos.tex(id).name, Right);
+    found: Boolean:= False;
 
-    procedure Try( zif: in out Zip.Zip_info; name: String ) is
+    procedure Try_archive( zif: in out Zip.Zip_info; name: String ) is
       use UnZip.Streams;
       ftex: Zipped_File_Type;
-      procedure Try_a_type(tex_name_ext: String; format: GL.IO.Supported_format) is
+      procedure Try_image_type(tex_name_ext: String) is
       begin
         Open( ftex, zif, tex_name_ext );
         GL.IO.Load(
           Ada.Streams.Stream_IO.Stream_Access(Stream(ftex)),
-          format, Image_ID'Pos(id)+1, blending_hint
+          Image_ID'Pos(id)+1, blending_hint
         );
         Close( ftex );
+        found:= True;
       exception
         when Zip.File_name_not_found =>
-          raise;
+          null;  --  Nothing bad, item just not found.
         when e: others =>
           Raise_Exception(
             Exception_Identity(e),
             Exception_Message(e) & " on texture: " & tex_name_ext
           );
-      end Try_a_type;
-    begin -- Try
+      end Try_image_type;
+    begin -- Try_archive
       Load_if_needed( zif, name );
-      Try_a_type(tex_name & ".TGA", GL.IO.TGA);
-    exception
-      when Zip.File_name_not_found =>
-        Try_a_type(tex_name & ".BMP", GL.IO.BMP);
-    end Try;
+      Try_image_type(tex_name & ".TGA");
+      if found then
+        return;
+      end if;
+      Try_image_type(tex_name & ".BMP");
+      if found then
+        return;
+      end if;
+      Try_image_type(tex_name & ".JPG");
+    end Try_archive;
   begin
-    begin
-      Try( zif_level, S(level_data_name) );
-    exception
-      when Zip.File_name_not_found |
-           Zip.Zip_file_open_Error =>
-        -- Not found in level-specific pack
-        Try( zif_global, S(global_data_name) );
-    end;
-  exception
-    when Zip.File_name_not_found |
-         Zip.Zip_file_open_Error =>
-      -- Never found - neither in level, nor in global pack
-      raise Missing_texture with "texture: " & tex_name;
+    Try_archive( zif_level, S(level_data_name) );
+    if found then
+      return;
+    end if;
+    Try_archive( zif_global, S(global_data_name) );
+    if found then
+      return;
+    end if;
+    -- Never found - neither in level, nor in global pack
+    raise Missing_texture with "texture: " & tex_name;
   end Load_texture_2D;
 
   function Valid_texture_ID(id: Image_ID) return Boolean is

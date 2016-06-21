@@ -20,7 +20,6 @@ package GL.Geometry is
 
    procedure normalise (the_Plane : in out Plane);
 
-
    -- Bounds
    --
 
@@ -31,7 +30,6 @@ package GL.Geometry is
 
    function Max (L, R : in Extent) return Extent;
 
-
    type axis_aligned_bounding_Box is
       record
          X_Extent : Extent;    -- Extents in object space.
@@ -40,7 +38,6 @@ package GL.Geometry is
       end record;
 
    function Max (L, R : in axis_aligned_bounding_Box) return axis_aligned_bounding_Box;
-
 
    type Bounds_record is   -- tbd: better name ... 'type Bounds' conflicts with 'Bounds' trait function. ... sphere_box_Bounds ?
       record
@@ -57,7 +54,6 @@ package GL.Geometry is
                                                                            Max => GL.Double'First)));
    function Max (L, R : in Bounds_record) return Bounds_record;
 
-
    -- Vertices
    --
 
@@ -71,7 +67,6 @@ package GL.Geometry is
 
    function to_gl_Pointer   is new Ada.Unchecked_Conversion (p_vertex_Id, GL.pointer);   -- tbd: one of these is redundant.
 
-
    type   vertex_Id_array is array (GL.positive_uInt range <>) of aliased vertex_Id;
    type p_vertex_Id_array is access all vertex_Id_array;
 
@@ -79,7 +74,6 @@ package GL.Geometry is
    procedure decrement (Self : in out vertex_Id_array);
 
    procedure free (vert_Id_array : in out p_vertex_Id_array);
-
 
    -- Vertex
    --
@@ -89,7 +83,6 @@ package GL.Geometry is
    null_Vertex : constant Vertex := (GL.Double'Last, GL.Double'Last, GL.Double'Last); -- tbd: use NAN instead of 'Last ?
 
    function Image (Self : in     Vertex) return String;
-
 
    type    Vertex_array is array (positive_Vertex_Id range <>) of aliased Vertex;
    type  p_Vertex_array is access all Vertex_array;
@@ -102,12 +95,10 @@ package GL.Geometry is
 
    procedure free  (Vert_array : in out p_Vertex_array);
 
-
    package vertex_pointers is new interfaces.c.Pointers (positive_Vertex_Id, Vertex, Vertex_array, (others => gl.Double'Last));
    subtype p_Vertex        is     vertex_pointers.Pointer;
 
    function to_p_Vertex    is new Ada.Unchecked_Conversion (GL.pointer, p_Vertex);
-
 
    -- Lighting Normals
    --
@@ -115,8 +106,6 @@ package GL.Geometry is
    subtype Normal       is GL.Double_Vector_3D;
    type    Normals      is array (Positive           range <>) of aliased Normal;
    type    Normal_array is array (positive_Vertex_Id range <>) of aliased Normal;
-
-
 
    -- Base Geometry Class
    --
@@ -145,7 +134,6 @@ package GL.Geometry is
    -- For line  primitives, each line  is considered a 'face'.
 
    procedure draw    (Self : in     Geometry)   is abstract;
-
 
    procedure destroy (Self : in out Geometry)   is abstract;
    procedure free    (Self : in out p_Geometry);

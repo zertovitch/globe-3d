@@ -119,7 +119,7 @@ package body GL.Skins is
    function is_Transparent (Self : in Skin_opaque_lit_mono_color) return Boolean
    is
    begin
-      return is_Transparent (Self.Material);
+      return Is_transparent (Self.Material);
    end;
 
    -- Skin: transparent unlit textured

@@ -46,8 +46,6 @@ package GL.IO is
 
   File_Not_Found : exception;
 
-  type Supported_format is (BMP, TGA);
-
   type Byte_array is array( Integer range <> ) of aliased GL.Ubyte;
   type Byte_array_ptr is access all Byte_array;
 
@@ -67,84 +65,24 @@ package GL.IO is
       Data             : Byte_array_ptr;
     end record;
 
-  function to_TGA_Image (file_name : in  String                           -- Input data tga filename
-                        ) return Image;
-  function to_TGA_Image (S : in  Ada.Streams.Stream_IO.Stream_Access      -- Input data stream
-                        ) return Image;
+  function Load (file_name : in  String) return Image;
+  function Load (S : in  Ada.Streams.Stream_IO.Stream_Access ) return Image;
 
-  function to_greyscale_Pixels (the_Image : in Image) return Byte_grid;
+  function To_greyscale_pixels (the_Image : in Image) return Byte_grid;
 
   -- Multi-format loader:
 
   procedure Load (
-    name  : String;            -- file name
-    format: Supported_format;  -- expected file format
-    ID    : Integer;           -- ID is the texture identifier to bind to
-    blending_hint: out Boolean -- has blending / transparency /alpha ?
+    file_name    :     String;
+    ID           :     Integer;  --  ID is the GL texture identifier to bind to
+    blending_hint: out Boolean   --  might have blending / transparency / alpha ?
   );
 
   procedure Load (
-    s     : Ada.Streams.Stream_IO.Stream_Access;
-                               -- input data stream (e.g. UnZip.Streams)
-    format: Supported_format;  -- expected file format
-    ID    : Integer;           -- ID is the texture identifier to bind to
-    blending_hint: out Boolean -- has blending / transparency /alpha ?
+    s            :     Ada.Streams.Stream_IO.Stream_Access;  -- input data stream
+    ID           :     Integer;  --  ID is the GL texture identifier to bind to
+    blending_hint: out Boolean   --  might have blending / transparency / alpha ?
   );
-
-  -- Loaders specific to different formats:
-
-  ----------------------
-  -- BMP format Input --
-  ----------------------
-
-  procedure Load_BMP (
-        Name : String;
-        -- File name
-        Id           : in  Integer;
-        -- Id is the texture identifier to bind to
-        blending_hint: out Boolean
-        -- has the image blending / transparency /alpha ?
-  );
-
-  procedure Load_BMP (
-        S            : in  Ada.Streams.Stream_IO.Stream_Access;
-        -- Input data stream
-        Id           : in  Integer;
-        -- Id is the texture identifier to bind to
-        blending_hint: out Boolean
-        -- has the image blending / transparency /alpha ?
-  );
-
-  Unsupported_BMP_format,
-  Not_BMP_format,
-  BMP_unsupported_bits_per_pixel,
-  Unsupported_compression:      exception;
-
-  ----------------------
-  -- TGA format Input --
-  ----------------------
-
-  procedure Load_TGA (
-        Name : String;
-        -- File name
-        Id           : in  Integer;
-        -- Id is the texture identifier to bind to
-        blending_hint: out Boolean
-        -- has the image blending / transparency /alpha ?
-  );
-
-  procedure Load_TGA (
-        S            : in  Ada.Streams.Stream_IO.Stream_Access;
-        -- Input data stream
-        Id           : in  Integer;
-        -- Id is the texture identifier to bind to
-        blending_hint: out Boolean
-        -- has the image blending / transparency /alpha ?
-  );
-
-  TGA_Unsupported_Image_Type     : exception;   -- color mapped or compressed image
-  TGA_Unsupported_Bits_per_pixel : exception;   -- image bits is not 8, 24 or 32
-  TGA_Bad_Data                   : exception;   -- image data could not be loaded
 
   ---------------------------------------------------------------------------
   -- Image ("screenshot") of the current, active viewport (RGB BMP format) --

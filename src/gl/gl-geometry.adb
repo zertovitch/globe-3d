@@ -277,7 +277,6 @@ package body GL.Geometry is
       end case;
    end;
 
-
    procedure free (vert_Id_array : in out p_vertex_Id_array)
    is
       procedure deallocate is new Ada.Unchecked_Deallocation (vertex_Id_array, p_vertex_Id_array);
@@ -285,13 +284,11 @@ package body GL.Geometry is
       deallocate (vert_Id_array);
    end;
 
-
    procedure free (Vert_array : in out p_Vertex_array)
    is
       procedure deallocate is new Ada.Unchecked_Deallocation (Vertex_array, p_Vertex_array);
    begin
       deallocate (Vert_array);
    end;
-
 
 end GL.Geometry;

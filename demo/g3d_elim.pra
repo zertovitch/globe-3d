@@ -532,7 +532,6 @@ pragma Eliminate (Ada.Strings.Maps, To_Range);
 pragma Eliminate (Ada.Strings.Maps, To_Mapping);
 pragma Eliminate (Ada.Strings.Maps, To_Domain);
 pragma Eliminate (Ada.Strings.Maps, Is_Subset);
-pragma Eliminate (Ada.Strings.Maps, Is_In);
 pragma Eliminate (Ada.Strings.Maps, "xor");
 pragma Eliminate (Ada.Strings.Maps, "or");
 pragma Eliminate (Ada.Strings.Fixed, "*");
