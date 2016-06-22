@@ -144,36 +144,30 @@ procedure O2G is
         l: constant String:= Get_Line(o);
       begin
         pass_2_lines:= pass_2_lines + 1;
-        if l'Length >= 2 then
+        if l'Length >= 3 and then l(l'First..l'First+2) = "vt " then
+          --  vt -0.6834 0.5959
+          tex_vertex:= tex_vertex + 1;
           declare
-            l2: constant String:= l(l'First..l'First+2);
+            vec: constant String:= l(l'First+3..l'Last) & ' ';
+            j: Natural:= 0;
+            dim : Positive:= 1;
+            UV: Map_idx_pair;
+            x: Real;
           begin
-            if l2 = "vt " then
-              --  vt -0.6834 0.5959
-              tex_vertex:= tex_vertex + 1;
-              declare
-                vec: constant String:= l(l'First+3..l'Last) & ' ';
-                j: Natural:= 0;
-                dim : Positive:= 1;
-                UV: Map_idx_pair;
-                x: Real;
-              begin
-                j:= vec'First;
-                for i in vec'Range loop
-                  if vec(i)=' ' then
-                    x:= Real'Value(vec(j..i-1));
-                    if dim = 1 then
-                      UV.U:= x;
-                    else
-                      UV.V:= x;
-                    end if;
-                    j:= i+1;
-                    dim:= dim + 1;
-                  end if;
-                end loop;
-                uvs(tex_vertex):= UV;
-              end;
-            end if;
+            j:= vec'First;
+            for i in vec'Range loop
+              if vec(i)=' ' then
+                x:= Real'Value(vec(j..i-1));
+                if dim = 1 then
+                  UV.U:= x;
+                else
+                  UV.V:= x;
+                end if;
+                j:= i+1;
+                dim:= dim + 1;
+              end if;
+            end loop;
+            uvs(tex_vertex):= UV;
           end;
         end if;
       end;
@@ -234,7 +228,7 @@ procedure O2G is
               --  f 16//11 12//11 11//11 15//11
               face:= face + 1;
               declare
-                fd: constant String:= l(l'First+2..l'Last) & ' ';
+                fd: constant String:= My_trim(l(l'First+2..l'Last) & ' ');
                 j: Natural:= 0;
                 dim : Positive:= 1;
                 f: Face_type:= current_face;
