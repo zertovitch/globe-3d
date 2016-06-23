@@ -23,9 +23,9 @@ copy *.a allada.txt
 call gnatchop -w allada.txt
 rem
 :comp
-echo 3) gnatmake Wrl2Ada
+echo 3) build Wrl2Ada
 rem
-gnatmake -Pw2a.gpr
+gprbuild -Pw2a.gpr
 rem
 echo 4) New wrl2ada.exe is built (or should...) !
 :fin
