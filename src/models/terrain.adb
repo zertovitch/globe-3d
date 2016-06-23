@@ -24,7 +24,7 @@ package body Terrain is
       use GL.IO;
 
       the_Image   : GL.IO.Image                  := Load (tga_Heights);
-      the_Pixels  : constant GL.IO.Byte_grid     := to_greyscale_Pixels (the_Image);
+      the_Pixels  : constant GL.IO.Byte_grid     := To_greyscale_pixels (the_Image);
       the_Heights : Matrix (the_Pixels'Range (1),
                             the_Pixels'Range (2));
    begin

@@ -62,7 +62,7 @@ package body GL.Geometry.VA is
       Self.Primitive.set_Indices (To => To);
    end;
 
-   procedure Draw (Self : in     primal_Geometry)
+   procedure draw (Self : in     primal_Geometry)
    is
    begin
       Self.Primitive.Draw;

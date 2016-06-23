@@ -141,7 +141,7 @@ package GLUT is
 
    BITMAP_9_BY_15_FONT   : constant System.Address;
    pragma Import(C, BITMAP_9_BY_15_FONT, "glutBitmap9By15");
-   BITMAP_9_BY_15        : constant System.Address := Bitmap_9_By_15_Font'Address;
+   BITMAP_9_BY_15        : constant System.Address := BITMAP_9_BY_15_FONT'Address;
    BITMAP_8_BY_13_FONT   : constant System.Address;
    pragma Import(C, BITMAP_8_BY_13_FONT, "glutBitmap8By13");
    BITMAP_8_BY_13        : constant System.Address := BITMAP_8_BY_13_FONT'Address;
