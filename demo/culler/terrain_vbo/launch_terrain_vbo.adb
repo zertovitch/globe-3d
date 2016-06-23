@@ -1,6 +1,8 @@
 
 with globe_3d.Culler.impostoring_frustum;   use globe_3d.Culler.impostoring_frustum;
 with globe_3d.Sprite;                       use globe_3d.Sprite;
+with GLOBE_3D.Visuals_rendering;
+
 with Terrain.vbo;                           use Terrain.vbo;
 
 with GL.Buffer;
@@ -22,7 +24,7 @@ begin
    g3d.Set_level_data_name  ("../../G3Demo_Level_Resources.zip");
 
    GLUT.Windows.initialize;
-
+   Viewer.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
 
    -- setup the viewing window and inform the culler.
    --

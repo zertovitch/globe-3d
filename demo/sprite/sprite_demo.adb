@@ -3,6 +3,8 @@ with GLUT.Windows;      use GLUT.Windows;
 with GLOBE_3D.Sprite;   use GLOBE_3D.Sprite;
 with globe_3d.Textures; use globe_3d.Textures;
 
+with GLOBE_3D.Visuals_rendering;
+
 with gl.geometry.vbo;          use gl.Geometry.vbo;
 with gl.Primitive;             use gl.Primitive;
 
@@ -11,6 +13,8 @@ with gl.Buffer.indices;        use gl.Buffer.indices;
 
 with gl.skins;          use gl.Skins;
 with gl.Textures;       use gl.Textures;
+
+with GL.Extended;       use GL.Extended;
 
 with ada.Text_IO;       use ada.Text_IO;
 
@@ -53,8 +57,8 @@ begin
    begin
       decrement (the_Indices);   -- convert Indices to 0-based.
 
-      the_Geometry.Vertices := to_Buffer (the_Vertices'access, usage => gl.STATIC_DRAW);
-      the_Geometry.Indices  := to_Buffer (the_Indices'access,  usage => gl.STATIC_DRAW);
+      the_Geometry.Vertices := to_Buffer (the_Vertices'access, usage => STATIC_DRAW);
+      the_Geometry.Indices  := to_Buffer (the_Indices'access,  usage => STATIC_DRAW);
 
       the_Geometry.vertex_Count  := gl.SizeI (the_Vertices'Length);
       the_Geometry.indices_Count := gl.SizeI (the_Indices'Length);
@@ -123,6 +127,7 @@ begin
 
 --   add (the_Viewer, the_Sprite.all'access);
 
+   the_Viewer.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
 
    while not the_Viewer.is_Closed loop
       GLUT.mainLoopEvent;

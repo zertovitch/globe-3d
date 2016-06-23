@@ -1,3 +1,5 @@
+--  This .gpr will disappear soon, begin to use simple.gpr
+
 project Simple_win32 is
 
    type Build_Mode_Type is

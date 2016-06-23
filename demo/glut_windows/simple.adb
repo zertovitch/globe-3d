@@ -1,5 +1,6 @@
 with GLOBE_3D;     use GLOBE_3D;
 with GLOBE_3D.Textures;
+with GLOBE_3D.Visuals_rendering;
 
 with GLUT.Windows; use GLUT.Windows;
 with gl;
@@ -25,6 +26,10 @@ begin
    g3d.Set_global_data_name ("../G3Demo_Level_Resources.zip");
 
    GLUT.Windows.initialize;
+
+   Viewer_1.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
+   Viewer_2.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
+   Viewer_3.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
 
    define (Viewer_1);
    define (Viewer_2);

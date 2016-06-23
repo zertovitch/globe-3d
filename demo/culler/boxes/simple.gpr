@@ -1,3 +1,5 @@
+--  Coming soon: with "../../../globe3d";
+
 project Simple is
 
    for Source_Dirs use (".", "../../../bindings", "../../../bindings/linux", "../../../src/**");

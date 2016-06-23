@@ -1,3 +1,5 @@
+--  This .gpr will disappear soon, begin to use sprite_demo.gpr
+
 project Sprite_demo_Win32 is
 
    type Build_Mode_Type is
