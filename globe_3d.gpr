@@ -1,4 +1,4 @@
-project Globe3D is
+project Globe_3D is
 
    type OS_Kind is
       ("win32", "linux", "macosx");
@@ -139,5 +139,4 @@ project Globe3D is
       for Default_Switches ("ada") use Binder_Options;
    end Binder;
 
-end Globe3D;
-
+end Globe_3D;
