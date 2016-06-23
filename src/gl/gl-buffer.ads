@@ -8,6 +8,8 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
+with GL.Extended; use GL.Extended;
+
 package GL.Buffer is
 
    subtype vbo_Name is GL.Uint;     -- A vertex buffer 'name'.
@@ -19,7 +21,7 @@ package GL.Buffer is
    procedure enable  (Self : in     Object'Class);
    procedure destroy (Self : in out Object'Class);
 
-   function VBO_Target (Self : in Object) return GL.VBO_Target is abstract;
+   function VBO_Target (Self : in Object) return VBO_Target_Type is abstract;
 
    -- 'array' and 'element array' Object subclasses.
    --
@@ -47,8 +49,8 @@ private
          Length :         Positive;
       end record;
 
-   function vbo_Target (Self : in         array_Object) return GL.VBO_Target;
-   function vbo_Target (Self : in element_array_Object) return GL.VBO_Target;
+   function vbo_Target (Self : in         array_Object) return VBO_Target_Type;
+   function vbo_Target (Self : in element_array_Object) return VBO_Target_Type;
 
    type array_Object         is new Object with null record;
    type element_array_Object is new Object with null record;

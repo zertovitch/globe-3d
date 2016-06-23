@@ -8,6 +8,8 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
+with GL.Extended; use GL.Extended;
+
 with Ada.Unchecked_Deallocation;
 
 package body GL.Skins is
@@ -90,9 +92,9 @@ package body GL.Skins is
    procedure enable (Self : in out Veneer_opaque_lit_mono_color)
    is
    begin
-      GL.BindBuffer        (GL.ARRAY_BUFFER, 0);    -- Disable 'vertex buffer objects'.
-      GL.EnableClientState (GL.NORMAL_ARRAY);
-      GL.NormalPointer     (GL_DOUBLE,  0,  to_Pointer (Self.Normals (1)(0)'Unchecked_Access));
+      BindBuffer        (ARRAY_BUFFER, 0);    -- Disable 'vertex buffer objects'.
+      EnableClientState (NORMAL_ARRAY);
+      NormalPointer     (GL_DOUBLE,  0,  to_Pointer (Self.Normals (1)(0)'Unchecked_Access));
    end;
 
    function  new_Veneer (Self : in     Skin_opaque_lit_mono_color;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
@@ -128,8 +130,8 @@ package body GL.Skins is
    procedure enable (Self : in out Veneer_transparent_unlit_textured)
    is
    begin
-      GL.BindBuffer        (GL.ARRAY_BUFFER, 0);    -- Disable 'vertex buffer objects'.
-      GL.EnableClientState (GL.TEXTURE_COORD_ARRAY);
+      BindBuffer        (ARRAY_BUFFER, 0);    -- Disable 'vertex buffer objects'.
+      EnableClientState (GL.TEXTURE_COORD_ARRAY);
       GL.TexCoordPointer   (2,  GL_DOUBLE,  0,  to_Pointer (Self.texture_Coordinates (1).S'Unchecked_Access));
    end;
 
@@ -157,7 +159,7 @@ package body GL.Skins is
    begin
       GL.Disable    (LIGHTING);
       GL.Disable    (COLOR_MATERIAL);
-      GL.BindBuffer (GL.ARRAY_BUFFER, 0);    -- Disable 'vertex buffer objects'.
+      BindBuffer    (ARRAY_BUFFER, 0);    -- Disable 'vertex buffer objects'.
 
       GL.Color     (1.0, 1.0, 1.0, 1.0);
 

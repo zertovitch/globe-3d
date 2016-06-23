@@ -33,6 +33,11 @@ package GLUT.Windows is
 
    procedure enable (Self : in out Window);
 
+   type Renderer_Access is
+      access procedure (the_Visuals : in GLOBE_3D.Visual_array; the_Camera : in GLOBE_3D.Camera);
+
+   procedure Set_renderer(Self: in out Window; Renderer: Renderer_Access);
+
    procedure freshen (Self      : in out Window;
                       time_Step : in     GLOBE_3D.Real;
                       Extras    : in     GLOBE_3D.Visual_array := GLOBE_3D.null_Visuals);
@@ -119,6 +124,7 @@ private
 
          is_capturing_Video : Boolean := False;
 
+         rend: Renderer_Access;
       end record;
 
   --pragma Linker_options("-mwindows"); -- Suppress console window

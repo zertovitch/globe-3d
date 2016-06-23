@@ -1,1 +1,1 @@
-gnatmake -Po2g.gpr
+gprbuild -Po2g.gpr

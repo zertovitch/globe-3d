@@ -46,13 +46,13 @@ project O2G is
       case Build_Mode is
 
          when "Small" =>
-            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "..\..\obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L..\..\obj/libwin32",
+            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "-lglu32",
               "-Xlinker", "--stack=0x40000000,0x400000");
          when "Fast" =>
-            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "..\..\obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L..\..\obj/libwin32",
+            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "-lglu32",
               "-Xlinker", "--stack=0x40000000,0x400000");
          when "Debug" =>
-            for Default_Switches ("ada") use ("-g",                      "-lopengl32", "..\..\obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L..\..\obj/libwin32",
+            for Default_Switches ("ada") use ("-g",                      "-lopengl32", "-lglu32",
               "-Xlinker", "--stack=0x40000000,0x400000");
       end case;
    end Linker;

@@ -13,7 +13,7 @@ project Simple_Win32 is
    end Builder;
 
    package Compiler is
-      for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnat95", "-gnat05", "-gnatVc", "-gnatVd", "-gnatVf", "-gnatVi", "-gnatVm", "-gnatVo", "-gnatVr", "-gnatVs", "-gnatVt", "-gnatecdebug.pra");
+      for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnat12", "-gnatVc", "-gnatVd", "-gnatVf", "-gnatVi", "-gnatVm", "-gnatVo", "-gnatVr", "-gnatVs", "-gnatVt", "-gnatecdebug.pra");
    end Compiler;
 
    package Binder is

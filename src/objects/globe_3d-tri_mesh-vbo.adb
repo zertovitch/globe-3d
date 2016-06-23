@@ -4,6 +4,8 @@
 
 with GL.Buffer.Vertex;
 with GL.Buffer.Indices;
+with GL.Extended; use GL.Extended;
+
 --  with GL.Buffer.Texture_coords;
 
 --  with Ada.Exceptions; use Ada.Exceptions;
@@ -66,7 +68,7 @@ package body GLOBE_3D.tri_Mesh.VBO is
 
       the_Geometry : GL.Geometry.VBO.vbo_Geometry renames GL.Geometry.VBO.vbo_Geometry (Self.skinned_Geometry.Geometry.all);
    begin
-      the_Geometry.Vertices     := to_Buffer (To, Usage => GL.STATIC_DRAW);  -- tbd: check usage
+      the_Geometry.Vertices     := to_Buffer (To, Usage => STATIC_DRAW);  -- tbd: check usage
       the_Geometry.vertex_Count := GL.Sizei  (To'Length);
 
       the_Geometry.Bounds := Bounds (To.all);
@@ -78,7 +80,7 @@ package body GLOBE_3D.tri_Mesh.VBO is
       the_Geometry : GL.Geometry.VBO.vbo_Geometry renames GL.Geometry.VBO.vbo_Geometry (Self.skinned_Geometry.Geometry.all);
    begin
       the_Geometry.indices_Count := GL.Sizei (To'Length);
-      the_Geometry.Indices       := to_Buffer (To, Usage => GL.STATIC_DRAW);
+      the_Geometry.Indices       := to_Buffer (To, Usage => STATIC_DRAW);
    end;
 
    procedure Skin_is (o : in out tri_Mesh;   Now : in GL.Skins.p_Skin)

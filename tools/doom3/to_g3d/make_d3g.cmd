@@ -23,7 +23,7 @@ set opt_comp294572=Debug
 if "%1"=="-O" set opt_comp294572=Fast
 if "%1"=="-O" shift
 rem
-gnatmake -Pd3g.gpr -XBuild_Mode=%opt_comp294572%
+gprbuild -Pd3g.gpr -XBuild_Mode=%opt_comp294572%
 rem
 set opt_comp294572=
 :fin

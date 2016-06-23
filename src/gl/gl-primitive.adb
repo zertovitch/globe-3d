@@ -10,9 +10,9 @@
 -------------------------------------------------------------------------
 
 with Ada.Unchecked_Deallocation,
-     GL.Geometry;
+     GL.Geometry, GL.Extended;
 
-use GL.Geometry;
+use GL.Geometry, GL.Extended;
 
 package body GL.Primitive is
 
@@ -37,8 +37,8 @@ package body GL.Primitive is
    procedure Draw (Self : access Primitive'Class)
    is
    begin
-      GL.BindBuffer (GL.ARRAY_BUFFER, 0);           -- Disable 'vertex buffer objects'.
-      GL.BindBuffer (GL.ELEMENT_ARRAY_BUFFER, 0);   -- Disable 'vertex buffer objects' indices.
+      BindBuffer (ARRAY_BUFFER, 0);           -- Disable 'vertex buffer objects'.
+      BindBuffer (ELEMENT_ARRAY_BUFFER, 0);   -- Disable 'vertex buffer objects' indices.
 
       GL.EnableClientState (GL.VERTEX_ARRAY);
       GL.VertexPointer     (3, GL_DOUBLE,  0,  GL.to_Pointer (Self.Vertices (1)(0)'Unchecked_Access));

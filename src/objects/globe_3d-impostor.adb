@@ -1,5 +1,7 @@
 --  with GLOBE_3D.Textures,
 with GLOBE_3D.Math;
+with GLOBE_3D.Visuals_rendering;
+
 with GL.Math;
 
 --  with GLUT.Windows; use GLUT.Windows;
@@ -216,7 +218,7 @@ texture_Height           : constant GL.Sizei         := power_of_2_Ceiling (Natu
       o.prior_camera_Position := the_Camera.clipper.eye_position;
 
       GL.ClearColor (0.0,  0.0,  0.0,   0.0);
-      Render        ((1 => o.Target),  the_Camera.all); -- render the target for subsequent copy to impostor texture.
+      GLOBE_3D.Visuals_rendering.Render ((1 => o.Target),  the_Camera.all); -- render the target for subsequent copy to impostor texture.
 
       declare -- set texture coordinates for the veneer.
          use GL.Skins;

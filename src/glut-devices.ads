@@ -4,10 +4,6 @@
 --  Copyright (c) Gautier de Montmollin/Rod Kay 2007
 ------------------------------------------------------------------------------
 
---with GLOBE_3D;
---with GL;
---with Game_control;
-
 package GLUT.Devices is
 
    procedure Initialize;

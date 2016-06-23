@@ -283,8 +283,12 @@ package body GLUT.Windows is
    is
       use GL, G3D;
    begin
-      G3D.Render (Self.Objects (1 .. Self.object_Count)  &  Extras,
-                  Self.Camera);
+      if Self.rend = null then
+         raise Program_Error with
+            "You need to define a renderer with Self.Set_renderer(My_Renderer'Access)";
+      else
+         Self.rend (Self.Objects (1 .. Self.object_Count)  &  Extras, Self.Camera);
+      end if;
 
       if Self.show_Status then
          Display_status (Self,  Self.average * 0.001);
@@ -630,6 +634,11 @@ package body GLUT.Windows is
       GLUT.SetWindow  (Self.glut_Window);
 --      opengl.glx.glXMakeCurrent;
 
+   end;
+
+   procedure Set_renderer(Self: in out Window; Renderer: Renderer_Access) is
+   begin
+     Self.rend:= Renderer;
    end;
 
    procedure freshen (Self      : in out Window;

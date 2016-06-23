@@ -85,7 +85,7 @@ private
 
    type memory_Map is abstract tagged
       record
-         vbo_Target : GL.VBO_Target;
+         vbo_Target : VBO_Target_Type;
 
          Data : Element_Pointers.Pointer;
          Last : Index;

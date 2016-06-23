@@ -17,14 +17,14 @@ package body GL.Buffer is
    is
       the_Name : aliased vbo_Name;
    begin
-      GL.GenBuffers (1,  the_Name'Unchecked_Access);
+      GenBuffers (1,  the_Name'Unchecked_Access);
       return the_Name;
    end;
 
    procedure free (the_vbo_Name : in vbo_Name) is
       the_Name : aliased vbo_Name := the_vbo_Name;
    begin
-      GL.DeleteBuffers (1, the_Name'Unchecked_Access);
+      DeleteBuffers (1, the_Name'Unchecked_Access);
    end;
    pragma Unreferenced (free);
 
@@ -44,34 +44,34 @@ package body GL.Buffer is
    begin
       pragma Assert (Self.Name > 0);
 
-      GL.BindBuffer (VBO_Target (Self),  Self.Name);
+      BindBuffer (VBO_Target (Self),  Self.Name);
    end;
 
    procedure destroy (Self : in out Object'Class)
    is
    begin
-      GL.BindBuffer    (VBO_Target (Self), 0);
-      GL.DeleteBuffers (1, Self.Name'Unchecked_Access);
+      BindBuffer    (VBO_Target (Self), 0);
+      DeleteBuffers (1, Self.Name'Unchecked_Access);
    end;
 
    -- Array Object
    --
 
-   function vbo_Target (Self : in array_Object) return GL.VBO_Target
+   function vbo_Target (Self : in array_Object) return VBO_Target_Type
    is
    pragma Unreferenced (Self);
    begin
-      return GL.ARRAY_BUFFER;
+      return ARRAY_BUFFER;
    end;
 
    -- Element Array Object
    --
 
-   function vbo_Target (Self : in element_array_Object) return GL.VBO_Target
+   function vbo_Target (Self : in element_array_Object) return VBO_Target_Type
    is
    pragma Unreferenced (Self);
    begin
-      return GL.ELEMENT_ARRAY_BUFFER;
+      return ELEMENT_ARRAY_BUFFER;
    end;
 
 --     -- texture coordinates

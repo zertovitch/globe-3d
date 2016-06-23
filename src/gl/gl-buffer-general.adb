@@ -29,9 +29,9 @@ package body GL.Buffer.General is
       new_Buffer.Length := From'Length;
 
       enable (new_Buffer);
-      GL.BufferData (VBO_Target (new_Buffer),  From.all'Size / 8,
-                                               to_gl_Pointer (From (From'First)'Access),
-                                               Usage);
+      BufferData (VBO_Target (new_Buffer),  From.all'Size / 8,
+                                            to_gl_Pointer (From (From'First)'Access),
+                                            Usage);
       return new_Buffer;
    end;
 
@@ -43,9 +43,9 @@ package body GL.Buffer.General is
       Vertex_Size_in_bits : constant Natural       := To (To'First)'Size;
    begin
       enable (Self);
-      GL.BufferSubData (VBO_Target (Self),  offset => GL.intPtr ((Position - 1) * Vertex_Size_in_bits / 8),
-                                            size   => new_Vertices'Size / 8,
-                                            data   => to_gl_Pointer (new_Vertices (new_Vertices'First)'Unchecked_Access));
+      BufferSubData (VBO_Target (Self),  offset => GL.intPtr ((Position - 1) * Vertex_Size_in_bits / 8),
+                                         size   => new_Vertices'Size / 8,
+                                         data   => to_gl_Pointer (new_Vertices (new_Vertices'First)'Unchecked_Access));
       GL.Errors.Log;
    end;
 
@@ -116,7 +116,7 @@ package body GL.Buffer.General is
       enable (Self.all);
 
       the_Map.Data := to_element_Pointer (MapBuffer (VBO_Target (Self.all),
-                                          GL.READ_ONLY));
+                                          READ_ONLY));
 
       if the_Map.Data = null then
          raise GL.Buffer.no_platform_Support;
@@ -150,7 +150,7 @@ package body GL.Buffer.General is
       enable (Self.all);
 
       the_Map.Data := to_element_Pointer (MapBuffer (VBO_Target (Self.all),
-                                          GL.WRITE_ONLY));
+                                          WRITE_ONLY));
 
       if the_Map.Data = null then
          raise GL.Buffer.no_platform_Support;
@@ -185,7 +185,7 @@ package body GL.Buffer.General is
       enable (Self.all);
 
       the_Map.Data := to_element_Pointer (MapBuffer (VBO_Target (Self.all),
-                                          GL.READ_WRITE));
+                                          READ_WRITE));
 
       if the_Map.Data = null then
          raise GL.Buffer.no_platform_Support;

@@ -4,13 +4,13 @@
 --  Copyright: (c) Evans & Sutherland -- ok to distribute if copyright appears
 ------------------------------------------------------------------------------
 
-with GL, GL.Geometry.VBO, GL.Buffer.Vertex, GL.Buffer.Indices, GL.Skins, GL.Materials;
+with GL, GL.Geometry.VBO, GL.Buffer.Vertex, GL.Buffer.Indices, GL.Skins, GL.Materials, GL.Extended;
 
 --  with Ada.Text_IO; use Ada.Text_IO;
 
 package body X29_vbo is
 
-   use GL, GL.Geometry, GL.Buffer.Indices, GL.Materials;
+   use GL, GL.Geometry, GL.Buffer.Indices, GL.Materials, GL.Extended;
 
    type Piece is (silver_Metal,    -- when 178..237 => material:= Polished_Silver;   -- 1 metal clair
                   black_Cockpit,   -- when 260..315 => material:= Black_Rubber;      -- 2 (noir) fond cockpit
@@ -1118,7 +1118,7 @@ package body X29_vbo is
    procedure initialise
    is
    begin
-      the_vertex_Buffer := GL.Buffer.Vertex.to_Buffer (object_points'Access,  Usage => GL.STATIC_DRAW);
+      the_vertex_Buffer := GL.Buffer.Vertex.to_Buffer (object_points'Access,  Usage => STATIC_DRAW);
 
       declare
          piece_Id : Piece;
@@ -1167,7 +1167,7 @@ package body X29_vbo is
          declare -- tbd: free pad
          Pad : constant p_vertex_Id_array := new vertex_Id_array'(the_Indices (Each) (1 .. positive_uInt (indices_Count (Each))));
          begin
-            the_Geometries (Each).Indices        := to_Buffer (Pad,  Usage => GL.STATIC_DRAW);
+            the_Geometries (Each).Indices        := to_Buffer (Pad,  Usage => STATIC_DRAW);
             the_Geometries (Each).indices_Count  := GL.Sizei  (Pad.all'Length);
          end;
 

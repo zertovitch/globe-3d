@@ -54,11 +54,11 @@ project GLOBE_3D_Win32 is
    package Linker is
       case Build_Mode is
          when "Debug" =>
-            for Default_Switches ("ada") use ("-g", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
+            for Default_Switches ("ada") use ("-g", "-lopengl32", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
          when "Fast" =>
-            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32", "-mwindows");
+            for Default_Switches ("ada") use ("-g", "-lopengl32", "-lglu32", "-lfreeglut", "-L../obj/libwin32", "-mwindows", "-s", "-Wl,--gc-sections");
          when "Small" =>
-            for Default_Switches ("ada") use ("-s", "-Wl,--gc-sections", "-lopengl32", "../obj/libwin32/glee.o", "-lglu32", "-lfreeglut", "-L../obj/libwin32", "-mwindows");
+            for Default_Switches ("ada") use ("-g", "-lopengl32", "-lglu32", "-lfreeglut", "-L../obj/libwin32", "-mwindows", "-s", "-Wl,--gc-sections");
       end case;
    end Linker;
 

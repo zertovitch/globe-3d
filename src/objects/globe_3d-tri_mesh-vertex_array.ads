@@ -12,6 +12,7 @@
 with GLOBE_3D.tri_Mesh;
 with GL.Primitive;
 with GL.Geometry.VA;
+with GL.Skinned_Geometry;
 --  with GL.Textures;
 --  with GLU; -- only for debug
 

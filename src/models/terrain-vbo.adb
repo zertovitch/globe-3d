@@ -6,6 +6,7 @@ with GL.Buffer.Vertex,
      GL.Buffer.Texture_coords;
 with GL.Geometry.VBO;
 with GL.Skinned_Geometry;
+with GL.Extended; use GL.Extended;
 --  with GL.IO;
 
 with GLOBE_3D.Math;                            use GLOBE_3D.Math;
@@ -44,7 +45,7 @@ package body Terrain.VBO is
       set (the_Vertices.all,   from_height_Map => Now,
                                scale           => Scale,
                                height_Offset   => Y_Offset);
-      the_Geometry.Vertices     := to_Buffer (the_Vertices,  Usage => GL.STATIC_DRAW);
+      the_Geometry.Vertices     := to_Buffer (the_Vertices,  Usage => STATIC_DRAW);
       the_Geometry.vertex_Count := GL.Sizei  (vertex_Count);
 
       the_Geometry.Bounds := Bounds (the_Vertices.all);
@@ -85,7 +86,7 @@ package body Terrain.VBO is
 
          pragma Assert (Last - 1 = index_Count);
 
-         the_Geometry.Indices := to_Buffer (the_Indices,  Usage => GL.STATIC_DRAW);
+         the_Geometry.Indices := to_Buffer (the_Indices,  Usage => STATIC_DRAW);
 
          free (the_Indices);
       end;
@@ -114,7 +115,7 @@ package body Terrain.VBO is
          use GL.Buffer.Texture_coords;
          the_Veneer : GL.Skins.Veneer_unlit_textured_vbo'Class renames GL.Skins.Veneer_unlit_textured_vbo'Class (the_skinned_Geometry.Veneer.all);
       begin
-         the_Veneer.texture_Coordinates := to_Buffer (texture_Coords, Usage => GL.STATIC_DRAW);
+         the_Veneer.texture_Coordinates := to_Buffer (texture_Coords, Usage => STATIC_DRAW);
       end;
 
       free (texture_Coords);

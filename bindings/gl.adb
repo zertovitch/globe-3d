@@ -12,7 +12,6 @@
 --                      "...4f" -style suffixes in progress
 
 with Interfaces.C.Strings;
-with GL.Extended;
 
 package body GL is
 
@@ -75,45 +74,5 @@ package body GL is
       return Interfaces.C.Strings.Value(ps);
     end if;
   end GetString;
-
-  -----------------------------
-  -- Wrappers of GL.Extended --
-  -----------------------------
-
-  procedure GenBuffers (n       : in GL.Sizei;
-                        buffers : in GL.uintPtr)
-                        renames GL.Extended.GenBuffers;
-
-  procedure DeleteBuffers (n       : in GL.Sizei;
-                           buffers : in GL.uintPtr)
-                           renames GL.Extended.DeleteBuffers;
-
-  procedure BindBuffer (target : in VBO_Target;
-                        buffer : in GL.Uint)
-                        renames GL.Extended.BindBuffer;
-
-  procedure BufferData (target : in GL.VBO_Target;
-                        size   : in GL.sizeiPtr;
-                        data   : in GL.pointer;
-                        usage  : in GL.VBO_Usage)
-                        renames GL.Extended.BufferData;
-
-  procedure BufferSubData (target : in GL.VBO_Target;
-                           offset : in GL.intPtr;
-                           size   : in GL.sizeiPtr;
-                           data   : in GL.pointer)
-                           renames GL.Extended.BufferSubData;
-
-  function MapBuffer   (target : in GL.VBO_Target;
-                        Policy : in GL.Access_Policy) return GL.pointer
-                        renames GL.Extended.MapBuffer;
-
-  function UnmapBuffer (target : in GL.VBO_Target) return GL_Boolean
-                        renames GL.Extended.UnmapBuffer;
-
-  procedure GetBufferParameter (target : in GL.VBO_Target;
-                                value  : in Buffer_Parameter;
-                                data   : in intPointer)
-                                renames GL.Extended.GetBufferParameter;
 
 end GL;

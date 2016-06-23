@@ -10,6 +10,7 @@
 -------------------------------------------------------------------------
 
 with GLOBE_3D.tri_Mesh;
+with GL.Skinned_Geometry;
 with GL.Geometry.VBO;
 --  with GL.Textures;
 
