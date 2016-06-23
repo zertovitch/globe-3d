@@ -1611,7 +1611,7 @@ package GL is
                           c_type : ArrayIndexTypeEnm;
                           indices: GL.pointer);
 
-  procedure interleavedArrays (format : InterleaveFormatEnm;
+  procedure InterleavedArrays (format : InterleaveFormatEnm;
                                stride : GL.Sizei;
                                pointer: GL.pointer);
 
@@ -4237,7 +4237,7 @@ private
   pragma Import (Stdcall, ArrayElement, "glArrayElement");
   pragma Import (Stdcall, DrawArrays, "glDrawArrays");
   pragma Import (Stdcall, DrawElements, "glDrawElements");
-  pragma Import (Stdcall, interleavedArrays, "GL.interleavedArrays");
+  pragma Import (Stdcall, InterleavedArrays, "glInterleavedArrays");
   pragma Import (Stdcall, ShadeModel, "glShadeModel");
   pragma Import (Stdcall, Lightf, "glLightf");
   pragma Import (Stdcall, Lighti, "glLighti");
