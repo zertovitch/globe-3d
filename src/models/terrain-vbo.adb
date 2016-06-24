@@ -1,6 +1,6 @@
 with GL,
      GL.Textures,
-     GL.Skins;                                 use GL, GL.Textures;
+     GL.Skins.unlit_textured_vbo;              use GL, GL.Textures;
 with GL.Buffer.Vertex,
      GL.Buffer.Indices,
      GL.Buffer.Texture_coords;
@@ -103,7 +103,7 @@ package body Terrain.VBO is
 
       the_skinned_Geometry : GL.Skinned_Geometry.Skinned_Geometry renames Self.skinned_Geometries (1);
 
-      the_Skin       : constant p_Skin_unlit_textured_vbo         := new Skin_unlit_textured_vbo'(Texture => Now);
+      the_Skin       : constant unlit_textured_vbo.p_Skin := new unlit_textured_vbo.Skin' (Texture => Now);
       the_Vertices   : GL.Geometry.Vertex_array     renames vbo_Geometry (the_skinned_Geometry.Geometry.all).Vertices.get;
       texture_Coords : GL.Textures.p_Coordinate_2D_array := to_texture_Coordinates_xz (the_Vertices, texture_Transform_s,
                                                                                                      texture_Transform_t);
@@ -113,7 +113,7 @@ package body Terrain.VBO is
 
       declare
          use GL.Buffer.Texture_coords;
-         the_Veneer : GL.Skins.Veneer_unlit_textured_vbo'Class renames GL.Skins.Veneer_unlit_textured_vbo'Class (the_skinned_Geometry.Veneer.all);
+         the_Veneer : unlit_textured_vbo.Veneer'Class renames unlit_textured_vbo.Veneer'Class (the_skinned_Geometry.Veneer.all);
       begin
          the_Veneer.texture_Coordinates := to_Buffer (texture_Coords, Usage => STATIC_DRAW);
       end;

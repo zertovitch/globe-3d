@@ -103,34 +103,6 @@ package GL.Skins is
    procedure enable         (Self : in out Skin_transparent_unlit_textured);
    function  is_Transparent (Self : in     Skin_transparent_unlit_textured) return Boolean;
 
-   -- Skin: unlit textured vbo
-   --
-
-   type Veneer_unlit_textured_vbo is new Veneer with
-      record
-         texture_Coordinates : GL.Buffer.Texture_coords.Object;
-      end record;
-
-   type p_Veneer_unlit_textured_vbo is access all Veneer_unlit_textured_vbo'Class;
-
-   procedure enable (Self : in out Veneer_unlit_textured_vbo);
-
-   -- tbd: 'destroy' for veneers !
-
-   type Skin_unlit_textured_vbo is new Skin with
-      record
-         Texture : GL.Textures.Object;
-      end record;
-
-   type p_Skin_unlit_textured_vbo is access all Skin_unlit_textured_vbo;
-
-   procedure destroy (Self : in out Skin_unlit_textured_vbo);
-
-   function  new_Veneer (Self : in     Skin_unlit_textured_vbo;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer;
-   procedure enable     (Self : in out Skin_unlit_textured_vbo);
-
-   function  is_Transparent (Self : in     Skin_unlit_textured_vbo) return Boolean;
-
    -- ... other common skin specialisations ...
    -- ...
 

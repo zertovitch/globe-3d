@@ -175,44 +175,4 @@ package body GL.Skins is
       return is_Transparent (Self.Texture);
    end;
 
-   -- Skin: unlit textured vbo
-   --
-
-   procedure enable (Self : in out Veneer_unlit_textured_vbo)
-   is
-      use GL.Buffer;
-   begin
-      enable (Self.texture_Coordinates);
-      GL.TexCoordPointer   (2, GL_DOUBLE, 0, null);
-      GL.EnableClientState (GL.TEXTURE_COORD_ARRAY);
-   end;
-
-   procedure destroy (Self : in out Skin_unlit_textured_vbo)
-   is
-   begin
-      null;
-   end;
-
-   function new_Veneer (Self : in Skin_unlit_textured_vbo;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
-   is
-      pragma Unreferenced (for_Geometry, Self);
-   begin
-      return new Veneer_unlit_textured_vbo;
-   end;
-
-   procedure enable (Self : in out Skin_unlit_textured_vbo)
-   is
-   begin
-      GL.Disable (LIGHTING);
-      GL.Disable (ALPHA_TEST);
-
-      enable (Self.Texture);
-   end;
-
-   function is_Transparent (Self : in Skin_unlit_textured_vbo) return Boolean
-   is
-   begin
-      return is_Transparent (Self.Texture);
-   end;
-
 end GL.Skins;
