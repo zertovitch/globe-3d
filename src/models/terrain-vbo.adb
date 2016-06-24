@@ -35,7 +35,7 @@ package body Terrain.VBO is
       the_Geometry : constant GL.Geometry.VBO.p_vbo_Geometry := new GL.Geometry.VBO.vbo_Geometry;
 
       vertex_Count : constant vertex_Id      := vertex_Id (Now.row_Count * Now.column_Count);
-      the_Vertices : p_Vertex_array := new GL.Geometry.Vertex_array'(1 .. vertex_Count => <>);
+      the_Vertices :          p_Vertex_array := new GL.Geometry.Vertex_array'(1 .. vertex_Count => <>);
 
    begin
       the_Geometry.primitive_Id := GL.TRIANGLES;
@@ -92,7 +92,7 @@ package body Terrain.VBO is
       end;
 
       Self.skinned_Geometries (1).Geometry := the_Geometry.all'Access;
-      Self.skinned_geometry_Count         := 1;
+      Self.skinned_geometry_Count          := 1;
    end;
 
    procedure Texture_is (Self : in Sprite.p_Sprite;   Now                 : in     GL.Textures.Object;
