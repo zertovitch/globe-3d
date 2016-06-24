@@ -17,21 +17,10 @@ project Terrain_Vbo is
    for Object_Dir use "build";
    for Exec_Dir use ".";
 
-   package Ide is
-      for Default_Switches ("adacontrol") use ("-F`gnat_short");
-   end Ide;
-
-   package Builder is
-      for Default_Switches ("ada") use ("-g", "-k", "-j13");
-   end Builder;
-
-   package Compiler is
-      for Default_Switches ("ada") use ("-gnato", "-fstack-check", "-g", "-gnata", "-gnat12", "-gnatVcdfimorst", "-gnatecdebug.pra");
-   end Compiler;
-
-   package Binder is
-      for Default_Switches ("ada") use ("-E");
-   end Binder;
+   package Ide      renames Globe_3D.Ide;
+   package Builder  renames Globe_3D.Builder;
+   package Compiler renames Globe_3D.Compiler;
+   package Binder   renames Globe_3D.Binder;
 
    package Linker is
       for Default_Switches ("ada") use ("-g", "-lglut", "-lz", "-lGL", "-lGLU");
