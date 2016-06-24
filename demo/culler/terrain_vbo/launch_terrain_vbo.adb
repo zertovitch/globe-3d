@@ -1,23 +1,21 @@
 
-with globe_3d.Culler.impostoring_frustum;   use globe_3d.Culler.impostoring_frustum;
-with globe_3d.Sprite;                       use globe_3d.Sprite;
+with GLOBE_3D.Culler.Impostoring_frustum;   use GLOBE_3D.Culler.Impostoring_frustum;
+with GLOBE_3D.Sprite;                       use GLOBE_3D.Sprite;
 with GLOBE_3D.Visuals_rendering;
 
-with Terrain.vbo;                           use Terrain.vbo;
+with Terrain.VBO;                           use Terrain.VBO;
 
 with GL.Buffer;
 with GLUT.Windows;                          use GLUT.Windows;
 
-with ada.Text_IO;                           use ada.Text_IO;
-
-
+with Ada.Text_IO;                           use Ada.Text_IO;
 
 procedure launch_Terrain_vbo
 is
    package g3d renames GLOBE_3D;
 
-   Viewer     : aliased GLUT.windows.Window;
-   Culler     :         globe_3d.culler.impostoring_frustum.Culler;
+   Viewer     : aliased GLUT.Windows.Window;
+   Culler     :         GLOBE_3D.Culler.Impostoring_frustum.Culler;
 
 begin
    g3d.Set_global_data_name ("../../G3Demo_Global_Resources.zip");
@@ -29,40 +27,39 @@ begin
    -- setup the viewing window and inform the culler.
    --
    define (Viewer);
-   Viewer.Camera.clipper.eye_Position := (0.0, 200.0, 0.0);
-   Culler.Viewer_is (Viewer'unchecked_access);                   -- tell culler where to send culled visuals.
-
+   Viewer.Camera.clipper.eye_position := (0.0, 200.0, 0.0);
+   Culler.Viewer_is (Viewer'Unchecked_Access);                   -- tell culler where to send culled visuals.
 
    -- add the terrain
    --
    declare
-      terrain_Grid : GLOBE_3D.sprite.p_sprite_Grid := Terrain.vbo.create (tga_heights   => "irin-heightmap-512.tga",
-                                                                          texture_image => "irin-texturemap-512.bmp",
-                                                                          tile_width    => 32,
-                                                                          tile_depth    => 32,
-                                                                          base_centre   => (0.0, 0.0, 0.0),
-                                                                          scale         => (8.0, 2.0, 8.0));
+      terrain_Grid : constant GLOBE_3D.Sprite.p_sprite_Grid
+        := Terrain.VBO.Create (tga_Heights   => "irin-heightmap-512.tga",
+                               texture_Image => "irin-texturemap-512.bmp",
+                               tile_Width    => 32,
+                               tile_Depth    => 32,
+                               base_Centre   => (0.0, 0.0, 0.0),
+                               Scale         => (8.0, 2.0, 8.0));
    begin
-      for Row in terrain_Grid'range (1) loop
-         for Col in terrain_Grid'range (2) loop
-            add (Culler,  terrain_Grid (Row, Col).all'access);
+      for Row in terrain_Grid'Range (1) loop
+         for Col in terrain_Grid'Range (2) loop
+            add (Culler,  terrain_Grid (Row, Col).all'Access);
          end loop;
       end loop;
    end;
 
-
    -- main loop
    --
-   while not Viewer.is_closed loop
-      GLUT.mainLoopEvent;
-      evolve (Culler,  by => 0.02);
+   while not Viewer.is_Closed loop
+      GLUT.MainLoopEvent;
+      evolve (Culler,  By => 0.02);
    end loop;
 
    destroy (Viewer);
-   put_Line ("Done.");
+   Put_Line ("Done.");
 
 exception
-   when gl.buffer.no_platform_Support =>
-      put_Line ("OpenGL support on this platform does not appear to include 'vertex buffer objects'.");
-      put_Line ("... unable to run demo.");
+   when GL.Buffer.no_platform_Support =>
+      Put_Line ("OpenGL support on this platform does not appear to include 'vertex buffer objects'.");
+      Put_Line ("... unable to run demo.");
 end launch_Terrain_vbo;
