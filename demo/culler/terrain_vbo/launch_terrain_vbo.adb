@@ -1,14 +1,18 @@
+with
+     GLOBE_3D.Culler.Impostoring_frustum,
+     GLOBE_3D.Sprite,
+     GLOBE_3D.Visuals_rendering,
+     Terrain.VBO,
+     GL.Buffer,
+     GLUT.Windows,
+     Ada.Text_IO;
+use
+    GLOBE_3D.Culler.Impostoring_frustum,
+    GLOBE_3D.Sprite,
+    Terrain.VBO,
+    GLUT.Windows,
+    Ada.Text_IO;
 
-with GLOBE_3D.Culler.Impostoring_frustum;   use GLOBE_3D.Culler.Impostoring_frustum;
-with GLOBE_3D.Sprite;                       use GLOBE_3D.Sprite;
-with GLOBE_3D.Visuals_rendering;
-
-with Terrain.VBO;                           use Terrain.VBO;
-
-with GL.Buffer;
-with GLUT.Windows;                          use GLUT.Windows;
-
-with Ada.Text_IO;                           use Ada.Text_IO;
 
 procedure launch_Terrain_vbo
 is
@@ -24,13 +28,13 @@ begin
    GLUT.Windows.initialize;
    Viewer.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
 
-   -- setup the viewing window and inform the culler.
+   -- Setup the viewing window and inform the culler.
    --
    define (Viewer);
    Viewer.Camera.clipper.eye_position := (0.0, 200.0, 0.0);
-   Culler.Viewer_is (Viewer'Unchecked_Access);                   -- tell culler where to send culled visuals.
+   Culler.Viewer_is (Viewer'Unchecked_Access);                   -- Tell culler where to send culled visuals.
 
-   -- add the terrain
+   -- Add the terrain.
    --
    declare
       terrain_Grid : constant GLOBE_3D.Sprite.p_sprite_Grid
@@ -48,7 +52,7 @@ begin
       end loop;
    end;
 
-   -- main loop
+   -- Main loop.
    --
    while not Viewer.is_Closed loop
       GLUT.MainLoopEvent;
