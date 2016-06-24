@@ -50,6 +50,7 @@
 
 with GL,
      GL.Geometry,
+     GL.Skinned_Geometry,
      GL.Frustums,
      GL.Materials;
 
@@ -213,6 +214,8 @@ package GLOBE_3D is
 
    function Face_Count (o : in Visual) return Natural                   is abstract;
    function Bounds     (o : in Visual) return GL.Geometry.Bounds_record is abstract;
+
+   function Skinned_Geometries (o : in Visual) return GL.Skinned_Geometry.Skinned_Geometries is abstract;
 
    procedure Display (o          : in out Visual;
                       clip       : in     Clipping_data
@@ -409,6 +412,7 @@ package GLOBE_3D is
   overriding function  Is_Transparent (o : in Object_3D) return Boolean;
   overriding function  Face_Count     (o : in Object_3D) return Natural;
   overriding function  Bounds         (o : in Object_3D) return GL.Geometry.Bounds_record;
+  overriding function  Skinned_Geometries (o : in Object_3D) return GL.Skinned_Geometry.Skinned_Geometries;
 
   -- Check object for invalid or duplicate vertices
   procedure Check_object(o: Object_3D);

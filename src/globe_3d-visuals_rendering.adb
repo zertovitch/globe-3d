@@ -66,8 +66,8 @@ package body GLOBE_3D.Visuals_rendering is
          declare
             use GL.Skinned_Geometry;
             the_Visual        : Visual'Class                           renames the_Visuals (Each).all;
-            visual_geometries : Skinned_Geometries renames -- Skinned_Geometries (the_Visual);
-                 GL.Skinned_Geometry.null_skinned_geometries;
+            visual_geometries : GL.Skinned_Geometry.Skinned_Geometries renames the_Visual.Skinned_Geometries;
+--                   GL.Skinned_Geometry.null_skinned_geometries;
                  -- GdM 23-Jun-2016: !! root function Skinned_Geometries (the_Visual) returned always null_skinned_geometries;
          begin
             if Is_Transparent (the_Visual) then

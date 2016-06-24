@@ -876,6 +876,13 @@ package body GLOBE_3D is
     return o.bounds;
   end Bounds;
 
+  overriding function Skinned_Geometries (o : in Object_3D) return GL.Skinned_Geometry.Skinned_Geometries
+  is
+  pragma Unreferenced (o);
+  begin
+     return GL.Skinned_Geometry.null_skinned_geometries;
+  end Skinned_Geometries;
+
   -- Lighting support.
   --
 
