@@ -1,4 +1,4 @@
-with "../../../globe3d";
+with "../../../globe_3d";
 
 project Terrain_Vbo is
 
