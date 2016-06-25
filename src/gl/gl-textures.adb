@@ -76,12 +76,14 @@ package body GL.Textures is
 
    -- xz_Generator
 
+   overriding
    function to_Coordinates (Self : in xz_Generator;   the_Vertices : in GL.Geometry.Vertex_array) return GL.Textures.p_Coordinate_2D_array
    is
    begin
       return to_texture_Coordinates_xz (the_Vertices, Self.Transform_S, Self.Transform_T);
    end;
 
+   overriding
    function to_Coordinates (Self : in xz_Generator;   the_Vertices : in GL.Geometry.Vertex_array) return GL.Textures.Coordinate_2D_array
    is
    begin

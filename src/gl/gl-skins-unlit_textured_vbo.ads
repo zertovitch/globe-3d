@@ -21,6 +21,7 @@ package GL.Skins.unlit_textured_vbo is
 
    type p_Veneer is access all Veneer'Class;
 
+   overriding
    procedure enable (Self : in out Veneer);
 
 
@@ -31,11 +32,15 @@ package GL.Skins.unlit_textured_vbo is
 
    type p_Skin is access all Skin;
 
+   overriding
    procedure destroy (Self : in out Skin);
 
+   overriding
    function  new_Veneer (Self : in     Skin;   for_Geometry : in GL.Geometry.Geometry'Class) return GL.Skins.p_Veneer;
+   overriding
    procedure enable     (Self : in out Skin);
 
+   overriding
    function  is_Transparent (Self : in     Skin) return Boolean;
 
 end GL.Skins.unlit_textured_vbo;

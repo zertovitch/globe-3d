@@ -49,7 +49,9 @@ private
          Length :         Positive;
       end record;
 
+   overriding
    function vbo_Target (Self : in         array_Object) return VBO_Target_Type;
+   overriding
    function vbo_Target (Self : in element_array_Object) return VBO_Target_Type;
 
    type array_Object         is new Object with null record;

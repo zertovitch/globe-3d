@@ -19,10 +19,14 @@ package GLOBE_3D.Impostor.Terrain is
    type Impostor   is new GLOBE_3D.Impostor.Impostor with private;
    type p_Impostor is access all Impostor'Class;
 
+   overriding
    procedure pre_Calculate   (o : in out Impostor);
+   overriding
    procedure set_Target      (o : in out Impostor;   Target       : in p_Visual);
 
+   overriding
    function  update_Required (o : access Impostor;   the_Camera   : in GLOBE_3D.p_Camera) return Boolean;
+   overriding
    procedure update          (o : in out Impostor;   the_Camera   : in p_Camera;
                                                      texture_Pool : in GL.Textures.p_Pool);
    procedure free    (o : in out p_Impostor);

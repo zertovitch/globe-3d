@@ -1,5 +1,6 @@
 package body GLOBE_3D.Sprite is
 
+   overriding
    function skinned_Geometries (o : in Sprite) return GL.Skinned_Geometry.Skinned_Geometries
    is
    begin
@@ -16,6 +17,7 @@ package body GLOBE_3D.Sprite is
                                                          Veneer   => Skin.new_Veneer (for_Geometry => Geometry.all));
    end;
 
+   overriding
    procedure Pre_calculate (o: in out Sprite)
    is
       use GL, GL.Geometry;
@@ -33,24 +35,28 @@ package body GLOBE_3D.Sprite is
       end loop;
    end Pre_calculate;
 
+   overriding
    procedure destroy (o : in out Sprite)
    is
    begin
       null;
    end;
 
+   overriding
    function face_Count (o : in Sprite) return Natural
    is
    begin
       return o.face_Count;
    end;
 
+   overriding
    function Bounds (o : in Sprite) return GL.Geometry.Bounds_record
    is
    begin
       return o.Bounds;
    end;
 
+   overriding
    procedure Display (o    : in out Sprite;
                       clip : in     Clipping_data)
    is
@@ -59,12 +65,14 @@ package body GLOBE_3D.Sprite is
               -- and then applies 'gl state' sorting for performance, before drawing.
    end Display;
 
+   overriding
    procedure set_Alpha (o    : in out Sprite;   Alpha : in GL.Double)
    is
    begin
       null;   -- todo
    end;
 
+   overriding
    function  is_Transparent (o    : in Sprite) return Boolean
    is
    begin

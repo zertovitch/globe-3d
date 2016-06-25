@@ -20,10 +20,14 @@ package GLOBE_3D.Culler.Impostoring_frustum is
    type Culler   is new GLOBE_3D.Culler.Culler with private;
    type p_Culler is access all Culler'Class;
 
+   overriding
    procedure add (Self : in out Culler;   the_Visual : in GLOBE_3D.p_Visual);
+   overriding
    procedure rid (Self : in out Culler;   the_Visual : in GLOBE_3D.p_Visual);
 
+   overriding
    function  object_Count (Self : in     Culler) return Natural;
+   overriding
    procedure evolve       (Self : in out Culler;   By : in     Real);    -- tbd: rename 'freshen' ?
 
    function  vanish_point_size_Min    (Self : in     Culler'Class) return Real;

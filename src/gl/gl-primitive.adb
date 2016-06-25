@@ -94,6 +94,7 @@ package body GL.Primitive is
       end if;
    end;
 
+   overriding
    function primitive_Id (Self : in Points) return GL.ObjectTypeEnm
    is
       pragma Unreferenced (Self);
@@ -119,6 +120,7 @@ package body GL.Primitive is
       end if;
    end;
 
+   overriding
    function primitive_Id (Self : in Lines) return GL.ObjectTypeEnm
    is
       pragma Unreferenced (Self);
@@ -160,6 +162,7 @@ package body GL.Primitive is
       end if;
    end;
 
+   overriding
    function primitive_Id (Self : in line_Strip) return GL.ObjectTypeEnm
    is
       pragma Unreferenced (Self);
@@ -201,6 +204,7 @@ package body GL.Primitive is
       end if;
    end;
 
+   overriding
    function primitive_Id (Self : in line_Loop) return GL.ObjectTypeEnm
    is
       pragma Unreferenced (Self);
@@ -240,6 +244,7 @@ package body GL.Primitive is
       return new Triangles'(create_Triangles (triangle_Count, Vertices));
    end;
 
+   overriding
    function primitive_Id (Self : in Triangles) return GL.ObjectTypeEnm
    is
       pragma Unreferenced (Self);
@@ -282,6 +287,7 @@ package body GL.Primitive is
       return new triangle_Strip'Class'(create_triangle_Strip (triangle_Count, vertices));
    end;
 
+   overriding
    function primitive_Id (Self : in triangle_Strip) return GL.ObjectTypeEnm
    is
       pragma Unreferenced (Self);
@@ -315,6 +321,7 @@ package body GL.Primitive is
               Indices       => new vertex_Id_array (1 .. positive_uInt (triangle_Count) + 2));
    end;
 
+   overriding
    function primitive_Id (Self : in triangle_Fan) return GL.ObjectTypeEnm
    is
       pragma Unreferenced (Self);
@@ -370,6 +377,7 @@ package body GL.Primitive is
       return new Quads'(create_Quads (quad_Count, Vertices));
    end;
 
+   overriding
    function primitive_Id (Self : in Quads) return GL.ObjectTypeEnm
    is
       pragma Unreferenced (Self);
@@ -403,6 +411,8 @@ package body GL.Primitive is
               Indices       => new vertex_Id_array (1 .. 2 * positive_uInt (quad_Count)  +  2));
    end;
 
+
+   overriding
    function primitive_Id (Self : in quad_Strip) return GL.ObjectTypeEnm
    is
       pragma Unreferenced (Self);
@@ -435,6 +445,7 @@ package body GL.Primitive is
               Indices       => new vertex_Id_array (1 .. positive_uInt (vertex_Count)));
    end;
 
+   overriding
    function primitive_Id (Self : in Polygon) return GL.ObjectTypeEnm
    is
       pragma Unreferenced (Self);

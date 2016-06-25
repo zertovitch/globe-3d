@@ -31,6 +31,7 @@ package GLUT.Windows is
    procedure Name_is (Self : in out Window;   Now : in String);
    function  Name    (Self : in     Window) return String;
 
+   overriding
    procedure enable (Self : in out Window);
 
    type Renderer_Access is
@@ -38,6 +39,7 @@ package GLUT.Windows is
 
    procedure Set_renderer(Self: in out Window; Renderer: Renderer_Access);
 
+   overriding
    procedure freshen (Self      : in out Window;
                       time_Step : in     GLOBE_3D.Real;
                       Extras    : in     GLOBE_3D.Visual_array := GLOBE_3D.null_Visuals);

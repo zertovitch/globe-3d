@@ -56,6 +56,7 @@ package body GL.Skins is
    -- Skin_opaque_unlit_mono_color
    --
 
+   overriding
    function  new_Veneer (Self : in Skin_opaque_unlit_mono_color;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
    is
    pragma Unreferenced (for_Geometry, Self);
@@ -63,6 +64,7 @@ package body GL.Skins is
       return null;
    end;
 
+   overriding
    procedure enable (Self : in out Skin_opaque_unlit_mono_color)
    is
    begin
@@ -79,6 +81,7 @@ package body GL.Skins is
       GL.Color (Self.Color.red,  Self.Color.green,  Self.Color.blue,  1.0);
    end;
 
+   overriding
    function  is_Transparent (Self : in     Skin_opaque_unlit_mono_color) return Boolean
    is
    pragma Unreferenced (Self);
@@ -89,6 +92,7 @@ package body GL.Skins is
    -- Skin_opaque_lit_mono_color
    --
 
+   overriding
    procedure enable (Self : in out Veneer_opaque_lit_mono_color)
    is
    begin
@@ -97,6 +101,7 @@ package body GL.Skins is
       NormalPointer     (GL_DOUBLE,  0,  to_Pointer (Self.Normals (1)(0)'Unchecked_Access));
    end;
 
+   overriding
    function  new_Veneer (Self : in     Skin_opaque_lit_mono_color;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
    is
    pragma Unreferenced (Self);
@@ -106,6 +111,7 @@ package body GL.Skins is
       return the_Veneer;
    end;
 
+   overriding
    procedure enable (Self : in out Skin_opaque_lit_mono_color)
    is
    begin
@@ -118,6 +124,7 @@ package body GL.Skins is
       Set_Material (Self.Material);
    end;
 
+   overriding
    function is_Transparent (Self : in Skin_opaque_lit_mono_color) return Boolean
    is
    begin
@@ -127,6 +134,7 @@ package body GL.Skins is
    -- Skin: transparent unlit textured
    --
 
+   overriding
    procedure enable (Self : in out Veneer_transparent_unlit_textured)
    is
    begin
@@ -135,12 +143,14 @@ package body GL.Skins is
       GL.TexCoordPointer   (2,  GL_DOUBLE,  0,  to_Pointer (Self.texture_Coordinates (1).S'Unchecked_Access));
    end;
 
+   overriding
    procedure destroy (Self : in out Skin_transparent_unlit_textured)
    is
    begin
       destroy (Self.Texture);
    end;
 
+   overriding
    function new_Veneer (Self : in Skin_transparent_unlit_textured;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
    is
       the_Veneer : constant p_Veneer_transparent_unlit_textured
@@ -154,6 +164,7 @@ package body GL.Skins is
       return the_Veneer.all'Access;
    end;
 
+   overriding
    procedure enable (Self : in out Skin_transparent_unlit_textured)
    is
    begin
@@ -169,6 +180,7 @@ package body GL.Skins is
       enable (Self.Texture);
    end;
 
+   overriding
    function is_Transparent (Self : in Skin_transparent_unlit_textured) return Boolean
    is
    begin

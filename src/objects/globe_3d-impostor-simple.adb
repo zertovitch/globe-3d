@@ -3,6 +3,7 @@ with
 
 package body GLOBE_3D.Impostor.Simple is
 
+   overriding
    procedure pre_Calculate (o : in out Impostor)
    is
    begin
@@ -20,6 +21,7 @@ package body GLOBE_3D.Impostor.Simple is
       deallocate (o);
    end;
 
+   overriding
    function update_Required (o : access Impostor;   the_Camera : in GLOBE_3D.p_Camera) return Boolean
    is
       use GL, GLOBE_3D.Math;
@@ -58,6 +60,7 @@ package body GLOBE_3D.Impostor.Simple is
       end;
    end;
 
+   overriding
    procedure update (o : in out Impostor;   the_Camera   : in p_Camera;
                                             texture_Pool : in GL.Textures.p_Pool)
    is

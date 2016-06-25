@@ -67,11 +67,16 @@ package GLOBE_3D.Impostor is
    -- Base Impostor Class
    --
 
+   overriding
    function  is_Transparent     (o : in     Impostor) return Boolean;
+   overriding
    procedure set_Alpha          (o : in out Impostor;   Alpha  : in GL.Double);
 
+   overriding
    function  skinned_Geometries (o : in     Impostor) return GL.Skinned_Geometry.Skinned_Geometries;
+   overriding
    function  face_Count         (o : in     Impostor) return Natural;
+   overriding
    function  Bounds             (o : in     Impostor) return GL.Geometry.Bounds_record;
 
    procedure update (o : in out Impostor;   the_Camera                    : in     p_Camera;
@@ -79,10 +84,12 @@ package GLOBE_3D.Impostor is
    --
    -- Renders the impostor to a cleared framebuffer and copies the image to the impostors texture.
 
+   overriding
    procedure Display (o : in out Impostor;   clip : in     Clipping_data);
 
    -- Destruction
    --
+   overriding
    procedure destroy (o : in out Impostor);
    procedure free    (o : in out p_Impostor);
 

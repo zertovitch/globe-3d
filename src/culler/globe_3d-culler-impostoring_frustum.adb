@@ -10,6 +10,7 @@ with Ada.Unchecked_Deallocation;
 
 package body GLOBE_3D.Culler.Impostoring_frustum is
 
+   overriding
    procedure add (Self : in out Culler;   the_Visual : in GLOBE_3D.p_Visual)
    is
       new_sprite_Set : constant sprite_Set_view := new sprite_Set;
@@ -30,6 +31,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       Self.object_sprite_set_Map.Insert (the_Visual, new_sprite_Set);
    end;
 
+   overriding
    procedure rid (Self : in out Culler;   the_Visual : in GLOBE_3D.p_Visual)
    is
    begin
@@ -37,6 +39,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       Self.object_sprite_set_Map.Delete (the_Visual);
    end;
 
+   overriding
    function  object_Count (Self : in Culler) return Natural    -- tbd: should use ada.containers.Count_type instead of Natural ?
    is
    begin
@@ -79,6 +82,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       Self.frustum_culling_Enabled := Now;
    end;
 
+   overriding
    procedure evolve (Self : in out Culler;
                      By   : in     Real)
    is

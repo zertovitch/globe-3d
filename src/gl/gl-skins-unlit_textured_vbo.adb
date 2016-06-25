@@ -14,6 +14,7 @@ package body GL.Skins.unlit_textured_vbo is
    use GL.Materials;
    use GL.Textures;
 
+   overriding
    procedure enable (Self : in out Veneer)
    is
       use GL.Buffer;
@@ -23,12 +24,14 @@ package body GL.Skins.unlit_textured_vbo is
       GL.EnableClientState (GL.TEXTURE_COORD_ARRAY);
    end;
 
+   overriding
    procedure destroy (Self : in out Skin)
    is
    begin
       null;
    end;
 
+   overriding
    function new_Veneer (Self : in     Skin;   for_Geometry : in GL.Geometry.Geometry'Class) return GL.Skins.p_Veneer
    is
       pragma Unreferenced (for_Geometry, Self);
@@ -36,6 +39,7 @@ package body GL.Skins.unlit_textured_vbo is
       return new Veneer;
    end;
 
+   overriding
    procedure enable (Self : in out Skin)
    is
    begin
@@ -45,6 +49,7 @@ package body GL.Skins.unlit_textured_vbo is
       enable (Self.Texture);
    end;
 
+   overriding
    function is_Transparent (Self : in Skin) return Boolean
    is
    begin

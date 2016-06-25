@@ -44,6 +44,7 @@ package GL.Primitive is
 
    function create_Points (point_Count : in GL.Geometry.vertex_Id;   Vertices : GL.Geometry.p_Vertex_array := null) return Points;
 
+   overriding
    function primitive_Id  (Self : in Points) return GL.ObjectTypeEnm;
 
    -- Lines
@@ -52,6 +53,7 @@ package GL.Primitive is
 
    function create_Lines (line_Count : in Natural;   Vertices : GL.Geometry.p_Vertex_array := null) return Lines;
 
+   overriding
    function primitive_Id   (Self : in     Lines) return GL.ObjectTypeEnm;
 
    function get_vertex_Id  (Self : in     Lines;   Line   : in Positive;                     -- The line number.
@@ -68,6 +70,7 @@ package GL.Primitive is
 
    function create_line_Strip (line_Count : in Natural;   Vertices : GL.Geometry.p_Vertex_array := null) return line_Strip;
 
+   overriding
    function primitive_Id   (Self : in     line_Strip) return GL.ObjectTypeEnm;
 
    function get_vertex_Id  (Self : in     line_Strip;   Line   : in Positive;                 -- The line number.
@@ -84,6 +87,7 @@ package GL.Primitive is
 
    function create_line_Loop (line_Count : in Natural;   Vertices : GL.Geometry.p_Vertex_array := null) return line_Loop;
 
+   overriding
    function primitive_Id   (Self : in     line_Loop) return GL.ObjectTypeEnm;
 
    function get_vertex_Id  (Self : in     line_Loop;   Line   : in Positive;                  -- The line number.
@@ -103,6 +107,7 @@ package GL.Primitive is
    function create_Triangles (triangle_Count : in Natural;   Vertices : in     GL.Geometry.p_Vertex_array) return Triangles;
    function new_Triangles    (triangle_Count : in Natural;   Vertices : in     GL.Geometry.p_Vertex_array) return p_Triangles;
 
+   overriding
    function primitive_Id   (Self : in     Triangles) return GL.ObjectTypeEnm;
 
    function get_vertex_Id  (Self : in     Triangles;   Triangle : in Positive;                -- The triangle ordinal number.
@@ -124,6 +129,7 @@ package GL.Primitive is
    function create_triangle_Strip (triangle_Count : in Natural;   vertices : in GL.Geometry.p_Vertex_array) return triangle_Strip'Class;
    function    new_triangle_Strip (triangle_Count : in Natural;   vertices : in GL.Geometry.p_Vertex_array) return p_triangle_Strip;
 
+   overriding
    function primitive_Id   (Self : in     triangle_Strip) return GL.ObjectTypeEnm;
 
    function get_vertex_Id  (Self : in     triangle_Strip;   Triangle : in Positive;                     -- The triangle ordinal number.
@@ -140,6 +146,7 @@ package GL.Primitive is
 
    function create_triangle_Fan (triangle_Count : in Natural;   vertices : in GL.Geometry.p_Vertex_array) return triangle_Fan;
 
+   overriding
    function primitive_Id  (Self : in     triangle_Fan) return GL.ObjectTypeEnm;
 
    function get_vertex_Id (Self : in     triangle_Fan;   Triangle : in Positive;                 -- The triangle ordinal number.
@@ -158,6 +165,7 @@ package GL.Primitive is
    function create_Quads  (quad_Count : in Natural;   Vertices : in GL.Geometry.p_Vertex_array := null) return Quads;
    function new_Quads     (quad_Count : in Natural;   Vertices : in GL.Geometry.p_Vertex_array := null) return p_Quads;
 
+   overriding
    function primitive_Id  (Self : in     Quads) return GL.ObjectTypeEnm;
 
    function get_vertex_Id (Self : in Quads;   Quad   : in Positive;                        -- The quad's ordinal number.
@@ -174,6 +182,7 @@ package GL.Primitive is
 
    function create_quad_Strip (quad_Count : in Natural;   Vertices : in     GL.Geometry.p_Vertex_array) return quad_Strip;
 
+   overriding
    function primitive_Id   (Self : in     quad_Strip) return GL.ObjectTypeEnm;
 
    function get_vertex_Id  (Self : in     quad_Strip;   Quad   : in Positive;                -- The quad's ordinal number.
@@ -190,6 +199,7 @@ package GL.Primitive is
 
    function create_Polygon (vertex_Count : in Natural;   Vertices : in     GL.Geometry.p_Vertex_array) return Polygon;
 
+   overriding
    function primitive_Id  (Self : in     Polygon) return GL.ObjectTypeEnm;
 
 end GL.Primitive;

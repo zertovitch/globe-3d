@@ -628,6 +628,7 @@ package body GLUT.Windows is
       DestroyWindow (Self.glut_Window);
    end;
 
+   overriding
    procedure enable (Self : in out Window)
    is
    begin
@@ -641,6 +642,7 @@ package body GLUT.Windows is
      Self.rend:= Renderer;
    end;
 
+   overriding
    procedure freshen (Self      : in out Window;
                       time_Step : in     G3D.Real;
                       Extras    : in     GLOBE_3D.Visual_array := GLOBE_3D.null_Visuals)

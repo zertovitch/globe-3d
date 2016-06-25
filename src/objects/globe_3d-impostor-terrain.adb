@@ -3,12 +3,14 @@ with
 
 package body GLOBE_3D.Impostor.Terrain is
 
+   overriding
    procedure pre_Calculate (o : in out Impostor)
    is
    begin
       null;
    end;
 
+   overriding
    procedure set_Target (o : in out Impostor;   Target : in p_Visual)
    is
    begin
@@ -27,6 +29,7 @@ package body GLOBE_3D.Impostor.Terrain is
       deallocate (o);
    end;
 
+   overriding
    function update_Required (o : access Impostor;   the_Camera : in GLOBE_3D.p_Camera) return Boolean
    is
    begin
@@ -160,6 +163,7 @@ package body GLOBE_3D.Impostor.Terrain is
       end;
    end update_Required;
 
+   overriding
    procedure update (o : in out Impostor;   the_Camera   : in p_Camera;
                                             texture_Pool : in GL.Textures.p_Pool)
    is

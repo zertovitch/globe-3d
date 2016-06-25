@@ -52,8 +52,11 @@ package GL.Skins is
          Color : RGB_Color;
       end record;
 
+   overriding
    function  new_Veneer     (Self : in     Skin_opaque_unlit_mono_color;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer;
+   overriding
    procedure enable         (Self : in out Skin_opaque_unlit_mono_color);
+   overriding
    function  is_Transparent (Self : in     Skin_opaque_unlit_mono_color) return Boolean;
 
    -- Skin: opaque lit mono_color
@@ -64,6 +67,7 @@ package GL.Skins is
          Normals : GL.Geometry.Normal_array (1 .. max_Normals);
       end record;
 
+   overriding
    procedure enable (Self : in out Veneer_opaque_lit_mono_color);
 
    type Skin_opaque_lit_mono_color is new Skin with
@@ -71,9 +75,12 @@ package GL.Skins is
          Material : GL.Materials.Material_type := Materials.neutral_material;
       end record;
 
+   overriding
    function  new_Veneer (Self : in     Skin_opaque_lit_mono_color;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer;
+   overriding
    procedure enable     (Self : in out Skin_opaque_lit_mono_color);
 
+   overriding
    function  is_Transparent (Self : in     Skin_opaque_lit_mono_color) return Boolean;
 
    -- Skin: transparent unlit textured (used by 'impostor's)  -- tbd: get rid of 'transparent' since might not be !
@@ -86,6 +93,7 @@ package GL.Skins is
 
    type p_Veneer_transparent_unlit_textured is access all Veneer_transparent_unlit_textured'Class;
 
+   overriding
    procedure enable (Self : in out Veneer_transparent_unlit_textured);
 
    type Skin_transparent_unlit_textured is new Skin with
@@ -96,10 +104,14 @@ package GL.Skins is
 
    type p_Skin_transparent_unlit_textured is access all Skin_transparent_unlit_textured;
 
+   overriding
    procedure destroy (Self : in out Skin_transparent_unlit_textured);
 
+   overriding
    function  new_Veneer     (Self : in     Skin_transparent_unlit_textured;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer;
+   overriding
    procedure enable         (Self : in out Skin_transparent_unlit_textured);
+   overriding
    function  is_Transparent (Self : in     Skin_transparent_unlit_textured) return Boolean;
 
    -- ... other common skin specialisations ...

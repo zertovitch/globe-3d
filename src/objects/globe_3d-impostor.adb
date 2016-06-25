@@ -9,6 +9,7 @@ use
 
 package body GLOBE_3D.Impostor is
 
+   overriding
    procedure destroy (o : in out Impostor)
    is
       use GL.Geometry, GL.Skins;
@@ -303,12 +304,14 @@ package body GLOBE_3D.Impostor is
       return Natural (o.freshen_Count);
    end;
 
+   overriding
    function skinned_Geometries (o : in Impostor) return GL.Skinned_Geometry.Skinned_Geometries
    is
    begin
       return (1 => o.skinned_Geometry);
    end;
 
+   overriding
    function face_Count (o : in Impostor) return Natural
    is
    pragma Unreferenced (o);
@@ -316,6 +319,7 @@ package body GLOBE_3D.Impostor is
       return 1;
    end;
 
+   overriding
    procedure Display (o : in out Impostor;   clip : in     Clipping_data)
    is
    begin
@@ -323,18 +327,21 @@ package body GLOBE_3D.Impostor is
               -- and then applies 'gl state' sorting for performance, before drawing.
    end Display;
 
+   overriding
    procedure set_Alpha (o    : in out Impostor;   Alpha : in GL.Double)
    is
    begin
       null;   -- todo
    end;
 
+   overriding
    function Bounds (o : in     Impostor) return GL.Geometry.Bounds_record
    is
    begin
       return o.skinned_Geometry.Geometry.Bounds;
    end;
 
+   overriding
    function  is_Transparent (o    : in Impostor) return Boolean
    is
    pragma Unreferenced (o);

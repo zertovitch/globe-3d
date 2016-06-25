@@ -62,7 +62,9 @@ package GL.Textures is
          Transform_T : texture_Transform;          -- Transforms point Z ordinate.
       end record;
 
+   overriding
    function to_Coordinates (Self : in xz_Generator;   the_Vertices : in GL.Geometry.Vertex_array) return GL.Textures.p_Coordinate_2D_array;
+   overriding
    function to_Coordinates (Self : in xz_Generator;   the_Vertices : in GL.Geometry.Vertex_array) return GL.Textures.Coordinate_2D_array;
 
    type Coordinate_3D is

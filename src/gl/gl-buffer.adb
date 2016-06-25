@@ -57,6 +57,7 @@ package body GL.Buffer is
    -- Array Object
    --
 
+   overriding
    function vbo_Target (Self : in array_Object) return VBO_Target_Type
    is
    pragma Unreferenced (Self);
@@ -67,6 +68,7 @@ package body GL.Buffer is
    -- Element Array Object
    --
 
+   overriding
    function vbo_Target (Self : in element_array_Object) return VBO_Target_Type
    is
    pragma Unreferenced (Self);
