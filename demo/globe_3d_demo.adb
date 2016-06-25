@@ -232,6 +232,9 @@ procedure GLOBE_3D_Demo is
     ls: G3D.Object_3D_array(1..1_000);
     so: G3D.p_Object_3D;
     empty_level: exception;
+    use G3D.Ident_Vectors;
+    cv: Cursor;
+    id: G3D.Ident;
   begin
     Area_loop: for i in ls'Range loop
       begin
@@ -246,13 +249,17 @@ procedure GLOBE_3D_Demo is
       area_max:= i;
       G3D.Add(level_map, G3D.p_Visual(ls(i))); -- add to dictionary
       --  Sub-objects
-      for id of ls(i).sub_obj_ids loop
+      --  for id of ls(i).sub_obj_ids loop  --  Ada 2012 shortcut notation
+      cv:= ls(i).sub_obj_ids.First;
+      while Has_Element(cv) loop
+        id:= Element(cv);
         G3D.IO.Load(id, so);
         ls(i).sub_objects:= new G3D.Object_3D_list'(
           objc => so,
           next => ls(i).sub_objects
         );
         G3D.Add(level_map, G3D.p_Visual(so)); -- add to dictionary
+        Next(cv);
       end loop;
     end loop Area_loop;
     begin

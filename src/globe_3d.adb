@@ -996,8 +996,10 @@ package body GLOBE_3D is
     tolerant_spc: in     Boolean          -- tolerant on missing specular maps
   )
   is
-    use Visuals_Mapping;
-    c: Cursor;
+    use Visuals_Mapping, Ident_Vectors;
+    c: Visuals_Mapping.Cursor;
+    cv: Ident_Vectors.Cursor;
+    id: Ident;
     --
     procedure Relink_specular(fa: in out Face_type; fi: Face_internal_type) is
     begin
@@ -1033,7 +1035,7 @@ package body GLOBE_3D is
       --  2/ Connections through portals:
       if o.face_internal(f).connect_name /= empty then
         c:= neighbouring.Find(U(o.face_internal(f).connect_name));
-        if c = No_Element then
+        if c = Visuals_Mapping.No_Element then
           -- Key not found
           if tolerant_obj then
             o.face(f).connecting:= null;
@@ -1048,9 +1050,12 @@ package body GLOBE_3D is
         end if;
       end if;
     end loop;
-    for id of o.sub_obj_ids loop
+    --  for id of o.sub_obj_ids loop  --  Ada 2012 shortcut notation
+    cv:= o.sub_obj_ids.First;
+    while Has_Element(cv) loop
+      id:= Element(cv);
       c:= neighbouring.Find(U(id));
-      if c = No_Element then
+      if c = Visuals_Mapping.No_Element then
         -- Key not found
         if tolerant_obj then
           null;
@@ -1069,6 +1074,7 @@ package body GLOBE_3D is
           p_Object_3D(Element(c)).all, neighbouring, tolerant_obj, tolerant_tex, tolerant_spc
         );
       end if;
+      Next(cv);
     end loop;
   end Rebuild_links;
 
