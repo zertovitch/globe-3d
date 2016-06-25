@@ -1,0 +1,47 @@
+-- This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
+-- for the GLOBE_3D ( http://sf.net/projects/globe3d/ ) demos
+-- Build me with "gnatmake -P globe_3d_demos.gpr", or open me with GPS
+--
+
+--  *** New stuff (25-Jun-2016) for experimenting the new unified globe_3d.gpr.
+--  Should replace globe_3d_win32.gpr, globe_3d_linux.gpr, globe_3d_darwin.gpr at some point.
+--
+--  Test so far: win32/fast, win32/small are ok; win32/debug doesn't find debug.pra
+
+with "../globe_3d";
+
+project GLOBE_3D_Demos is
+
+   type Os_Kind is
+      ("win32", "linux", "macosx");
+
+   type Build_Mode_Type is
+      ("debug", "fast", "small");
+
+   for Source_Dirs use (".");
+   for Main use ("globe_3d_demo.adb", "g3dem_tb.ads", "mini.adb");
+
+   Build_Mode : Build_Mode_Type := external ("Build_Mode");
+   OS         : Os_Kind         := external ("OS");
+
+   for Object_Dir use "build";
+   for Exec_Dir use ".";
+
+   package Ide      renames Globe_3D.Ide;
+   package Builder  renames Globe_3D.Builder;
+   package Compiler renames Globe_3D.Compiler;
+   package Binder   renames Globe_3D.Binder;
+
+   package Linker is
+      case Build_Mode is
+         when "debug" =>
+            for Default_Switches ("ada") use ("-g", "-lopengl32", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
+         when "fast" =>
+            for Default_Switches ("ada") use ("-g", "-lopengl32", "-lglu32", "-lfreeglut", "-L../obj/libwin32", "-mwindows", "-s", "-Wl,--gc-sections");
+         when "small" =>
+            for Default_Switches ("ada") use ("-g", "-lopengl32", "-lglu32", "-lfreeglut", "-L../obj/libwin32", "-mwindows", "-s", "-Wl,--gc-sections");
+      end case;
+   end Linker;
+
+end GLOBE_3D_Demos;
+
