@@ -1,22 +1,10 @@
---  with GLOBE_3D.Options,
---       GLOBE_3D.Textures,
---       GLOBE_3D.Math;
-
-with GL.Primitive;   use GL.Primitive;
-
---  with Ada.Exceptions; use Ada.Exceptions;
---  with Ada.Text_IO;    use Ada.Text_IO;
-
-with Ada.Unchecked_Conversion;
-
---  with System;
+with
+     GL.Primitive,
+     Ada.Unchecked_Conversion;
+use
+     GL.Primitive;
 
 package body GLOBE_3D.tri_Mesh.vertex_array is
-
-   --  use GLOBE_3D.Options;
-
-  --  package G3DT renames GLOBE_3D.Textures;
-  --  package G3DM renames GLOBE_3D.Math;
 
    procedure destroy (o: in out tri_Mesh)
    is
@@ -31,24 +19,22 @@ package body GLOBE_3D.tri_Mesh.vertex_array is
       return (1 => o.skinned_Geometry);
    end;
 
-   procedure set_Alpha ( o    : in out tri_Mesh;   Alpha : in GL.Double)
+   procedure set_Alpha (o : in out tri_Mesh;   Alpha : in GL.Double)
    is
    begin
-      null;    -- tbd:
+      null;    -- todo
    end;
 
-   function  is_Transparent (o    : in tri_Mesh) return Boolean
+   function  is_Transparent (o : in tri_Mesh) return Boolean
    is
-      --  use type GL.Double;
    begin
       return o.skinned_Geometry.Skin.is_Transparent;
    end;
 
    procedure Pre_calculate (o: in out tri_Mesh)
    is
-      --  use GL, G3DM;
    begin
-      null;  -- tbd:
+      null;  -- todo
    end Pre_calculate;
 
    procedure Display (o      : in out tri_Mesh;
@@ -63,7 +49,7 @@ package body GLOBE_3D.tri_Mesh.vertex_array is
       use GL.Geometry, GL.Geometry.VA;
 
       the_Geometry : GL.Geometry.VA.primal_Geometry
-                       renames GL.Geometry.VA.primal_Geometry (Self.skinned_Geometry.Geometry.all);
+             renames GL.Geometry.VA.primal_Geometry (Self.skinned_Geometry.Geometry.all);
    begin
       the_Geometry.set_Vertices (To => To);
    end;
@@ -72,7 +58,7 @@ package body GLOBE_3D.tri_Mesh.vertex_array is
    is
       use GL.Geometry, GL.Geometry.VA;
       the_Geometry : GL.Geometry.VA.primal_Geometry
-                       renames GL.Geometry.VA.primal_Geometry (Self.skinned_Geometry.Geometry.all);
+             renames GL.Geometry.VA.primal_Geometry (Self.skinned_Geometry.Geometry.all);
    begin
       the_Geometry.set_Indices (To => To);
    end;
@@ -88,7 +74,7 @@ package body GLOBE_3D.tri_Mesh.vertex_array is
    is
       use GL;
       the_Geometry : GL.Geometry.VA.primal_Geometry
-                       renames GL.Geometry.VA.primal_Geometry (o.skinned_Geometry.Geometry.all);
+             renames GL.Geometry.VA.primal_Geometry (o.skinned_Geometry.Geometry.all);
    begin
       return Natural (the_Geometry.Primitive.Indices'Length / 3);
    end;
