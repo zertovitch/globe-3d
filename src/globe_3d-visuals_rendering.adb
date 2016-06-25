@@ -67,8 +67,6 @@ package body GLOBE_3D.Visuals_rendering is
             use GL.Skinned_Geometry;
             the_Visual        : Visual'Class                           renames the_Visuals (Each).all;
             visual_geometries : GL.Skinned_Geometry.Skinned_Geometries renames the_Visual.Skinned_Geometries;
---                   GL.Skinned_Geometry.null_skinned_geometries;
-                 -- GdM 23-Jun-2016: !! root function Skinned_Geometries (the_Visual) returned always null_skinned_geometries;
          begin
             if Is_Transparent (the_Visual) then
                transparent_Count                    := transparent_Count + 1;
@@ -187,19 +185,17 @@ package body GLOBE_3D.Visuals_rendering is
 
          for Each in 1 .. transparent_Count loop
             declare
-               the_Visual        : Visual'Class                          renames all_Transparents (Each).all;
-               visual_Geometries : constant GL.Skinned_Geometry.Skinned_Geometries      :=
-                 GL.Skinned_Geometry.null_skinned_geometries;  --  Skinned_Geometries (the_Visual)
-                 -- GdM 23-Jun-2016: !! root function Skinned_Geometries (the_Visual) returned always null_skinned_geometries;
+               the_Visual        : Visual'Class                           renames all_Transparents (Each).all;
+               visual_geometries : GL.Skinned_Geometry.Skinned_Geometries renames the_Visual.Skinned_Geometries;
                  -- tbd: apply ogl state sorting here ?
             begin
                Display (the_Visual,  the_Camera.clipper);
                GL.Errors.Log;
 
-               for Each in visual_Geometries'Range loop
+               for Each in visual_geometries'Range loop
                   declare
                      use GL.Skins, GL.Geometry;
-                     the_Geometry : GL.Skinned_Geometry.Skinned_Geometry renames visual_Geometries (Each);
+                     the_Geometry : GL.Skinned_Geometry.Skinned_Geometry renames visual_geometries (Each);
                   begin
 
                      if the_Geometry.Skin /= current_Skin then
