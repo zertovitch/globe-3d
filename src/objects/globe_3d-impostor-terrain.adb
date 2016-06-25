@@ -1,17 +1,7 @@
---  with GLOBE_3D.Textures,
---  with GLOBE_3D.Math;
-with GL.Math;
-
---  with GLUT.Windows; use GLUT.Windows;
---  with GL.Errors;
---  with GLU;
-
---  with Ada.Text_IO;
+with
+     GL.Math;
 
 package body GLOBE_3D.Impostor.Terrain is
-
-   --  package G3DT renames GLOBE_3D.Textures;
-   --  package G3DM renames GLOBE_3D.Math;
 
    procedure pre_Calculate (o : in out Impostor)
    is
@@ -19,7 +9,7 @@ package body GLOBE_3D.Impostor.Terrain is
       null;
    end;
 
-   procedure set_Target        (o : in out Impostor;   Target : in p_Visual)
+   procedure set_Target (o : in out Impostor;   Target : in p_Visual)
    is
    begin
       set_Target (GLOBE_3D.Impostor.Impostor (o),  Target);
@@ -37,33 +27,32 @@ package body GLOBE_3D.Impostor.Terrain is
       deallocate (o);
    end;
 
-   function update_Required (o : access Impostor;      the_Camera           : in     GLOBE_3D.p_Camera) return Boolean
+   function update_Required (o : access Impostor;   the_Camera : in GLOBE_3D.p_Camera) return Boolean
    is
    begin
       o.current_pixel_Region := o.get_pixel_Region (the_Camera);
 
       declare
-         use GL;
-         use GL.Textures; --, GLOBE_3D.Math;
-         -- use type GL.Double;
+         use GL, GL.Textures;
 
-         update_Required : Boolean      := o.general_Update_required (the_Camera, o.current_pixel_Region);
+         update_Required : Boolean  := o.general_Update_required (the_Camera, o.current_pixel_Region);
 
-         copy_x_Offset   : GL.Int       := 0;
-         copy_y_Offset   : GL.Int       := 0;
-         copy_X          : GL.Int       := o.current_pixel_Region.X;
-         copy_Y          : GL.Int       := o.current_pixel_Region.Y;
-         copy_Width      : GL.Sizei     := o.current_pixel_Region.Width;
-         copy_Height     : GL.Sizei     := o.current_pixel_Region.Height;
+         copy_x_Offset   : GL.Int   := 0;
+         copy_y_Offset   : GL.Int   := 0;
+         copy_X          : GL.Int   := o.current_pixel_Region.X;
+         copy_Y          : GL.Int   := o.current_pixel_Region.Y;
+         copy_Width      : GL.Sizei := o.current_pixel_Region.Width;
+         copy_Height     : GL.Sizei := o.current_pixel_Region.Height;
 
-         viewport_Width  : constant Integer      := the_Camera.clipper.main_clipping.X2 - the_Camera.clipper.main_clipping.X1 + 1;
-         viewport_Height : constant Integer      := the_Camera.clipper.main_clipping.Y2 - the_Camera.clipper.main_clipping.Y1 + 1;
-                                           -- tbd: make above calculations attributes of camera class !
+         viewport_Width  : constant Integer := the_Camera.clipper.main_clipping.X2 - the_Camera.clipper.main_clipping.X1 + 1;
+         viewport_Height : constant Integer := the_Camera.clipper.main_clipping.Y2 - the_Camera.clipper.main_clipping.Y1 + 1;
+                                               -- todo: make above calculations attributes of camera class !
          Complete_left   : Boolean;
          Complete_right  : Boolean;
          Complete_top    : Boolean;
          Complete_bottom : Boolean;
          now_Complete    : Boolean;
+
       begin
 
          if copy_X < 0 then
@@ -76,7 +65,7 @@ package body GLOBE_3D.Impostor.Terrain is
 
             if copy_Width < 1 then
                o.is_Valid := False;
-               return False;                                     -- nb: short circuit return !
+               return False;                                     -- nb: Short circuit return !
             end if;
             -- tbd: check what causes negative widths and heights !
 
@@ -88,7 +77,7 @@ package body GLOBE_3D.Impostor.Terrain is
 
             if copy_Width < 1 then
                o.is_Valid := False;
-               return False;                                     -- nb: short circuit return !
+               return False;                                     -- nb: Short circuit return !
             end if;
 
          else
@@ -106,7 +95,7 @@ package body GLOBE_3D.Impostor.Terrain is
 
             if copy_Height < 1 then
                o.is_Valid := False;
-               return False;                                     -- nb: short circuit return !
+               return False;                                     -- nb: Short circuit return !
             end if;
 
          elsif copy_Y + Int (copy_Height)  >  Int (viewport_Height) then
@@ -117,7 +106,7 @@ package body GLOBE_3D.Impostor.Terrain is
 
             if copy_Height < 1 then
                o.is_Valid := False;
-               return False;                                     -- nb: short circuit return !
+               return False;                                     -- nb: Short circuit return !
             end if;
 
          else
@@ -127,10 +116,10 @@ package body GLOBE_3D.Impostor.Terrain is
 
          now_Complete := Complete_left and then Complete_right and then Complete_top and then Complete_bottom;
 
-         if not update_Required then   -- only do further tests if update not already required.
-
-            if o.prior_Complete then
-
+         if not update_Required   -- Only do further tests if update not already required.
+         then
+            if o.prior_Complete
+            then
                if         now_Complete
                  and then o.size_Update_required (o.current_pixel_Region)
                then
@@ -138,7 +127,6 @@ package body GLOBE_3D.Impostor.Terrain is
                end if;
 
             else
-
                if copy_Width > o.prior_copy_Width then
                   update_Required := True;
                end if;
@@ -152,7 +140,7 @@ package body GLOBE_3D.Impostor.Terrain is
          end if;
 
          if update_Required then
-            o.current_Width_pixels  := o.current_pixel_Region.Width;       -- cache current state.
+            o.current_Width_pixels  := o.current_pixel_Region.Width;       -- Cache current state.
             o.current_Height_pixels := o.current_pixel_Region.Height;
 
             o.current_copy_X_Offset := copy_x_Offset;
@@ -172,21 +160,21 @@ package body GLOBE_3D.Impostor.Terrain is
       end;
    end update_Required;
 
-   procedure update (o : in out Impostor;   the_Camera   : in     p_Camera;
-                                            texture_Pool : in     GL.Textures.p_Pool)
+   procedure update (o : in out Impostor;   the_Camera   : in p_Camera;
+                                            texture_Pool : in GL.Textures.p_Pool)
    is
       use GL.Math;
-      maximum_Expansion : constant := 0.05;
-      Distance          : constant Real     := Norm (o.centre - the_Camera.clipper.eye_position);
-      Expansion         : constant Real     := Real'Max (0.02,
-                                                0.015  +  maximum_Expansion * Real'Min (Distance, 5_000.0) / 5_000.0 );
+      maximum_Expansion : constant      := 0.05;
+      Distance          : constant Real := Norm (o.centre - the_Camera.clipper.eye_position);
+      Expansion         : constant Real := Real'Max (0.02,
+                                                     0.015  +  maximum_Expansion * Real'Min (Distance, 5_000.0) / 5_000.0 );
    begin
-      o.expand_X := Expansion;   -- tbd: expansion formula needs tuning !
+      o.expand_X := Expansion;   -- todo: expansion formula needs tuning !
       o.expand_Y := Expansion;
 
-      GLOBE_3D.Impostor.Impostor (o).update (the_Camera, texture_Pool);   -- base class 'update'
+      GLOBE_3D.Impostor.Impostor (o).update (the_Camera, texture_Pool);   -- Call base class 'update'.
 
-      o.prior_copy_Width  := o.current_copy_Width;                        -- set prior state.
+      o.prior_copy_Width  := o.current_copy_Width;                        -- Set prior state.
       o.prior_copy_Height := o.current_copy_Height;
       o.prior_Complete    := o.current_Complete;
    end;
