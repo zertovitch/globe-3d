@@ -106,7 +106,7 @@ package body GL.Primitive is
 
    function create_Lines (line_Count : in Natural;   Vertices : p_Vertex_array := null) return Lines
    is
-   indices_Count : constant positive_uInt := positive_uInt (2 * line_Count);
+      indices_Count : constant positive_uInt := positive_uInt (2 * line_Count);
    begin
       if Vertices = null then
          return (Vertices      => new Geometry.Vertex_array (1 .. 2 * vertex_Id (line_Count)),
@@ -147,7 +147,7 @@ package body GL.Primitive is
 
    function create_line_Strip (line_Count : in Natural;   Vertices : p_Vertex_array := null) return line_Strip
    is
-   indices_Count : constant positive_uInt := positive_uInt (line_Count + 1);
+      indices_Count : constant positive_uInt := positive_uInt (line_Count + 1);
    begin
       if Vertices = null then
          return (Vertices      => new Geometry.Vertex_array (1 .. vertex_Id (line_Count) + 1),

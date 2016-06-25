@@ -379,9 +379,9 @@ package body GLOBE_3D.Impostor is
       end if;
 
       declare
-      objToCam : constant Vector_3D := Normalized ((camera_Site (0) - o.centre (0),
-                                              camera_Site (1) - o.centre (1),
-                                              camera_Site (2) - o.centre (2)));
+         objToCam : constant Vector_3D := Normalized ((camera_Site (0) - o.centre (0),
+                                                       camera_Site (1) - o.centre (1),
+                                                       camera_Site (2) - o.centre (2)));
       begin
          angleCosine := objToCamProj * objToCam;
 

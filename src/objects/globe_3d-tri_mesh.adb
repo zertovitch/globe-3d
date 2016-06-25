@@ -87,7 +87,7 @@ package body GLOBE_3D.tri_Mesh is
             end if;
 
             declare
-            valence_Boost : constant GL.Double := GL.Double (the_Vertex.tri_Count_unadded) ** (-ValenceBoostPower);
+               valence_Boost : constant GL.Double := GL.Double (the_Vertex.tri_Count_unadded) ** (-ValenceBoostPower);
             begin
                Score := Score  +  ValenceBoostScale * valence_Boost;   -- Bonus points for having a low number of tris still to
             end;                                                       -- use the vert, so we get rid of lone verts quickly.
@@ -137,7 +137,7 @@ package body GLOBE_3D.tri_Mesh is
 
       procedure add_recent_Vertices_to_LRU_Cache (v1, v2, v3 : in GL.Geometry.vertex_Id)
       is
-      prior_Cache : constant LRU_Cache := the_LRU_Cache (0 .. LRU_Cache_last);
+         prior_Cache : constant LRU_Cache := the_LRU_Cache (0 .. LRU_Cache_last);
       begin
          the_LRU_Cache (0) := v1;
          the_LRU_Cache (1) := v2;
@@ -233,9 +233,9 @@ package body GLOBE_3D.tri_Mesh is
       --
       for Each in new_face_Indices'Range loop
          declare
-         best_Triangle_v1 : constant vertex_Id := face_vertex_Id (best_Triangle, 1);
-         best_Triangle_v2 : constant vertex_Id := face_vertex_Id (best_Triangle, 2);
-         best_Triangle_v3 : constant vertex_Id := face_vertex_Id (best_Triangle, 3);
+            best_Triangle_v1 : constant vertex_Id := face_vertex_Id (best_Triangle, 1);
+            best_Triangle_v2 : constant vertex_Id := face_vertex_Id (best_Triangle, 2);
+            best_Triangle_v3 : constant vertex_Id := face_vertex_Id (best_Triangle, 3);
          begin
             -- add best triangle to new draw list & remove the best triangle from each of its vertices.
             --
