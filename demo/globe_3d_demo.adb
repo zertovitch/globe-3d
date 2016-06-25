@@ -724,10 +724,10 @@ procedure GLOBE_3D_Demo is
       GLUT_2D.Text_output( (0.0,1.0,0.0),"y", GLUT_2D.Times_Roman_24 );
       GLUT_2D.Text_output( (0.0,0.0,1.0),"z", GLUT_2D.Times_Roman_24 );
 
-      Msg(10, "Press Space for next object/scene. Name: " & Get_name(o) &
-        " points:" & Integer'Image(o.Max_points) &
-        "; faces:"  & Integer'Image(o.Max_faces) &
-        ' ' & List_Cases'Image(o.List_Status));
+      Msg(10, "Press Space for next object/scene.    Object name: " & Get_name(o) &
+        ". Points:" & Integer'Image(o.Max_points) &
+        ". Faces:"  & Integer'Image(o.Max_faces) &
+        ". GL Lists: " & List_Cases'Image(o.List_Status));
       Msg(20, "Run mode (Shift): " &
         Boolean'Image(gc( Game_control.run_mode )));
       Msg(30, "Slide mode (Alt): " &
