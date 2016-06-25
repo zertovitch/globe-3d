@@ -1,23 +1,10 @@
-with GL;
---     GL.Textures,
---     GL.Skins;                                 use GL, GL.Textures;
---  with GL.Buffer.Vertex,
---       GL.Buffer.Indices,
---       GL.Buffer.Texture_coords;
---  with GL.Geometry.VBO;
---  with GL.Skinned_Geometry;
-with GL.IO;
-
---  with GLOBE_3D.Math;                            use GLOBE_3D.Math;
-with GL.Math;
---  with GLOBE_3D.tri_Mesh;
-
---  with Ada.Numerics;                             use Ada.Numerics;
---  with Ada.Text_IO;                              use Ada.Text_IO;
+with
+     GL.IO,
+     GL.Math;
 
 package body Terrain is
 
-   -- tbd: this package uses a 'Sprite', whereas a 'triMesh.vbo' would probably be more appropriate.
+   -- todo: This package uses a 'Sprite', whereas a 'triMesh.vbo' would probably be more appropriate.
 
    function to_Matrix (tga_Heights : in String) return Matrix
    is
@@ -69,7 +56,7 @@ package body Terrain is
    end;
 
    function Vertex_Id_for (the_height_Map : in height_Map;
-                           Row, Col       : in Positive   ) return GL.Geometry.vertex_Id is
+                           Row, Col       : in Positive) return GL.Geometry.vertex_Id is
    begin
       return GL.Geometry.vertex_Id ((Row - 1) * the_height_Map.column_Count  +  Col);
    end Vertex_Id_for;
@@ -81,11 +68,10 @@ package body Terrain is
    is
       use GL, GL.Geometry, GLOBE_3D.REF;
 
-      the_height_Offset : constant Real      := from_height_Map.min_Height + (from_height_Map.max_Height - from_height_Map.min_Height) / 2.0;
-      MidPoint          : constant GL.Geometry.Vertex :=
-                                                ((Real (from_height_Map.column_Count - 1) / 2.0),
-                                                 the_height_Offset,
-                                                 (Real (from_height_Map.row_Count - 1) / 2.0));
+      the_height_Offset : constant Real               := from_height_Map.min_Height + (from_height_Map.max_Height - from_height_Map.min_Height) / 2.0;
+      MidPoint          : constant GL.Geometry.Vertex := ((Real (from_height_Map.column_Count - 1) / 2.0),
+                                                          the_height_Offset,
+                                                          (Real (from_height_Map.row_Count - 1) / 2.0));
 
       procedure apply_scaling (the_Vertex : in out Vector_3D) is
       begin
@@ -101,7 +87,7 @@ package body Terrain is
                use GL.Math;
                the_Point : GL.Geometry.Vertex renames the_Vertices (Vertex_Id_for (from_height_Map,  Row, Col));
             begin
-               the_Point := GL.Geometry.Vertex'(Real (Col) - 1.0,          -- '- 1.0' adjusts for '1 based' indexing.
+               the_Point := GL.Geometry.Vertex'(Real (Col) - 1.0,                     -- '- 1.0' adjusts for '1 based' indexing.
                                                 from_height_Map.Heights (Row, Col),
                                                 Real (Row) - 1.0)
                             - MidPoint;

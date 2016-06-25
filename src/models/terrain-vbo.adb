@@ -1,22 +1,24 @@
-with GL,
+with
      GL.Textures,
-     GL.Skins.unlit_textured_vbo;              use GL, GL.Textures;
-with GL.Buffer.Vertex,
+     GL.Skins.unlit_textured_vbo,
+     GL.Buffer.Vertex,
      GL.Buffer.Indices,
-     GL.Buffer.Texture_coords;
-with GL.Geometry.VBO;
-with GL.Skinned_Geometry;
-with GL.Extended; use GL.Extended;
---  with GL.IO;
+     GL.Buffer.Texture_coords,
+     GL.Geometry.VBO,
+     GL.Skinned_Geometry,
+     GL.Extended,
+     GL.Math,
+     GLOBE_3D.Math;
 
-with GLOBE_3D.Math;                            use GLOBE_3D.Math;
-with GL.Math;
---  with Ada.Numerics;                             use Ada.Numerics;
---  with Ada.Text_IO;                              use Ada.Text_IO;
+use
+    GL,
+    GL.Textures,
+    GL.Extended,
+    GLOBE_3D.Math;
 
 package body Terrain.VBO is
 
-   -- tbd: this package uses a 'Sprite', whereas a 'triMesh.vbo' would probably be more appropriate.
+   -- tbd: This package uses a 'Sprite', whereas a 'triMesh.vbo' would probably be more appropriate.
 
    function new_terrain_Sprite return Sprite.p_Sprite
    is
@@ -40,7 +42,7 @@ package body Terrain.VBO is
    begin
       the_Geometry.primitive_Id := GL.TRIANGLES;
 
-      -- vertices
+      -- Vertices
       --
       set (the_Vertices.all,   from_height_Map => Now,
                                scale           => Scale,
@@ -51,9 +53,9 @@ package body Terrain.VBO is
       the_Geometry.Bounds := Bounds (the_Vertices.all);
       Self.Bounds         := the_Geometry.Bounds;
 
-      free (the_Vertices);      -- nb: using new/free to avoid storage_Error with large heightmaps.
+      free (the_Vertices);      -- nb: Using new/free to avoid storage_Error with large heightmaps.
 
-      -- indices
+      -- Indices
       --
       declare
          use GL.Buffer.Indices;
@@ -103,10 +105,10 @@ package body Terrain.VBO is
 
       the_skinned_Geometry : GL.Skinned_Geometry.Skinned_Geometry renames Self.skinned_Geometries (1);
 
-      the_Skin       : constant unlit_textured_vbo.p_Skin := new unlit_textured_vbo.Skin' (Texture => Now);
-      the_Vertices   : GL.Geometry.Vertex_array     renames vbo_Geometry (the_skinned_Geometry.Geometry.all).Vertices.get;
-      texture_Coords : GL.Textures.p_Coordinate_2D_array := to_texture_Coordinates_xz (the_Vertices, texture_Transform_s,
-                                                                                                     texture_Transform_t);
+      the_Skin       : constant unlit_textured_vbo.p_Skin         := new unlit_textured_vbo.Skin' (Texture => Now);
+      the_Vertices   :          GL.Geometry.Vertex_array     renames vbo_Geometry (the_skinned_Geometry.Geometry.all).Vertices.get;
+      texture_Coords :          GL.Textures.p_Coordinate_2D_array := to_texture_Coordinates_xz (the_Vertices, texture_Transform_s,
+                                                                                                              texture_Transform_t);
    begin
       the_skinned_Geometry.Skin   := the_Skin.all'Access;
       the_skinned_Geometry.Veneer := the_Skin.all.new_Veneer (for_Geometry => the_skinned_Geometry.Geometry.all);
@@ -130,7 +132,6 @@ package body Terrain.VBO is
                      Y_Offset            :    out Real)
    is
       use GL.Geometry, GL.Geometry.VBO, GL.Buffer, GL.Buffer.Vertex, GLOBE_3D.REF, GLOBE_3D.Sprite;
-
    begin
       Object            := new GLOBE_3D.Sprite.Sprite (max_Geometries => 1);
       Object.is_Terrain := True;
@@ -153,9 +154,9 @@ package body Terrain.VBO is
 
       ground_Texture : constant GL.Textures.Object            := new_Texture (image_Filename => base_Texture);
       transform_s    : constant GL.Textures.texture_Transform := (Offset => 0.5 * Scale (0)  +  Width / 2.0,
-                                                         Scale  => 1.0 / Width                     );
+                                                                  Scale  => 1.0 / Width);
       transform_t    : constant GL.Textures.texture_Transform := (Offset => 0.5 * Scale (2)  +  Depth / 2.0,
-                                                         Scale  => 1.0 / Depth                     );
+                                                                  Scale  => 1.0 / Depth);
       Y_Offset : Real;
 
    begin
@@ -170,10 +171,10 @@ package body Terrain.VBO is
                     Scale         : in     Vector_3D := (1.0, 1.0, 1.0)) return Sprite.p_sprite_Grid
    is
       use GLOBE_3D.Sprite;
-      the_Matrix : constant Matrix := to_Matrix (tga_Heights);
+      the_Matrix  : constant Matrix := to_Matrix (tga_Heights);
 
-      total_Width    : constant Real       := Real (the_Matrix'Length (2) - 1);
-      total_Depth    : constant Real       := Real (the_Matrix'Length (1) - 1);
+      total_Width : constant Real   := Real (the_Matrix'Length (2) - 1);
+      total_Depth : constant Real   := Real (the_Matrix'Length (1) - 1);
 
       function Grid_last (total_Size, tile_Size : in Positive) return Positive
       is
@@ -185,19 +186,20 @@ package body Terrain.VBO is
          return Last;
       end;
 
-      the_heightmap_Grid  : height_map_Grid (1 .. Grid_last (the_Matrix'Length (1), tile_Depth),
-                                             1 .. Grid_last (the_Matrix'Length (2), tile_Width));
+      the_heightmap_Grid : height_map_Grid (1 .. Grid_last (the_Matrix'Length (1), tile_Depth),
+                                            1 .. Grid_last (the_Matrix'Length (2), tile_Width));
 
-      the_sprite_Grid     : p_sprite_Grid (the_heightmap_Grid'Range (1),
-                                           the_heightmap_Grid'Range (2));
-      ground_Texture      : constant GL.Textures.Object := new_Texture (image_Filename => texture_Image);
+      the_sprite_Grid    : p_sprite_Grid (the_heightmap_Grid'Range (1),
+                                          the_heightmap_Grid'Range (2));
+
+      ground_Texture     : constant GL.Textures.Object := new_Texture (image_Filename => texture_Image);
 
    begin
-      -- create each element heightmap for the_heightmap_Grid.
+      -- Create each element heightmap for the_heightmap_Grid.
       --
       declare
          row_First, row_Last,
-         col_First, col_Last  : Integer; -- row and col ranges for each submatrix.
+         col_First, col_Last  : Integer; -- Row and col ranges for each submatrix.
       begin
          for Row in the_sprite_Grid'Range (1) loop
             row_First := (tile_Depth - 1) * (Row - 1) + 1;
@@ -213,7 +215,7 @@ package body Terrain.VBO is
          end loop;
       end;
 
-      -- create the Sprite for each grid element
+      -- Create the Sprite for each grid element.
       --
       declare
          site_X_offset,
@@ -257,7 +259,7 @@ package body Terrain.VBO is
          end loop;
       end;
 
-      -- clean up
+      -- Clean up.
       --
       for Row in the_sprite_Grid'Range (1) loop
          for Col in the_sprite_Grid'Range (2) loop
