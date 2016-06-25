@@ -8,8 +8,6 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GL.Extended; use GL.Extended;
-
 with Ada.Unchecked_Deallocation;
 
 package body GL.Skins is
@@ -21,6 +19,17 @@ package body GL.Skins is
    -----------------------------------------------------------------
    -- tbd: ensure *all* skins disable *all* unneeded GL states !!!!!
    -----------------------------------------------------------------
+
+   procedure Disable_VBO is  -- Disable 'vertex buffer objects'.
+   begin
+      if Disable_VBO_callback = null then
+         raise Program_Error with
+            "You need to define Disable_VBO_callback with an access to a procedure doing this: " &
+            "GL.Extended.BindBuffer(GL.Extended.ARRAY_BUFFER, 0);";
+      else
+         Disable_VBO_callback.all;
+      end if;
+   end Disable_VBO;
 
    -- Veneers
    --
@@ -96,7 +105,7 @@ package body GL.Skins is
    procedure enable (Self : in out Veneer_opaque_lit_mono_color)
    is
    begin
-      BindBuffer        (ARRAY_BUFFER, 0);    -- Disable 'vertex buffer objects'.
+      Disable_VBO;    -- Disable 'vertex buffer objects'.
       EnableClientState (NORMAL_ARRAY);
       NormalPointer     (GL_DOUBLE,  0,  to_Pointer (Self.Normals (1)(0)'Unchecked_Access));
    end;
@@ -138,7 +147,7 @@ package body GL.Skins is
    procedure enable (Self : in out Veneer_transparent_unlit_textured)
    is
    begin
-      BindBuffer        (ARRAY_BUFFER, 0);    -- Disable 'vertex buffer objects'.
+      Disable_VBO;    -- Disable 'vertex buffer objects'.
       EnableClientState (GL.TEXTURE_COORD_ARRAY);
       GL.TexCoordPointer   (2,  GL_DOUBLE,  0,  to_Pointer (Self.texture_Coordinates (1).S'Unchecked_Access));
    end;
@@ -170,7 +179,7 @@ package body GL.Skins is
    begin
       GL.Disable    (LIGHTING);
       GL.Disable    (COLOR_MATERIAL);
-      BindBuffer    (ARRAY_BUFFER, 0);    -- Disable 'vertex buffer objects'.
+      Disable_VBO;    -- Disable 'vertex buffer objects'.
 
       GL.Color     (1.0, 1.0, 1.0, 1.0);
 

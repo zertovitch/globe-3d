@@ -128,4 +128,9 @@ package GL.Skins is
 
    -- ... other standard skins
 
+   --  Misc.
+
+   type VBO_setup is access procedure;
+   Disable_VBO_callback: VBO_setup:= null;
+
 end GL.Skins;
