@@ -11,8 +11,7 @@
 
 with GL.Geometry,
      GL.Textures,
-     GL.Materials,
-     GL.Buffer.Texture_coords;
+     GL.Materials;
 
 package GL.Skins is
 
