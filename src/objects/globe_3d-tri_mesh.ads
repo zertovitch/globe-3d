@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GLOBE_3D.tri_Mesh
 --
---  Copyright (c) Rod Kay 2007
+--  Copyright (c) Rod Kay 2007+
 --  AUSTRALIA
 --
 --  Permission granted to use this software, without any warranty,
@@ -9,13 +9,13 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with GL.Skins;
+with
+     GL.Skins;
 
 package GLOBE_3D.tri_Mesh is
 
-   -- triangle mesh Object base class
+   -- Triangle mesh Object base class.
    --
-
    type tri_Mesh is abstract new Visual with
       record
          null;
@@ -32,6 +32,6 @@ package GLOBE_3D.tri_Mesh is
 
 private
 
-   procedure dummy;
+   procedure dummy;   -- todo: Get rid of this.
 
 end GLOBE_3D.tri_Mesh;

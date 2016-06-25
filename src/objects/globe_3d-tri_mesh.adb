@@ -1,20 +1,10 @@
---  with GLOBE_3D.Options,
---       GLOBE_3D.Textures,
---       GLOBE_3D.Math;
-
---  with Ada.Exceptions; use Ada.Exceptions;
-with Ada.Text_IO;    use Ada.Text_IO;
-
-with Ada.Unchecked_Conversion;
-
---  with System;
+with
+     Ada.Text_IO,
+     Ada.Unchecked_Conversion;
+use
+      Ada.Text_IO;
 
 package body GLOBE_3D.tri_Mesh is
-
-  --  use GLOBE_3D.Options;
-
-  --  package G3DT renames GLOBE_3D.Textures;
-  --  package G3DM renames GLOBE_3D.Math;
 
    procedure dummy is begin null; end;
 
@@ -357,6 +347,7 @@ package body GLOBE_3D.tri_Mesh is
 
       free (vco_Vertices);        -- clean up
    end vertex_cache_optimise;
+
    pragma Unreferenced (vertex_cache_optimise);
 
 end GLOBE_3D.tri_Mesh;
