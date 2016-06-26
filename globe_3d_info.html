@@ -363,6 +363,14 @@ or<br>
  <p>
   In the <tt>./tools</tt> subdirectory, you find the following tools:
   <ol>
+   <li> <tt>./tools/wavefront</tt> contains an Ada program, <b>o2g</b>, for translating a Wavefront
+        3D model, usually stored as a pair of files model.obj, model.mtl, to a GLOBE_3D binary
+        object, model.g3d, that GLOBE_3D.IO is able to load in an application.<br>
+        The Wavefront format is text-based and very simple. You can write or customize by hand a simple 3D model in
+        this format. On the other hand, most 3D modeling programs like Blender or 3D Studio are able to export models
+        into this format, so you can access complex, multi-textured models this way.<br>
+        The script <tt>opack.cmd</tt> does the job of invoking o2g, then storing model.g3d and the needed
+        textures into a zip file, then calling the main GLOBE_3D demo for displaying the object.
    <li> <tt>./tools/gmax</tt> contains a script, <b>max2ada.ms</b>, for the GMAX software, to convert a 3D model
         into a package capable of generating the equivalent GLOBE_3D object.
         To use it, run the script from GMAX, and use GMaxSLGRAB.exe to grab the Ada code

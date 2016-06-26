@@ -13,7 +13,7 @@ project GLOBE_3D_Win32 is
    case Build_Mode is
       when "Debug" =>
          for Object_Dir use "../obj/gnatdebg";
-         for Main use ("G3Dem_TB.ads", "Mini.adb", "get_gl_info.adb", "gl_overloader.adb");
+         for Main use ("G3Dem_TB.ads", "Mini_TB.ads", "get_gl_info.adb", "gl_overloader.adb");
       when "Fast" =>
          for Object_Dir use "../obj/gnatfast";
          for Main use ("GLOBE_3D_Demo.adb", "Mini.adb");

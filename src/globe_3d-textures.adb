@@ -91,11 +91,16 @@ package body GLOBE_3D.Textures is
       if found then
         return;
       end if;
+      -- Tip: use rather the TGA format: single compression, better with LZMA in the Zip archive.
       Try_image_type(tex_name & ".PNG");
       if found then
         return;
       end if;
+      -- Tip: use rather the TGA format: single, better compression in the Zip archive.
       Try_image_type(tex_name & ".GIF");
+    exception
+      when Zip.Zip_file_open_Error =>
+        null;
     end Try_archive;
   begin
     Try_archive( zif_level, S(level_data_name) );
