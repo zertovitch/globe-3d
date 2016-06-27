@@ -18,8 +18,8 @@ project GLOBE_3D_Demos is
    type Build_Mode_Type is
       ("debug", "fast", "small");
 
-   for Source_Dirs use (".");
-   for Main use ("globe_3d_demo.adb", "g3dem_tb.ads", "mini.adb");
+   for Source_Dirs use (".", "../tools");
+   for Main use ("globe_3d_demo.adb", "g3dem_tb.ads", "mini.adb", "mini_tb.ads");
 
    Build_Mode : Build_Mode_Type := external ("Build_Mode");
    OS         : Os_Kind         := external ("OS");
