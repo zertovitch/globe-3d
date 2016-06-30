@@ -33,6 +33,8 @@ begin
 
    glut.Windows.initialize;
 
+   the_Viewer.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
+
    define (the_Viewer);
 
 
@@ -126,8 +128,6 @@ begin
 
 
 --   add (the_Viewer, the_Sprite.all'access);
-
-   the_Viewer.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
 
    while not the_Viewer.is_Closed loop
       GLUT.mainLoopEvent;

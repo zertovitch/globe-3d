@@ -1,4 +1,6 @@
---  This .gpr will disappear soon, begin to use terrain_vbo.gpr
+--
+--  *** This .gpr will disappear soon, begin to use terrain_vbo.gpr
+--
 
 project Simple_Terrain_Win32 is
 
@@ -6,25 +8,17 @@ project Simple_Terrain_Win32 is
       ("Fast", "Debug", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
 
+   for Main use ("launch_terrain_vbo.adb", "terrain_vbo_tb.ads");
+   for Source_Dirs use (".", "..\..\..\bindings", "..\..\..\bindings\win32", "..\..\..\src\/**", "..\..\..\tools");
+   for Exec_Dir use ".";
+
    case Build_Mode is
-
       when "Small" =>
-         for Main use ("simple.adb", "simple_tb.ads");
-         for Source_Dirs use (".", "..\..\..\bindings", "..\..\..\bindings\win32", "..\..\..\src\/**", "..\..\..\tools");
-         for Object_Dir use "..\..\..\obj\gnatsmal";
-         for Exec_Dir use ".";
-
+         for Object_Dir use "..\..\..\obj\gnat_small";
       when "Debug" =>
-         for Main use ("simple.adb", "simple_tb.ads");
-         for Source_Dirs use (".", "..\..\..\bindings", "..\..\..\bindings\win32", "..\..\..\src\/**", "..\..\..\tools");
-         for Object_Dir use "..\..\..\obj\gnatdebg";
-         for Exec_Dir use ".";
-
+         for Object_Dir use "..\..\..\obj\gnat_debug";
       when "Fast" =>
-         for Main use ("simple.adb", "simple_tb.ads");
-         for Source_Dirs use (".", "..\..\..\bindings", "..\..\..\bindings\win32", "..\..\..\src\/**", "..\..\..\tools");
-         for Object_Dir use "..\..\..\obj\gnatfast";
-         for Exec_Dir use ".";
+         for Object_Dir use "..\..\..\obj\gnat_fast";
    end case;
 
    package Linker is

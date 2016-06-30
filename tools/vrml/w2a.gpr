@@ -13,11 +13,11 @@ project W2A is
 
    case Build_Mode is
       when "Small" =>
-         for Object_Dir use "..\..\..\obj\gnat_small";
+         for Object_Dir use "..\..\obj\gnat_small";
       when "Fast" =>
-         for Object_Dir use "..\..\..\obj\gnat_fast";
+         for Object_Dir use "..\..\obj\gnat_fast";
       when "Debug" =>
-         for Object_Dir use "..\..\..\obj\gnat_debug";
+         for Object_Dir use "..\..\obj\gnat_debug";
    end case;
 
    package Binder is
@@ -42,36 +42,11 @@ project W2A is
    end Compiler;
 
    package Linker is
-
-      case Build_Mode is
-
-         when "Small" =>
-            for Default_Switches ("ada") use ("-s", "-lopengl32", "-lglu32", "-Wl,--gc-sections");
-
-         when "Fast" =>
-            for Default_Switches ("ada") use ("-s", "-lopengl32", "-lglu32", "-Wl,--gc-sections");
-
-         when "Debug" =>
-            for Default_Switches ("ada") use ("-g", "-lopengl32", "-lglu32");
-      end case;
+      for Default_Switches ("ada") use ("-g", "-lopengl32", "-lglu32", "-Xlinker", "--stack=0x40000000,0x400000");
    end Linker;
-
-   package Naming is
-      for Specification_Suffix ("c") use ".h";
-      for Implementation_Suffix ("c") use ".c";
-      for Specification_Suffix ("c++") use ".hh";
-      for Implementation_Suffix ("c++") use ".cpp";
-      for Specification_Suffix ("changelog") use "changelog";
-      for Specification_Suffix ("project file") use ".gpr";
-      for Specification_Suffix ("python") use ".py";
-   end Naming;
 
    package Builder is
       for Default_Switches ("ada") use ("-j2", "-C");
    end Builder;
-
-   package Ide is
-      for Default_Switches ("adacontrol") use ("-F", "gnat_short");
-   end Ide;
 
 end W2A;

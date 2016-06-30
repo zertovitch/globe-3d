@@ -2,6 +2,7 @@
 
 with GLOBE_3D.Sprite;                       use GLOBE_3D,  GLOBE_3D.Sprite;
 with globe_3d.Culler.impostoring_frustum;   use globe_3d.Culler.impostoring_frustum;
+with GLOBE_3D.Visuals_rendering;
 
 with GLUT.Windows;                          use GLUT.Windows;
 with GLUT.Devices;                          use GLUT.Devices;
@@ -51,6 +52,7 @@ begin
    g3d.Set_global_data_name ("../../G3Demo_Global_Resources.zip");
 
    GLUT.Windows.initialize;
+   Viewer.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
 
 
    define (Viewer);

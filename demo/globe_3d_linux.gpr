@@ -1,4 +1,4 @@
--- *** Consider using globe_3d_demos.gpr instead, and choosing the appropriate target OS.
+-- *** In the future there will be a common globe_3d_demos.gpr, where you can choose the appropriate target OS.
 
 -- This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
 -- for the GLOBE_3D ( http://sf.net/projects/globe3d/ ) demos
@@ -14,13 +14,13 @@ project GLOBE_3D_Linux is
 
    case Build_Mode is
       when "Debug" =>
-         for Object_Dir use "../obj/gnatdebg";
+         for Object_Dir use "../obj/gnat_debug";
          for Main use ("g3dem_tb.ads", "mini.adb", "get_gl_info.adb", "gl_overloader.adb");
       when "Fast" =>
-         for Object_Dir use "../obj/gnatfast";
+         for Object_Dir use "../obj/gnat_fast";
          for Main use ("globe_3d_demo.adb", "mini.adb");
       when "Small" =>
-         for Object_Dir use "../obj/gnatsmal";
+         for Object_Dir use "../obj/gnat_small";
          for Main use ("globe_3d_demo.adb");
    end case;
 

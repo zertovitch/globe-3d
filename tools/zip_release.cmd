@@ -19,16 +19,16 @@ copy /B demo\freeglut.dll demo\culler\terrain_vbo
 copy /B demo\freeglut.dll demo\sprite
 
 cd obj
-cd gnatdebg
+cd gnat_debug
 del *.ali
 del *.o
 del b~*.ad*
 cd ..
-cd gnatsmal
+cd gnat_small
 del *.ali
 del *.o
 cd ..
-cd gnatfast
+cd gnat_fast
 del *.ali
 del *.o
 cd ..
