@@ -6,7 +6,7 @@
 --
 project GLOBE_3D_Darwin is
 
-   for Object_Dir use "../obj/gnatdebg";
+   for Object_Dir use "../obj/gnat_debug";
    for Source_Dirs use (".", "../bindings", "../src/**", "../bindings/macosx", "../tools");
    for Main use ("globe_3d_demo.adb", "mini.adb", "g3dem_tb.ads", "get_gl_info.adb", "gl_overloader.adb");
    for Exec_Dir use ".";

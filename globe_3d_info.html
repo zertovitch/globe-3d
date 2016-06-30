@@ -344,11 +344,8 @@ or<br>
         rendering with GL.BindTexture referring to image number id+1 (<b>caution</b>: note the +1,
         since the user textures in GL begin with 1 and the ones in GLOBE_3D with 0,
         as the Ada 'Pos attribute does.
-   <li> If you develop a GLOBE_3D application with GNAT, here are the relative paths
-        in case you have its directory at the same level as the GLOBE_3D one:
-        Include path (change win32 if you compile for another OS): <pre>-aI../globe_3d/src -aI../globe_3d/src/gl -aI../globe_3d/src/unzip -aI../globe_3d/src/models -aI../globe_3d/src/gaming  -aI../globe_3d/bindings -aI../globe_3d/bindings/win32 -aI../globe_3d/bindings/win32/gcc_fmt</pre>
-        Object path (here of debug mode): <pre>-aO../globe_3d/obj/gnatdebg</pre>
-        Library path (here of win32): <pre>-L../globe_3d/obj/libwin32</pre>
+   <li> If you develop a GLOBE_3D application with GNAT, a good starting point is to clone
+        a project file from the ./demo directory (globe_3d_*.gpr) and adapt it..
   </ul>
  </p>
 <li> 

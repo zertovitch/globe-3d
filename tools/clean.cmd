@@ -4,21 +4,21 @@ rem go to g3d root:
 cd..
 rem
 cd obj
-cd gnatdebg
+cd gnat_debug
 rem We don't need to keep the .ali, GPS/GNATMAKE can now put all .ali/.o files in a single directory
 rem cleanacu
  del *.ali
  del *.o
 del b~*
 cd..
-cd gnatfast
+cd gnat_fast
 rem We don't need to keep the .ali, GPS/GNATMAKE can now put all .ali/.o files in a single directory
 rem cleanacu
  del *.ali
  del *.o
 del b~*
 cd..
-cd gnatsmal
+cd gnat_small
 rem We don't need to keep the .ali, GPS/GNATMAKE can now put all .ali/.o files in a single directory
 rem cleanacu
  del *.ali
