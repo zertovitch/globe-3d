@@ -260,21 +260,16 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
   That directory also contains various scripts (or so) for various systems.
   <ul>
    <li> <b>Windows</b>:
-    <ul>
+    <ul>  
      <li> <b>GNAT</b> compiler:<br>
-         - [in GPS:] open the GLOBE_3D_Win32.gpr project file, then press F4.<br>
+         - [using then GNAT Programming Studio (GPS):] open the <b>globe_3d_demos_win32.gpr</b> project file, then press F4.<br>
        or<br>
-         - [in AdaGIDE:] open GLOBE_3D_Demo.adb, then press F3.<br>
-       or<br>
-         - launch Make_all.bat .<br>
+         - launch <b>make_all.cmd</b> .<br>
        Then you get GLOBE_3D_Demo.exe.
 
-     <li> <b>ObjectAda</b> compiler: open GLOBE_3D_ObjectAda.prj, then press F7.
-       NB: there are now too many units for the free version
-       of ObjectAda (7.2.2. SE); on that limited version, everything compiles
-       fine but adabuild, as expected, refuses to complete.
+     <li> <b>ObjectAda</b> compiler: open <b>globe_3d_objectada.prj</b>, then press F7.
 
-     <li> another compiler: should be fine, just need GL,GLU,(Free)GLUT bindings
+     <li> another compiler: should be fine, just need GL, GLU, and, for the demo only, (Free)GLUT bindings
     </ul>
    <li> <b>Linux</b>:<br>
     To force lower case on file names: unzip -L globe_3d.zip;

@@ -1,3 +1,5 @@
+-- *** Consider using globe_3d_demos.gpr instead, and choosing the appropriate target OS.
+
 -- This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
 -- for the GLOBE_3D ( http://sf.net/projects/globe3d/ ) demos
 -- Build me with "gnatmake -P globe_3d_linux.gpr", or open me with GPS
@@ -37,11 +39,11 @@ project GLOBE_3D_Linux is
    package Compiler is
       case Build_Mode is
          when "Debug" =>
-            for Default_Switches ("ada") use ("-gnat12", "-gnato", "-fstack-check", "-gnatwa", "-fno-strict-aliasing", "-g", "-gnatVa", "-gnatecdebug.pra", "-gnatyhiknp");
+            for Default_Switches ("ada") use ("-gnat12", "-gnato", "-fstack-check", "-gnatwa", "-fno-strict-aliasing", "-g", "-gnatVa", "-gnatec../../obj/debug.pra", "-gnatyhiknp");
          when "Fast" =>
-            for Default_Switches ("ada") use ("-gnat12", "-O2", "-gnatn", "-gnatp", "-gnatwa", "-fno-strict-aliasing", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers", "-fomit-frame-pointer", "-gnatec../../demo/g3d_elim.pra");
+            for Default_Switches ("ada") use ("-gnat12", "-O2", "-gnatn", "-gnatp", "-gnatwa", "-fno-strict-aliasing", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers", "-fomit-frame-pointer");
          when "Small" =>
-            for Default_Switches ("ada") use ("-gnat12", "-Os", "-gnatp", "-gnatwa", "-fno-strict-aliasing", "-fno-inline", "-march=i386", "-ffunction-sections", "-fdata-sections", "-falign-jumps=0", "-falign-loops=0", "-falign-functions=0", "-mpreferred-stack-boundary=2", "-gnatec../../demo/g3d_elim.pra");
+            for Default_Switches ("ada") use ("-gnat12", "-Os", "-gnatp", "-gnatwa", "-fno-strict-aliasing", "-fno-inline", "-march=i386", "-ffunction-sections", "-fdata-sections", "-falign-jumps=0", "-falign-loops=0", "-falign-functions=0", "-mpreferred-stack-boundary=2");
       end case;
    end Compiler;
 

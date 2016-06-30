@@ -1,6 +1,6 @@
 -- This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
 -- for the O2G tool (Wavefront object to GLOBE_3D object)
--- Build me with "gnatmake -P o2g.gpr", or open me with GPS
+-- Build me with "gprbuild -P o2g.gpr", or open me with GPS
 --
 project O2G is
 
@@ -13,11 +13,11 @@ project O2G is
 
    case Build_Mode is
       when "Small" =>
-         for Object_Dir use "..\..\obj\gnatsmal";
+         for Object_Dir use "..\..\obj\gnat_small";
       when "Fast" =>
-         for Object_Dir use "..\..\obj\gnatfast";
+         for Object_Dir use "..\..\obj\gnat_fast";
       when "Debug" =>
-         for Object_Dir use "..\..\obj\gnatdebg";
+         for Object_Dir use "..\..\obj\gnat_debug";
    end case;
 
    package Binder is
@@ -33,11 +33,11 @@ project O2G is
    package Compiler is
       case Build_Mode is
          when "Small" =>
-            for Default_Switches ("ada") use ("-gnat12", "-Os", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-march=i386", "-ffunction-sections", "-falign-jumps=0", "-falign-loops=0", "-falign-functions=0", "-mpreferred-stack-boundary=2", "-gnatec../../demo/g3d_elim.pra");
+            for Default_Switches ("ada") use ("-gnat12", "-Os", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-march=i386", "-ffunction-sections", "-falign-jumps=0", "-falign-loops=0", "-falign-functions=0", "-mpreferred-stack-boundary=2");
          when "Fast" =>
             for Default_Switches ("ada") use ("-gnat12", "-O2", "-gnatn", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers");
          when "Debug" =>
-            for Default_Switches ("ada") use ("-gnat12", "-gnato", "-fstack-check", "-gnatwkmpz", "-fno-strict-aliasing", "-g", "-gnatVa", "-gnatecdebug.pra");
+            for Default_Switches ("ada") use ("-gnat12", "-gnato", "-fstack-check", "-gnatwkmpz", "-fno-strict-aliasing", "-g", "-gnatVa", "-gnatec../../obj/debug.pra");
       end case;
    end Compiler;
 

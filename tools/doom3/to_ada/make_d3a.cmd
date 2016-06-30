@@ -15,6 +15,6 @@ rem
 :comp
 echo.
 rem
-gnatmake -Pd3a.gpr
+gprbuild -Pd3a.gpr
 rem
 :fin

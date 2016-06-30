@@ -24,7 +24,6 @@ package GL.Skins.unlit_textured_vbo is
    overriding
    procedure enable (Self : in out Veneer);
 
-
    type Skin is new GL.Skins.Skin with
       record
          Texture : GL.Textures.Object;

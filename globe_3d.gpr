@@ -43,7 +43,7 @@ project Globe_3D is
    is
       when "debug" =>
          Binder_Options   := Binder_Options   & "-E";
-         Compiler_Options := Compiler_Options & "-gnatecdebug.pra"
+         Compiler_Options := Compiler_Options & "-gnatec../../obj/debug.pra"
                                               & "-gnato"
                                               & "-fstack-check"
                                               & "-g";
@@ -61,7 +61,6 @@ project Globe_3D is
          end case;
 
       when "fast" =>
-         Compiler_Options := Compiler_Options & "-gnatec../../demo/g3d_elim.pra";
          case OS
          is
             when "linux"  =>
@@ -79,7 +78,6 @@ project Globe_3D is
          end case;
 
       when "small" =>
-         Compiler_Options := Compiler_Options & "-gnatec../../demo/g3d_elim.pra";
          case OS
          is
             when "linux"  =>

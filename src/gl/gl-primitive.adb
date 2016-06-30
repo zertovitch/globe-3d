@@ -411,7 +411,6 @@ package body GL.Primitive is
               Indices       => new vertex_Id_array (1 .. 2 * positive_uInt (quad_Count)  +  2));
    end;
 
-
    overriding
    function primitive_Id (Self : in quad_Strip) return GL.ObjectTypeEnm
    is

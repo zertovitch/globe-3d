@@ -1,28 +1,22 @@
 -- This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
 -- for the GLOBE_3D ( http://sf.net/projects/globe3d/ ) demos
--- Build me with "gnatmake -P globe_3d_demos.gpr", or open me with GPS
+-- Build me with "gprbuild -P globe_3d_demos.gpr", or open me with GPS
 --
-
---  *** New stuff (25-Jun-2016) for experimenting the new unified globe_3d.gpr.
---  Should replace globe_3d_win32.gpr, globe_3d_linux.gpr, globe_3d_darwin.gpr at some point.
---
---  Test so far: win32/fast, win32/small are ok; win32/debug doesn't find debug.pra
 
 with "../globe_3d";
 
-project GLOBE_3D_Demos is
+project GLOBE_3D_Demos_Win32 is
 
-   type Os_Kind is
+   type OS_Kind is
       ("win32", "linux", "macosx");
+   OS : OS_Kind := external ("OS", "win32");
 
    type Build_Mode_Type is
       ("debug", "fast", "small");
+   Build_Mode : Build_Mode_Type := external ("Build_Mode", "debug");
 
    for Source_Dirs use (".", "../tools");
    for Main use ("globe_3d_demo.adb", "g3dem_tb.ads", "mini.adb", "mini_tb.ads");
-
-   Build_Mode : Build_Mode_Type := external ("Build_Mode");
-   OS         : Os_Kind         := external ("OS");
 
    for Object_Dir use "build";
    for Exec_Dir use ".";
@@ -32,6 +26,8 @@ project GLOBE_3D_Demos is
    package Compiler renames Globe_3D.Compiler;
    package Binder   renames Globe_3D.Binder;
 
+   --  Too bad, linker options cannot be set with globe_3d.gpr (rem.: 2016)...
+   
    package Linker is
       case Build_Mode is
          when "debug" =>
@@ -43,5 +39,5 @@ project GLOBE_3D_Demos is
       end case;
    end Linker;
 
-end GLOBE_3D_Demos;
+end GLOBE_3D_Demos_Win32;
 
