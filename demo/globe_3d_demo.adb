@@ -796,7 +796,9 @@ procedure GLOBE_3D_Demo is
 
   procedure Fill_screen is
     use GL;
+    fact: constant:= 0.5;
   begin
+    ClearColor( fact * 0.2275, fact * 0.0745, fact * 0.4431, 0.0 );  --  Dark violet
     case smoothing is
       when software =>
         SAA.Set_quality(SAA.Q3);
