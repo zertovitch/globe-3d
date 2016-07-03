@@ -687,12 +687,18 @@ procedure GLOBE_3D_Demo is
     use GL, G3D, G3D.Aux, G3D.REF, G3DM, GL.Math;
     light_info: String(1..8);
   begin
-    Clear( DEPTH_BUFFER_BIT );
     Disable( LIGHTING );
-    Enable( DEPTH_TEST );
-    --  Depth comparison function set to LEQUAL is needed for multitexturing:
+    --  Depth comparison function is set to LEQUAL is needed for multitexturing:
     --  LESS (the default) prevents showing another texture onto the first one.
+    Clear( DEPTH_BUFFER_BIT );
+    Enable( DEPTH_TEST );
     DepthFunc( LEQUAL );
+    --  ALPHA_TEST: prevent very transparent pixels to be displayed at all and to influence
+    --  the depth buffer. E.g. for cross-shaped (non-convex) grass, the faces displayed behind
+    --  are hidden by texture pixels that are transparent, but in front and displayed first.
+    Enable    (ALPHA_TEST);
+    AlphaFunc (GREATER, 0.05);
+    --
     MatrixMode( MODELVIEW );
     Set_GL_Matrix(ego.world_rotation);
     Stars.Display(ego.world_rotation);
