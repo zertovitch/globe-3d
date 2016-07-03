@@ -43,8 +43,7 @@ project Globe_3D is
    is
       when "debug" =>
          Binder_Options   := Binder_Options   & "-E";
-         Compiler_Options := Compiler_Options & "-gnatec../../obj/debug.pra"
-                                              & "-gnato"
+         Compiler_Options := Compiler_Options & "-gnato"
                                               & "-fstack-check"
                                               & "-g";
          case OS
