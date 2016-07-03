@@ -2,7 +2,7 @@ project Globe_3D is
 
    type OS_Kind is
       ("win32", "linux", "macosx");
-   OS : OS_Kind := external ("OS", "win32");
+   OS : OS_Kind := external ("OS_Kind", "win32");
 
    type Build_Mode_Type is
       ("debug", "fast", "small");

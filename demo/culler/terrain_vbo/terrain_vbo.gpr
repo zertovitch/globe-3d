@@ -12,7 +12,7 @@ project Terrain_Vbo is
    for Main use ("launch_terrain_vbo.adb");
 
    Build_Mode : Build_Mode_Type := external ("Build_Mode");
-   OS         : Os_Kind         := external ("OS");
+   OS         : Os_Kind         := external ("OS_Kind", "win32");
 
    for Object_Dir use "build";
    for Exec_Dir use ".";
