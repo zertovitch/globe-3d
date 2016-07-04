@@ -2,17 +2,8 @@ with "../../../globe_3d";
 
 project Terrain_Vbo is
 
-   type Os_Kind is
-      ("win32", "linux", "macosx");
-
-   type Build_Mode_Type is
-      ("debug", "fast", "small");
-
    for Source_Dirs use (".");
    for Main use ("launch_terrain_vbo.adb");
-
-   Build_Mode : Build_Mode_Type := external ("Build_Mode");
-   OS         : Os_Kind         := external ("OS_Kind", "win32");
 
    for Object_Dir use "build";
    for Exec_Dir use ".";
