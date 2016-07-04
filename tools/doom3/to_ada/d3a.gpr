@@ -1,77 +1,27 @@
--- This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
--- for the D3A tool (Doom 3 to GLOBE_3D)
--- Build me with "gnatmake -P d3a.gpr", or open me with GPS
+--  This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
+--  for the D3A tool (Doom 3 to GLOBE_3D)
+--  Build me with "gprbuild -P d3a.gpr", or open me with GPS
+--  
+--  Target specification:
+--  
+--  For Windows 32-bits (default) : gprbuild -P d3a.gpr -XOS_Kind=win32
+--  For Linux                     : gprbuild -P d3a.gpr -XOS_Kind=linux
+--  For Mac OS X (untested)       : gprbuild -P d3a.gpr -XOS_Kind=macosx
 --
+
+with "../../../globe_3d";
+
 project D3A is
 
-   type Build_Mode_Type is
-      ("Debug", "Fast", "Small");
-   Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
-   for Source_Dirs use (".", "..", "..\..\..\bindings", "..\..\..\bindings\win32", "..\..\..\bindings\win32\gcc_fmt", "..\..\..\src\/**");
-   for Exec_Dir use ".";
    for Main use ("d3a.adb");
+   for Source_Dirs use (".", "..");
+   for Object_Dir use "../../../obj/gnat_" & external ("Build_Mode", "debug");
+   for Exec_Dir use ".";
 
-   case Build_Mode is
-      when "Small" =>
-         for Object_Dir use "..\..\..\obj\gnat_small";
-      when "Fast" =>
-         for Object_Dir use "..\..\..\obj\gnat_fast";
-      when "Debug" =>
-         for Object_Dir use "..\..\..\obj\gnat_debug";
-   end case;
-
-   package Binder is
-
-      case Build_Mode is
-         when "Small" =>
-         when "Fast" =>
-         when "Debug" =>
-            for Default_Switches ("ada") use ("-E");
-      end case;
-   end Binder;
-
-   package Compiler is
-      case Build_Mode is
-         when "Small" =>
-            for Default_Switches ("ada") use ("-gnat05", "-Os", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-march=i386", "-ffunction-sections", "-falign-jumps=0", "-falign-loops=0", "-falign-functions=0", "-mpreferred-stack-boundary=2");
-         when "Fast" =>
-            for Default_Switches ("ada") use ("-gnat05", "-O2", "-gnatn", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers");
-         when "Debug" =>
-            for Default_Switches ("ada") use ("-gnat05", "-gnato", "-fstack-check", "-gnatwkmpz", "-fno-strict-aliasing", "-g", "-gnatVa", "-gnatec../../obj/debug.pra");
-      end case;
-   end Compiler;
-
-   package Linker is
-
-      case Build_Mode is
-
-         when "Small" =>
-            for Default_Switches ("ada") use ("-s", "-lopengl32", "-lglu32", "-Wl,--gc-sections");
-
-         when "Fast" =>
-            for Default_Switches ("ada") use ("-s", "-lopengl32", "-lglu32", "-Wl,--gc-sections");
-
-         when "Debug" =>
-            for Default_Switches ("ada") use ("-g", "-lopengl32", "-lglu32");
-      end case;
-   end Linker;
-
-   package Naming is
-      for Specification_Suffix ("c") use ".h";
-      for Implementation_Suffix ("c") use ".c";
-      for Specification_Suffix ("c++") use ".hh";
-      for Implementation_Suffix ("c++") use ".cpp";
-      for Specification_Suffix ("changelog") use "changelog";
-      for Specification_Suffix ("project file") use ".gpr";
-      for Specification_Suffix ("python") use ".py";
-   end Naming;
-
-   package Builder is
-      for Default_Switches ("ada") use ("-j2", "-C");
-   end Builder;
-
-   package Ide is
-      for Default_Switches ("adacontrol") use ("-F", "gnat_short");
-   end Ide;
+   package Ide      renames GLOBE_3D.Ide;
+   package Builder  renames GLOBE_3D.Builder;
+   package Compiler renames GLOBE_3D.Compiler;
+   package Binder   renames GLOBE_3D.Binder;
+   package Linker   renames GLOBE_3D.Linker;
 
 end D3A;

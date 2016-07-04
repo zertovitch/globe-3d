@@ -2,51 +2,26 @@
 -- for the W2A tool (VRML World to Ada (GLOBE_3D))
 -- Build me with "gnatmake -P w2a.gpr", or open me with GPS
 --
+--  Target specification:
+--  
+--  For Windows 32-bits (default) : gprbuild -P d3a.gpr -XOS_Kind=win32
+--  For Linux                     : gprbuild -P d3a.gpr -XOS_Kind=linux
+--  For Mac OS X (untested)       : gprbuild -P d3a.gpr -XOS_Kind=macosx
+--
+
+with "../../globe_3d";
+
 project W2A is
 
-   type Build_Mode_Type is
-      ("Debug", "Fast", "Small");
-   Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
-   for Source_Dirs use (".", "..\..\bindings", "..\..\bindings\win32", "..\..\bindings\win32\gcc_fmt", "..\..\src\/**");
-   for Exec_Dir use ".";
    for Main use ("wrl2ada.adb");
+   for Source_Dirs use (".", "..");
+   for Object_Dir use "../../obj/gnat_" & external ("Build_Mode", "debug");
+   for Exec_Dir use ".";
 
-   case Build_Mode is
-      when "Small" =>
-         for Object_Dir use "..\..\obj\gnat_small";
-      when "Fast" =>
-         for Object_Dir use "..\..\obj\gnat_fast";
-      when "Debug" =>
-         for Object_Dir use "..\..\obj\gnat_debug";
-   end case;
-
-   package Binder is
-
-      case Build_Mode is
-         when "Small" =>
-         when "Fast" =>
-         when "Debug" =>
-            for Default_Switches ("ada") use ("-E");
-      end case;
-   end Binder;
-
-   package Compiler is
-      case Build_Mode is
-         when "Small" =>
-            for Default_Switches ("ada") use ("-gnat05", "-Os", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-march=i386", "-ffunction-sections", "-falign-jumps=0", "-falign-loops=0", "-falign-functions=0", "-mpreferred-stack-boundary=2");
-         when "Fast" =>
-            for Default_Switches ("ada") use ("-gnat05", "-O2", "-gnatn", "-gnatp", "-gnatwkmpz", "-fno-strict-aliasing", "-funroll-loops", "-fpeel-loops", "-ftracer", "-funswitch-loops", "-fweb", "-frename-registers");
-         when "Debug" =>
-            for Default_Switches ("ada") use ("-gnat05", "-gnato", "-fstack-check", "-gnatwkmpz", "-fno-strict-aliasing", "-g", "-gnatVa", "-gnatec../../obj/debug.pra");
-      end case;
-   end Compiler;
-
-   package Linker is
-      for Default_Switches ("ada") use ("-g", "-lopengl32", "-lglu32", "-Xlinker", "--stack=0x40000000,0x400000");
-   end Linker;
-
-   package Builder is
-      for Default_Switches ("ada") use ("-j2", "-C");
-   end Builder;
+   package Ide      renames GLOBE_3D.Ide;
+   package Builder  renames GLOBE_3D.Builder;
+   package Compiler renames GLOBE_3D.Compiler;
+   package Binder   renames GLOBE_3D.Binder;
+   package Linker   renames GLOBE_3D.Linker;
 
 end W2A;

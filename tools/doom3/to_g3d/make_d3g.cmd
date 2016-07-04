@@ -19,8 +19,8 @@ rem
 :comp
 echo.
 rem
-set opt_comp294572=Debug
-if "%1"=="-O" set opt_comp294572=Fast
+set opt_comp294572=debug
+if "%1"=="-O" set opt_comp294572=fast
 if "%1"=="-O" shift
 rem
 gprbuild -Pd3g.gpr -XBuild_Mode=%opt_comp294572%
