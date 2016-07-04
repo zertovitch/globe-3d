@@ -22,9 +22,5 @@ project Terrain_Vbo is
    package Compiler renames Globe_3D.Compiler;
    package Binder   renames Globe_3D.Binder;
 
-   package Linker is
-      for Default_Switches ("ada") use ("-g", "-lglut", "-lz", "-lGL", "-lGLU");
-   end Linker;
-
 end Terrain_Vbo;
 
