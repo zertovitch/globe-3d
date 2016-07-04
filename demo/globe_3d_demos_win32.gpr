@@ -15,19 +15,7 @@ project GLOBE_3D_Demos_Win32 is
    for Exec_Dir use ".";
    for Source_Dirs use (".", "../tools");
    for Main use ("globe_3d_demo.adb", "g3dem_tb.ads", "mini.adb", "mini_tb.ads");
-   
-   --   The Object_Dir set up here will contain:
-   --
-   --    globe_3d_demo.ali
-   --    globe_3d_demo.bexch
-   --    globe_3d_demo.o
-   --    b__globe_3d_demo.adb
-   --    b__globe_3d_demo.ads
-   --    b__globe_3d_demo.ali
-   --    b__globe_3d_demo.o
-   --    gnatinspect.db
-   --
-   for Object_Dir use "gnat_build_files";
+   for Object_Dir use "../obj/gnat_" & external ("Build_Mode", "debug");
 
    package Ide      renames Globe_3D.Ide;
    package Builder  renames Globe_3D.Builder;
