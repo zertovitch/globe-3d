@@ -4,6 +4,7 @@ with
      GLOBE_3D.Visuals_rendering,
      Terrain.VBO,
      GL.Buffer,
+     GL.Extended,
      GLUT.Windows,
      Ada.Text_IO;
 use
@@ -12,6 +13,7 @@ use
     Terrain.VBO,
     GLUT.Windows,
     Ada.Text_IO;
+with GL.Skins;
 
 
 procedure launch_Terrain_vbo
@@ -21,7 +23,15 @@ is
    Viewer     : aliased GLUT.Windows.Window;
    Culler     :         GLOBE_3D.Culler.Impostoring_frustum.Culler;
 
+   procedure VBO_Callback
+   is
+   begin
+      GL.Extended.BindBuffer (GL.Extended.ARRAY_BUFFER, 0);
+   end VBO_Callback;
+
 begin
+   GL.Skins.Disable_VBO_callback := VBO_Callback'Unrestricted_Access;
+
    g3d.Set_global_data_name ("../../G3Demo_Global_Resources.zip");
    g3d.Set_level_data_name  ("../../G3Demo_Level_Resources.zip");
 
