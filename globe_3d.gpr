@@ -112,7 +112,7 @@ project Globe_3D is
    for Object_Dir      use "obj/gnat_" & external ("Build_Mode", "debug");
 
    for Source_Dirs use ("bindings",
-                        "bindings/" & external ("OS", "win32"), 
+                        "bindings/" & external ("OS_Kind", "win32"), 
                         "src/**");
 
    package Ide is
