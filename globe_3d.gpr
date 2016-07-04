@@ -147,10 +147,9 @@ project Globe_3D is
       case OS
       is
          when "linux"  =>   for Linker_Options use ("-g", "-lGL", "-lGLU", "-lglut");
-         when "win32"  =>   for Linker_Options use ("-g", "../../../obj/libwin32/glee.o", "-lopengl32", "-lglu32", "-lfreeglut", "-L../../../obj/libwin32");
+         when "win32"  =>   for Linker_Options use ("-g", "obj/libwin32/glee.o", "-lopengl32", "-lglu32", "-lfreeglut", "-Lobj/libwin32");
          when "macosx" =>   for Linker_Options use ("-g", "-bind_at_load", "-framework", "/GLUT", "-framework", "/OpenGL", "-lm");
       end case;
-
    end Linker;
 
 end Globe_3D;
