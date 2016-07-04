@@ -16,7 +16,7 @@ echo -----------------------------------------------
 echo ---- Compile mode: %scenario_324943981475%
 echo -----------------------------------------------
 
-gprbuild -PGLOBE_3D_Demos_Win32.gpr %1.adb -d -XOS=win32 -XBuild_Mode=%scenario_324943981475%
+gprbuild -PGLOBE_3D_Demos.gpr %1.adb -d -XOS_Kind=win32 -XBuild_Mode=%scenario_324943981475%
 
 set scenario_324943981475=
 
