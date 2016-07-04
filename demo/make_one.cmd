@@ -16,7 +16,7 @@ echo -----------------------------------------------
 echo ---- Compile mode: %scenario_324943981475%
 echo -----------------------------------------------
 
-md build
+md gnat_build_files
 gprbuild -PGLOBE_3D_Demos_Win32.gpr %1.adb -d -XOS=win32 -XBuild_Mode=%scenario_324943981475%
 
 set scenario_324943981475=

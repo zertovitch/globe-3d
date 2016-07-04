@@ -2,42 +2,37 @@
 -- for the GLOBE_3D ( http://sf.net/projects/globe3d/ ) demos
 -- Build me with "gprbuild -P globe_3d_demos.gpr", or open me with GPS
 --
+-- Target specification:
+--
+-- For Linux               : gprbuild -P globe_3d_demos.gpr -XOS_Kind=linux
+-- For Mac OS X (untested) : gprbuild -P globe_3d_demos.gpr -XOS_Kind=macosx
+--
 
 with "../globe_3d";
 
 project GLOBE_3D_Demos_Win32 is
 
-   type OS_Kind is
-      ("win32", "linux", "macosx");
-   OS : OS_Kind := external ("OS", "win32");
-
-   type Build_Mode_Type is
-      ("debug", "fast", "small");
-   Build_Mode : Build_Mode_Type := external ("Build_Mode", "debug");
-
+   for Exec_Dir use ".";
    for Source_Dirs use (".", "../tools");
    for Main use ("globe_3d_demo.adb", "g3dem_tb.ads", "mini.adb", "mini_tb.ads");
-
-   for Object_Dir use "build";
-   for Exec_Dir use ".";
+   
+   --   The Object_Dir set up here will contain:
+   --
+   --    globe_3d_demo.ali
+   --    globe_3d_demo.bexch
+   --    globe_3d_demo.o
+   --    b__globe_3d_demo.adb
+   --    b__globe_3d_demo.ads
+   --    b__globe_3d_demo.ali
+   --    b__globe_3d_demo.o
+   --    gnatinspect.db
+   --
+   for Object_Dir use "gnat_build_files";
 
    package Ide      renames Globe_3D.Ide;
    package Builder  renames Globe_3D.Builder;
    package Compiler renames Globe_3D.Compiler;
    package Binder   renames Globe_3D.Binder;
-
-   --  Too bad, linker options cannot be set with globe_3d.gpr (rem.: 2016)...
-   
-   package Linker is
-      case Build_Mode is
-         when "debug" =>
-            for Default_Switches ("ada") use ("-g", "-lopengl32", "-lglu32", "-lfreeglut", "-L../obj/libwin32");
-         when "fast" =>
-            for Default_Switches ("ada") use ("-g", "-lopengl32", "-lglu32", "-lfreeglut", "-L../obj/libwin32", "-mwindows", "-s", "-Wl,--gc-sections");
-         when "small" =>
-            for Default_Switches ("ada") use ("-g", "-lopengl32", "-lglu32", "-lfreeglut", "-L../obj/libwin32", "-mwindows", "-s", "-Wl,--gc-sections");
-      end case;
-   end Linker;
+   package Linker   renames Globe_3D.Linker;
 
 end GLOBE_3D_Demos_Win32;
-
