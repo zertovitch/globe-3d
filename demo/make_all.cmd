@@ -1,2 +1,1 @@
-call make_one GLOBE_3D_Demo %1 %2
-call make_one Mini %1 %2
+gprbuild -PGLOBE_3D_Demos.gpr GLOBE_3D_Demo.adb Mini.adb -d -XOS_Kind=win32 -XBuild_Mode=fast
