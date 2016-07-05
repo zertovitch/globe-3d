@@ -1,89 +1,98 @@
+with
+     GLUT.Windows,
 
-with GLUT.Windows;      use GLUT.Windows;
-with GLOBE_3D.Sprite;   use GLOBE_3D.Sprite;
-with globe_3d.Textures; use globe_3d.Textures;
+     GLOBE_3D.Sprite,
+     GLOBE_3D.Textures,
+     GLOBE_3D.Visuals_rendering,
 
-with GLOBE_3D.Visuals_rendering;
+     GL.Geometry.vbo,
+--       gl.Primitive,
+     GL.Buffer.vertex,
+     GL.Buffer.indices,
+     GL.Skins,
+     GL.Textures,
+     GL.Extended;
 
-with gl.geometry.vbo;          use gl.Geometry.vbo;
-with gl.Primitive;             use gl.Primitive;
+use
+    GLUT.Windows,
 
-with gl.Buffer.vertex;         use gl.Buffer.vertex;
-with gl.Buffer.indices;        use gl.Buffer.indices;
+    GLOBE_3D.Sprite,
+    GLOBE_3D.Textures,
 
-with gl.skins;          use gl.Skins;
-with gl.Textures;       use gl.Textures;
+    GL.Geometry.vbo,
+--      GL.Primitive,
+    GL.Buffer.vertex,
+    GL.Buffer.indices,
+    GL.Skins,
+    GL.Textures,
+    GL.Extended;
 
-with GL.Extended;       use GL.Extended;
-
-with ada.Text_IO;       use ada.Text_IO;
-
-
-
-procedure sprite_Demo
+procedure launch_sprite_Demo
 is
-   use GL, gl.Geometry, globe_3d;
+   use GL, GL.Geometry, GLOBE_3D;
    package g3d renames GLOBE_3D;
 
-   the_Viewer   : GLUT.windows.Window;
-   the_Sprite   : g3d.sprite.p_Sprite;
+   the_Viewer : GLUT.Windows.Window;
+   the_Sprite : g3d.Sprite.p_Sprite;
+
+   procedure VBO_Callback
+   is
+   begin
+      GL.Extended.BindBuffer (GL.Extended.ARRAY_BUFFER, 0);
+   end VBO_Callback;
+
 begin
+   GL.Skins.Disable_VBO_callback := VBO_Callback'Unrestricted_Access;
+
    g3d.Set_global_data_name ("../G3Demo_Global_Resources.zip");
    g3d.Set_level_data_name  ("../G3Demo_Level_Resources.zip");
 
-   glut.Windows.initialize;
+   GLUT.Windows.initialize;
 
    the_Viewer.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
-
    define (the_Viewer);
 
+   the_Sprite := new g3d.Sprite.Sprite (max_Geometries => 1);
 
-   the_Sprite := new g3d.sprite.Sprite (max_Geometries => 1);
-
-
-
-   -- using vbo geometry
+   -- Using VBO geometry.
    --
    declare
-      the_Geometry : constant gl.geometry.vbo.p_vbo_Geometry    := new gl.geometry.vbo.vbo_Geometry;
+      the_Geometry : constant GL.Geometry.vbo.p_vbo_Geometry    := new GL.Geometry.vbo.vbo_Geometry;
       the_Skin     : constant p_Skin_transparent_unlit_textured := new Skin_transparent_unlit_textured;
 
-      the_Vertices : aliased gl.geometry.vertex_Array := (1 => (-100.0, -100.0, 0.0),
-                                                          2 => ( 100.0, -100.0, 0.0),
-                                                          3 => ( 100.0,  100.0, 0.0),
-                                                          4 => (-100.0,  100.0, 0.0));
-      the_Indices : aliased gl.geometry.vertex_Id_Array := (1 => 1,
-                                                            2 => 2,
-                                                            3 => 3,
-                                                            4 => 4);
+      the_Vertices : aliased GL.Geometry.Vertex_array    := (1 => (-100.0, -100.0, 0.0),
+                                                             2 => ( 100.0, -100.0, 0.0),
+                                                             3 => ( 100.0,  100.0, 0.0),
+                                                             4 => (-100.0,  100.0, 0.0));
+      the_Indices  : aliased GL.Geometry.vertex_Id_array := (1 => 1,
+                                                             2 => 2,
+                                                             3 => 3,
+                                                             4 => 4);
    begin
-      decrement (the_Indices);   -- convert Indices to 0-based.
+      decrement (the_Indices);     -- Convert Indices to 0-based.
 
-      the_Geometry.Vertices := to_Buffer (the_Vertices'access, usage => STATIC_DRAW);
-      the_Geometry.Indices  := to_Buffer (the_Indices'access,  usage => STATIC_DRAW);
+      the_Geometry.Vertices := to_Buffer (the_Vertices'Access, usage => STATIC_DRAW);
+      the_Geometry.Indices  := to_Buffer (the_Indices 'Access, usage => STATIC_DRAW);
 
-      the_Geometry.vertex_Count  := gl.SizeI (the_Vertices'Length);
-      the_Geometry.indices_Count := gl.SizeI (the_Indices'Length);
-      the_Geometry.primitive_Id  := gl.Quads;
-
+      the_Geometry.vertex_Count  := GL.Sizei (the_Vertices'Length);
+      the_Geometry.indices_Count := GL.Sizei (the_Indices'Length);
+      the_Geometry.primitive_Id  := GL.QUADS;
 
       declare
         new_id: Image_ID;
       begin
         Add_texture_name("face1", new_id);
-        set_Name (the_Skin.Texture,  to => gl.textures.texture_Name(new_id));
+        set_Name (the_Skin.Texture,  to => GL.Textures.texture_Name(new_id));
       end;
 
-
-      the_Sprite.add (geometry => the_Geometry.all'access,
+      the_Sprite.add (geometry => the_Geometry.all'Access,
                       skin     => the_Skin);
    end;
 
-   add (the_Viewer, the_Sprite.all'access);
+   add (the_Viewer, the_Sprite.all'Access);
 
 
-
-   -- using primitive_Geometry  -- tbd: update this ...
+   -- Using primitive_Geometry.  -- tbd: update this
    --
 
    -- the_Sprite := new g3d.sprite.Sprite (max_Geometrys => 1);
@@ -126,15 +135,14 @@ begin
 --        p_Veneer_transparent_unlit_textured (the_Sprite.skinned_Geometrys (1).Veneer).texture_Coordinates (4) := (0.0, 1.0);
 --     end;
 
-
 --   add (the_Viewer, the_Sprite.all'access);
 
-   while not the_Viewer.is_Closed loop
-      GLUT.mainLoopEvent;
 
+   while not the_Viewer.is_Closed
+   loop
+      GLUT.MainLoopEvent;
       freshen (the_Viewer, time_step => 0.02);
    end loop;
 
    destroy (the_Viewer);
-   put_Line ("Done.");
-end sprite_Demo;
+end launch_sprite_Demo;

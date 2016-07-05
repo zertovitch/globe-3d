@@ -30,7 +30,7 @@ package body GL.Buffer.General is
 
       enable (new_Buffer);
       BufferData (VBO_Target (new_Buffer),  From.all'Size / 8,
-                                            to_gl_Pointer (From (From'First)'Access),
+                                            to_gl_Pointer (From (From'First)'Unchecked_Access),
                                             Usage);
       return new_Buffer;
    end;
