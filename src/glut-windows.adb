@@ -724,7 +724,7 @@ package body GLUT.Windows is
    function Keyboard (Self : access Window'Class) return Devices.p_Keyboard
    is
    begin
-      return Self.Keyboard'Access;
+      return Self.Keyboard'Unchecked_Access;
    end;
 
    function Mouse (Self : access Window'Class) return Devices.p_Mouse
