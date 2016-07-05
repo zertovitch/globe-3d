@@ -1,0 +1,16 @@
+with "../../../globe_3d";
+
+project Armada is
+
+   for Source_Dirs use (".");
+   for Main use ("launch_armada.adb");
+
+   for Object_Dir use "build";
+   for Exec_Dir use ".";
+
+   package Ide      renames Globe_3D.Ide;
+   package Builder  renames Globe_3D.Builder;
+   package Compiler renames Globe_3D.Compiler;
+   package Binder   renames Globe_3D.Binder;
+
+end Armada;
