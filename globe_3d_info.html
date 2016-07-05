@@ -262,7 +262,7 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
    <li> <b>Windows</b>:
     <ul>  
      <li> <b>GNAT</b> compiler:<br>
-         - [using then GNAT Programming Studio (GPS):] open the <b>globe_3d_demos_win32.gpr</b> project file, then press F4.<br>
+         - [using then GNAT Programming Studio (GPS):] open the <b>globe_3d_demos.gpr</b> project file, then press F4.<br>
        or<br>
          - launch <b>make_all.cmd</b> .<br>
        Then you get GLOBE_3D_Demo.exe.
@@ -278,9 +278,10 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
     <br>
     <ul>
      <li> <b>GNAT</b> compiler:<br>
-         - [in GPS:] use the GLOBE_3D_Linux.gpr project file<br>
+         - [using then GNAT Programming Studio (GPS):] 
+           open the <b>globe_3d_demos.gpr</b> project file, choose Scenario OS_Kind = linux, then press F4.<br>
        or<br>
-         - use the makefile.linux, or run: <tt>gnatmake -PGLOBE_3D_Linux.gpr -XBuild_Mode=Fast</tt>
+         - from a terminal, run: <tt>gprbuild -P globe_3d_demos.gpr -XOS_Kind=linux</tt>
     </ul>
     As a prerequisite, you need some libraries to be installed.
     When building a GLOBE_3D project, the linker will tell you what is eventually missing.

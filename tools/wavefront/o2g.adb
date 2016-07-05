@@ -1,3 +1,5 @@
+--  O2G - Wavefront Object (.obj), with Materials (.mtl), to GLOBE_3D object translator
+
 --  https://en.wikipedia.org/wiki/Wavefront_.obj_file
 
 with GLOBE_3D;                          use GLOBE_3D;
@@ -15,7 +17,7 @@ with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Command_Line;                  use Ada.Command_Line;
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Vectors;
-with Ada.Exceptions;                    use Ada.Exceptions;
+with Ada.Directories;                   use Ada.Directories;
 with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
 with Ada.Strings.Unbounded.Hash;        use Ada.Strings.Unbounded;
 with Ada.Text_IO;                       use Ada.Text_IO;
@@ -40,7 +42,7 @@ procedure O2G is
   mat_cat: Material_Maps.Map;
 
   package Tex_Vectors is new Ada.Containers.Vectors(Positive, Unbounded_String);
-  
+
   tex_list: Tex_Vectors.Vector;
 
   function No_ext(s: String) return String is
@@ -49,14 +51,14 @@ procedure O2G is
     for i in reverse s'Range loop
       if s(i)='.' then
         l:= i-1;
-      end if; 
+      end if;
     end loop;
     return s(s'First..l);
   end;
 
   --  # 3ds Max Wavefront OBJ Exporter puts some garbage in front of lines...
   function My_trim(s: String) return String is
-    f: Natural:= S'First;
+    f: Natural:= s'First;
   begin
     for i in s'Range loop
       case s(i) is
@@ -82,14 +84,23 @@ procedure O2G is
     end if;
   end Reg_tex;
 
+  procedure My_Add_File(Name: String) is
+  begin
+    Add_File(
+      archive,
+      Name,   --  Mame of file to be added, for accessing it (may have full path)
+      Name_in_archive =>   Simple_Name(Name),
+      Modification_time => Zip.Convert(Modification_Time(Name))
+    );
+  end;
 
   procedure Pack_textures is
     procedure Pack_texture(c: Tex_Vectors.Cursor) is
       t_name: constant String:= To_String(Tex_Vectors.Element(c));
     begin
-      Add_File(archive, t_name);
+      My_Add_File(t_name);
     exception
-      when Name_Error =>
+      when Ada.Text_IO.Name_Error =>
         Put_Line(Current_Error, "*** Warning: texture file not found: " & t_name);
     end Pack_texture;
   begin
@@ -101,7 +112,7 @@ procedure O2G is
     mat_name: Unbounded_String;
   begin
     Put_Line("  Loading material library: " & m_name);
-    Add_File(archive, m_name);
+    My_Add_File(m_name);
     Open(m, In_File, m_name);
     while not End_Of_File(m) loop
       declare
@@ -132,7 +143,7 @@ procedure O2G is
     end loop;
     Close(m);
   exception
-    when Name_Error =>
+    when Ada.Text_IO.Name_Error =>
       Put_Line(Current_Error, "  *** Warning: material file not found: " & m_name);
   end Load_mat_lib;
   --
@@ -278,8 +289,8 @@ procedure O2G is
                 dim : Positive:= 1;
                 f: Face_type:= current_face;
                 type Kind_Type is (
-                  Vertex_Indices, 
-                  Vertex_Texture_Coordinate_Indices, 
+                  Vertex_Indices,
+                  Vertex_Texture_Coordinate_Indices,
                   Vertex_Normal_Indices
                 );
                 kind: Kind_Type:= Vertex_Indices;
@@ -291,11 +302,11 @@ procedure O2G is
                 for i in fd'Range loop
                   if fd(i) not in '0'..'9' then
                     idx:= Integer'Value('0' & fd(j..i-1));
-                    --  Trick: we add 0 in front for the case of an empty string 
+                    --  Trick: we add 0 in front for the case of an empty string
                     --  (between the "//" in "f 16//11")
                     case kind is
                       when Vertex_Indices =>
-                        if dim > 4 then 
+                        if dim > 4 then
                           raise Constraint_Error with "dim > 4 not supported";
                         end if;
                         f.P(dim):= idx;
@@ -330,13 +341,23 @@ procedure O2G is
           if l'Length >= 7 and then l(l'First..l'First+6) = "usemtl " then
             declare
               r7: constant Unbounded_String:= To_Unbounded_String(l(l'First+7 .. l'Last));
+              use Material_Maps;
+              c: Cursor;
             begin
               Put_Line(
-                "  Line" & Integer'Image(pass_3_lines) & 
+                "  Line" & Integer'Image(pass_3_lines) &
                 ": switching to material: " & To_String(r7));
-              current_mat_idx:= mat_cat.Element(r7);
+              c:= mat_cat.Find(r7);
+              if c = No_Element then
+                Put_Line(Current_Error, "  *** Warning: material not found: " & To_String(r7));
+              else
+                current_mat_idx:= Element(c);
+              end if;
+              if current_mat_idx = 0 then
+                raise Constraint_Error with "Error in .obj file: no material defined";
+              end if;
               if mat_stack(current_mat_idx).diffuse_texture = "" then
-                current_face.skin:= colour_only;  
+                current_face.skin:= colour_only;
                 current_face.colour:= (0.5, 0.1, 0.1); --  !! used colours parsed in .mtl
               else
                 current_face.skin:= texture_only;
@@ -353,7 +374,7 @@ procedure O2G is
   procedure Translate(o_name: String) is
     model_name: constant String:= o_name(o_name'First..o_name'Last-4);
     --  "delta4g1_$_area1"; --  for test
-    zip_file : aliased File_ZipStream; -- Archive is a file
+    zip_file : aliased File_Zipstream; -- Archive is a file
     cmd: File_Type;
     function Argument_Chain(n: Natural:= 1) return String is
     begin
@@ -363,8 +384,9 @@ procedure O2G is
         return Argument(n) & ' ' & Argument_Chain(n => n+1);
       end if;
     end Argument_Chain;
+    --
   begin
-    Put_Line("Model name: " & model_name);
+    Put_Line("Model name: " & Simple_Name(model_name));
     --  For convenience, make a Zip archive with the .g3d object, textures, and original data
     Create (archive, zip_file'Unchecked_Access, model_name & ".zip", Deflate_1 );
     Count_items(o_name);
@@ -381,13 +403,13 @@ procedure O2G is
       Acquire_texture_points(o_name, uvs);
       Put_Line("Second pass (acquisition of texture points) done.");
       Acquire_object(o_name, uvs, x);
-      Set_name(x, model_name);
+      Set_name(x, Simple_Name(model_name));
       declare
         opti: Object_3D:= Merge_triangles(x);
       begin
         opti.centre:= main_centre;
-        Put_Line("Saving object with reduced merged faces:" & 
-          Integer'Image(faces) &" ->" & 
+        Put_Line("Saving object with reduced merged faces:" &
+          Integer'Image(faces) &" ->" &
           Integer'Image(opti.Max_faces)
         );
         Save_file(model_name & ".g3d", opti);
@@ -395,22 +417,22 @@ procedure O2G is
     end;
     Put_Line("Third pass done.");
     Put_Line("Archiving now the .g3d object, textures, and original data into a zip file.");
-    Add_File(archive, model_name & ".g3d");
-    Add_File(archive, o_name);
+    My_Add_File(model_name & ".g3d");
+    My_Add_File(o_name);
     Pack_textures;
     --  Create a command line script for lazy Windows users, for viewing the object.
     Create(cmd, Out_File, model_name & ".cmd");
-    Put_Line(cmd, "GLOBE_3D_Demo.exe -load=" & model_name);
+    Put_Line(cmd, "GLOBE_3D_Demo.exe -load=" & Simple_Name(model_name));
     Close(cmd);
-    Add_File(archive, model_name & ".cmd");
+    My_Add_File(model_name & ".cmd");
     --  Create a virtual "readme" file.
     Add_String(archive,
       "O2G (see ./tools/wavefront)" & ASCII.LF &
-      "Wavefront Object (.obj), with Materials (.mtl), to GLOBE_3D object translator." & 
+      "Wavefront Object (.obj), with Materials (.mtl), to GLOBE_3D object translator." &
       ASCII.LF & ASCII.LF &
       "O2G was invoked with the following command line: o2g " & ASCII.LF &
       Argument_Chain,
-      model_name & "_readme.txt", 
+      Simple_Name(model_name & "_readme.txt"),
       Creation_time => Zip.Convert(Ada.Calendar.Clock)
     );
     Finish (archive);
@@ -419,13 +441,15 @@ procedure O2G is
 
   procedure Syntax is
   begin
-    Put_Line(Current_Error, "Syntax: o2g model[.obj]");
+    Put_Line(Current_Error, "Syntax: o2g [options] model[.obj]");
     New_Line(Current_Error );
     Put_Line(Current_Error, "Options:" );
     Put_Line(Current_Error, "   -S(x,y,z)    : shifts centering by (x,y,z)");
     Put_Line(Current_Error, "   -Kscale      : set scaling factor");
-    New_Line;
+    New_Line(Current_Error );
     Put_Line(Current_Error, "Output: model.g3d, model.zip");
+    New_Line(Current_Error );
+    Put_Line(Current_Error, "Works with drag & drop 'model.obj' onto 'o2g.exe'");
   end Syntax;
 
   procedure Set_new_centre(ps: String) is
@@ -455,17 +479,18 @@ begin
     Syntax;
     return;
   end if;
-  
+
   for i in 1..Argument_Count loop
     declare
       arg  : constant String:= Argument(i);
       u_arg: constant String:= To_Upper( arg );
     begin
-      if u_arg'length > 1 and then
-        (u_arg(1) = '-' or u_arg(1) = '/') then
+      if u_arg'Length > 1 and then
+        (u_arg(1) = '-' or u_arg(1) = '/')
+      then
         case u_arg(2) is
           when 'S' =>
-            if arg'length < 4 then
+            if arg'Length < 4 then
               Syntax;
               return;
             end if;
@@ -492,11 +517,11 @@ begin
           end if;
         end;
       end if;
-    end;        
+    end;
   end loop;
 --  exception
 --    when e: others =>
---      Raise_Exception(Exception_Identity(e), Exception_Message(e) & 
+--      Raise_Exception(Exception_Identity(e), Exception_Message(e) &
 --        " Pass 1:" & Integer'Image(total_lines) &
 --        " Pass 2:" & Integer'Image(pass_2_lines) &
 --        " Pass 3:" & Integer'Image(pass_3_lines)

@@ -1205,8 +1205,8 @@ begin
 
   G3D.Textures.Check_all_textures; -- Preload the textures
 
-  --  Frames called directly just for identifying eventual issue with GLUT.MainLoop (OA)
-  for count in 1..10 loop
+  --  Frames called directly just for identifying eventual issue with GLUT.MainLoop (ObjectAda)
+  for count in 1..50 loop
     Main_operations;
   end loop;
   GLUT.MainLoop;  -- Let's rock !
