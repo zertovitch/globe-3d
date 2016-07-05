@@ -4,9 +4,9 @@ Please refer to GLOBE_3D_Info.html for the documentation!
 
 If you are really in a hurry, skip the documentation page,
 go to the demo directory and pick an appropriate project file:
-  globe_3d_darwin.gpr
-  globe_3d_linux.gpr
-  globe_3d_win32.gpr
-  globe_3d_objectada.prj
+
+  globe_3d_demos.gpr     (GNAT, valid at least for Windows 32-bit and Linux)
+  globe_3d_objectada.prj (ObjectAda 9.1+ project file)
+  globe_3d_darwin.gpr    (old GNAT project file for Mac; perhaps globe_3d_demos.gpr is OK)
 
 The upload's date appear in the _Upload_version_[date].txt file.
