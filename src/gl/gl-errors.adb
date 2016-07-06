@@ -19,9 +19,17 @@ package body GL.Errors is
 
    function Current return String
    is
-      function to_chars_ptr is new Ada.Unchecked_Conversion (GL.ubytePtr, chars_ptr);
+      Error : constant ErrorEnm := GL.GetError;
    begin
-      return Value (to_chars_ptr (GLU.ErrorString (GL.GetError)));
+      if Error = GL.NO_ERROR then
+         return "";
+      end if;
+
+      declare
+         function to_chars_ptr is new Ada.Unchecked_Conversion (GL.ubytePtr, chars_ptr);
+      begin
+         return Value (to_chars_ptr (GLU.ErrorString (GL.GetError)));
+      end;
    end;
 
    procedure Log (Prefix : in String := "")
@@ -29,7 +37,7 @@ package body GL.Errors is
       use Ada.Text_IO;
       current_Error : constant String:= Current;
    begin
-      if current_Error = "no error" then
+      if current_Error = "" then
          return;
       end if;
 
@@ -47,7 +55,7 @@ package body GL.Errors is
       use Ada.Text_IO;
       current_Error : constant String:= Current;
    begin
-      if current_Error = "no error" then
+      if current_Error = "" then
          error_Occurred := False;
          return;
       end if;
