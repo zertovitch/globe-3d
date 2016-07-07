@@ -3010,15 +3010,23 @@ package GL is
 
   procedure Fogf (pname: FogParameterEnm;
                   param: GL.Float);
+  procedure Fog (pname: FogParameterEnm;
+                 param: GL.Float) renames Fogf;
 
   procedure Fogi (pname: FogParameterEnm;
                   param: GL.Int);
+  procedure Fog (pname: FogParameterEnm;
+                 param: GL.Int) renames Fogi;
 
   procedure Fogfv (pname : FogParameterVEnm;
                    params: floatPtr);
+  procedure Fog (pname : FogParameterVEnm;
+                 params: floatPtr) renames Fogfv;
 
   procedure Fogiv (pname : FogParameterVEnm;
                    params: GL.intPointer);
+  procedure Fog (pname : FogParameterVEnm;
+                 params: GL.intPointer) renames Fogiv;
 
   -- Feedback
   type FeedbackModeEnm is

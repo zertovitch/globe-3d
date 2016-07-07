@@ -69,7 +69,7 @@ procedure GLOBE_3D_Demo is
 
   main_size_x, main_size_y: GL.Sizei;
 
-  foggy: constant Boolean:= False;
+  foggy: constant Boolean:= True;
 
   frontal_light: G3D.Light_definition;
 
@@ -802,7 +802,7 @@ procedure GLOBE_3D_Demo is
 
   procedure Fill_screen is
     use GL;
-    fact: constant:= 0.5;
+    fact: constant:= 0.4;
   begin
     ClearColor( fact * 0.2275, fact * 0.0745, fact * 0.4431, 0.0 );  --  Dark violet
     case smoothing is
@@ -1112,7 +1112,7 @@ procedure GLOBE_3D_Demo is
     InitWindowPosition(120, 120);
     if CreateWindow(
       "GLOBE_3D / Demo_1 / Any Debug = " &
-      Boolean'Image(G3D.Options.Is_debug_mode)
+      Boolean'Image(G3D.Options.Is_debug_mode) & " / Press Space key for next scene"
     ) = 0
     then
       raise GLUT_Problem;
@@ -1132,14 +1132,17 @@ procedure GLOBE_3D_Demo is
 
   procedure Start_GLs is
     use GL;
-    fog_colour: GL.Light_Float_Vector:= (0.2,0.2,0.2,0.1);
+    fog_colour: GL.Light_Float_Vector:= (0.05,0.15,0.15, 1.0);  --  looks like a toxic smoke...
   begin
     Clear_modes;
     Prepare_demo_lighting(0.9);
     if foggy then
-      Enable( FOG );
-      Fogfv(FOG_COLOR, fog_colour(0)'Unchecked_Access);
-      Fogf(FOG_DENSITY, 0.02);
+      Enable (FOG);
+      Fog (FOG_MODE, LINEAR);
+      Fog (FOG_COLOR, fog_colour(0)'Unchecked_Access);
+      Hint (FOG_HINT, FASTEST);
+      Fog (FOG_START, 1.0);
+      Fog (FOG_END, 0.125 * fairly_far);
     end if;
     Reset_for_3D( Integer(main_size_x), Integer(main_size_y ));
     case smoothing is
