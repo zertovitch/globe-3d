@@ -4,7 +4,7 @@
 --  Copyright (c) Gautier de Montmollin 2008
 ------------------------------------------------------------------------------
 
-with GL, GL.Math, GLU, GLUT.Devices;
+with GL, GL.Math, GLU, GLUT.Devices, GLUT_2D;
 
 with GLOBE_3D,
      GLOBE_3D.Math,
@@ -50,6 +50,13 @@ procedure Mini is
   ego: G3D.Camera;
   deg2rad: constant:= 3.1415926535897932 / 180.0;
 
+  procedure Set_Background_Color is
+    use GL;
+    fact: constant:= 0.4;
+  begin
+    ClearColor( fact * 0.2275, fact * 0.0745, fact * 0.4431, 0.0 );  --  Dark violet
+  end Set_Background_Color;
+
   procedure Reset_for_3D( width, height: Integer ) is
     use GL, G3D, G3D.REF;
     aspect, half_fov_max_rads, fovy: Real;
@@ -79,7 +86,7 @@ procedure Mini is
     -- multipled by the current matrix
     MatrixMode( MODELVIEW );
     ShadeModel( SMOOTH ); -- GL's default is SMOOTH, vs FLAT
-    ClearColor(0.0, 0.0, 0.0, 0.0);
+    Set_Background_Color;
     -- ^ Specifies clear values for color buffer(s)
     ClearAccum(0.0, 0.0, 0.0, 0.0);
     -- ^ Specifies clear values for the accumulation buffer
@@ -145,6 +152,26 @@ procedure Mini is
     Set_name(cube, "Trust the Cube !");
   end Create_objects;
 
+  procedure Title is
+    use GL;
+    logo: G3D.Image_ID;
+    f: constant:= 2;
+  begin
+    PushMatrix;
+    Disable( LIGHTING );
+    Color(1.0,1.0,1.0);
+    Enable( TEXTURE_2D );
+    Enable(BLEND);
+    BlendFunc(sfactor => SRC_ALPHA, dfactor => ONE_MINUS_SRC_ALPHA);
+    logo:= G3D.Textures.Texture_ID("g3d_logo");
+    G3D.Textures.Check_2D_texture(logo);
+    GLUT_2D.Put_Image(
+      G3D.Image_ID'Pos(logo)+1,
+      0, Int'Max(0,Int(main_size_y)-128/f), 512/f, 128/f, main_size_x, main_size_y
+    );
+    PopMatrix;
+  end Title;
+
   procedure Display_scene(
     o: in out G3D.Object_3D'Class
   )
@@ -169,6 +196,7 @@ procedure Mini is
     PushMatrix;
     G3D.Display( o, ego.clipper );
     PopMatrix;
+    Title;
   end Display_scene;
 
   -- Timer management
@@ -291,10 +319,11 @@ begin
 
   G3D.Textures.Check_all_textures; -- Preload the textures
 
-  --  Frames called directly just for identifying eventual issue with GLUT.MainLoop (ObjectAda)
-  for count in 1..50 loop
-    Main_Operations;
-  end loop;
+  --  Frame called directly just for checking display and identifying eventual
+  --  issue with GLUT.MainLoop (ObjectAda)
+  Main_Operations;
+  delay 1.0;
+  --
   GLUT.MainLoop;  -- Let's rock !
 
 end Mini;

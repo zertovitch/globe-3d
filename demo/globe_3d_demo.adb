@@ -120,8 +120,14 @@ procedure GLOBE_3D_Demo is
   end Clear_modes;
 
   deg2rad   : constant:= Pi / 180.0;
-
   ego: G3D.Camera;
+
+  procedure Set_Background_Color is
+    use GL;
+    fact: constant:= 0.4;
+  begin
+    ClearColor( fact * 0.2275, fact * 0.0745, fact * 0.4431, 0.0 );  --  Dark violet
+  end Set_Background_Color;
 
   procedure Reset_for_3D( width, height: Integer ) is
     use GL, G3D, G3D.REF;
@@ -152,10 +158,9 @@ procedure GLOBE_3D_Demo is
     -- multipled by the current matrix
     MatrixMode( MODELVIEW );
     ShadeModel( SMOOTH ); -- GL's default is SMOOTH, vs FLAT
-    ClearColor(0.0, 0.0, 0.0, 0.0);
-    -- ^ Specifies clear values for color buffer(s)
+    Set_Background_Color;
+    -- Specify clear values for the accumulation buffer
     ClearAccum(0.0, 0.0, 0.0, 0.0);
-    -- ^ Specifies clear values for the accumulation buffer
   end Reset_for_3D;
 
   forget_mouse: Natural:= 0;
@@ -802,9 +807,8 @@ procedure GLOBE_3D_Demo is
 
   procedure Fill_screen is
     use GL;
-    fact: constant:= 0.4;
   begin
-    ClearColor( fact * 0.2275, fact * 0.0745, fact * 0.4431, 0.0 );  --  Dark violet
+    Set_Background_Color;
     case smoothing is
       when software =>
         SAA.Set_quality(SAA.Q3);

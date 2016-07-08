@@ -4,9 +4,9 @@
 --
 --  Target specification:
 --  
---  For Windows 32-bits (default) : gprbuild -P d3a.gpr -XOS_Kind=win32
---  For Linux                     : gprbuild -P d3a.gpr -XOS_Kind=linux
---  For Mac OS X (untested)       : gprbuild -P d3a.gpr -XOS_Kind=macosx
+--  For Windows 32-bits (default) : gprbuild -P w2a.gpr -XOS_Kind=win32
+--  For Linux                     : gprbuild -P w2a.gpr -XOS_Kind=linux
+--  For Mac OS X (untested)       : gprbuild -P w2a.gpr -XOS_Kind=macosx
 --
 
 with "../../globe_3d";
