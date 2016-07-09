@@ -12,7 +12,7 @@ package body Doom3_Help is
 
   function Image( i: Integer ) return String is
   begin
-    return Trim(Integer'Image(i),both);
+    return Trim(Integer'Image(i),Both);
   end Image;
 
   function Strip_quotes(s:String) return String is
@@ -73,8 +73,7 @@ package body Doom3_Help is
   origin_cat: Model_Origins.Map;
 
   procedure Parse_map_file is
-    use Ada.Text_IO;
-    f: File_type;
+    f: File_Type;
     P_id, P: GL.Double_Vector_3D;
     model: Unbounded_String;
     map_file_name: constant String:= pkg & ".map";
@@ -229,21 +228,21 @@ package body Doom3_Help is
   -----------------------
   -- Same textures appear numerous times in a .proc file, then
   -- it is difficult to figure out how many and which ones they are
-  type dir_node;
+  type Dir_node;
   type p_Dir_node is access Dir_node;
 
   type Dir_node(name_len: Natural) is record
-    left, right : p_dir_node;
+    left, right : p_Dir_node;
     name        : String(1..name_len);
   end record;
 
   catalogue: p_Dir_node:= null;
 
   procedure Insert( name: String;
-                    node: in out p_dir_node ) is
+                    node: in out p_Dir_node ) is
   begin
     if node = null then
-      node:= new dir_node'
+      node:= new Dir_node'
         ( (name_len => name'Length,
            left => null, right => null,
            name => name) );
@@ -257,8 +256,7 @@ package body Doom3_Help is
   end Insert;
 
   procedure Write_catalogue is
-    use Ada.Text_IO;
-    f: File_type;
+    f: File_Type;
     n: Natural:= 0;
     type Style_kind is
      (Ada_enum, Unzip_list,
@@ -271,7 +269,7 @@ package body Doom3_Help is
     function File_suffix(style: Style_kind) return String is
     begin
       case style is
-        when Ada_Enum =>
+        when Ada_enum =>
           return "_enum.ada";
         when Unzip_list =>
           return "_unzip_list.txt";
@@ -279,9 +277,9 @@ package body Doom3_Help is
           return "_unzip1.bat";
         when Unzip_cmd2 =>
           return "_unzip2.bat";
-        when Add_suffix1 =>
+        when add_suffix1 =>
           return "_add_tex_suffix1.bat";
-        when Add_suffix2 =>
+        when add_suffix2 =>
           return "_add_tex_suffix2.bat";
         when copy_fakes =>
           return "_copy_fakes.bat";
@@ -290,7 +288,7 @@ package body Doom3_Help is
 
     junk_opt: String(1..2):= "  ";
 
-    procedure Traverse( p: p_dir_node; style: Style_kind ) is
+    procedure Traverse( p: p_Dir_node; style: Style_kind ) is
     begin
       if p /= null then
         Traverse(p.left,style);
@@ -303,7 +301,7 @@ package body Doom3_Help is
                 s: constant String:= Junk(p.name);
               begin
                 if Col(f)+s'Length > 75 then New_Line(f); else Put(f,' '); end if;
-                Put(f,junk(p.name) & ',');
+                Put(f, Junk(p.name) & ',');
               end;
             when Unzip_list =>
               Put_Line(f, tex & ".*");
@@ -345,7 +343,7 @@ package body Doom3_Help is
     end if;
     for style in Style_kind loop
       n:= 0;
-      Create(f,out_file, pkg & "_textures" & File_suffix(style));
+      Create(f,Out_File, pkg & "_textures" & File_suffix(style));
       Traverse(catalogue,style);
       Close(f);
     end loop;
@@ -391,7 +389,6 @@ package body Doom3_Help is
   surface_top: Natural:= 0;
 
   procedure Reset_surfaces is
-    use GLOBE_3D;
   begin
     for i in 1..surface_top loop
       Dispose(surface_stack(i).point);
@@ -410,7 +407,6 @@ package body Doom3_Help is
     nfaces : Natural
   )
   is
-    use GLOBE_3D;
     base_name: constant String:= Optional_Junk(Strip_quotes(name_with_quotes));
     name: constant String:= base_name & "_d";
   begin
@@ -441,7 +437,7 @@ package body Doom3_Help is
   begin
     st.curr_d3_pt:= st.curr_d3_pt + 1;
     for i in 1..st.curr_pt loop
-      if Almost_zero(Norm(st.point(i) - P)) then
+      if Almost_zero(Norm(st.point(i) - p)) then
         --  Put_Line( Standard_Error,
         --    "Duplicate point: pt #" & Integer'Image(i) &
         --    " is same as intended for #" & Integer'Image(st.curr_pt)
@@ -452,7 +448,7 @@ package body Doom3_Help is
       end if;
     end loop;
     st.curr_pt:= st.curr_pt + 1;
-    st.point(st.curr_pt):= P;
+    st.point(st.curr_pt):= p;
     st.d3_pt_to_pt(st.curr_d3_pt):= st.curr_pt;
   end;
 
@@ -555,7 +551,6 @@ package body Doom3_Help is
     local_vertex_number: Integer;
     d3_vertex_number: Integer;
     m: Model renames model_stack(model_top);
-    use GLOBE_3D;
   begin
     m.obj:= new Object_3D(total_points,total_faces);
     max_faces := Integer'Max(max_faces, total_faces);
@@ -652,8 +647,8 @@ package body Doom3_Help is
         p,f: Natural;
       begin
         if m.portals_to_be_added > 0 then
-          p:= m.obj.max_points;
-          f:= m.obj.max_faces;
+          p:= m.obj.Max_points;
+          f:= m.obj.Max_faces;
           new_obj:= new Object_3D(
             Max_points => p + 4*m.portals_to_be_added,
             Max_faces  => f +   m.portals_to_be_added
@@ -705,13 +700,13 @@ package body Doom3_Help is
     end Include_Portals;
 
   begin
-    for i in 1..iap_top loop
-      Include_Portals(i, iap_stack(i).iap_pos, iap_stack(i).iap_neg, True);
-      Include_Portals(i, iap_stack(i).iap_neg, iap_stack(i).iap_pos, False);
+    for i in 1..IAP_top loop
+      Include_Portals(i, IAP_stack(i).iap_pos, IAP_stack(i).iap_neg, True);
+      Include_Portals(i, IAP_stack(i).iap_neg, IAP_stack(i).iap_pos, False);
     end loop;
   end Complete_area_with_portals;
 
-  type BSP_farm is array(Natural range <>) of GLOBE_3D.BSP.p_BSP_Node;
+  type BSP_farm is array(Natural range <>) of GLOBE_3D.BSP.p_BSP_node;
 
   type p_BSP_farm is access BSP_farm;
 
@@ -721,14 +716,14 @@ package body Doom3_Help is
   begin
     farm:= new BSP_farm(0..number-1);
     for i in farm'Range loop
-      farm(i):= new GLOBE_3D.BSP.BSP_Node;
+      farm(i):= new GLOBE_3D.BSP.BSP_node;
     end loop;
     current_BSP_node:= -1;
   end;
 
   procedure Process_BSP_Node is
     use GLOBE_3D.BSP, GL.Math, GL;
-    n: BSP_Node renames farm(current_BSP_node).all;
+    n: BSP_node renames farm(current_BSP_node).all;
   begin
     -- In .proc files:
     --
@@ -796,7 +791,7 @@ package body Doom3_Help is
     use GL, GL.Math, GLOBE_3D.Aux;
     log: File_Type;
   begin
-    Create(log, out_file, log_name);
+    Create(log, Out_File, log_name);
     if not map_file_found then
       Put_Line(log,
         "*** Caution: map file: " & root_name &

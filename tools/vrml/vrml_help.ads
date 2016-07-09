@@ -23,15 +23,15 @@ package VRML_Help is
   sepa_count: Natural:= 0; -- Total # of separators
 
   idx_last_sepa: Natural:= 0;
-  
+
   flag_group : Boolean;
 
   indent: Natural:= 0;
 
   subtype Real is Float;
-  
+
   type Point_3D is array(0..2) of Real;
-  
+
   last_pt: Point_3D;
 
   type Material_Float_vector is array(0..3) of aliased Real;
@@ -42,13 +42,13 @@ package VRML_Help is
     specular,
     emission  : Material_Float_vector;
     shininess : Real; -- 0.0 .. 128.0
-  end record;  
+  end record;
 
-  default_material   : constant Material_type:= (                                
-            ambient =>        (0.2, 0.2, 0.2, 1.0),        
-            diffuse =>        (0.8, 0.8, 0.8, 1.0),        
-            specular =>       (0.0, 0.0, 0.0, 1.0),        
-            emission =>       (0.0, 0.0, 0.0, 1.0),        
+  default_material   : constant Material_type:= (
+            ambient =>        (0.2, 0.2, 0.2, 1.0),
+            diffuse =>        (0.8, 0.8, 0.8, 1.0),
+            specular =>       (0.0, 0.0, 0.0, 1.0),
+            emission =>       (0.0, 0.0, 0.0, 1.0),
             shininess =>       25.6);
 
   sepa_matos_defined: array(1..max_sepa) of Boolean:= (others => False);
@@ -74,7 +74,7 @@ package VRML_Help is
 
   -- *---------------------------------------------------------------------*
   -- *  vrml.h
-  -- *           
+  -- *
   -- * Project: SICS DIVE
   -- * Copyright: SICS
   -- * Implemented by: Emmanuel Frécon and Olof Hagsand
@@ -143,8 +143,7 @@ package VRML_Help is
   --  normals to the two faces form an angle that is less than .5 radians
   --  (about 30 degrees). Otherwise, it will be faceted.
 
-     
-  -- Vertex ordering
+-- Vertex ordering
   type VRML_vertex_ordering is (
     VRML_UNKNOWN_ORDERING,
     VRML_CLOCKWISE,
@@ -185,5 +184,5 @@ package VRML_Help is
     VRML_REPEAT,
     VRML_CLAMP
   );
-  
+
 end VRML_Help;

@@ -46,22 +46,22 @@ procedure D3G is
     Doom3_Help.main_centre:= Doom3_Help.main_centre + p;
   end Set_new_centre;
 
-
 begin
   for i in 1..Argument_Count loop
     declare
       arg  : constant String:= Argument(i);
       u_arg: constant String:= To_Upper( arg );
     begin
-      if u_arg'length > 1 and then
-        (u_arg(1) = '-' or u_arg(1) = '/') then
+      if u_arg'Length > 1 and then
+        (u_arg(1) = '-' or u_arg(1) = '/')
+      then
         case u_arg(2) is
           when 'J' =>
             Doom3_Help.junk_dirs:= True;
           when 'A' =>
             Doom3_Help.areas_only:= True;
           when 'S' =>
-            if arg'length < 4 then
+            if arg'Length < 4 then
               Syntax;
               return;
             end if;
@@ -87,7 +87,7 @@ begin
           begin
             Doom3_IO.Open_Input (fname => arg);
             Inp_Opened := True;
-            Put_Line(Standard_error,
+            Put_Line(Standard_Error,
               "D3G from '" & arg & "'." );
           exception
             when Name_Error =>
@@ -101,13 +101,13 @@ begin
     end;
   end loop;
 
-  if not Inp_opened then
-    Put_Line(Standard_error,"Missing input file!");
+  if not Inp_Opened then
+    Put_Line(Standard_Error,"Missing input file!");
     Syntax;
     return;
   end if;
 
-  Doom3_Help.has_input:= inp_opened;
+  Doom3_Help.has_input:= Inp_Opened;
 
   Doom3_Help.D3G_Init;
 

@@ -14,7 +14,7 @@ package body VRML_Help is
     else
       return Trim(s, Both);
     end if;
-  end Fac_trim;  
+  end Fac_trim;
 
   function Image( r: Real ) return String is
     s: String(1..11);
@@ -37,7 +37,7 @@ package body VRML_Help is
   exception
     when Ada.Text_IO.Layout_Error =>
       return Fac_trim(Real'Image(r));
-  end Image;  
+  end Image;
 
   function Coords( p: Point_3D ) return String is
   begin
@@ -138,7 +138,7 @@ package body VRML_Help is
     nb_points, nb_polys: Natural;
   begin
     table_area:= False;
-    Ada_Create;
+    Ada_create;
     indent:= 1;
     Ada_New_Line;
     indent:= 2;
@@ -182,7 +182,7 @@ package body VRML_Help is
     nb_points:= 0;
     nb_polys := 0;
     for i in 1..sepa_count loop
-      Ada_comment("Creating separator #" & Integer'Image(i));
+      Ada_Comment("Creating separator #" & Integer'Image(i));
       if sepa_points(i) > 0 then
         indent:= indent + 1;
         Ada_Put_Line("if Almost_zero(scale - 1.0) then");
@@ -196,16 +196,16 @@ package body VRML_Help is
           ";"
         );
         indent:= indent + 1;
-        Ada_Put_Line("else");        
+        Ada_Put_Line("else");
         indent:= indent + 1;
-        Ada_Put_Line("for p in 1 .."  & Integer'Image(sepa_points(i)) & " loop");        
+        Ada_Put_Line("for p in 1 .."  & Integer'Image(sepa_points(i)) & " loop");
         indent:= indent - 1;
         Ada_Put_Line(
           "object.point(" & Integer'Image(nb_points) &
           " + p ):= scale * coord_" & Trim(Natural'Image(i), Left) & "(p);");
         indent:= indent - 1;
-        Ada_Put_Line("end loop;");        
-        Ada_Put_Line("end if;");        
+        Ada_Put_Line("end loop;");
+        Ada_Put_Line("end if;");
       end if;
       if sepa_matos_defined(i) then
         Ada_Put_Line(
@@ -219,9 +219,9 @@ package body VRML_Help is
         indent:= indent - 1;
         Ada_Put_Line(
           "object.face(" & Integer'Image(nb_polys) & " + f ):= face_0;");
-        Ada_Put_Line("end loop;");        
+        Ada_Put_Line("end loop;");
       end if;
-      
+
       nb_points:= nb_points + sepa_points(i);
       nb_polys := nb_polys  + sepa_polys(i);
     end loop;
@@ -229,7 +229,7 @@ package body VRML_Help is
     indent:= 0;
     Ada_Put_Line("end Create;");
     Ada_Put_Line("end;");
-    Ada_comment(blurb);
+    Ada_Comment(blurb);
   end YY_Accept;
 
   procedure YY_Abort is
@@ -246,7 +246,7 @@ package body VRML_Help is
   begin
     iPut_Line("-- " & s, as_comment => True);
   end;
-  
+
   procedure VRML_Info(s: String) is
   begin
     Ada_Comment("VRML Info: [" & s & ']');
@@ -264,7 +264,7 @@ package body VRML_Help is
       Ada_Put_Line("with GLOBE_3D;");
       Ada_New_Line;
       Ada_Put_Line("package " & pkg &" is");
-      Ada_Create;
+      Ada_create;
       indent:= 0;
       Ada_Put_Line(";");
       Ada_New_Line;
@@ -289,7 +289,7 @@ package body VRML_Help is
   begin
     iPut_Line(s, as_comment => False);
   end;
-  
+
   procedure Ada_New_Line is
   begin
     iNew_Line;
@@ -308,7 +308,7 @@ package body VRML_Help is
   idx_point_buffer: Natural:= 0;
 
   procedure Point_index(i: Integer) is
-  
+
     procedure Store(v: Natural) is
     begin
       idx_point_buffer:= idx_point_buffer + 1;
@@ -336,7 +336,7 @@ package body VRML_Help is
       ig:= 0;
       case current_shape_hints.ordering is
         when VRML_CLOCKWISE =>
-          for pt in reverse 1..idx_point_buffer loop 
+          for pt in reverse 1..idx_point_buffer loop
             Ada_Put(Fac_trim(Integer'Image(point_buffer(pt))));
             if pt > 1 then
               Ada_Put(",");
