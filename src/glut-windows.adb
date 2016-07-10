@@ -31,8 +31,6 @@ package body GLUT.Windows is
    package G3D  renames GLOBE_3D;
    package G3DM renames G3D.Math;
 
-   use Ada.Strings.Unbounded;
-
    deg2rad      : constant := Pi / 180.0;
    GLUT_Problem : exception;
 
@@ -266,6 +264,24 @@ package body GLUT.Windows is
       if Self.is_capturing_Video then
          GLUT_2D.Text_output (0, 150, Self.main_size_x, Self.main_size_y, "*recording*", GLUT_2D.Helvetica_10);
       end if;
+
+      declare
+         use status_Line_Vectors;
+         C : status_Line_Vectors.Cursor := Self.extra_Status.First;
+         L : status_Line;
+      begin
+         while Has_Element (C)
+         loop
+            L := Element (C);
+            GLUT_2D.Text_output (L.X, L.Y,
+                                 Self.main_size_x, Self.main_size_y,
+                                 To_String (L.Text),
+                                 GLUT_2D.Helvetica_10);
+            next (C);
+         end loop;
+
+         Self.extra_Status.Clear;
+      end;
 
       PopMatrix;
 
@@ -704,6 +720,16 @@ package body GLUT.Windows is
 
    -- status display
    --
+
+   procedure add_status_Line (Self : in out Window;   Text : in String;
+                                                      X, Y : in Integer)
+   is
+   begin
+      Self.extra_Status.Append (New_Item => (Text => To_Unbounded_String (Text),
+                                             X    => GL.Int (X),
+                                             Y    => GL.Int (Y)));
+   end add_status_Line;
+
 
    function  show_Status (Self : in     Window) return Boolean
    is

@@ -14,7 +14,8 @@
 with Game_control;
 with GLUT.Devices;
 
-with Ada.Strings.Unbounded;
+with Ada.Strings.Unbounded,
+     Ada.Containers.Vectors;
 
 with GLOBE_3D;
 
@@ -67,6 +68,9 @@ package GLUT.Windows is
    -- Status display
    --
 
+   procedure add_status_Line (Self : in out Window;   Text : in String;
+                                                      X, Y : in Integer);
+
    function  show_Status (Self : in     Window) return Boolean;
    procedure show_Status (Self : in out Window;
                           Show : in     Boolean := True);
@@ -83,8 +87,18 @@ package GLUT.Windows is
    function Mouse    (Self : access Window'Class) return Devices.p_Mouse;
 
 private
+   use Ada.Strings.Unbounded;
 
    type natural_Array is array (Positive range 1 .. 123) of Natural;
+
+   type status_Line is
+      record
+         Text : Unbounded_String;
+         X, Y : GL.Int;
+      end record;
+
+   package status_Line_Vectors is new Ada.Containers.Vectors (Index_Type   => Positive,
+                                                              Element_Type => status_Line);
 
    type Window is new GLOBE_3D.Window with
       record
@@ -98,6 +112,7 @@ private
          is_Visible   : Boolean          := True;
          is_Closed    : Boolean          := False;
          show_Status  : Boolean          := True;
+         extra_Status : status_Line_Vectors.Vector;
 
          main_size_x,
          main_size_y  : GL.Sizei;

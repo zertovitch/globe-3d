@@ -5,6 +5,7 @@ with
 
      GLUT.Windows,
      GLUT.Devices,
+     GLUT_2D,
 
      GL.Extended,
      GL.Skins,
@@ -45,7 +46,7 @@ begin
       Usage_2 : constant String :=  "   'v' : enable/disable 'vanishing point' culling (only applies when objects";
       Usage_3 : constant String :=  "         are *very* distant ... ie past the 'vanishing point').";
       Usage_4 : constant String :=  "   'i' : enable/disable use of 'impostor's (most noticeable when entire grid is visible)";
-      Usage_5 : constant String :=  "   'b' : enable/disable 'frustum culling' (most noticeable when in the middle";
+      Usage_5 : constant String :=  "   'f' : enable/disable 'frustum culling' (most noticeable when in the middle";
       Usage_6 : constant String :=  "         of the grid ... ie at the starting position).";
    begin
       New_Line;
@@ -105,7 +106,7 @@ begin
                Culler.vanish_point_size_Min_is (default_vanish_point_size_Min);
             end if;
 
-         elsif strike_Once ('B', Viewer.Keyboard)
+         elsif strike_Once ('F', Viewer.Keyboard)
          then
             if Culler.frustum_culling_Enabled then
                Culler.frustum_culling_Enabled_is (False);
@@ -120,6 +121,21 @@ begin
             else
                Culler.impostor_size_Min_is (default_impostor_size_Min);
             end if;
+         end if;
+
+         if Culler.impostor_size_Min = 0.0
+         then   Viewer.add_status_Line ("Impostors:     Off", 300, 50);
+         else   Viewer.add_status_Line ("Impostors:     On",  300, 50);
+         end if;
+
+         if Culler.vanish_point_size_Min = 0.0
+         then   Viewer.add_status_Line ("Vanish Point: Off", 300, 60);
+         else   Viewer.add_status_Line ("Vanish Point: On",  300, 60);
+         end if;
+
+         if Culler.frustum_culling_Enabled
+         then   Viewer.add_status_Line ("Frustum Cull:  On",  300, 70);
+         else   Viewer.add_status_Line ("Frustum Cull:  Off", 300, 70);
          end if;
 
          evolve (Culler,  by => 0.02);
