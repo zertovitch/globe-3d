@@ -744,5 +744,5 @@ idx_7: constant Idx_4_array_array:=
       object.face( 1136 + f ):= face_0;
     end loop;
     end Create;
-end;
+end SkotKnot;
 -- Converted by Wrl2Ada

@@ -26,7 +26,7 @@ package body Terrain.VBO is
    begin
       the_Sprite.is_Terrain := True;
       return the_Sprite;
-   end;
+   end new_terrain_Sprite;
 
    procedure Heights_are (Self : in Sprite.p_Sprite;   Now      : in     height_Map;
                                                        Scale    : in     GLOBE_3D.Vector_3D;
@@ -95,7 +95,7 @@ package body Terrain.VBO is
 
       Self.skinned_Geometries (1).Geometry := the_Geometry.all'Access;
       Self.skinned_geometry_Count          := 1;
-   end;
+   end Heights_are;
 
    procedure Texture_is (Self : in Sprite.p_Sprite;   Now                 : in     GL.Textures.Object;
                                                       texture_Transform_s : in     GL.Textures.texture_Transform;
@@ -121,7 +121,7 @@ package body Terrain.VBO is
       end;
 
       free (texture_Coords);
-   end;
+   end Texture_is;
 
    procedure create (Object              :    out GLOBE_3D.Sprite.p_Sprite;
                      the_height_Map      : in     height_Map;
@@ -185,7 +185,7 @@ package body Terrain.VBO is
             Last := Last + 1;
          end if;
          return Last;
-      end;
+      end Grid_last;
 
       the_heightmap_Grid : height_map_Grid (1 .. Grid_last (the_Matrix'Length (1), tile_Depth),
                                             1 .. Grid_last (the_Matrix'Length (2), tile_Width));

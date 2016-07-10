@@ -6,7 +6,7 @@ use
 
 package body GLOBE_3D.tri_Mesh is
 
-   procedure dummy is begin null; end;
+   procedure dummy is begin null; end dummy;
 
    -- 'vertex_cache_optimise' is based on algorithm descibed here ... http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
    --
@@ -23,13 +23,13 @@ package body GLOBE_3D.tri_Mesh is
       is
       begin
          return 3 * (the_Face - 1)  + the_Vertex;
-      end;
+      end Indices_Index;
 
       function face_vertex_Id (the_Face : in positive_uInt;   the_Vertex : in positive_uInt) return GL.Geometry.vertex_Id
       is
       begin
          return Indices (Indices_Index (the_Face, the_Vertex));
-      end;
+      end face_vertex_Id;
 
       Max_triangles_per_vertex : constant := 150;  -- tbd: what is a sensible size here ?
       MaxSizeVertexCache       : constant := 35;
@@ -113,7 +113,7 @@ package body GLOBE_3D.tri_Mesh is
          end loop;
 
          in_Vertex.tri_Count_unadded := in_Vertex.tri_Count_unadded - 1;
-      end;
+      end rid_Triangle;
 
       type vco_Triangle is
          record
@@ -204,7 +204,7 @@ package body GLOBE_3D.tri_Mesh is
                when Constraint_Error =>
                   Put_Line ("vco_Triangles max exceeded ... increase Max_triangles_per_vertex !!");
                   raise;
-            end;
+            end add_face_Vertex;
          begin
             add_face_Vertex (1);
             add_face_Vertex (2);

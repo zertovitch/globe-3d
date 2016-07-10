@@ -38,7 +38,7 @@ package body GL.Skins is
    is
    begin
       null;
-   end;
+   end destroy;
 
    procedure free (Self : in out p_Veneer)
    is
@@ -46,13 +46,13 @@ package body GL.Skins is
    begin
       destroy    (Self.all);
       deallocate (Self);
-   end;
+   end free;
 
    procedure destroy (Self : in out Skin)
    is
    begin
       null;
-   end;
+   end destroy;
 
    procedure free (Self : in out p_Skin)
    is
@@ -60,7 +60,7 @@ package body GL.Skins is
    begin
       destroy    (Self.all);
       deallocate (Self);
-   end;
+   end free;
 
    -- Skin_opaque_unlit_mono_color
    --
@@ -71,7 +71,7 @@ package body GL.Skins is
    pragma Unreferenced (for_Geometry, Self);
    begin
       return null;
-   end;
+   end new_Veneer;
 
    overriding
    procedure enable (Self : in out Skin_opaque_unlit_mono_color)
@@ -88,7 +88,7 @@ package body GL.Skins is
                  dfactor => ONE_MINUS_SRC_ALPHA);
 
       GL.Color (Self.Color.red,  Self.Color.green,  Self.Color.blue,  1.0);
-   end;
+   end enable;
 
    overriding
    function  is_Transparent (Self : in     Skin_opaque_unlit_mono_color) return Boolean
@@ -96,7 +96,7 @@ package body GL.Skins is
    pragma Unreferenced (Self);
    begin
       return False;
-   end;
+   end is_Transparent;
 
    -- Skin_opaque_lit_mono_color
    --
@@ -108,7 +108,7 @@ package body GL.Skins is
       Disable_VBO;    -- Disable 'vertex buffer objects'.
       EnableClientState (NORMAL_ARRAY);
       NormalPointer     (GL_DOUBLE,  0,  to_Pointer (Self.Normals (1)(0)'Unchecked_Access));
-   end;
+   end enable;
 
    overriding
    function  new_Veneer (Self : in     Skin_opaque_lit_mono_color;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
@@ -118,7 +118,7 @@ package body GL.Skins is
                                                                            normals     => vertex_Normals (for_Geometry));
    begin
       return the_Veneer;
-   end;
+   end new_Veneer;
 
    overriding
    procedure enable (Self : in out Skin_opaque_lit_mono_color)
@@ -131,14 +131,14 @@ package body GL.Skins is
 
       GL.Enable    (LIGHTING);
       Set_Material (Self.Material);
-   end;
+   end enable;
 
    overriding
    function is_Transparent (Self : in Skin_opaque_lit_mono_color) return Boolean
    is
    begin
       return Is_transparent (Self.Material);
-   end;
+   end is_Transparent;
 
    -- Skin: transparent unlit textured
    --
@@ -150,14 +150,14 @@ package body GL.Skins is
       Disable_VBO;    -- Disable 'vertex buffer objects'.
       EnableClientState (GL.TEXTURE_COORD_ARRAY);
       GL.TexCoordPointer   (2,  GL_DOUBLE,  0,  to_Pointer (Self.texture_Coordinates (1).S'Unchecked_Access));
-   end;
+   end enable;
 
    overriding
    procedure destroy (Self : in out Skin_transparent_unlit_textured)
    is
    begin
       destroy (Self.Texture);
-   end;
+   end destroy;
 
    overriding
    function new_Veneer (Self : in Skin_transparent_unlit_textured;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
@@ -171,7 +171,7 @@ package body GL.Skins is
       end if;
 
       return the_Veneer.all'Access;
-   end;
+   end new_Veneer;
 
    overriding
    procedure enable (Self : in out Skin_transparent_unlit_textured)
@@ -187,13 +187,13 @@ package body GL.Skins is
       GL.AlphaFunc (GREATER, 0.1);
 
       enable (Self.Texture);
-   end;
+   end enable;
 
    overriding
    function is_Transparent (Self : in Skin_transparent_unlit_textured) return Boolean
    is
    begin
       return is_Transparent (Self.Texture);
-   end;
+   end is_Transparent;
 
 end GL.Skins;

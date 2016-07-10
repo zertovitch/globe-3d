@@ -1545,7 +1545,7 @@ package body GL.Simple_text is
             pen_down:= False;
             GL_End;
           end if;
-        end;
+        end Pen_up;
         scale: constant Real:= letter_height / Real(f.height);
       begin
         if c not in f.first_char..f.last_char then
@@ -1583,7 +1583,7 @@ package body GL.Simple_text is
         Pen_up;
         --
         x:= x + scale * Real(f.width(c));
-      end;
+      end Out_char_l2;
     begin
       case font is
         when Simple =>
@@ -1593,7 +1593,7 @@ package body GL.Simple_text is
         when Sans_Serif =>
           Out_char_l2(sans_serif_font);
       end case;
-    end;
+    end Out_char_l1;
   begin
     x:= p(0);
     y:= p(1);

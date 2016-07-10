@@ -16,42 +16,42 @@ package body GL.Geometry.VA is
    is
    begin
       return Self.Primitive.primitive_Id;
-   end;
+   end primitive_Id;
 
    overriding
    function  vertex_Count (Self : in     primal_Geometry) return GL.Geometry.vertex_Id
    is
    begin
       return Self.Primitive.Vertices'Length;
-   end;
+   end vertex_Count;
 
    overriding
    function  indices_Count (Self : in     primal_Geometry) return GL.positive_uInt
    is
    begin
       return Self.Primitive.Indices'Length;
-   end;
+   end indices_Count;
 
    overriding
    function Bounds (Self : in     primal_Geometry) return GL.Geometry.Bounds_record
    is
    begin
       return Bounds (Self.Primitive.Vertices.all);
-   end;
+   end Bounds;
 
    overriding
    function Vertices (Self : in     primal_Geometry) return GL.Geometry.Vertex_array
    is
    begin
       return Self.Primitive.Vertices.all;
-   end;
+   end Vertices;
 
    procedure set_Vertices  (Self : in out primal_Geometry;   To : access GL.Geometry.Vertex_array)
    is
    begin
       Self.Primitive.set_Vertices (To => To);
       Self.Bounds := Bounds (Self.Primitive.Vertices.all);
-   end;
+   end set_Vertices;
 
    overriding
    function Indices (Self : in     primal_Geometry) return GL.Geometry.vertex_Id_array
@@ -60,20 +60,20 @@ package body GL.Geometry.VA is
    begin
       increment (the_Indices);
       return the_Indices;
-   end;
+   end Indices;
 
    procedure set_Indices   (Self : in out primal_Geometry;   To : access GL.Geometry.vertex_Id_array)
    is
    begin
       Self.Primitive.set_Indices (To => To);
-   end;
+   end set_Indices;
 
    overriding
    procedure draw (Self : in     primal_Geometry)
    is
    begin
       Self.Primitive.Draw;
-   end;
+   end draw;
 
    overriding
    procedure destroy (Self : in out primal_Geometry)
@@ -81,6 +81,6 @@ package body GL.Geometry.VA is
       use Primitive;
    begin
       free (Self.Primitive);
-   end;
+   end destroy;
 
 end GL.Geometry.VA;

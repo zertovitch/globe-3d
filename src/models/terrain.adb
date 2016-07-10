@@ -24,7 +24,7 @@ package body Terrain is
       Free (the_Image.Data);
 
       return the_Heights;
-   end;
+   end to_Matrix;
 
    procedure flip_Vertically (Self : in out Matrix)
    is
@@ -54,19 +54,19 @@ package body Terrain is
       end loop;
 
       return the_height_Map;
-   end;
+   end to_Height_Map;
 
    function Width  (Self : in height_Map) return Real
    is
    begin
       return Real (Self.column_Count - 1);
-   end;
+   end Width;
 
    function Depth (Self : in height_Map) return Real
    is
    begin
       return Real (Self.row_Count - 1);
-   end;
+   end Depth;
 
    function Vertex_Id_for (the_height_Map : in height_Map;
                            Row, Col       : in Positive) return GL.Geometry.vertex_Id is

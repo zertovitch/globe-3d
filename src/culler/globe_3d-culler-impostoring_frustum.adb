@@ -29,7 +29,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       new_sprite_Set.Impostor.set_Target (the_Visual);
 
       Self.object_sprite_set_Map.Insert (the_Visual, new_sprite_Set);
-   end;
+   end add;
 
    overriding
    procedure rid (Self : in out Culler;   the_Visual : in GLOBE_3D.p_Visual)
@@ -37,50 +37,50 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
    begin
       free (Self.object_sprite_set_Map.Element (the_Visual));
       Self.object_sprite_set_Map.Delete (the_Visual);
-   end;
+   end rid;
 
    overriding
    function  object_Count (Self : in Culler) return Natural    -- tbd: should use ada.containers.Count_type instead of Natural ?
    is
    begin
       return Natural (Self.object_sprite_set_Map.Length);
-   end;
+   end object_Count;
 
    function vanish_point_size_Min (Self : in     Culler'Class) return Real
    is
    begin
       return Self.vanish_point_size_Min;
-   end;
+   end vanish_point_size_Min;
 
    procedure vanish_point_size_Min_is (Self : in out Culler'Class;   Now : in Real)
    is
    begin
       Self.vanish_point_size_Min := Now;
-   end;
+   end vanish_point_size_Min_is;
 
    function impostor_size_Min (Self : in     Culler'Class) return Real
    is
    begin
       return Self.impostor_size_Min;
-   end;
+   end impostor_size_Min;
 
    procedure impostor_size_Min_is (Self : in out Culler'Class;   Now : in Real)
    is
    begin
       Self.impostor_size_Min := Now;
-   end;
+   end impostor_size_Min_is;
 
    function frustum_culling_Enabled (Self : in     Culler'Class) return Boolean
    is
    begin
       return Self.frustum_culling_Enabled;
-   end;
+   end frustum_culling_Enabled;
 
    procedure frustum_culling_Enabled_is (Self : in out Culler'Class;   Now : in Boolean)
    is
    begin
       Self.frustum_culling_Enabled := Now;
-   end;
+   end frustum_culling_Enabled_is;
 
    overriding
    procedure evolve (Self : in out Culler;
@@ -124,7 +124,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
                                                      + Frustum (Which) (3);
             begin
                return plane_Distance + the_Size > 0.0;
-            end;
+            end is_visible_for_plane;
 
          begin
             if         apparent_Size > Self.vanish_point_size_Min
@@ -191,7 +191,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
                                           end if;
                                        end loop;
                                        raise Program_Error;  -- self.impostor_load_Slots is not valid !   (tbd: use better exception ?)
-                                    end;
+                                    end Slot_Id;
 
                                     the_Slot : impostor_load_Balancer.Slot renames Self.impostor_load_Slots (Slot_Id);
                                  begin
@@ -252,7 +252,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       end;
 
       Self.frame_Count := Self.frame_Count + 1;
-   end;
+   end evolve;
 
    -- sprite_Set
    --
@@ -262,7 +262,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       use Impostor;
    begin
       free (Self.Impostor);
-   end;
+   end destroy;
 
    procedure free    (Self : in     sprite_Set_view)
    is
@@ -271,6 +271,6 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
    begin
       destroy (Self.all);
       deallocate (Pad);
-   end;
+   end free;
 
 end GLOBE_3D.Culler.Impostoring_frustum;

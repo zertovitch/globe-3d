@@ -19,7 +19,7 @@ package body GLUT.Devices is
       function to_Window is new Ada.Unchecked_Conversion (System.Address, Windows.Window_view);
    begin
       return to_Window (GLUT.GetWindowData);
-   end;
+   end current_Window;
 
    -- Keyboard
    --
@@ -33,7 +33,7 @@ package body GLUT.Devices is
       else
          return GLUT.Windows.Keyboard (the_current_Window);
       end if;
-   end;
+   end current_Keyboard;
 
   procedure Affect_modif_key( modif_code: Integer ) is
     use Interfaces;
@@ -95,7 +95,7 @@ package body GLUT.Devices is
      else
         return GLUT.Windows.Mouse (the_current_Window);
      end if;
-  end;
+  end current_Mouse;
 
   procedure Mouse_Event( button, state, x,y: Integer ) is
   -- When a user presses and releases mouse buttons in the window,

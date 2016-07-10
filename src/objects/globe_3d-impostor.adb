@@ -17,7 +17,7 @@ package body GLOBE_3D.Impostor is
       free (o.skinned_Geometry.Geometry);
       free (o.skinned_Geometry.Skin);
       free (o.skinned_Geometry.Veneer);
-   end;
+   end destroy;
 
    procedure free (o : in out p_Impostor)
    is
@@ -28,13 +28,13 @@ package body GLOBE_3D.Impostor is
       end if;
 
       deallocate (o);
-   end;
+   end free;
 
    function get_Target (o : in Impostor) return p_Visual
    is
    begin
       return o.Target;
-   end;
+   end get_Target;
 
    procedure set_Target (o : in out Impostor;   Target : in p_Visual)
    is
@@ -66,7 +66,7 @@ package body GLOBE_3D.Impostor is
       if o.skinned_Geometry.Veneer = null then
          o.skinned_Geometry.Veneer := o.skinned_Geometry.Skin.new_Veneer (o.skinned_Geometry.Geometry.all);
       end if;
-   end;
+   end set_Target;
 
    -- Update Trigger Configuration
    --
@@ -75,25 +75,25 @@ package body GLOBE_3D.Impostor is
    is
    begin
       o.freshen_count_update_trigger_Mod := Counter (To);
-   end;
+   end set_freshen_count_update_trigger_Mod;
 
    function get_freshen_count_update_trigger_Mod (o : in     Impostor) return Positive
    is
    begin
       return Positive (o.freshen_count_update_trigger_Mod);
-   end;
+   end get_freshen_count_update_trigger_Mod;
 
    procedure set_size_update_trigger_Delta (o : in out Impostor;   To : in Positive)
    is
    begin
       o.size_update_trigger_Delta := GL.Sizei (To);
-   end;
+   end set_size_update_trigger_Delta;
 
    function get_size_update_trigger_Delta (o : in     Impostor) return Positive
    is
    begin
       return Positive (o.size_update_trigger_Delta);
-   end;
+   end get_size_update_trigger_Delta;
 
    function general_Update_required (o : access Impostor;   the_Camera       : in p_Camera;
                                                             the_pixel_Region : in pixel_Region) return Boolean
@@ -130,7 +130,7 @@ package body GLOBE_3D.Impostor is
       end if;
 
       return False;
-   end;
+   end general_Update_required;
 
    function size_Update_required (o : access Impostor;   the_pixel_Region : in pixel_Region) return Boolean
    is
@@ -138,7 +138,7 @@ package body GLOBE_3D.Impostor is
    begin
       return         abs (the_pixel_Region.Width  - o.prior_Width_pixels)  > o.size_update_trigger_Delta
              or else abs (the_pixel_Region.Height - o.prior_Height_pixels) > o.size_update_trigger_Delta;
-   end;
+   end size_Update_required;
 
    function get_pixel_Region (o : access Impostor'Class;   the_Camera : in GLOBE_3D.p_Camera) return pixel_Region
    is
@@ -183,7 +183,7 @@ package body GLOBE_3D.Impostor is
               Y      => GL.Int (target_Lower_Left_norm_0to1 (1) * Real (viewport_Height)),
               Width  => Width_pixels,
               Height => Height_pixels);
-   end;
+   end get_pixel_Region;
 
    procedure update (o            : in out Impostor;
                      the_Camera   : in     p_Camera;
@@ -265,7 +265,7 @@ package body GLOBE_3D.Impostor is
 
       o.never_Updated := False;
       o.freshen_Count := 0;
-   end;
+   end update;
 
    procedure freshen (o : in out Impostor'Class;   the_Camera   : in     GLOBE_3D.p_Camera;
                                                    texture_Pool : in     GL.Textures.p_Pool;
@@ -278,38 +278,38 @@ package body GLOBE_3D.Impostor is
       end if;
 
       is_Valid := o.is_Valid;
-   end;
+   end freshen;
 
    function target_camera_Distance (o : in Impostor'Class) return Real
    is
    begin
       return o.target_camera_Distance;
-   end;
+   end target_camera_Distance;
 
    function is_Valid (o : in Impostor'Class) return Boolean
    is
    begin
       return o.is_Valid;
-   end;
+   end is_Valid;
 
    function never_Updated (o : in Impostor'Class) return Boolean
    is
    begin
       return o.never_Updated;
-   end;
+   end never_Updated;
 
    function frame_Count_since_last_update (o : in Impostor'Class) return Natural
    is
    begin
       return Natural (o.freshen_Count);
-   end;
+   end frame_Count_since_last_update;
 
    overriding
    function skinned_Geometries (o : in Impostor) return GL.Skinned_Geometry.Skinned_Geometries
    is
    begin
       return (1 => o.skinned_Geometry);
-   end;
+   end skinned_Geometries;
 
    overriding
    function face_Count (o : in Impostor) return Natural
@@ -317,7 +317,7 @@ package body GLOBE_3D.Impostor is
    pragma Unreferenced (o);
    begin
       return 1;
-   end;
+   end face_Count;
 
    overriding
    procedure Display (o : in out Impostor;   clip : in     Clipping_data)
@@ -332,14 +332,14 @@ package body GLOBE_3D.Impostor is
    is
    begin
       null;   -- todo
-   end;
+   end set_Alpha;
 
    overriding
    function Bounds (o : in     Impostor) return GL.Geometry.Bounds_record
    is
    begin
       return o.skinned_Geometry.Geometry.Bounds;
-   end;
+   end Bounds;
 
    overriding
    function  is_Transparent (o    : in Impostor) return Boolean
@@ -350,20 +350,20 @@ package body GLOBE_3D.Impostor is
                      --         in which case this could be set to False, and treated as a non-transparent in g3d.render.
                      --         may then be faster (?).
                      --       - seems to make little difference ... test with different vid card.
-   end;
+   end is_Transparent;
 
    function Skin (o : access Impostor) return GL.Skins.p_Skin_transparent_unlit_textured
    is
    begin
       return GL.Skins.p_Skin_transparent_unlit_textured (o.skinned_Geometry.Skin);
-   end;
+   end Skin;
 
    function Quads (o : in Impostor) return GL.Primitive.p_Quads
    is
       use GL.Primitive, GL.Geometry.VA;
    begin
       return p_Quads (p_primal_Geometry (o.skinned_Geometry.Geometry).Primitive);
-   end;
+   end Quads;
 
    -- note: Only old, unused code folows (may be useful) ...
    --
@@ -403,7 +403,7 @@ package body GLOBE_3D.Impostor is
          end if;
       end;
 
-   end;
+   end enable_Rotation;
    pragma Unreferenced (enable_Rotation);
    --
    -- Based on lighthouse3d billboard example.

@@ -126,7 +126,7 @@ package body GLOBE_3D.Aux is
     function Match_alpha(a1, a2: GL.Double) return Boolean is
     begin
       return GL.Math.Almost_zero(a1-a2);
-    end;
+    end Match_alpha;
     function Match_material(M1, M2: GL.Materials.Material_type) return Boolean
       renames GL.Materials.Identical;
     match_count: Natural:= 0;

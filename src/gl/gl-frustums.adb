@@ -7,7 +7,7 @@ package body GL.Frustums is
       for Each in the_Planes'Range loop
          normalise (the_Planes (Each));
       end loop;
-   end;
+   end normalise;
 
    function current_Planes return plane_Array
    is
@@ -81,6 +81,6 @@ package body GL.Frustums is
 
       normalise (the_Planes);
       return the_Planes;
-   end;
+   end current_Planes;
 
 end GL.Frustums;

@@ -8,7 +8,7 @@ package body GLOBE_3D.Impostor.Simple is
    is
    begin
       null;
-   end;
+   end pre_Calculate;
 
    procedure free (o : in out p_Impostor)
    is
@@ -19,7 +19,7 @@ package body GLOBE_3D.Impostor.Simple is
       end if;
 
       deallocate (o);
-   end;
+   end free;
 
    overriding
    function update_Required (o : access Impostor;   the_Camera : in GLOBE_3D.p_Camera) return Boolean
@@ -58,7 +58,7 @@ package body GLOBE_3D.Impostor.Simple is
 
          return update_Required;
       end;
-   end;
+   end update_Required;
 
    overriding
    procedure update (o : in out Impostor;   the_Camera   : in p_Camera;
@@ -70,6 +70,6 @@ package body GLOBE_3D.Impostor.Simple is
       the_Camera.world_rotation := o.current_Camera_look_at_Rotation;
       GLOBE_3D.Impostor.Impostor (o).update (the_Camera, texture_Pool);   -- Call base class update().
       the_Camera.world_rotation := world_Rotation_original;
-   end;
+   end update;
 
 end GLOBE_3D.Impostor.Simple;

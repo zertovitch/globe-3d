@@ -6,7 +6,7 @@ package body GL.Materials is
    is
    begin
       return Self.diffuse (3) < 1.0;
-   end;
+   end Is_transparent;
 
   function Identical(a, b: Material_Float_vector) return Boolean is
     use GL.Math;

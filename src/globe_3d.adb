@@ -815,29 +815,29 @@ package body GLOBE_3D is
   function "+" (a, b: Map_idx_pair) return Map_idx_pair is
   begin
     return (a.U + b.U, a.V + b.V);
-  end;
+  end "+";
 
   function "-" (a, b: Map_idx_pair) return Map_idx_pair is
   begin
     return (a.U - b.U, a.V - b.V);
-  end;
+  end "-";
 
   function "*" (l: GL.Double; p: Map_idx_pair) return Map_idx_pair is
   begin
     return (l * p.U, l * p.V);
-  end;
+  end "*";
 
   function Identical(a, b: Map_idx_pair) return Boolean is
     use GL.Math;
   begin
     return
       Almost_zero(a.U-b.U) and then Almost_zero(a.V-b.V);
-  end;
+  end Identical;
 
   function Is_textured_specular(fa: Face_type) return Boolean is
   begin
     return is_textured(fa.skin) and then fa.specular_map /= null_image;
-  end;
+  end Is_textured_specular;
 
   overriding procedure Destroy (o : in out Object_3D) is
     ol, ol_prev: p_Object_3D_list:= o.sub_objects;

@@ -112,21 +112,21 @@ package body GL.Math is
       else
          return Arccos (Cos_Theta);
       end if;
-   end;
+   end Angle;
 
    function to_Degrees (Radians : Double) return Double
    is
       use Ada.Numerics;
    begin
       return Radians * 180.0 / Pi;
-   end;
+   end to_Degrees;
 
    function to_Radians (Degrees : Double) return Double
    is
       use Ada.Numerics;
    begin
       return Degrees * Pi / 180.0;
-   end;
+   end to_Radians;
 
   --------------
   -- Matrices --
@@ -284,7 +284,7 @@ package body GL.Math is
       end loop;
 
       return the_sub_Matrix;
-   end;
+   end sub_Matrix;
 
    function Look_at (eye, center, up : Double_Vector_3D) return Matrix_33
    is
@@ -295,7 +295,7 @@ package body GL.Math is
       return (( side    (0),    side    (1),    side    (2)),
               ( new_up  (0),    new_up  (1),    new_up  (2)),
               (-forward (0),   -forward (1),   -forward (2)));
-   end;
+   end Look_at;
 
   -- Following procedure is from Project Spandex, by Paul Nettle.
   --

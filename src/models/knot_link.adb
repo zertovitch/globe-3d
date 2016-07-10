@@ -1116,5 +1116,5 @@ idx_13: constant Idx_4_array_array:=
       object.face( 2245 + f ):= face_0;
     end loop;
     end Create;
-end;
+end Knot_link;
 -- Converted by Wrl2Ada

@@ -19,13 +19,13 @@ package body GL.Buffer is
    begin
       GenBuffers (1,  the_Name'Unchecked_Access);
       return the_Name;
-   end;
+   end new_vbo_Name;
 
    procedure free (the_vbo_Name : in vbo_Name) is
       the_Name : aliased vbo_Name := the_vbo_Name;
    begin
       DeleteBuffers (1, the_Name'Unchecked_Access);
-   end;
+   end free;
    pragma Unreferenced (free);
 
    -- Object
@@ -37,7 +37,7 @@ package body GL.Buffer is
       if Self.Name = 0 then
          Self.Name := new_vbo_Name;
       end if;
-   end;
+   end verify_Name;
 
    procedure enable (Self : in Object'Class)
    is
@@ -45,14 +45,14 @@ package body GL.Buffer is
       pragma Assert (Self.Name > 0);
 
       BindBuffer (VBO_Target (Self),  Self.Name);
-   end;
+   end enable;
 
    procedure destroy (Self : in out Object'Class)
    is
    begin
       BindBuffer    (VBO_Target (Self), 0);
       DeleteBuffers (1, Self.Name'Unchecked_Access);
-   end;
+   end destroy;
 
    -- Array Object
    --
@@ -63,7 +63,7 @@ package body GL.Buffer is
    pragma Unreferenced (Self);
    begin
       return ARRAY_BUFFER;
-   end;
+   end vbo_Target;
 
    -- Element Array Object
    --
@@ -74,7 +74,7 @@ package body GL.Buffer is
    pragma Unreferenced (Self);
    begin
       return ELEMENT_ARRAY_BUFFER;
-   end;
+   end vbo_Target;
 
 --     -- texture coordinates
 --     --

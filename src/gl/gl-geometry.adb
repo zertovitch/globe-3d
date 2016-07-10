@@ -35,7 +35,7 @@ package body GL.Geometry is
       the_Plane (1) := the_Plane (1) * inv_Magnitude;
       the_Plane (2) := the_Plane (2) * inv_Magnitude;
       the_Plane (3) := the_Plane (3) * inv_Magnitude;
-   end;
+   end normalise;
 
    -- Bounds
    --
@@ -48,7 +48,7 @@ package body GL.Geometry is
       the_Max.Max := GL.Double'Max (L.Max,  R.Max);
 
       return the_Max;
-   end;
+   end Max;
 
    function Max (L, R : in axis_aligned_bounding_Box) return axis_aligned_bounding_Box
    is
@@ -59,7 +59,7 @@ package body GL.Geometry is
       the_Max.Z_Extent := Max (L.Z_Extent,  R.Z_Extent);
 
       return the_Max;
-   end;
+   end Max;
 
    function Max (L, R : in Bounds_record) return Bounds_record
    is
@@ -69,7 +69,7 @@ package body GL.Geometry is
       the_Max.Box           :=           Max (L.Box,           R.Box);
 
       return the_Max;
-   end;
+   end Max;
 
    -- vertex_Id's
    --
@@ -80,7 +80,7 @@ package body GL.Geometry is
       for Each in Self'Range loop
          Self (Each) := Self (Each) + 1;
       end loop;
-   end;
+   end increment;
 
    procedure decrement (Self : in out vertex_Id_array)
    is
@@ -88,7 +88,7 @@ package body GL.Geometry is
       for Each in Self'Range loop
          Self (Each) := Self (Each) - 1;
       end loop;
-   end;
+   end decrement;
 
    -- vertices
    --
@@ -97,7 +97,7 @@ package body GL.Geometry is
    is
    begin
       return "(" & Double'Image (Self (0)) & Double'Image (Self (1)) & Double'Image (Self (2)) & ")";
-   end;
+   end Image;
 
    function Bounds (Self : in     Vertex_array) return GL.Geometry.Bounds_record
    is
@@ -122,7 +122,7 @@ package body GL.Geometry is
       the_Bounds.sphere_Radius := Sqrt (max_Distance_2);
 
       return the_Bounds;
-   end;
+   end Bounds;
 
    function Bounds (Vertices : in     Vertex_array;   Indices : in   vertex_Id_array) return GL.Geometry.Bounds_record
    is
@@ -150,7 +150,7 @@ package body GL.Geometry is
       the_Bounds.sphere_Radius := Sqrt (max_Distance_2);
 
       return the_Bounds;
-   end;
+   end Bounds;
 
    function  face_Count    (Self : in     Geometry'Class) return Natural
    is
@@ -170,7 +170,7 @@ package body GL.Geometry is
       end case;
 
       return the_Count;
-   end;
+   end face_Count;
 
    function Image  (Self : in     Vertex_array) return String
    is
@@ -186,7 +186,7 @@ package body GL.Geometry is
       Append (the_Image, ")" & NL);
 
       return To_String (the_Image);
-   end;
+   end Image;
 
    -- Abstract Base Geometry Class
    --
@@ -197,7 +197,7 @@ package body GL.Geometry is
    begin
       destroy    (Self.all);
       deallocate (Self);
-   end;
+   end free;
 
    function vertex_Normals (Self : in     Geometry'Class) return Normal_array
    is
@@ -219,7 +219,7 @@ package body GL.Geometry is
                is
                begin
                   return the_Indices (positive_uInt (3 * (Face - 1) + point_Id));
-               end;
+               end vertex_Id_for;
 
             begin
                -- Geometry (Normal of unrotated face)
@@ -275,20 +275,20 @@ package body GL.Geometry is
          when others =>
             raise Constraint_Error; -- tbd: finish these
       end case;
-   end;
+   end vertex_Normals;
 
    procedure free (vert_Id_array : in out p_vertex_Id_array)
    is
       procedure deallocate is new Ada.Unchecked_Deallocation (vertex_Id_array, p_vertex_Id_array);
    begin
       deallocate (vert_Id_array);
-   end;
+   end free;
 
    procedure free (Vert_array : in out p_Vertex_array)
    is
       procedure deallocate is new Ada.Unchecked_Deallocation (Vertex_array, p_Vertex_array);
    begin
       deallocate (Vert_array);
-   end;
+   end free;
 
 end GL.Geometry;

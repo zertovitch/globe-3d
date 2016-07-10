@@ -13,6 +13,7 @@ project Globe_3D is
    Style_Options  := ("-gnatyaknpr",  --  Check all casings: a:attribute, k:keywords, n:package Standard identifiers, p:pragma, r:identifier references.
                       "-gnatybfhiu",  --  Check b:no blanks at end of lines, f:no ff/vtabs, h: no htabs, i:if-then layout, u:no unnecessary blank lines.
                       "-gnatyO",      --  Check that overriding subprograms are explicitly marked as such.
+                      "-gnatye",      --  Check that labels on end statements (ending subprograms), and on exit statements (exiting named loops), are present.
                       "-gnatyx");     --  Check x:no extra parens.
 
    Compiler_Options :=   ("-gnat12",

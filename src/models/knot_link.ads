@@ -10,4 +10,4 @@ package Knot_link is
     centre:        GLOBE_3D.Point_3D
   );
 
-end;
+end Knot_link;

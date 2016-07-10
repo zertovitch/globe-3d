@@ -10,4 +10,4 @@ package Lissajous is
     centre:        GLOBE_3D.Point_3D
   );
 
-end;
+end Lissajous;

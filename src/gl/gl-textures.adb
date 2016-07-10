@@ -24,14 +24,14 @@ package body GL.Textures is
    begin
       GL.GenTextures (1,  the_Name'Unchecked_Access);
       return the_Name;
-   end;
+   end new_texture_Name;
 
    procedure free (the_texture_Name : in texture_Name)
    is
       the_Name : aliased texture_Name := the_texture_Name;
    begin
       GL.DeleteTextures (1, the_Name'Unchecked_Access);
-   end;
+   end free;
 
    -- Coordinates
    --
@@ -53,7 +53,7 @@ package body GL.Textures is
       end loop;
 
       return the_Coords;
-   end;
+   end to_texture_Coordinates_xz;
 
    function to_texture_Coordinates_xz (the_Points  : in GL.Geometry.Vertex_array;
                                        Transform_S : in texture_Transform;          -- Transforms point X ordinate.
@@ -72,7 +72,7 @@ package body GL.Textures is
       end loop;
 
       return the_Coords;
-   end;
+   end to_texture_Coordinates_xz;
 
    -- xz_Generator
 
@@ -81,14 +81,14 @@ package body GL.Textures is
    is
    begin
       return to_texture_Coordinates_xz (the_Vertices, Self.Transform_S, Self.Transform_T);
-   end;
+   end to_Coordinates;
 
    overriding
    function to_Coordinates (Self : in xz_Generator;   the_Vertices : in GL.Geometry.Vertex_array) return GL.Textures.Coordinate_2D_array
    is
    begin
       return to_texture_Coordinates_xz (the_Vertices, Self.Transform_S, Self.Transform_T);
-   end;
+   end to_Coordinates;
 
    -- texture objects
 
@@ -101,7 +101,7 @@ package body GL.Textures is
 
       -- tbd: if not found, look in 'global' and 'level' zip files also, ala gautiers 'globe_3d.textures'.
       return the_Texture;
-   end;
+   end new_Texture;
 
    procedure destroy (Self : in out Object)
    is
@@ -111,25 +111,25 @@ package body GL.Textures is
       else
          free (Self.Pool.all, Self);
       end if;
-   end;
+   end destroy;
 
    procedure set_Name (Self : in out Object;   To : in GL.Uint)
    is
    begin
       Self.Name := To;
-   end;
+   end set_Name;
 
    function Name (Self : in Object) return GL.Uint
    is
    begin
       return Self.Name;
-   end;
+   end Name;
 
    function  is_Transparent (Self : in Object) return Boolean
    is
    begin
       return Self.is_Transparent;
-   end;
+   end is_Transparent;
 
    procedure enable (Self : in out Object)
    is
@@ -138,7 +138,7 @@ package body GL.Textures is
 
       GL.Enable      (GL.TEXTURE_2D);
       GL.BindTexture (GL.TEXTURE_2D, Self.Name);
-   end;
+   end enable;
 
    -- Pool
    --
@@ -212,7 +212,7 @@ package body GL.Textures is
       end if;
 
       return the_Texture;
-   end;
+   end new_Texture;
 
    procedure free (Self : in out Pool;   the_Texture : in Object)
    is
@@ -227,7 +227,7 @@ package body GL.Textures is
          unused_texture_List.Last                                := unused_texture_List.Last + 1;
          unused_texture_List.Textures (unused_texture_List.Last) := the_Texture;
       end;
-   end;
+   end free;
 
    procedure vacuum (Self : in out Pool)
    is
@@ -251,7 +251,7 @@ package body GL.Textures is
             end;
          end loop;
       end loop;
-   end;
+   end vacuum;
 
    function to_Size (From : in Positive) return Size
    is
@@ -272,7 +272,7 @@ package body GL.Textures is
       Put_Line ("to_Size: From: " & Positive'Image (From));
 
       raise Constraint_Error;
-   end;
+   end to_Size;
 
    function power_of_2_Ceiling (From : in Positive) return GL.Sizei
    is
@@ -291,18 +291,18 @@ package body GL.Textures is
       end if;
 
       raise Constraint_Error;
-   end;
+   end power_of_2_Ceiling;
 
    function Size_width  (Self : in Object) return Size
    is
    begin
       return Self.Width;
-   end;
+   end Size_width;
 
    function Size_height (Self : in Object) return Size
    is
    begin
       return Self.Height;
-   end;
+   end Size_height;
 
 end GL.Textures;

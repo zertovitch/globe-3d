@@ -33,7 +33,7 @@ package body GL.Buffer.General is
                                             to_gl_Pointer (From (From'First)'Unchecked_Access),
                                             Usage);
       return new_Buffer;
-   end;
+   end to_Buffer;
 
    procedure set (Self : in out Object;   Position : in Positive := 1;
                                           To       : in Element_Array)
@@ -47,7 +47,7 @@ package body GL.Buffer.General is
                                          size   => new_Vertices'Size / 8,
                                          data   => to_gl_Pointer (new_Vertices (new_Vertices'First)'Unchecked_Access));
       GL.Errors.Log;
-   end;
+   end set;
 
    function  get (Self : access Object) return Element_Array
    is
@@ -58,7 +58,7 @@ package body GL.Buffer.General is
    begin
       release (the_Map);
       return the_Vertices;
-   end;
+   end get;
 
    -- Memory Maps
    --
@@ -70,7 +70,7 @@ package body GL.Buffer.General is
       if Status /= GL_TRUE then
          raise Corrupt_Buffer;
       end if;
-   end;
+   end release;
 
    function  get (Self : in memory_Map;   Position : in Index) return Element
    is
@@ -78,7 +78,7 @@ package body GL.Buffer.General is
       Start : constant Element_Pointers.Pointer := Self.Data + ptrdiff_t (Position - 1);
    begin
       return Value (Start, 1) (1);
-   end;
+   end get;
 
    function  get (Self : in memory_Map;   Position : in Index;
                                           Count    : in Positive) return Element_Array
@@ -87,7 +87,7 @@ package body GL.Buffer.General is
       Start : constant Element_Pointers.Pointer := Self.Data + ptrdiff_t (Position - 1);
    begin
       return Value (Start, ptrdiff_t (Count));
-   end;
+   end get;
 
    procedure set (Self : in     memory_Map;   Position : in     Index;
                                               To       : access Element)
@@ -97,7 +97,7 @@ package body GL.Buffer.General is
       Copy_Array (Element_Pointers.Pointer (To),
                   Self.Data + ptrdiff_t (Position - 1),
                   1);
-   end;
+   end set;
 
    procedure set (Self : in     memory_Map;   Position : in Index;
                                               To       : in Element)
@@ -105,7 +105,7 @@ package body GL.Buffer.General is
       the_Vertex : aliased Element := To;
    begin
       set (Self, Position, To => the_Vertex'Unchecked_Access);
-   end;
+   end set;
 
    -- read-only
 
@@ -126,20 +126,20 @@ package body GL.Buffer.General is
       the_Map.vbo_Target := VBO_Target (Self.all);
 
       return the_Map;
-   end;
+   end Map;
 
    function  get (Self : in read_only_Map;   Position : in Index) return Element
    is
    begin
       return get (memory_Map (Self), Position);
-   end;
+   end get;
 
    function  get (Self : in read_only_Map;   Position : in Index;
                                              Count    : in Positive) return Element_Array
    is
    begin
       return get (memory_Map (Self),  Position,  Count);
-   end;
+   end get;
 
    -- write-only
 
@@ -160,21 +160,21 @@ package body GL.Buffer.General is
       the_Map.vbo_Target := VBO_Target (Self.all);
 
       return the_Map;
-   end;
+   end Map;
 
    procedure set (Self : in     write_only_Map;   Position : in     Index;
                                                   To       : access Element)
    is
    begin
       set (memory_Map (Self),  Position,  To);
-   end;
+   end set;
 
    procedure set (Self : in     write_only_Map;   Position : in Index;
                                                   To       : in Element)
    is
    begin
       set (memory_Map (Self),  Position,  To);
-   end;
+   end set;
 
    -- read-write
 
@@ -195,33 +195,33 @@ package body GL.Buffer.General is
       the_Map.vbo_Target := VBO_Target (Self.all);
 
       return the_Map;
-   end;
+   end Map;
 
    function  get (Self : in read_write_Map;   Position : in Index) return Element
    is
    begin
       return get (memory_Map (Self),  Position);
-   end;
+   end get;
 
    function  get (Self : in read_write_Map;   Position : in Index;
                                               Count    : in Positive) return Element_Array
    is
    begin
       return get (memory_Map (Self),  Position,  Count);
-   end;
+   end get;
 
    procedure set (Self : in     read_write_Map;   Position : in     Index;
                                                   To       : access Element)
    is
    begin
       set (memory_Map (Self),  Position,  To);
-   end;
+   end set;
 
    procedure set (Self : in     read_write_Map;   Position : in Index;
                                                   To       : in Element)
    is
    begin
       set (memory_Map (Self),  Position,  To);
-   end;
+   end set;
 
 end GL.Buffer.General;

@@ -10,4 +10,4 @@ package SkotKnot is
     centre:        GLOBE_3D.Point_3D
   );
 
-end;
+end SkotKnot;

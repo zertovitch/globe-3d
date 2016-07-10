@@ -17,28 +17,28 @@ package body GL.Geometry.VBO is
    is
    begin
       return Self.primitive_Id;
-   end;
+   end primitive_Id;
 
    overriding
    function  vertex_Count (Self : in     vbo_Geometry) return GL.Geometry.vertex_Id
    is
    begin
       return vertex_Id (Self.vertex_Count);
-   end;
+   end vertex_Count;
 
    overriding
    function  indices_Count (Self : in     vbo_Geometry) return GL.positive_uInt
    is
    begin
       return GL.positive_uInt (Self.indices_Count);
-   end;
+   end indices_Count;
 
    overriding
    function  Bounds (Self : in     vbo_Geometry) return GL.Geometry.Bounds_record
    is
    begin
       return Self.Bounds;
-   end;
+   end Bounds;
 
    overriding
    procedure draw (Self : in     vbo_Geometry)
@@ -53,7 +53,7 @@ package body GL.Geometry.VBO is
 
       GL.DrawElements       (Self.primitive_Id, Self.indices_Count, GL.UNSIGNED_INT, null);
       GL.DisableClientState (GL.VERTEX_ARRAY);
-   end;
+   end draw;
 
    --  Modified by zheng, 2011.1.20
    overriding
@@ -62,7 +62,7 @@ package body GL.Geometry.VBO is
       self_buf : aliased vbo_Geometry := Self;
    begin
       return self_buf.Vertices.get;
-   end;
+   end Vertices;
 
    --  Modified by zheng, 2011.1.20
    overriding
@@ -73,7 +73,7 @@ package body GL.Geometry.VBO is
    begin
       increment (gl_Indices);
       return gl_Indices;
-   end;
+   end Indices;
 
    overriding
    procedure destroy (Self : in out vbo_Geometry)
@@ -81,6 +81,6 @@ package body GL.Geometry.VBO is
    begin
       destroy (Self.Vertices);
       destroy (Self.Indices);
-   end;
+   end destroy;
 
 end GL.Geometry.VBO;

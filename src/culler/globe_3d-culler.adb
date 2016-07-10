@@ -5,12 +5,12 @@ package body GLOBE_3D.Culler is
    is
    begin
       Self.Viewer := Now.all'Access;
-   end;
+   end Viewer_is;
 
    function Viewer (Self : in     Culler'Class) return p_Window
    is
    begin
       return Self.Viewer;
-   end;
+   end Viewer;
 
 end GLOBE_3D.Culler;

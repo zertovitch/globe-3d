@@ -30,7 +30,7 @@ package body GL.Errors is
       begin
          return Value (to_chars_ptr (GLU.ErrorString (GL.GetError)));
       end;
-   end;
+   end Current;
 
    procedure Log (Prefix : in String := "")
    is
@@ -48,7 +48,7 @@ package body GL.Errors is
       end if;
 
       raise openGL_Error with current_Error;
-   end;
+   end Log;
 
    procedure Log (Prefix : in String := "";   error_Occurred : out Boolean)
    is
@@ -67,6 +67,6 @@ package body GL.Errors is
       else
          Put_Line (Prefix & ": '" & current_Error & "'");
       end if;
-   end;
+   end Log;
 
 end GL.Errors;

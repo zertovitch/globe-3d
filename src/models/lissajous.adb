@@ -719,5 +719,5 @@ idx_3: constant Idx_4_array_array:=
       object.face( 0 + f ):= face_0;
     end loop;
     end Create;
-end;
+end Lissajous;
 -- Converted by Wrl2Ada

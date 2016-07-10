@@ -18,6 +18,6 @@ package body GL.Skinned_Geometry is
       free (Self.Geometry);
       free (Self.Skin);
       free (Self.Veneer);
-   end;
+   end destroy;
 
 end GL.Skinned_Geometry;

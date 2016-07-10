@@ -1525,4 +1525,4 @@ package body Dreadnought is
     end loop;
   end Create;
 
-end;
+end Dreadnought;

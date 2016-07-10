@@ -5,7 +5,7 @@ package body GLOBE_3D.Sprite is
    is
    begin
       return o.skinned_Geometries (1 .. o.skinned_geometry_Count);
-   end;
+   end skinned_Geometries;
 
    procedure add (o : in out Sprite;   Geometry : access GL.Geometry.Geometry'Class;
                                        Skin     : access GL.Skins.Skin'Class)
@@ -15,7 +15,7 @@ package body GLOBE_3D.Sprite is
       o.skinned_Geometries (o.skinned_geometry_Count) := (Geometry => Geometry.all'Access,
                                                          Skin     => Skin.all'Access,
                                                          Veneer   => Skin.new_Veneer (for_Geometry => Geometry.all));
-   end;
+   end add;
 
    overriding
    procedure Pre_calculate (o: in out Sprite)
@@ -40,21 +40,21 @@ package body GLOBE_3D.Sprite is
    is
    begin
       null;
-   end;
+   end destroy;
 
    overriding
    function face_Count (o : in Sprite) return Natural
    is
    begin
       return o.face_Count;
-   end;
+   end face_Count;
 
    overriding
    function Bounds (o : in Sprite) return GL.Geometry.Bounds_record
    is
    begin
       return o.Bounds;
-   end;
+   end Bounds;
 
    overriding
    procedure Display (o    : in out Sprite;
@@ -70,13 +70,13 @@ package body GLOBE_3D.Sprite is
    is
    begin
       null;   -- todo
-   end;
+   end set_Alpha;
 
    overriding
    function  is_Transparent (o    : in Sprite) return Boolean
    is
    begin
       return o.is_Transparent;  -- todo: ensure this is updated when new primitives (with possible transparent appearance' are added.
-   end;
+   end is_Transparent;
 
 end GLOBE_3D.Sprite;

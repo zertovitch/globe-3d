@@ -8,7 +8,7 @@ package body GLOBE_3D.Impostor.Terrain is
    is
    begin
       null;
-   end;
+   end pre_Calculate;
 
    overriding
    procedure set_Target (o : in out Impostor;   Target : in p_Visual)
@@ -19,7 +19,7 @@ package body GLOBE_3D.Impostor.Terrain is
       o.expand_Y := 0.02;            -- tbd: 0.02 is good for full screen and not extremely distant, otherwise increase to 0.04
 --        o.expand_X := 0.04;        --      do this algorithmically.
 --        o.expand_Y := 0.04;
-   end;
+   end set_Target;
 
    procedure free (o : in out p_Impostor)
    is
@@ -27,7 +27,7 @@ package body GLOBE_3D.Impostor.Terrain is
    begin
       destroy    (o.all);
       deallocate (o);
-   end;
+   end free;
 
    overriding
    function update_Required (o : access Impostor;   the_Camera : in GLOBE_3D.p_Camera) return Boolean
@@ -181,6 +181,6 @@ package body GLOBE_3D.Impostor.Terrain is
       o.prior_copy_Width  := o.current_copy_Width;                        -- Set prior state.
       o.prior_copy_Height := o.current_copy_Height;
       o.prior_Complete    := o.current_Complete;
-   end;
+   end update;
 
 end GLOBE_3D.Impostor.Terrain;
