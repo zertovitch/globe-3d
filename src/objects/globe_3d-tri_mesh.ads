@@ -30,8 +30,6 @@ package GLOBE_3D.tri_Mesh is
 
    procedure Skin_is (o : in out tri_Mesh;   Now : in GL.Skins.p_Skin) is abstract;
 
-private
-
-   procedure dummy;   -- todo: Get rid of this.
+   procedure vertex_cache_optimise (Vertices : in out GL.Geometry.Vertex_array;   Indices : in out GL.Geometry.vertex_Id_array);
 
 end GLOBE_3D.tri_Mesh;

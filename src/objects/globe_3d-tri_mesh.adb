@@ -6,8 +6,6 @@ use
 
 package body GLOBE_3D.tri_Mesh is
 
-   procedure dummy is begin null; end dummy;
-
    -- 'vertex_cache_optimise' is based on algorithm descibed here ... http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
    --
    procedure vertex_cache_optimise (Vertices : in out GL.Geometry.Vertex_array;   Indices : in out GL.Geometry.vertex_Id_array)
@@ -347,7 +345,5 @@ package body GLOBE_3D.tri_Mesh is
 
       free (vco_Vertices);        -- clean up
    end vertex_cache_optimise;
-
-   pragma Unreferenced (vertex_cache_optimise);
 
 end GLOBE_3D.tri_Mesh;
