@@ -2,7 +2,7 @@ with GLOBE_3D.Math;
 
 package body GLOBE_3D.Wire_frame is
 
-  procedure Display_one(o: in out Wired_3D) is
+  overriding procedure Display_one(o: in out Wired_3D) is
   begin
     -- Call parent method:
     Display_one(Object_3D(o));

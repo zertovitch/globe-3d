@@ -214,28 +214,28 @@ private
          Loc : Integer := 1;
       end record;
    -- Read data from the stream.
-   procedure Read
+   overriding procedure Read
      (Stream : in out Memory_Zipstream;
       Item   : out Stream_Element_Array;
       Last   : out Stream_Element_Offset);
 
    -- write data to the stream, starting from the current index.
    -- Data will be overwritten from index is already available.
-   procedure Write
+   overriding procedure Write
      (Stream : in out Memory_Zipstream;
       Item   : Stream_Element_Array);
 
    -- Set the index on the stream
-   procedure Set_Index (S : in out Memory_Zipstream; To : ZS_Index_Type);
+   overriding procedure Set_Index (S : in out Memory_Zipstream; To : ZS_Index_Type);
 
    -- returns the index of the stream
-   function Index (S : in Memory_Zipstream) return ZS_Index_Type;
+   overriding function Index (S : in Memory_Zipstream) return ZS_Index_Type;
 
    -- returns the Size of the stream
-   function Size (S : in Memory_Zipstream) return ZS_Size_Type;
+   overriding function Size (S : in Memory_Zipstream) return ZS_Size_Type;
 
    -- returns true if the index is at the end of the stream
-   function End_Of_Stream (S : in Memory_Zipstream) return Boolean;
+   overriding function End_Of_Stream (S : in Memory_Zipstream) return Boolean;
 
    -- File_Zipstream spec
    type File_Zipstream is new Root_Zipstream_Type with
@@ -243,27 +243,27 @@ private
          File : Ada.Streams.Stream_IO.File_Type;
       end record;
    -- Read data from the stream.
-   procedure Read
+   overriding procedure Read
      (Stream : in out File_Zipstream;
       Item   : out Stream_Element_Array;
       Last   : out Stream_Element_Offset);
 
    -- write data to the stream, starting from the current index.
    -- Data will be overwritten from index is already available.
-   procedure Write
+   overriding procedure Write
      (Stream : in out File_Zipstream;
       Item   : Stream_Element_Array);
 
    -- Set the index on the stream
-   procedure Set_Index (S : in out File_Zipstream; To : ZS_Index_Type);
+   overriding procedure Set_Index (S : in out File_Zipstream; To : ZS_Index_Type);
 
    -- returns the index of the stream
-   function Index (S : in File_Zipstream) return ZS_Index_Type;
+   overriding function Index (S : in File_Zipstream) return ZS_Index_Type;
 
    -- returns the Size of the stream
-   function Size (S : in File_Zipstream) return ZS_Size_Type;
+   overriding function Size (S : in File_Zipstream) return ZS_Size_Type;
 
    -- returns true if the index is at the end of the stream
-   function End_Of_Stream (S : in File_Zipstream) return Boolean;
+   overriding function End_Of_Stream (S : in File_Zipstream) return Boolean;
 
 end Zip_Streams;

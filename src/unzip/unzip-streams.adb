@@ -288,7 +288,7 @@ package body UnZip.Streams is
   -- Read procedure for Unzip_Stream_Type --
   ------------------------------------------
 
-  procedure Read
+  overriding procedure Read
     (Stream : in out UnZip_Stream_Type;
      Item   :    out Ada.Streams.Stream_Element_Array;
      Last   :    out Ada.Streams.Stream_Element_Offset)
@@ -340,7 +340,7 @@ package body UnZip.Streams is
     return Stream_Access(File);
   end Stream;
 
-  procedure Write
+  overriding procedure Write
     (Stream : in out UnZip_Stream_Type;
      Item   : in     Ada.Streams.Stream_Element_Array)
   is

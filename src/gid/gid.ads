@@ -294,8 +294,8 @@ private
     next_frame         : Ada.Calendar.Day_Duration;
   end record;
 
-  procedure Adjust (Object : in out Image_descriptor);
-  procedure Finalize (Object : in out Image_descriptor);
+  overriding procedure Adjust (Object : in out Image_descriptor);
+  overriding procedure Finalize (Object : in out Image_descriptor);
 
   to_be_done: exception;
   -- this exception should not happen, even with malformed files

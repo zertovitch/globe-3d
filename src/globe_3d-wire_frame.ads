@@ -17,6 +17,6 @@ package GLOBE_3D.Wire_frame is
   type Wired_3D_array is array(Positive range <>) of p_Wired_3D;
   type p_Wired_3D_array is access Wired_3D_array;
 
-  procedure Display_one(o: in out Wired_3D);
+  overriding procedure Display_one(o: in out Wired_3D);
 
 end GLOBE_3D.Wire_frame;

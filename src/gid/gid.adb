@@ -219,13 +219,13 @@ package body GID is
     return image.transparency;
   end Expect_transparency;
 
-  procedure Adjust (Object : in out Image_descriptor) is
+  overriding procedure Adjust (Object : in out Image_descriptor) is
   begin
     -- Clone the palette
     Object.palette:= new Color_table'(Object.palette.all);
   end Adjust;
 
-  procedure Finalize (Object : in out Image_descriptor) is
+  overriding procedure Finalize (Object : in out Image_descriptor) is
   begin
     Clear_heap_allocated_memory(Object);
   end Finalize;
