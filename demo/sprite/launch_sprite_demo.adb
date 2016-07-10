@@ -47,10 +47,15 @@ begin
    g3d.Set_global_data_name ("../G3Demo_Global_Resources.zip");
    g3d.Set_level_data_name  ("../G3Demo_Level_Resources.zip");
 
+   g3d.Textures.Register_textures_from_resources;
+
    GLUT.Windows.initialize;
 
    the_Viewer.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
    define (the_Viewer);
+
+
+   G3D.Textures.Check_all_textures; -- Preload the textures
 
    the_Sprite := new g3d.Sprite.Sprite (max_Geometries => 1);
 
@@ -78,15 +83,21 @@ begin
       the_Geometry.indices_Count := GL.Sizei (the_Indices'Length);
       the_Geometry.primitive_Id  := GL.QUADS;
 
-      declare
-        new_id: Image_ID;
-      begin
-        Add_texture_name("face1", new_id);
-        set_Name (the_Skin.Texture,  to => GL.Textures.texture_Name(new_id));
-      end;
+      set_Name (the_Skin.Texture,  to => GL.Textures.texture_Name (Texture_ID ("face1")));
 
       the_Sprite.add (geometry => the_Geometry.all'Access,
                       skin     => the_Skin);
+
+      declare
+         the_Veneer : constant p_Veneer_transparent_unlit_textured
+           := p_Veneer_transparent_unlit_textured (the_Sprite.skinned_Geometries (the_Sprite.skinned_geometry_Count).Veneer);
+      begin
+         the_Veneer.texture_Coordinates :=  (1 => (0.0, 0.0),
+                                             2 => (1.0, 0.0),
+                                             3 => (1.0, 1.0),
+                                             4 => (0.0, 1.0));
+      end;
+
    end;
 
    add (the_Viewer, the_Sprite.all'Access);

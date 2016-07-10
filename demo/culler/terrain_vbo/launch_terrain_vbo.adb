@@ -50,6 +50,7 @@ begin
       terrain_Grid : constant GLOBE_3D.Sprite.p_sprite_Grid
         := Terrain.VBO.Create (tga_Heights   => "irin-heightmap-512.tga",
                                texture_Image => "irin-texturemap-512.bmp",
+                               flip_Vertical => True,
                                tile_Width    => 32,
                                tile_Depth    => 32,
                                base_Centre   => (0.0, 0.0, 0.0),

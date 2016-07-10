@@ -26,6 +26,19 @@ package body Terrain is
       return the_Heights;
    end;
 
+   procedure flip_Vertically (Self : in out Matrix)
+   is
+      Pad : constant Matrix := Self;
+   begin
+      for Row in Self'Range (1)
+      loop
+         for Col in Self'Range (2)
+         loop
+            Self (Row, Col) := Pad (Self'Last (1) - Row + 1,  Col);
+         end loop;
+      end loop;
+   end flip_Vertically;
+
    function to_Height_Map (the_Matrix : in Matrix) return height_Map
    is
       the_height_Map : height_Map (column_Count => the_Matrix'Length (2),

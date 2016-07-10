@@ -165,13 +165,14 @@ package body Terrain.VBO is
 
    function Create (tga_Heights   : in     String;
                     texture_Image : in     String;
+                    flip_Vertical : in     Boolean   := False;
                     tile_Width    : in     Positive  := 32;
                     tile_Depth    : in     Positive  := 32;
                     base_Centre   : in     Vector_3D := (0.0, 0.0, 0.0);
                     Scale         : in     Vector_3D := (1.0, 1.0, 1.0)) return Sprite.p_sprite_Grid
    is
       use GLOBE_3D.Sprite;
-      the_Matrix  : constant Matrix := to_Matrix (tga_Heights);
+      the_Matrix  :          Matrix := to_Matrix (tga_Heights);
 
       total_Width : constant Real   := Real (the_Matrix'Length (2) - 1);
       total_Depth : constant Real   := Real (the_Matrix'Length (1) - 1);
@@ -195,6 +196,10 @@ package body Terrain.VBO is
       ground_Texture     : constant GL.Textures.Object := new_Texture (image_Filename => texture_Image);
 
    begin
+      if flip_Vertical then
+         flip_Vertically (the_Matrix);
+      end if;
+
       -- Create each element heightmap for the_heightmap_Grid.
       --
       declare

@@ -18,7 +18,8 @@ package Terrain is
 
    use GLOBE_3D;
 
-   function to_Matrix (tga_Heights : in String) return Matrix;
+   function  to_Matrix       (tga_Heights : in     String) return Matrix;
+   procedure flip_Vertically (Self        : in out Matrix);
 
    type height_Map (row_Count, column_Count : Positive) is
       record

@@ -24,6 +24,7 @@ package Terrain.VBO is
 
    function Create (tga_Heights   : in     String;
                     texture_Image : in     String;
+                    flip_Vertical : in     Boolean   := False;
                     tile_Width    : in     Positive  := 32;
                     tile_Depth    : in     Positive  := 32;
                     base_Centre   : in     Vector_3D := (0.0, 0.0, 0.0);      -- Central point of the bottom of the terrain.
