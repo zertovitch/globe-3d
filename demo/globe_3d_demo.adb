@@ -1212,10 +1212,9 @@ begin
 
   G3D.Textures.Check_all_textures; -- Preload the textures
 
-  --  Frames called directly just for identifying eventual issue with GLUT.MainLoop (ObjectAda)
-  for count in 1..50 loop
-    Main_operations;
-  end loop;
+  --  So far, there is an issue with ObjectAda Win32, GLUT.MainLoop callback,
+  --  freeglut, under Windows 7 x64. Display @ Main_Operations is fine.
+  --
   GLUT.MainLoop;  -- Let's rock !
 
 end GLOBE_3D_Demo;

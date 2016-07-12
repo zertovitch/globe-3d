@@ -319,10 +319,8 @@ begin
 
   G3D.Textures.Check_all_textures; -- Preload the textures
 
-  --  Frame called directly just for checking display and identifying eventual
-  --  issue with GLUT.MainLoop (ObjectAda)
-  Main_Operations;
-  delay 1.0;
+  --  So far, there is an issue with ObjectAda Win32, GLUT.MainLoop callback,
+  --  freeglut, under Windows 7 x64. Display @ Main_Operations is fine.
   --
   GLUT.MainLoop;  -- Let's rock !
 
