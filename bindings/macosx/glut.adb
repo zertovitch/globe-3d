@@ -12,7 +12,7 @@ package body GLUT is
 
    User_Window_Data : Map := Empty_Map;
 
-   function GetWindowData return system.Address is
+   function GetWindowData return System.Address is
 
    begin
       if Find (User_Window_Data, GetWindow) = No_Element then
@@ -22,7 +22,7 @@ package body GLUT is
       end if;
    end GetWindowData;
 
-   procedure SetWindowData (Data : system.Address) is
+   procedure SetWindowData (Data : System.Address) is
 
    begin
       if Find (User_Window_Data, GetWindow) = No_Element then
@@ -55,32 +55,32 @@ package body GLUT is
    -- RK 23-Oct-2006, to remove the memory leak in question.
    --
 
-   type Argvz is array (0 .. 500) of aliased interfaces.c.strings.Chars_Ptr;
+   type Argvz is array (0 .. 500) of aliased Interfaces.C.Strings.chars_ptr;
 
-   type Arg_Type is new ada.finalization.Controlled with record
-     v       : Argvz:= (others => interfaces.c.strings.Null_Ptr);
+   type Arg_Type is new Ada.Finalization.Controlled with record
+     v       : Argvz:= (others => Interfaces.C.Strings.Null_Ptr);
      v_Count : Natural:= 0;
    end record;
 
-   procedure Finalize (Self : in out Arg_Type)
+   overriding procedure Finalize (Self : in out Arg_Type)
    is
-      use interfaces.c.strings;
+      use Interfaces.C.Strings;
    begin
-      if Self.v(0) /= interfaces.c.strings.Null_Ptr then
-        free (Self.v (0));
+      if Self.v(0) /= Interfaces.C.Strings.Null_Ptr then
+        Free (Self.v (0));
       end if;
 
       for I in 1 .. Self.v_Count loop
-         free (Self.v (I));
+         Free (Self.v (I));
       end loop;
    end Finalize;
 
    Arg : Arg_Type;
 
    procedure Glutinit (Argcp : access Integer;
-      Argv : access Interfaces.C.Strings.Chars_Ptr);
+      Argv : access Interfaces.C.Strings.chars_ptr);
    -- pragma Import (C, Glutinit, "glutInit", "glutInit"); -- APEX
-   pragma Import (StdCall, GlutInit, "glutInit"); -- GNAT/OA
+   pragma Import (StdCall, Glutinit, "glutInit"); -- GNAT/OA
 
    -- Pure Ada method, from IBM / Rational Apex support:
 
@@ -113,7 +113,7 @@ package body GLUT is
 
    function CreateWindow (Title : String) return Integer is
       Result : Integer;
-      C_Title : Interfaces.C.Strings.Chars_Ptr
+      C_Title : Interfaces.C.Strings.chars_ptr
         := Interfaces.C.Strings.New_String (Title);
    begin
       Result := CreateWindow (C_Title);
@@ -122,7 +122,7 @@ package body GLUT is
    end CreateWindow;
 
    procedure InitDisplayString (Name : String) is
-      C_Name : Interfaces.C.Strings.Chars_Ptr
+      C_Name : Interfaces.C.Strings.chars_ptr
         := Interfaces.C.Strings.New_String (Name);
    begin
       InitDisplayString (C_Name);
@@ -130,7 +130,7 @@ package body GLUT is
    end InitDisplayString;
 
    procedure SetWindowTitle (Title : String) is
-      C_Title : Interfaces.C.Strings.Chars_Ptr
+      C_Title : Interfaces.C.Strings.chars_ptr
         := Interfaces.C.Strings.New_String (Title);
    begin
       SetWindowTitle (C_Title);
@@ -138,7 +138,7 @@ package body GLUT is
    end SetWindowTitle;
 
    procedure SetIconTitle (Title : String) is
-      C_Title : Interfaces.C.Strings.Chars_Ptr
+      C_Title : Interfaces.C.Strings.chars_ptr
         := Interfaces.C.Strings.New_String (Title);
    begin
       SetIconTitle (C_Title);
@@ -146,7 +146,7 @@ package body GLUT is
    end SetIconTitle;
 
    procedure AddMenuEntry (Label : String; Value : Integer) is
-      C_Label : Interfaces.C.Strings.Chars_Ptr
+      C_Label : Interfaces.C.Strings.chars_ptr
         := Interfaces.C.Strings.New_String (Label);
    begin
       AddMenuEntry (C_Label, Value);
@@ -154,7 +154,7 @@ package body GLUT is
    end AddMenuEntry;
 
    procedure AddSubMenu (Label : String; Submenu : Integer) is
-      C_Label : Interfaces.C.Strings.Chars_Ptr
+      C_Label : Interfaces.C.Strings.chars_ptr
         := Interfaces.C.Strings.New_String (Label);
    begin
       AddSubMenu (C_Label, Submenu);
@@ -166,7 +166,7 @@ package body GLUT is
       Label : String;
       Value : Integer)
    is
-      C_Label : Interfaces.C.Strings.Chars_Ptr
+      C_Label : Interfaces.C.Strings.chars_ptr
         := Interfaces.C.Strings.New_String (Label);
    begin
       ChangeToMenuEntry (Item, C_Label, Value);
@@ -178,7 +178,7 @@ package body GLUT is
       Label   : String;
       Submenu : Integer)
    is
-      C_Label : Interfaces.C.Strings.Chars_Ptr
+      C_Label : Interfaces.C.Strings.chars_ptr
         := Interfaces.C.Strings.New_String (Label);
    begin
       ChangeToSubMenu (Item, C_Label, Submenu);
@@ -187,7 +187,7 @@ package body GLUT is
 
    function ExtensionSupported (Name : String) return Integer is
       Result : Integer;
-      C_Name : Interfaces.C.Strings.Chars_Ptr
+      C_Name : Interfaces.C.Strings.chars_ptr
         := Interfaces.C.Strings.New_String (Name);
    begin
       Result := ExtensionSupported (C_Name);

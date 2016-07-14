@@ -9,7 +9,7 @@ with GL;
 
 package GLUT is
 
-   subtype Unsigned is Interfaces.C.Unsigned;
+   subtype Unsigned is Interfaces.C.unsigned;
    function "and"(x,y: Unsigned) return Unsigned renames Interfaces.C."and";
    function "or"(x,y: Unsigned) return Unsigned  renames Interfaces.C."or";
 
@@ -130,7 +130,7 @@ package GLUT is
 
    BITMAP_9_BY_15_FONT   : constant System.Address;
    pragma Import(C, BITMAP_9_BY_15_FONT, "glutBitmap9By15");
-   BITMAP_9_BY_15        : constant System.Address := Bitmap_9_By_15_Font'Address;
+   BITMAP_9_BY_15        : constant System.Address := BITMAP_9_BY_15_FONT'Address;
    BITMAP_8_BY_13_FONT   : constant System.Address;
    pragma Import(C, BITMAP_8_BY_13_FONT, "glutBitmap8By13");
    BITMAP_8_BY_13        : constant System.Address := BITMAP_8_BY_13_FONT'Address;
@@ -292,8 +292,6 @@ package GLUT is
 
    ACTION_ON_WINDOW_CLOSE      : constant := 16#01F9#;    -- for 'Get' and 'SetOption' parameter.
 
-
-
    GLUT_RENDERING_CONTEXT   : constant := 16#01FD#;
 
    GLUT_CREATE_NEW_CONTEXT  : constant := 0;
@@ -307,7 +305,7 @@ package GLUT is
    procedure InitDisplayMode (Mode : Unsigned);
    pragma Import (StdCall, InitDisplayMode, "glutInitDisplayMode");
 
-   procedure InitDisplayString (String : Interfaces.C.Strings.Chars_Ptr);
+   procedure InitDisplayString (String : Interfaces.C.Strings.chars_ptr);
    pragma Import (StdCall, InitDisplayString, "glutInitDisplayString");
 
    procedure InitDisplayString (Name : String);
@@ -332,7 +330,7 @@ package GLUT is
    --  GLUT window sub-API.
 
    function CreateWindow
-     (Title : Interfaces.C.Strings.Chars_Ptr)
+     (Title : Interfaces.C.Strings.chars_ptr)
       return Integer;
    pragma Import (StdCall, CreateWindow, "glutCreateWindow");
 
@@ -364,7 +362,7 @@ package GLUT is
 
    -- Feature exclusive to the freeglut implementation
    -- replaced by an implementation based on Ada.Containers.OrderedMaps
-   function GetWindowData return system.Address; -- FreeGLUT
+   function GetWindowData return System.Address; -- FreeGLUT
 --   pragma Import (StdCall, GetWindowData, "glutGetWindowData");
 
    procedure SetWindow (Win : Integer);
@@ -372,15 +370,15 @@ package GLUT is
 
    -- Feature exclusive to the freeglut implementation
    -- replaced by an implementation based on Ada.Containers.OrderedMaps
-   procedure SetWindowData (Data : system.Address); -- FreeGLUT
+   procedure SetWindowData (Data : System.Address); -- FreeGLUT
 --   pragma Import (StdCall, SetWindowData, "glutSetWindowData");
 
-   procedure SetWindowTitle (Title : Interfaces.C.Strings.Chars_Ptr);
+   procedure SetWindowTitle (Title : Interfaces.C.Strings.chars_ptr);
    pragma Import (StdCall, SetWindowTitle, "glutSetWindowTitle");
 
    procedure SetWindowTitle (Title : String);
 
-   procedure SetIconTitle (Title : Interfaces.C.Strings.Chars_Ptr);
+   procedure SetIconTitle (Title : Interfaces.C.Strings.chars_ptr);
    pragma Import (StdCall, SetIconTitle, "glutSetIconTitle");
 
    procedure SetIconTitle (Title : String);
@@ -476,14 +474,14 @@ package GLUT is
    pragma Import (StdCall, SetMenu, "glutSetMenu");
 
    procedure AddMenuEntry
-     (Label : Interfaces.C.Strings.Chars_Ptr;
+     (Label : Interfaces.C.Strings.chars_ptr;
       Value : Integer);
    pragma Import (StdCall, AddMenuEntry, "glutAddMenuEntry");
 
    procedure AddMenuEntry (Label : String; Value : Integer);
 
    procedure AddSubMenu
-     (Label   : Interfaces.C.Strings.Chars_Ptr;
+     (Label   : Interfaces.C.Strings.chars_ptr;
       Submenu : Integer);
    pragma Import (StdCall, AddSubMenu, "glutAddSubMenu");
 
@@ -491,7 +489,7 @@ package GLUT is
 
    procedure ChangeToMenuEntry
      (Item  : Integer;
-      Label : Interfaces.C.Strings.Chars_Ptr;
+      Label : Interfaces.C.Strings.chars_ptr;
       Value : Integer);
    pragma Import (StdCall, ChangeToMenuEntry, "glutChangeToMenuEntry");
 
@@ -502,7 +500,7 @@ package GLUT is
 
    procedure ChangeToSubMenu
      (Item    : Integer;
-      Label   : Interfaces.C.Strings.Chars_Ptr;
+      Label   : Interfaces.C.Strings.chars_ptr;
       Submenu : Integer);
    pragma Import (StdCall, ChangeToSubMenu, "glutChangeToSubMenu");
 
@@ -539,7 +537,7 @@ package GLUT is
    pragma Import (StdCall, ReshapeFunc, "glutReshapeFunc");
    procedure ReshapeFunc (P1 : System.Address);
 
-   subtype Key_type is Interfaces.C.Unsigned_Char;
+   subtype Key_type is Interfaces.C.unsigned_char;
 
    type Glut_Proc_4 is access
      procedure (Key : Key_type; X : Integer; Y : Integer);
@@ -670,15 +668,15 @@ package GLUT is
 
    procedure SetColor
      (P1    : Integer;
-      Red   : GL.float;
-      Green : GL.float;
-      Blue  : GL.float);
+      Red   : GL.Float;
+      Green : GL.Float;
+      Blue  : GL.Float);
    pragma Import (StdCall, SetColor, "glutSetColor");
 
    function GetColor
      (Ndx       : Integer;
       Component : Integer)
-      return GL.float;
+      return GL.Float;
    pragma Import (StdCall, GetColor, "glutGetColor");
 
    procedure CopyColormap (Win : Integer);
@@ -695,7 +693,7 @@ package GLUT is
    --  GLUT extension support sub-API
 
    function ExtensionSupported
-     (Name : Interfaces.C.Strings.Chars_Ptr)
+     (Name : Interfaces.C.Strings.chars_ptr)
       return Integer;
    pragma Import (StdCall, ExtensionSupported, "glutExtensionSupported");
 
@@ -733,62 +731,62 @@ package GLUT is
 
    function StrokeLength
      (Font   : System.Address;
-      String : Interfaces.C.Strings.Chars_Ptr)
+      String : Interfaces.C.Strings.chars_ptr)
       return Integer;
    pragma Import (StdCall, StrokeLength, "glutStrokeLength");
 
    function BitmapLength
      (Font   : System.Address;
-      String : Interfaces.C.Strings.Chars_Ptr)
+      String : Interfaces.C.Strings.chars_ptr)
       return Integer;
    pragma Import (StdCall, BitmapLength, "glutBitmapLength");
 
    --  GLUT pre-built models sub-API
 
    procedure WireSphere
-     (Radius : GL.double;
-      Slices : GL.int;
-      Stacks : GL.int);
+     (Radius : GL.Double;
+      Slices : GL.Int;
+      Stacks : GL.Int);
    pragma Import (StdCall, WireSphere, "glutWireSphere");
 
    procedure SolidSphere
-     (Radius : GL.double;
-      Slices : GL.int;
-      Stacks : GL.int);
+     (Radius : GL.Double;
+      Slices : GL.Int;
+      Stacks : GL.Int);
    pragma Import (StdCall, SolidSphere, "glutSolidSphere");
 
    procedure WireCone
-     (Base   : GL.double;
-      Height : GL.double;
-      Slices : GL.int;
-      Stacks : GL.int);
+     (Base   : GL.Double;
+      Height : GL.Double;
+      Slices : GL.Int;
+      Stacks : GL.Int);
    pragma Import (StdCall, WireCone, "glutWireCone");
 
    procedure SolidCone
-     (Base   : GL.double;
-      Height : GL.double;
-      Slices : GL.int;
-      Stacks : GL.int);
+     (Base   : GL.Double;
+      Height : GL.Double;
+      Slices : GL.Int;
+      Stacks : GL.Int);
    pragma Import (StdCall, SolidCone, "glutSolidCone");
 
-   procedure WireCube (Size : GL.double);
+   procedure WireCube (Size : GL.Double);
    pragma Import (StdCall, WireCube, "glutWireCube");
 
-   procedure SolidCube (Size : GL.double);
+   procedure SolidCube (Size : GL.Double);
    pragma Import (StdCall, SolidCube, "glutSolidCube");
 
    procedure WireTorus
-     (InnerRadius : GL.double;
-      OuterRadius : GL.double;
-      Sides       : GL.int;
-      Rings       : GL.int);
+     (InnerRadius : GL.Double;
+      OuterRadius : GL.Double;
+      Sides       : GL.Int;
+      Rings       : GL.Int);
    pragma Import (StdCall, WireTorus, "glutWireTorus");
 
    procedure SolidTorus
-     (InnerRadius : GL.double;
-      OuterRadius : GL.double;
-      Sides       : GL.int;
-      Rings       : GL.int);
+     (InnerRadius : GL.Double;
+      OuterRadius : GL.Double;
+      Sides       : GL.Int;
+      Rings       : GL.Int);
    pragma Import (StdCall, SolidTorus, "glutSolidTorus");
 
    procedure WireDodecahedron;
@@ -797,10 +795,10 @@ package GLUT is
    procedure SolidDodecahedron;
    pragma Import (StdCall, SolidDodecahedron, "glutSolidDodecahedron");
 
-   procedure WireTeapot (Size : GL.double);
+   procedure WireTeapot (Size : GL.Double);
    pragma Import (StdCall, WireTeapot, "glutWireTeapot");
 
-   procedure SolidTeapot (Size : GL.double);
+   procedure SolidTeapot (Size : GL.Double);
    pragma Import (StdCall, SolidTeapot, "glutSolidTeapot");
 
    procedure WireOctahedron;
@@ -862,7 +860,7 @@ package GLUT is
 
    --  GLUT game mode sub-API
 
-   procedure GameModeString (String : Interfaces.C.Strings.Chars_Ptr);
+   procedure GameModeString (String : Interfaces.C.Strings.chars_ptr);
    pragma Import (StdCall, GameModeString, "glutGameModeString");
 
    function EnterGameMode return Integer;
@@ -874,4 +872,4 @@ package GLUT is
    function GameModeGet (Mode : GL.enum) return Integer;
    pragma Import (StdCall, GameModeGet, "glutGameModeGet");
 
-end Glut;
+end GLUT;

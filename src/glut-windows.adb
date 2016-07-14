@@ -277,7 +277,7 @@ package body GLUT.Windows is
                                  Self.main_size_x, Self.main_size_y,
                                  To_String (L.Text),
                                  GLUT_2D.Helvetica_10);
-            next (C);
+            Next (C);
          end loop;
 
          Self.extra_Status.Clear;
@@ -729,7 +729,6 @@ package body GLUT.Windows is
                                              X    => GL.Int (X),
                                              Y    => GL.Int (Y)));
    end add_status_Line;
-
 
    function  show_Status (Self : in     Window) return Boolean
    is
