@@ -149,7 +149,7 @@ private
 
    type pool_texture_List is
       record
-         Textures : Objects (1 .. 3000);
+         Textures : Objects (1 .. 10_000);
          Last     : Natural            := 0;
       end record;
 

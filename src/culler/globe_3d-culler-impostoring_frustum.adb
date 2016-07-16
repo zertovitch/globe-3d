@@ -5,8 +5,9 @@ with GLOBE_3D.Math;               use GLOBE_3D.Math;
 with GL.Math;
 
 with Ada.Containers.Generic_Array_Sort;
-
 with Ada.Unchecked_Deallocation;
+
+with Interfaces;
 
 package body GLOBE_3D.Culler.Impostoring_frustum is
 
@@ -272,5 +273,23 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       destroy (Self.all);
       deallocate (Pad);
    end free;
+
+   -- Support
+   --
+
+   function Hash (Self : in p_Visual) return Ada.Containers.Hash_Type
+   is
+      type any_Access is
+         record
+            Upper : Interfaces.Unsigned_32;   -- ToDo ~ consider endian issues.
+            Lower : Interfaces.Unsigned_32;
+         end record;
+
+      function to_any_Access is new Ada.Unchecked_Conversion (p_Visual, any_Access);
+
+      the_Access : constant any_Access := to_any_Access (Self);
+   begin
+      return Ada.Containers.Hash_Type (the_Access.Lower);
+   end Hash;
 
 end GLOBE_3D.Culler.Impostoring_frustum;

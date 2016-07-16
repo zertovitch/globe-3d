@@ -57,7 +57,7 @@ private
    procedure destroy (Self : in out sprite_Set);
    procedure free    (Self : in     sprite_Set_view);
 
-   function Hash is new Ada.Unchecked_Conversion (p_Visual, Ada.Containers.Hash_Type);
+   function Hash (Self : in p_Visual) return Ada.Containers.Hash_Type;
    package physics_object_sprite_set_Maps is new ada.containers.hashed_Maps (p_Visual, sprite_Set_view,
                                                                              hash            => Hash,
                                                                              equivalent_keys => "=");
