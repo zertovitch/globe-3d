@@ -15,7 +15,6 @@ use
     Ada.Text_IO;
 with GL.Skins;
 
-
 procedure launch_Terrain_vbo
 is
    package g3d renames GLOBE_3D;

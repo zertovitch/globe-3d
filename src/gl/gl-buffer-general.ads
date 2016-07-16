@@ -19,6 +19,8 @@ generic
    type Element       is private;
    type Element_Array is array (Index range <>) of aliased Element;
 
+   default_Terminator : Element;
+
 package GL.Buffer.General is
 
    type Object is new base_Object with private;
@@ -78,8 +80,6 @@ package GL.Buffer.General is
 private
 
    type Object is new base_Object with null record;
-
-   default_Terminator : Element;     -- No 'i.c.Pointers' subprogram is called which uses this, so a default 'Element' should suffice.
 
    package Element_Pointers is new interfaces.C.Pointers (Index, Element, Element_Array, default_Terminator);
 
