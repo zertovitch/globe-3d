@@ -16,7 +16,7 @@ package body GLUT is
      v_Count : Natural:= 0;
    end record;
 
-   procedure Finalize (Self : in out Arg_Type)
+   overriding procedure Finalize (Self : in out Arg_Type)
    is
       use Interfaces.C.Strings;
    begin
