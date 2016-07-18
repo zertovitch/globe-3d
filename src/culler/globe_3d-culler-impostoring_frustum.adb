@@ -277,19 +277,40 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
    -- Support
    --
 
+   -- Based on algorithm at https://gist.github.com/badboy/6267743
+   --
+   function hash_64_32_shift (key : in Interfaces.Unsigned_64) return Ada.Containers.Hash_Type
+   is
+      use Interfaces;
+      k : Interfaces.Unsigned_64 := key;
+   begin
+      k := (not k) + Shift_Left (k, 18);     -- key = (key << 18) - key - 1;
+      k := k xor Shift_Right (k, 31);
+      k := k * 21;                           -- key = (key + (key << 2)) + (key << 4);
+      k := k xor Shift_Right (k, 11);
+      k := k +   Shift_Left  (k,  6);
+      k := k xor Shift_Right (k, 22);
+
+      return Ada.Containers.Hash_Type (k mod 2**32);
+   end hash_64_32_shift;
+
    function Hash (Self : in p_Visual) return Ada.Containers.Hash_Type
    is
-      type any_Access is
+      type Access_Pair is
          record
-            Upper : Interfaces.Unsigned_32;   -- ToDo ~ consider endian issues.
-            Lower : Interfaces.Unsigned_32;
+            one,
+            two: p_Visual;
          end record;
 
-      function to_any_Access is new Ada.Unchecked_Conversion (p_Visual, any_Access);
+      key_64_or_128 : constant Access_Pair := (Self, Self);
+      key_64        : constant Interfaces.Unsigned_64;
 
-      the_Access : constant any_Access := to_any_Access (Self);
+      for key_64'Address use key_64_or_128'Address;
+      pragma Import (Ada, key_64);
+
+      use type Interfaces.Unsigned_32;
    begin
-      return Ada.Containers.Hash_Type (the_Access.Lower);
+      return hash_64_32_shift (key_64);
    end Hash;
 
 end GLOBE_3D.Culler.Impostoring_frustum;
