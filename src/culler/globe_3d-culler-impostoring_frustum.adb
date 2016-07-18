@@ -308,7 +308,6 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       for key_64'Address use key_64_or_128'Address;
       pragma Import (Ada, key_64);
 
-      use type Interfaces.Unsigned_32;
    begin
       return hash_64_32_shift (key_64);
    end Hash;
