@@ -119,6 +119,7 @@ package body GL.Buffer.General is
                                           READ_ONLY));
 
       if the_Map.Data = null then
+         GL.Errors.Log;
          raise GL.Buffer.no_platform_Support;
       end if;
 
@@ -153,6 +154,7 @@ package body GL.Buffer.General is
                                           WRITE_ONLY));
 
       if the_Map.Data = null then
+         GL.Errors.Log;
          raise GL.Buffer.no_platform_Support;
       end if;
 
@@ -188,6 +190,7 @@ package body GL.Buffer.General is
                                           READ_WRITE));
 
       if the_Map.Data = null then
+         GL.Errors.Log;
          raise GL.Buffer.no_platform_Support;
       end if;
 
