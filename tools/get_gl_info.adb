@@ -12,10 +12,10 @@ procedure Get_GL_Info is
       if s(i)=' ' then
         New_Line(f);
       else
-        Put(f,s(i));
+        Put(f, s(i));
       end if;
     end loop;
-  end;
+  end Put_Split;
 begin
   GLUT.Init;
   GLUT.InitDisplayMode( GLUT_options );

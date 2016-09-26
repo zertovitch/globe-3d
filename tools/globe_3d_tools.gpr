@@ -1,0 +1,27 @@
+--  This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
+--  for the GLOBE_3D ( http://sf.net/projects/globe3d/ ) common tools
+--  Build me with "gprbuild -P globe_3d_tools.gpr", or open me with GPS
+--  
+--  Target specification:
+--  
+--  For Windows 32-bits (default) : gprbuild -P globe_3d_tools.gpr -XOS_Kind=win32
+--  For Linux                     : gprbuild -P globe_3d_tools.gpr -XOS_Kind=linux
+--  For Mac OS X (untested)       : gprbuild -P globe_3d_tools.gpr -XOS_Kind=macosx
+--
+
+with "../globe_3d";
+
+project GLOBE_3D_Tools is
+
+   for Main use ("get_gl_info.adb", "gl_overloader.adb");
+   for Source_Dirs use (".");
+   for Object_Dir use "../obj/gnat_" & external ("Build_Mode", "debug");
+   for Exec_Dir use ".";
+
+   package Ide      renames GLOBE_3D.Ide;
+   package Builder  renames GLOBE_3D.Builder;
+   package Compiler renames GLOBE_3D.Compiler;
+   package Binder   renames GLOBE_3D.Binder;
+   package Linker   renames GLOBE_3D.Linker;
+
+end GLOBE_3D_Tools;
