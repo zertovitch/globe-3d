@@ -184,24 +184,24 @@ package GL is
   type GetPointerEnm is
   (
      FEEDBACK_BUFFER_POINTER,
+     SELECTION_BUFFER_POINTER,
      VERTEX_ARRAY_POINTER,
      NORMAL_ARRAY_POINTER,
      COLOR_ARRAY_POINTER,
      INDEX_ARRAY_POINTER,
      TEXTURE_COORD_ARRAY_POINTER,
-     EDGE_FLAG_ARRAY_POINTER,
-     SELECTION_BUFFER_POINTER
+     EDGE_FLAG_ARRAY_POINTER
   );
   for GetPointerEnm use
   (
      FEEDBACK_BUFFER_POINTER                 => 16#0DF0#,
+     SELECTION_BUFFER_POINTER                => 16#0DF3#,
      VERTEX_ARRAY_POINTER                    => 16#808E#,
      NORMAL_ARRAY_POINTER                    => 16#808F#,
      COLOR_ARRAY_POINTER                     => 16#8090#,
      INDEX_ARRAY_POINTER                     => 16#8091#,
      TEXTURE_COORD_ARRAY_POINTER             => 16#8092#,
-     EDGE_FLAG_ARRAY_POINTER                 => 16#8093#,
-     SELECTION_BUFFER_POINTER                => 16#FFFF#   -- fixme: Mesa 2.5 does not support!!  What's the real value?
+     EDGE_FLAG_ARRAY_POINTER                 => 16#8093#
   );
   for GetPointerEnm'Size use GL.enum'Size;
 
