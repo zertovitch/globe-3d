@@ -1,8 +1,10 @@
--- Test of dictionary search, GM 2008
---
--- lin -> linear, should be miserable
--- bin -> home-made binary tree
--- map -> using maps
+--  Test of dictionary search, GM 2008
+-- 
+--  lin -> linear, should be miserable
+--  bin -> home-made binary tree
+--  map -> using maps
+-- 
+--  build: gnatmake -gnatpn -O2 dico_drill.adb
 
 with Ada.Text_IO;                       use Ada.Text_IO;
 with Ada.Calendar;                      use Ada.Calendar;
@@ -12,6 +14,9 @@ with Ada.Containers.Hashed_Maps;
 with Ada.Strings.Unbounded.Hash;
 
 procedure Dico_Drill is
+
+  dico_name  : constant String:= "EN-US.dic"; -- mozilla, libreoffice, ...
+  dico_length: constant:= 40_000; -- max ~63_000;
 
   -- *** Linear search (dumb!) --
 
@@ -203,10 +208,6 @@ procedure Dico_Drill is
     f: File_Type;
     s: String(1..100);
     l: Natural;
-
-    dico_name  : constant String:= "EN-US.dic"; -- mozilla
-    dico_length: constant:= 20_000; -- max ~63_000;
-
     lina: p_Lin_Array;
     bina: p_Dir_node:= null;
     mapa: Maps.Map;
@@ -257,6 +258,7 @@ procedure Dico_Drill is
       "; size:" & Integer'Image(dico_length) &
       "; store/search mode: " & Mode_Type'Image(mode) );
     New_Line;
+    Put_Line("Last elements (not keys):");
     Open(f, In_File, dico_name);
     for n in 1..dico_length loop
       Get_Line(f,s,l);
@@ -266,6 +268,7 @@ procedure Dico_Drill is
           exit;
         end if;
       end loop;
+      --  Here the search happens
       case mode is
         when lin =>
           for i in 1..n loop
@@ -293,6 +296,7 @@ procedure Dico_Drill is
     -- Test banana skin to sort out which exception/message comes
     -- when a key is not in the dico:
     if mode = map then
+      Put_Line("Searching an unknown key:");
       elm:= Maps.Element(mapa, U("Bachibouzouk"));
       -- raised CONSTRAINT_ERROR : no element available because key not in map
     end if;

@@ -54,7 +54,7 @@ procedure O2G is
       end if;
     end loop;
     return s(s'First..l);
-  end;
+  end No_ext;
 
   --  # 3ds Max Wavefront OBJ Exporter puts some garbage in front of lines...
   function My_trim(s: String) return String is
@@ -69,7 +69,7 @@ procedure O2G is
       end case;
     end loop;
     return s(f .. s'Last);
-  end;
+  end My_trim;
 
   archive : Zip_Create_info;
 
@@ -92,7 +92,7 @@ procedure O2G is
       Name_in_archive =>   Simple_Name(Name),
       Modification_time => Zip.Convert(Modification_Time(Name))
     );
-  end;
+  end My_Add_File;
 
   procedure Pack_textures is
     procedure Pack_texture(c: Tex_Vectors.Cursor) is

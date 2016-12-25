@@ -13,6 +13,6 @@ gprbuild -P ../tools/doom3/to_g3d/d3g.gpr -d -XOS_Kind=linux -XBuild_Mode=fast
 gprbuild -P ../tools/vrml/w2a.gpr -d -XOS_Kind=linux -XBuild_Mode=fast
 gprbuild -P ../tools/wavefront/o2g.gpr -d -XOS_Kind=linux -XBuild_Mode=fast
 cd ../test/
-gnatmake dico_drill.adb
+gnatmake -gnatpn -O2 dico_drill.adb
 gprbuild -P vertex_buffer_object/general/simple.gpr -d -XOS_Kind=linux -XBuild_Mode=fast
 cd ../demo/
