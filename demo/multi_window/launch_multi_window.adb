@@ -22,8 +22,8 @@ is
    the_Object : p_Object_3D;
 
 begin
-   Set_level_data_name  ("../G3Demo_Global_Resources.zip");
-   Set_global_data_name ("../G3Demo_Level_Resources.zip");
+   Set_global_data_name ("../g3demo_global_resources.zip");
+   Set_level_data_name  ("../g3demo_level_resources.zip");
 
    GLUT.Windows.initialize;
 

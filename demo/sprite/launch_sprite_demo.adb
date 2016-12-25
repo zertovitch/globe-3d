@@ -44,8 +44,8 @@ is
 begin
    GL.Skins.Disable_VBO_callback := VBO_Callback'Unrestricted_Access;
 
-   g3d.Set_global_data_name ("../G3Demo_Global_Resources.zip");
-   g3d.Set_level_data_name  ("../G3Demo_Level_Resources.zip");
+   g3d.Set_global_data_name ("../g3demo_global_resources.zip");
+   g3d.Set_level_data_name  ("../g3demo_level_resources.zip");
 
    g3d.Textures.Register_textures_from_resources;
 

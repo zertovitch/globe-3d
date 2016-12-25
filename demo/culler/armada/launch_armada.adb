@@ -62,8 +62,8 @@ begin
       New_Line;
    end;
 
-   g3d.Set_level_data_name  ("../../G3Demo_Level_Resources.zip");
-   g3d.Set_global_data_name ("../../G3Demo_Global_Resources.zip");
+   g3d.Set_global_data_name ("../../g3demo_global_resources.zip");
+   g3d.Set_level_data_name  ("../../g3demo_level_resources.zip");
 
    GLUT.Windows.initialize;
    Viewer.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
