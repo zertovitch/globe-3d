@@ -228,68 +228,72 @@ procedure GLOBE_3D_Demo is
   cube, cube_glossy, cube_tri, cube_tri_quad, cube_bico : G3D.p_Object_3D;
 
   bestiaire, level_stuff: G3D.p_Object_3D_array:= null;
-  level_idx, bri_idx, beast: Integer;
+  level_idx, bri_idx, beast_idx: Integer;
   level_BSP: G3D.BSP.p_BSP_node:= null;
-  level_map: G3D.Map_of_Visuals:= G3D.empty_map; -- dictionary
-
-  procedure Load_Doom(name: String) is
-    area_max: Natural:= 0;
-    ls: G3D.Object_3D_array(1..1_000);
-    so: G3D.p_Object_3D;
-    empty_level: exception;
-    use G3D.Ident_Vectors;
-    cv: Cursor;
-    id: G3D.Ident;
-  begin
-    Area_loop: for i in ls'Range loop
-      begin
-        G3D.IO.Load(
-          name & "_$_area" & Trim(Integer'Image(i-1),Left),
-          ls(i)
-        );
-      exception
-        when G3D.Missing_object =>
-          exit Area_loop;
-      end;
-      area_max:= i;
-      G3D.Add(level_map, G3D.p_Visual(ls(i))); -- add to dictionary
-      --  Sub-objects
-      --  for id of ls(i).sub_obj_ids loop  --  Ada 2012 shortcut notation
-      cv:= ls(i).sub_obj_ids.First;
-      while Has_Element(cv) loop
-        id:= Element(cv);
-        G3D.IO.Load(id, so);
-        ls(i).sub_objects:= new G3D.Object_3D_list'(
-          objc => so,
-          next => ls(i).sub_objects
-        );
-        G3D.Add(level_map, G3D.p_Visual(so)); -- add to dictionary
-        Next(cv);
-      end loop;
-    end loop Area_loop;
-    begin
-      G3D.IO.Load(name, level_map, level_BSP); -- load BSP tree
-    exception
-      when G3D.Missing_object =>
-        null; -- Some custom levels like the Reims Cathedral have no BSP
-    end;
-    if area_max = 0 then
-      -- Perhaps just one object to display
-      -- In this case we have only the name, no area counter
-      -- E.g. a319.g3d inside of a319.zip
-      begin
-        G3D.IO.Load(name, ls(1));
-        area_max:= 1;
-        G3D.Add(level_map, G3D.p_Visual(ls(1))); -- add to dictionary
-      exception
-        when G3D.Missing_object =>
-          raise empty_level with "Object name " & name & " not found";
-      end;
-    end if;
-    level_stuff:= new G3D.Object_3D_array'(ls(1..area_max));
-  end Load_Doom;
 
   procedure Create_objects(load: Boolean; doom3_custom: String) is
+
+    level_map: G3D.Map_of_Visuals:= G3D.empty_map; -- dictionary
+
+    procedure Load_Doom(name: String) is
+      area_max: Natural:= 0;
+      ls: G3D.Object_3D_array(1..1_000);
+      so: G3D.p_Object_3D;
+      empty_level: exception;
+      use G3D.Ident_Vectors;
+      cv: Cursor;
+      id: G3D.Ident;
+    begin
+      Area_loop: for i in ls'Range loop
+        begin
+          G3D.IO.Load(
+            name & "_$_area" & Trim(Integer'Image(i-1),Left),
+            ls(i)
+          );
+        exception
+          when G3D.Missing_object =>
+            exit Area_loop;  --  Previous area was the last one, exit.
+        end;
+        area_max:= i;
+        G3D.Add(level_map, G3D.p_Visual(ls(i))); -- add area to dictionary
+        --
+        --  Load sub-objects for area #i.
+        --
+        --  for id of ls(i).sub_obj_ids loop  --  Ada 2012 shortcut notation
+        cv:= ls(i).sub_obj_ids.First;
+        while Has_Element(cv) loop
+          id:= Element(cv);
+          G3D.IO.Load(id, so);
+          ls(i).sub_objects:= new G3D.Object_3D_list'(
+            objc => so,
+            next => ls(i).sub_objects
+          );
+          G3D.Add(level_map, G3D.p_Visual(so)); -- add sub-object to dictionary
+          Next(cv);
+        end loop;
+      end loop Area_loop;
+      begin
+        G3D.IO.Load(name, level_map, level_BSP); -- load BSP tree
+      exception
+        when G3D.Missing_object =>
+          null; -- Some custom levels like the Reims Cathedral have no BSP
+      end;
+      if area_max = 0 then
+        -- Perhaps just one object to display
+        -- In this case we have only the name, no area counter
+        -- E.g. a319.g3d inside of a319.zip
+        begin
+          G3D.IO.Load(name, ls(1));
+          area_max:= 1;
+          G3D.Add(level_map, G3D.p_Visual(ls(1))); -- add to dictionary
+        exception
+          when G3D.Missing_object =>
+            raise empty_level with "Object name " & name & " not found";
+        end;
+      end if;
+      level_stuff:= new G3D.Object_3D_array'(ls(1..area_max));
+    end Load_Doom;
+
     t: constant:= 20.0;
     f2: Natural;
     use GL, GL.Materials, G3D, G3D.Textures;
@@ -650,7 +654,7 @@ procedure GLOBE_3D_Demo is
     bri_idx:= bestiaire'Last;    -- this is the index of the pair of cubes
 
     -- We start with the first object:
-    beast:= bestiaire'First;
+    beast_idx:= bestiaire'First;
 
     --  -- Not necessary, just for testing new objects
     --  for b in bestiaire'Range loop
@@ -762,7 +766,7 @@ procedure GLOBE_3D_Demo is
           "Connected objects seen:" & Natural'Image(info_b_ntl2) &
           "; max portal depth:" & Natural'Image(info_b_ntl3));
       end if;
-      if Options.BSP_tracking and then beast = level_idx then
+      if Options.BSP_tracking and then beast_idx = level_idx then
         Msg(90, "BSP depth: " & Natural'Image(info_b_ntl1) &
           ". Area found: " & Boolean'Image(info_b_bool1) &
           ". BSP path: " & To_String(info_b_str1));
@@ -791,7 +795,7 @@ procedure GLOBE_3D_Demo is
     use GL;
   begin
     Display_scene(
-      bestiaire(beast).all, gc,
+      bestiaire(beast_idx).all, gc,
       average*0.001,
       technical_infos_enabled
     );
@@ -848,35 +852,35 @@ procedure GLOBE_3D_Demo is
 
   object_rotation_speed: G3D.Vector_3D:= ( 0.0, 0.0, 0.0 );
 
+  procedure My_Limiting(step: in out GLOBE_3D.Vector_3D) is
+    use G3D.Collision_detection;
+    radius: constant:= 4.0;
+    reacted: G3D.Real; -- unused further
+  begin
+    if detect_collisions then
+      Reaction(
+        bestiaire(beast_idx).all,
+        (ego.clipper.eye_position, radius),
+        slide,
+        step,
+        reacted
+      );
+    end if;
+  end My_Limiting;
+
+  procedure My_Limited_Translation is
+  new Actors.Limited_Translation(My_Limiting);
+
   procedure Main_operations is
 
     use GL, G3D, G3DM, G3D.REF, G3D.BSP, Game_control;
-
-    procedure My_Limiting(step: in out GLOBE_3D.Vector_3D) is
-      use G3D.Collision_detection;
-      radius: constant:= 4.0;
-      reacted: Real; -- unused further
-    begin
-      if detect_collisions then
-        Reaction(
-          bestiaire(beast).all,
-          (ego.clipper.eye_position, radius),
-          slide,
-          step,
-          reacted
-        );
-      end if;
-    end My_Limiting;
-
-    procedure My_Limited_Translation is
-    new Actors.Limited_Translation(My_Limiting);
 
     function Can_be_rotated return Boolean is
     begin
       -- Block object rotation if we have several objects
       return not (
-        beast = bri_idx or
-        (beast = level_idx and level_stuff'Length > 1)
+        beast_idx = bri_idx or
+        (beast_idx = level_idx and level_stuff'Length > 1)
       );
     end Can_be_rotated;
 
@@ -885,6 +889,7 @@ procedure GLOBE_3D_Demo is
     seconds: GL.Double; -- seconds since last image
     alpha_correct: Boolean;
     attenu_t, attenu_r: Real;
+    cycle_scene: Boolean;
   begin
     -- Number of milliseconds since GLUT.Init
     time_now := GLUT.Get( GLUT.ELAPSED_TIME );
@@ -933,16 +938,17 @@ procedure GLOBE_3D_Demo is
     technical_infos_enabled:=
       not (gc( photo ) or capturing_video);
 
-    if gc( jump ) then
+    cycle_scene:= gc( jump );
+    if cycle_scene then
       if Can_be_rotated then
-        mem_rot:= bestiaire(beast).rotation;
+        mem_rot:= bestiaire(beast_idx).rotation;
       end if;
-      beast:= beast+1; -- Next object, please !
-      if beast > bestiaire'Last then
-        beast:= bestiaire'First;
+      beast_idx:= beast_idx + 1; -- Next object, please !
+      if beast_idx > bestiaire'Last then
+        beast_idx:= bestiaire'First;
       end if;
       if Can_be_rotated then
-        bestiaire(beast).rotation:= mem_rot;
+        bestiaire(beast_idx).rotation:= mem_rot;
       end if;
       Reset_eye;
     end if;
@@ -953,8 +959,8 @@ procedure GLOBE_3D_Demo is
     if alpha_correct then
       if alpha < 0.0 then alpha:= 0.0;
       elsif alpha > 1.0 then alpha:= 1.0; end if;
-      for f in bestiaire(beast).face'Range loop
-        bestiaire(beast).face(f).alpha:= alpha;
+      for f in bestiaire(beast_idx).face'Range loop
+        bestiaire(beast_idx).face(f).alpha:= alpha;
       end loop;
     end if;
 
@@ -976,7 +982,7 @@ procedure GLOBE_3D_Demo is
           gy => gy,
           unitary_change => seconds,
           deceleration   => attenu_r,
-          matrix         => bestiaire(beast).rotation,
+          matrix         => bestiaire(beast_idx).rotation,
           time_step      => seconds,
           rotation_speed => object_rotation_speed
         );
@@ -996,24 +1002,32 @@ procedure GLOBE_3D_Demo is
     --------------------
     -- Moving the eye --
     --------------------
-    My_Limited_Translation(
-      actor => ego,
-      gc => gc,
-      gx => gx,
-      gy => gy,
-      unitary_change => seconds,
-      deceleration   => attenu_t,
-      time_step      => seconds
-    );
+    if cycle_scene then
+      --  When scene just has been changed, a call to collision detection after
+      --  or during a movement may produce:
+      --    raised PROGRAM_ERROR : EXCEPTION_ACCESS_VIOLATION
+      --  and this, in "Fast" or "Small" modes, not in "Debug" mode. Strange, isn't it ?
+      null;
+    else
+      My_Limited_Translation(
+        actor => ego,
+        gc => gc,
+        gx => gx,
+        gy => gy,
+        unitary_change => seconds,
+        deceleration   => attenu_t,
+        time_step      => seconds
+      );
+    end if;
 
-    if beast = bri_idx then
+    if beast_idx = bri_idx then
       -- The cheapest Binary Space Partition ever !...
       if ego.clipper.eye_position(2) < -50.0 then
         bestiaire(bri_idx):= bri2;
       else
         bestiaire(bri_idx):= bri1;
       end if;
-    elsif beast = level_idx and level_BSP /= null then
+    elsif beast_idx = level_idx and level_BSP /= null then
       declare
         area: p_Object_3D;
       begin
