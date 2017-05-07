@@ -1,0 +1,27 @@
+--  This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
+--  for the GLOBE_3D ( http://sf.net/projects/globe3d/ ) tests
+--  Build me with "gprbuild -P test.gpr", or open me with GPS
+--  
+--  Target specification:
+--  
+--  For Windows 32-bits (default) : gprbuild -P test.gpr -XOS_Kind=win32
+--  For Linux                     : gprbuild -P test.gpr -XOS_Kind=linux
+--  For Mac OS X (untested)       : gprbuild -P test.gpr -XOS_Kind=macosx
+--
+
+with "../globe_3d";
+
+project Test is
+
+   for Main use ("dico_drill.adb");
+   for Source_Dirs use (".", "../tools");
+   for Object_Dir use "../obj/gnat_" & external ("Build_Mode", "debug");
+   for Exec_Dir use ".";
+
+   package Ide      renames GLOBE_3D.Ide;
+   package Builder  renames GLOBE_3D.Builder;
+   package Compiler renames GLOBE_3D.Compiler;
+   package Binder   renames GLOBE_3D.Binder;
+   package Linker   renames GLOBE_3D.Linker;
+
+end Test;

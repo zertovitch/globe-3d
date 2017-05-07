@@ -1,9 +1,9 @@
 --  Test of dictionary search, GM 2008
--- 
+--
 --  lin -> linear, should be miserable
 --  bin -> home-made binary tree
 --  map -> using maps
--- 
+--
 --  build: gnatmake -gnatpn -O2 dico_drill.adb
 
 with Ada.Text_IO;                       use Ada.Text_IO;
@@ -145,8 +145,6 @@ procedure Dico_Drill is
 
   end Binary_tree_rebalancing;
 
-  Duplicate_name: exception;
-
   procedure Insert( name: String;
                     elem: Character;
                     node: in out p_Dir_node ) is
@@ -169,7 +167,7 @@ procedure Dico_Drill is
     end if;
   end Insert;
 
-  function Find(name: String; dico: p_Dir_Node) return Character is
+  function Find(name: String; dico: p_Dir_node) return Character is
     aux: p_Dir_node:= dico;
   begin
     while aux /= null loop
@@ -192,8 +190,6 @@ procedure Dico_Drill is
           Ada.Strings.Unbounded.Hash,
           equivalent_keys => Ada.Strings.Unbounded."=");
 
-  function S (Source : Ada.Strings.Unbounded.Unbounded_String) return String
-    renames Ada.Strings.Unbounded.To_String;
   function U (Source : String) return Ada.Strings.Unbounded.Unbounded_String
     renames Ada.Strings.Unbounded.To_Unbounded_String;
 
@@ -212,7 +208,7 @@ procedure Dico_Drill is
     bina: p_Dir_node:= null;
     mapa: Maps.Map;
     pos: Maps.Cursor;
-    suc: Boolean;
+    success: Boolean;
 
     elm: Character;
 
@@ -245,7 +241,7 @@ procedure Dico_Drill is
             Binary_tree_rebalancing.Rebalance(bina);
           end if;
         when map =>
-          Maps.Insert(mapa,U(s(1..l)),elm, pos, suc);
+          Maps.Insert(mapa, U(s(1..l)), elm, pos, success);
       end case;
     end loop;
     Close(f);
@@ -296,14 +292,24 @@ procedure Dico_Drill is
     -- Test banana skin to sort out which exception/message comes
     -- when a key is not in the dico:
     if mode = map then
-      Put_Line("Searching an unknown key:");
+      Put_Line("Searching an unknown key with Find -> cursor -> Element:");
+      pos := Maps.Find(mapa, U("Bachibouzouk"));
+      if Maps."=" (pos, Maps.No_Element) then
+        Put_Line("Not found");
+      else
+        Put_Line("Found ?! " & Maps.Element(pos));
+      end if;
+      Put_Line("Searching an unknown key with Element (CONSTRAINT_ERROR ok here: A.18.4, 69/2):");
       elm:= Maps.Element(mapa, U("Bachibouzouk"));
       -- raised CONSTRAINT_ERROR : no element available because key not in map
+      -- GNAT 2016 may skip this check with -gnatp or pragma Suppress(Container_Checks)
     end if;
   end Test;
 
 begin
   for mode in Mode_Type loop
+    Put_Line(
+      "---- Testing " & Mode_Type'Image(mode) );
     Test(mode);
   end loop;
 end Dico_Drill;
