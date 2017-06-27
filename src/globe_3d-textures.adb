@@ -30,7 +30,7 @@ package body GLOBE_3D.Textures is
 
   package Texture_Name_Mapping is new Ada.Containers.Hashed_Maps
      (Key_Type        => Ada.Strings.Unbounded.Unbounded_String,
-      Element_Type    => Image_id,
+      Element_Type    => Image_ID,
       Hash            => Ada.Strings.Unbounded.Hash,
       Equivalent_Keys => Ada.Strings.Unbounded."=");
 

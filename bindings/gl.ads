@@ -130,7 +130,7 @@ package GL is
 
   type positive_uInt is new GL.Uint range 1 .. GL.Uint'Last;
 
-  package A2A_double is new System.Address_To_Access_Conversions(double);
+  package A2A_double is new System.Address_To_Access_Conversions(Double);
 
   -- Pointer types
   type GL_BooleanPtr is access all GL_Boolean;
