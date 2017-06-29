@@ -94,6 +94,8 @@ procedure O2G is
     );
   end My_Add_File;
 
+  warnings: Boolean:= False;
+
   procedure Pack_textures is
     procedure Pack_texture(c: Tex_Vectors.Cursor) is
       t_name: constant String:= To_String(Tex_Vectors.Element(c));
@@ -101,7 +103,8 @@ procedure O2G is
       My_Add_File(t_name);
     exception
       when Ada.Text_IO.Name_Error =>
-        Put_Line(Current_Error, "*** Warning: texture file not found: " & t_name);
+        Put_Line(Current_Error, "*** Warning: texture file not found: [" & t_name & ']');
+        warnings := True;
     end Pack_texture;
   begin
     tex_list.Iterate(Pack_texture'Access);
@@ -136,6 +139,7 @@ procedure O2G is
             elsif l7 = "map_Ks " then
               Put_Line("      Specular texture: " & r7n);
               mat_stack(mat_idx).specular_texture:= To_Unbounded_String(r7n);
+              Reg_tex(r7);
             end if;
           end;
         end if;
@@ -145,11 +149,12 @@ procedure O2G is
   exception
     when Ada.Text_IO.Name_Error =>
       Put_Line(Current_Error, "  *** Warning: material file not found: " & m_name);
+      warnings := True;
   end Load_mat_lib;
   --
   vertices, faces, UV_pts, total_lines, pass_2_lines, pass_3_lines: Natural:= 0;
   --
-  --  Pass 1
+  --  Pass 1 - counting number of vertices, faces, texture points
   --
   procedure Count_items(o_name: String) is
     o: File_Type;
@@ -184,7 +189,7 @@ procedure O2G is
   type UV_buffer is array(Natural range <>) of Map_idx_pair;
 
   --
-  --  Pass 2
+  --  Pass 2 - positions on textures (vt ...)
   --
   procedure Acquire_texture_points(o_name: String; uvs: out UV_buffer) is
     o: File_Type;
@@ -231,7 +236,7 @@ procedure O2G is
   scale: Real:= 1.0;
 
   --
-  --  Pass 3
+  --  Pass 3 - vertices (v ...) and faces (f ...)
   --
   procedure Acquire_object(o_name: String; uvs: UV_buffer; x: out Object_3D) is
     o: File_Type;
@@ -284,7 +289,7 @@ procedure O2G is
               --  f 16//11 12//11 11//11 15//11
               face:= face + 1;
               declare
-                fd: constant String:= My_trim(l(l'First+2..l'Last) & ' ');
+                fd: constant String:= My_trim(l(l'First+2..l'Last)) & '$';
                 j: Natural:= 0;
                 dim : Positive:= 1;
                 f: Face_type:= current_face;
@@ -301,15 +306,20 @@ procedure O2G is
                 j:= fd'First;
                 for i in fd'Range loop
                   if fd(i) not in '0'..'9' then
+                    --  Trick: we add '0' in front for the case of an empty string
+                    --  (between the "//" in "f 16//11") :
                     idx:= Integer'Value('0' & fd(j..i-1));
-                    --  Trick: we add 0 in front for the case of an empty string
-                    --  (between the "//" in "f 16//11")
                     case kind is
                       when Vertex_Indices =>
-                        if dim > 4 then
-                          raise Constraint_Error with "dim > 4 not supported";
+                        if idx > 0 then
+                          --  Put(dim'Img & ':' & idx'Img);
+                          if dim > 4 then
+                            delay 5.0;
+                            raise Constraint_Error
+                              with "Polygon: dim > 4 not supported - line" & Integer'Image(pass_3_lines);
+                          end if;
+                          f.P(dim):= idx;
                         end if;
-                        f.P(dim):= idx;
                       when Vertex_Texture_Coordinate_Indices =>
                         if idx = 0 then
                           f.whole_texture:= True;
@@ -320,7 +330,7 @@ procedure O2G is
                       when Vertex_Normal_Indices =>
                         null;  --  Needless, GLOBE_3D recomputes that.
                     end case;
-                    j:= i+1;
+                    j:= i + 1;
                     case fd(i) is
                       when ' ' =>
                         dim:= dim + 1;
@@ -328,7 +338,7 @@ procedure O2G is
                       when '/' =>
                         kind:= Kind_Type'Succ(kind);
                       when others =>
-                        null;  --  error in .obj file
+                        null;  --  error in .obj file, or our special line terminator '$'
                     end case;
                   end if;
                 end loop;
@@ -350,11 +360,14 @@ procedure O2G is
               c:= mat_cat.Find(r7);
               if c = No_Element then
                 Put_Line(Current_Error, "  *** Warning: material not found: " & To_String(r7));
+                warnings := True;
               else
                 current_mat_idx:= Element(c);
               end if;
               if current_mat_idx = 0 then
-                raise Constraint_Error with "Error in .obj file: no material defined";
+                delay 5.0;
+                raise Constraint_Error
+                  with "Error in .obj file: no Wavefront material (=> no color, no texture, ...) defined for this object!";
               end if;
               if mat_stack(current_mat_idx).diffuse_texture = "" then
                 current_face.skin:= colour_only;
@@ -368,6 +381,7 @@ procedure O2G is
         end if;
       end;
     end loop;
+    Put_Line("  Parsing done, last line" & Integer'Image(pass_3_lines));
     Close(o);
   end Acquire_object;
 
@@ -514,6 +528,12 @@ begin
             Translate(o_name & ".obj");
           else
             Translate(o_name);
+          end if;
+          if warnings then
+            Put_Line ("Object " & o_name & ": processing successful, but there were warnings.");
+            delay 5.0;
+          else
+            Put_Line ("Object " & o_name & ": processing successful.");
           end if;
         end;
       end if;
