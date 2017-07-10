@@ -1,5 +1,5 @@
 --  This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
---  for the D3G tool (Doom 3 to GLOBE_3D object file)
+--  for the D3G tool (Doom 3 .proc to GLOBE_3D object file)
 --  Build me with "gprbuild -P d3g.gpr", or open me with GPS
 --  
 --  Target specification:
