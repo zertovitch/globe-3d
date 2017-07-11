@@ -14,3 +14,4 @@ rem
 if exist yyparse.adb del yyparse.adb
 ren md5.a yyparse.adb
 
+gprbuild -P m2g.gpr

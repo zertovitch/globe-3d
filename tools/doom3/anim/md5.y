@@ -41,7 +41,10 @@
 
 %token MD5Version_t, commandline_t
 --  Mesh file
-%token numJoints_t, numMeshes_t, joints_t
+%token numJoints_t, numMeshes_t, joints_t, mesh_t,
+       numverts_t, vert_t,
+       numtris_t, tri_t,
+       numweights_t, weight_t
 --  Anim file
 %token numFrames_t, frameRate_t, numAnimatedComponents_t
 
@@ -78,7 +81,8 @@ MD5     : MD5_items {MD5_Help.YY_ACCEPT;}
         | error     {MD5_Help.YY_ABORT;}
         ;
 
-MD5_items : MD5_mesh_items | MD5_anim_items;
+MD5_items : MD5_mesh_items | 
+            MD5_anim_items;
 
 MD5_mesh_items : 
             MD5Version_t              NUMBER 
@@ -87,16 +91,19 @@ MD5_mesh_items :
             { MD5_Help.num_joints:= Integer(yylval.intval); }
             numMeshes_t               NUMBER
             { MD5_Help.num_meshes:= Integer(yylval.intval); }
+            { Ada.Text_IO.Put_Line(Current_Error, "Mesh or anim ?"); }
             { Ada.Text_IO.Put_Line(
                 Current_Error, 
                 "Mesh file. Skeleton has" & 
                 Integer'Image(MD5_Help.num_joints) & 
-                " joints and" & 
+                " joints. There are" & 
                 Integer'Image(MD5_Help.num_meshes) & 
                 " meshes."
               ); 
             }
-            joints_t
+            joints
+            { Ada.Text_IO.Put_Line(Current_Error, "  Mesh list:"); }
+            mesh_list
             ;
 
 MD5_anim_items : 
@@ -107,11 +114,13 @@ MD5_anim_items :
             frameRate_t               NUMBER
             { MD5_Help.frame_rate:= Integer(yylval.intval); }
             numAnimatedComponents_t   NUMBER
+            { Ada.Text_IO.Put_Line(Current_Error, "Mesh or anim ?"); }
             { Ada.Text_IO.Put_Line(Current_Error, "Animation file."); }
             ;
 
 joints :    joints_t
             LBRACE_t
+            { Ada.Text_IO.Put_Line(Current_Error, "  Joint list:"); }
             joint_list
             RBRACE_t
          ;
@@ -120,14 +129,79 @@ joint_list :
             joint_item
           | joint_item joint_list
           ;
-
+       
 --  Joint_item example: "head"	6 ( 0.002305 -0.182803 5.534186 ) ( -0.707074 -0.007565 -0.707059 )		// neck
           
 joint_item : RCString 
-            { Ada.Text_IO.Put_Line(Current_Error, "  Joint name: " & yytext); }
-             NUMBER vector vector ;
+            --  { Ada.Text_IO.Put_Line(Current_Error, "    Joint name: " & yytext); }
+             NUMBER 
+            --  { Ada.Text_IO.Put_Line(Current_Error, "    Parent:" & Integer'Image(Integer(yylval.intval))); }
+             vector 
+            --  { Ada.Text_IO.Put_Line(Current_Error, "    v1"); }
+             vector
+            --  { Ada.Text_IO.Put_Line(Current_Error, "    v2"); }
+             ;
 
-vector : '(' NUMBER NUMBER NUMBER ')';
+mesh_list : 
+            mesh
+          | mesh mesh_list
+          ;
+
+mesh :       mesh_t 
+            { Ada.Text_IO.Put_Line(Current_Error, "    Mesh:"); }
+            LBRACE_t
+            numverts_t NUMBER
+            { Ada.Text_IO.Put_Line(Current_Error, "      Vertices:" & Integer'Image(Integer(yylval.intval))); }
+            vert_list
+            numtris_t NUMBER
+            { Ada.Text_IO.Put_Line(Current_Error, "      Triangles:" & Integer'Image(Integer(yylval.intval))); }
+            tri_list
+            numweights_t NUMBER
+            { Ada.Text_IO.Put_Line(Current_Error, "      Weights:" & Integer'Image(Integer(yylval.intval))); }
+            weight_list
+            RBRACE_t
+            ;
+
+vert_list : 
+            vert
+          | vert vert_list
+          ;
+          
+vert : vert_t 
+       NUMBER 
+       --  { Ada.Text_IO.Put_Line(Current_Error, "      Vertex:" & Integer'Image(Integer(yylval.intval))); }
+       '(' FLOAT_t FLOAT_t ')' 
+       NUMBER 
+       NUMBER
+       ;
+
+tri_list : 
+            tri
+          | tri tri_list
+          ;
+          
+tri : tri_t 
+       NUMBER 
+       --  { Ada.Text_IO.Put_Line(Current_Error, "      triangle:" & Integer'Image(Integer(yylval.intval))); }
+       NUMBER 
+       NUMBER 
+       NUMBER
+       ;
+       
+weight_list : 
+            weight
+          | weight weight_list
+          ;
+          
+weight : weight_t 
+       NUMBER 
+       --  { Ada.Text_IO.Put_Line(Current_Error, "      weight:" & Integer'Image(Integer(yylval.intval))); }
+       NUMBER  
+       FLOAT_t 
+       vector
+       ;
+            
+vector : '(' FLOAT_t FLOAT_t FLOAT_t ')';
 
 --------------------
 -- Terminal items --

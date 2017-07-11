@@ -93,6 +93,13 @@ commandline              { return commandline_t; }
 numJoints                { return numJoints_t; }
 numMeshes                { return numMeshes_t; }
 joints                   { return joints_t; }
+mesh                     { return mesh_t; }
+numverts                 { return numverts_t; }
+vert                     { return vert_t; }
+numtris                  { return numtris_t; }
+tri                      { return tri_t; }
+numweights               { return numweights_t; }
+weight                   { return weight_t; }
                          
 numFrames                { return numFrames_t; }
 frameRate                { return frameRate_t; }
