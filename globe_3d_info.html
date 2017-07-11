@@ -1,5 +1,6 @@
 <head><title>GLOBE_3D</title></head>
 <body>
+<font face="Calibri, Arial, Tahoma"> <!-- Set font for the whole page !--> 
 <h2>GLOBE_3D</h2>
 Welcome to GLOBE_3D, the GL Object Based Engine for 3D in Ada.
 <p>
@@ -66,9 +67,10 @@ The Copyright statement appears in GLOBE_3D.ads.
   <li><b>Drawing with the plain GL / OpenGL</b>.<br> 
    You can summarize the steps to perform a rendering as:
    <ol>
-    <li>Prepare the link between the computer and GL. GLUT does it in a totally portable way,
-	    but you have gateways between many GUI systems (Windows, GTk, X Window,...) and GL.
-		(see Start_GLUTs in the <tt>Mini.adb</tt> demo)
+    <li>Prepare the link between the computer and GL.
+      For instance, GLUT does it in a totally portable way,
+	    but you have other, direct gateways between various GUI systems (Windows, GTk, X Window,...) and GL.
+      (see Start_GLUTs in the <tt>Mini.adb</tt> demo)
 	<li>Prepare the perspective, lighting, display modes of GL
         (see Start_GLs in the <tt>Mini.adb</tt> demo)
 	<li>Display forms. For the 3D, it boils down to displaying a mesh of triangles (eventually rectangles).
@@ -269,7 +271,7 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
 
      <li> <b>ObjectAda</b> compiler: open <b>globe_3d_objectada.prj</b>, then press F7.
 
-     <li> another compiler: should be fine, just need GL, GLU, and, for the demo only, (Free)GLUT bindings
+     <li> another compiler: should be fine, just need GL, GLU, and, <i>for the demo only</i>, (Free)GLUT bindings
     </ul>
    <li> <b>Linux</b>:<br>
     To force lower case on file names: unzip -L globe_3d.zip;
@@ -313,7 +315,7 @@ or<br>
 - ./mini<br>
     </ul>
    <li> <b>Other systems</b>:<br>
-    Should be fine, just need GL,GLU,(Free)GLUT.
+    Should be fine, just need GL, GLU, (Free)GLUT (the latter is only needed by the demos).
     Any volunteer ?...
   </ul>
  </p>
@@ -371,14 +373,16 @@ or<br>
    <li> <tt>./tools/vrml</tt> contains an Ada program, <b>wrl2ada.adb</b>, for translating VRML code into an Ada package
         capable of creating a GLOBE_3D corresponding to the VRML world / object.
         Example of its output is Lissajous.ads/.adb in <tt>./src/models</tt>
-   <li> <tt>./tools/doom3</tt> contains two tools that take as input a .proc file that is written
-        by id software's Radiant level designer family (the editor provided with Doom 3 is one of them).
+   <li> <tt>./tools/doom3</tt> contains two tools that take as input a <tt>.proc</tt> file,
+        a format defined by <a target=_blank href="http://www.idsoftware.com/">id software</a>.
+        A <tt>.proc</tt> file is a processed map file corresponding to the landscape of a game level. It is written
+        by some of id software's Radiant level designer family. The editor provided with Doom 3 is one of them.
     <ul>
      <li> <tt>./tools/doom3/to_ada</tt> contains a source translator, <b>d3a</b>, similar to the VRML one.
           The generated Ada code builds the level's objects and areas, connects the areas through
           portals and builds a BSP tree.
           Its advantage is the one of having Ada source code for generating 3D worlds (no I/O or file
-          format issues), but even a small level produces a huge Ada source that becomes a challenge to
+          format issues), but even a small level produces a huge Ada source that could become a challenge to
           some compilers.
      <li> <tt>./tools/doom3/to_g3d</tt> contains a file converter, <b>d3g</b>, that uses GLOBE_3D "behind the scenes"
           for building in-memory the objects and then write binary files (.g3d, .bsp) that GLOBE_3D.IO is
@@ -416,7 +420,7 @@ or<br>
   Note: the conversion tools from vrml and doom3 above are based on
   a grammar you may want to modify (the *.y and *.l files).
   To that aim, you need the AYACC and AYFLEX tools. They are available in the SVN repository on the GLOBE_3D
-  project site (.extras/aflex95.zip, .extras/ayacc95.zip),
+  project site (<tt>./extras/aflex95.zip</tt>, <tt>./extras/ayacc95.zip</tt>),
   as well as in the P2Ada project's archive (see Web resources below).
   
  </p>
@@ -448,7 +452,7 @@ or<br>
     </ul>
    
    <li>The <b>ObjectAda</b> compiler, to be found
-     <a target=_blank href=http://www.aonix.com/objectada.html>here</a>.
+     <a target=_blank href=http://www.ptc.com/en/developer-tools/objectada>here</a>.
 
    <li> The <b>FreeGLUT</b> project site
      <a target=_blank href=http://freeglut.sourceforge.net/>here</a>.
@@ -456,7 +460,6 @@ or<br>
    <li> <b>NeHe</b>, an excellent OpenGL tutorial, <a target=_blank href=http://nehe.gamedev.net/>here</a>.
 
    <li> <b>GMax</b>, a free version of 3D Studio Max, <a target=_blank href=http://www.turbosquid.com/gmax>here</a>.
-   <li> <b>TrueSpace</b>, free version <a target=_blank href=http://www.zdnet.de/downloads/prg/8/6/en10187286-wc.html>here</a>.
    <li> A few models and textures sites:
          <a target=_blank href=http://www.turbosquid.com/gmax>Turbo Squid</a>,
          <a target=_blank href=http://scifi3d.theforce.net/>Sci-Fi 3D</a>
@@ -535,4 +538,5 @@ or<br>
   </ul>
   </p>
 </ol>
+</font>
 </body>
