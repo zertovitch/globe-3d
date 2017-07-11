@@ -42,11 +42,12 @@
 %token MD5Version_t, commandline_t
 --  Mesh file
 %token numJoints_t, numMeshes_t, joints_t, mesh_t,
-       numverts_t, vert_t,
+       shader_t, numverts_t, vert_t,
        numtris_t, tri_t,
        numweights_t, weight_t
 --  Anim file
-%token numFrames_t, frameRate_t, numAnimatedComponents_t
+%token numFrames_t, frameRate_t, numAnimatedComponents_t,
+       hierarchy_t, bounds_t, baseframe_t, frame_t
 
 -- Misc --
 
@@ -84,6 +85,10 @@ MD5     : MD5_items {MD5_Help.YY_ACCEPT;}
 MD5_items : MD5_mesh_items | 
             MD5_anim_items;
 
+--------------
+--  Meshes  -- 
+--------------
+            
 MD5_mesh_items : 
             MD5Version_t              NUMBER 
             commandline_t             RCString
@@ -91,36 +96,19 @@ MD5_mesh_items :
             { MD5_Help.num_joints:= Integer(yylval.intval); }
             numMeshes_t               NUMBER
             { MD5_Help.num_meshes:= Integer(yylval.intval); }
-            { Ada.Text_IO.Put_Line(Current_Error, "Mesh or anim ?"); }
-            { Ada.Text_IO.Put_Line(
-                Current_Error, 
-                "Mesh file. Skeleton has" & 
-                Integer'Image(MD5_Help.num_joints) & 
-                " joints. There are" & 
-                Integer'Image(MD5_Help.num_meshes) & 
-                " meshes."
-              ); 
+            { Ada.Text_IO.Put_Line(Current_Error, "Mesh or anim ?"); 
+              Ada.Text_IO.Put_Line(Current_Error, "Mesh file."); 
+              Ada.Text_IO.Put_Line(Current_Error, "  Skeleton has" & Integer'Image(MD5_Help.num_joints) & " joints.");
+              Ada.Text_IO.Put_Line(Current_Error, "  There is/are" & Integer'Image(MD5_Help.num_meshes) & " mesh(es).");
             }
             joints
-            { Ada.Text_IO.Put_Line(Current_Error, "  Mesh list:"); }
+            { Ada.Text_IO.Put_Line(Current_Error, "  Mesh list..."); }
             mesh_list
-            ;
-
-MD5_anim_items : 
-            MD5Version_t              NUMBER 
-            commandline_t             RCString
-            numFrames_t               NUMBER
-            { MD5_Help.num_frames:= Integer(yylval.intval); }
-            frameRate_t               NUMBER
-            { MD5_Help.frame_rate:= Integer(yylval.intval); }
-            numAnimatedComponents_t   NUMBER
-            { Ada.Text_IO.Put_Line(Current_Error, "Mesh or anim ?"); }
-            { Ada.Text_IO.Put_Line(Current_Error, "Animation file."); }
             ;
 
 joints :    joints_t
             LBRACE_t
-            { Ada.Text_IO.Put_Line(Current_Error, "  Joint list:"); }
+            { Ada.Text_IO.Put_Line(Current_Error, "  Joint list..."); }
             joint_list
             RBRACE_t
          ;
@@ -148,20 +136,26 @@ mesh_list :
           ;
 
 mesh :       mesh_t 
-            { Ada.Text_IO.Put_Line(Current_Error, "    Mesh:"); }
+            { Ada.Text_IO.Put_Line(Current_Error, "    Mesh..."); }
             LBRACE_t
+            shader
             numverts_t NUMBER
-            { Ada.Text_IO.Put_Line(Current_Error, "      Vertices:" & Integer'Image(Integer(yylval.intval))); }
+            { Ada.Text_IO.Put_Line(Current_Error, "      Vertices  :" & Integer'Image(Integer(yylval.intval))); }
             vert_list
             numtris_t NUMBER
-            { Ada.Text_IO.Put_Line(Current_Error, "      Triangles:" & Integer'Image(Integer(yylval.intval))); }
+            { Ada.Text_IO.Put_Line(Current_Error, "      Triangles :" & Integer'Image(Integer(yylval.intval))); }
             tri_list
             numweights_t NUMBER
-            { Ada.Text_IO.Put_Line(Current_Error, "      Weights:" & Integer'Image(Integer(yylval.intval))); }
+            { Ada.Text_IO.Put_Line(Current_Error, "      Weights   :" & Integer'Image(Integer(yylval.intval))); }
             weight_list
             RBRACE_t
             ;
 
+shader :     shader_t RCString
+           |
+             --  nothing: shader is omitted by the blender exporter
+           ;
+            
 vert_list : 
             vert
           | vert vert_list
@@ -170,7 +164,7 @@ vert_list :
 vert : vert_t 
        NUMBER 
        --  { Ada.Text_IO.Put_Line(Current_Error, "      Vertex:" & Integer'Image(Integer(yylval.intval))); }
-       '(' FLOAT_t FLOAT_t ')' 
+       '(' float_or_int float_or_int ')' 
        NUMBER 
        NUMBER
        ;
@@ -197,15 +191,134 @@ weight : weight_t
        NUMBER 
        --  { Ada.Text_IO.Put_Line(Current_Error, "      weight:" & Integer'Image(Integer(yylval.intval))); }
        NUMBER  
-       FLOAT_t 
+       float_or_int 
        vector
        ;
-            
-vector : '(' FLOAT_t FLOAT_t FLOAT_t ')';
 
---------------------
--- Terminal items --
---------------------
+------------------
+--  Animations  -- 
+------------------
+
+MD5_anim_items : 
+            MD5Version_t              NUMBER 
+            commandline_t             RCString
+            numFrames_t               NUMBER
+            { MD5_Help.num_frames:= Integer(yylval.intval); }
+            numJoints_t               NUMBER
+            { MD5_Help.num_joints:= Integer(yylval.intval); }
+            frameRate_t               NUMBER
+            { MD5_Help.frame_rate:= Integer(yylval.intval); }
+            numAnimatedComponents_t   NUMBER
+            { MD5_Help.num_animated_components:= Integer(yylval.intval); }
+            { Ada.Text_IO.Put_Line(Current_Error, "Mesh or anim ?"); 
+              Ada.Text_IO.Put_Line(Current_Error, "Animation file.");
+              Ada.Text_IO.Put_Line(Current_Error, "  Animation has" & Integer'Image(MD5_Help.num_frames) & " frame(s).");
+              Ada.Text_IO.Put_Line(Current_Error, "  Frame rate is" & Integer'Image(MD5_Help.frame_rate) & " frames per second."); 
+              Ada.Text_IO.Put_Line(Current_Error, "  Animated components per frame:" & Integer'Image(MD5_Help.num_animated_components)); 
+              Ada.Text_IO.Put_Line(Current_Error, "  Skeleton has" & Integer'Image(MD5_Help.num_joints) & " joints.");
+            }
+            hierarchy
+            bounds
+            baseframe
+            frame_list
+            ;
+       
+hierarchy : hierarchy_t
+            LBRACE_t
+            { Ada.Text_IO.Put_Line(Current_Error, "  Joint list..."); }
+            joint_anim_list
+            RBRACE_t
+         ;
+     
+joint_anim_list : 
+            joint_anim_item
+          | joint_anim_item joint_anim_list
+          ;
+       
+joint_anim_item :
+            RCString 
+            --  { Ada.Text_IO.Put_Line(Current_Error, "    Joint name  : " & yytext); }
+            NUMBER 
+            --  { Ada.Text_IO.Put_Line(Current_Error, "    Parent      :" & Integer'Image(Integer(yylval.intval))); }
+            NUMBER 
+            --  { Ada.Text_IO.Put_Line(Current_Error, "    Flags       :" & Integer'Image(Integer(yylval.intval))); }
+            NUMBER 
+            --  { Ada.Text_IO.Put_Line(Current_Error, "    Start index :" & Integer'Image(Integer(yylval.intval))); }
+            ;
+
+--  Bounding boxes
+            
+bounds : bounds_t
+            LBRACE_t
+            { Ada.Text_IO.Put_Line(Current_Error, "    Bounding box list..."); }
+            bound_list
+            RBRACE_t
+         ;
+     
+bound_list : 
+            bounding_box
+          | bounding_box bound_list
+          ;
+       
+bounding_box :
+            vector
+            vector
+            ;
+
+--  Base frame data
+            
+baseframe : baseframe_t
+            LBRACE_t
+            { Ada.Text_IO.Put_Line(Current_Error, "    Base frame data..."); }
+            baseframe_list
+            RBRACE_t
+         ;
+     
+baseframe_list : 
+            baseframe_item
+          | baseframe_item baseframe_list
+          ;
+       
+baseframe_item :
+            vector
+            vector
+            ;
+
+-- Frames
+
+frame_list : 
+            frame
+          | frame frame_list
+          ;
+
+frame :     frame_t 
+            NUMBER
+            { Ada.Text_IO.Put_Line(Current_Error, "    Frame #" & Integer'Image(Integer(yylval.intval))); }
+            LBRACE_t
+            frame_component_list
+            RBRACE_t
+            ;
+
+frame_component_list :
+             frame_component
+           | frame_component frame_component_list
+           ;
+
+frame_component : 
+           float_or_int
+           ;
+
+------------------------
+-- +/- Terminal items --
+------------------------
+
+vector : '(' float_or_int float_or_int float_or_int ')';
+
+--  Float with or without decimal. In any case yylval.floatval is fed.
+float_or_int : 
+                FLOAT_t
+              |
+                NUMBER ;
 
 Style_Ident : IDENT_t | NUMBER ;
 

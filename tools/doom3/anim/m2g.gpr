@@ -20,7 +20,9 @@ project m2g is
 
    package Ide      renames GLOBE_3D.Ide;
    package Builder  renames GLOBE_3D.Builder;
-   package Compiler renames GLOBE_3D.Compiler;
+   package Compiler is
+      for Default_Switches ("ada") use ("-gnato", "-gnatVa");
+   end Compiler;
    package Binder   renames GLOBE_3D.Binder;
    package Linker   renames GLOBE_3D.Linker;
 

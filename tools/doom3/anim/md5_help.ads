@@ -12,10 +12,11 @@ package MD5_Help is
 
   --
   
-  num_joints: Natural;
-  num_meshes: Natural;
-  --
-  num_frames: Natural;
-  frame_rate: Natural;
+  num_joints              : Natural;
+  num_meshes              : Natural;
+  --                      
+  num_frames              : Natural;
+  frame_rate              : Natural;
+  num_animated_components : Natural;
   
 end;

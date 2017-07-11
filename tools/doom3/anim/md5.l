@@ -89,21 +89,28 @@ NOT              { return NOT_t; }
 
 MD5Version               { return MD5Version_t; }
 commandline              { return commandline_t; }
-                         
+
+--  Mesh file
 numJoints                { return numJoints_t; }
 numMeshes                { return numMeshes_t; }
 joints                   { return joints_t; }
 mesh                     { return mesh_t; }
 numverts                 { return numverts_t; }
+shader                   { return shader_t; }
 vert                     { return vert_t; }
 numtris                  { return numtris_t; }
 tri                      { return tri_t; }
 numweights               { return numweights_t; }
 weight                   { return weight_t; }
                          
+--  Anim file
 numFrames                { return numFrames_t; }
 frameRate                { return frameRate_t; }
 numAnimatedComponents    { return numAnimatedComponents_t; }
+hierarchy                { return hierarchy_t; }
+bounds                   { return bounds_t; }
+baseframe                { return baseframe_t; }
+frame                    { return frame_t; }
 
 TRUE                { yylval.intval := 0; return NUMBER; }
 FALSE               { yylval.intval := 1; return NUMBER; }
