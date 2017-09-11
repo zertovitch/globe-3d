@@ -888,19 +888,21 @@ EOF
   open (MAIN, ">$output_dir/main.htm") || die "couldn't write $output_dir/main.htm";
   print MAIN &create_header ("","_main_"),
   "<P ALIGN=right>",
-  "<A HREF=main.htm TARGET=_top>[No frame version is here]</A>",
+  "<A HREF=main.htm TARGET=_top><foNt face=\"Calibri, Arial\">[No frame version is here]</font></A>",
   "<P>",
   join ("\n", @files), "\n<HR>",
   join ("\n", @functions), "\n";
 
   if ($dependencies) {
       print MAIN "<HR>\n";
-      print MAIN "You should start your browsing with one of these files:\n";
+      print MAIN "<foNt face=\"Calibri, Arial\">You should start your browsing with one of these files:</font>\n";
+      print MAIN "<foNt face=\"Consolas, Monaco, Lucida Console, Courier New\">\n";
       print MAIN "<UL>\n";
       foreach (@original_list) {
-	  print MAIN "<LI><A HREF=", &http_string (&get_real_file_name ($_)),
-	     ".htm>$_</A>\n";
-      }
+        print MAIN "<LI><A HREF=", &http_string (&get_real_file_name ($_)),
+	         ".htm>$_</A>\n";
+      };
+      print MAIN "</UL></foNt>\n"
   }
   print MAIN &create_footer ("");
   close (MAIN);
@@ -922,7 +924,7 @@ sub uppercases {
 #######
 sub create_file_index
 {
-  local (@output) = ("<H2 ALIGN=CENTER>Files</H2>");
+  local (@output) = ("<H2 ALIGN=CENTER><foNt face=\"Calibri, Arial\">Files</font></H2>");
   
   
   open (FILES, ">$output_dir/files.htm") || die "couldn't write $output_dir/files.htm";
@@ -948,12 +950,12 @@ sub create_file_index
 	print INDEX_FILE <<"EOF";
 <HTML><HEAD><TITLE>$last_letter</TITLE></HEAD>
 <BODY bgcolor=#f6e2b8>
-<H2>Files - $last_letter</H2>
-<A HREF=../files.htm TARGET=_self>[index]</A>
-<UL COMPACT TYPE=DISC>
+<H2><foNt face="Calibri, Arial">Files - $last_letter</foNt></H2>
+<A HREF=../files.htm TARGET=_self><foNt face="Calibri, Arial">[index]</foNt></A>
+<foNt face="Calibri, Arial"><UL COMPACT TYPE=DISC>
 EOF
 	;
-	local ($str) = "<A HREF=files/$last_letter.htm>[$last_letter]</A>";
+	local ($str) = "<A HREF=files/$last_letter.htm><foNt face=\"Calibri, Arial\">[$last_letter]</font></A>";
 	push (@output, $str); 
 	print FILES "$str\n";
       }
@@ -967,8 +969,8 @@ EOF
   }
   else
   {
-    push (@output, "<UL COMPACT TYPE=DISC>");
-    print FILES "<UL COMPACT TYPE=DISC>";
+    push (@output, "<foNt face=\"Calibri, Arial\"><UL COMPACT TYPE=DISC>");
+    print FILES "<foNt face=\"Calibri, Arial\"><UL COMPACT TYPE=DISC>";
     foreach (sort {&uppercases ($a) cmp &uppercases ($b)} @list_files)
     {
       next if ($_ eq "");
@@ -978,10 +980,11 @@ EOF
     }
   }
   
+  print FILES "</UL></foNt>\n";
   print FILES &create_footer ("");
   close (FILES);
   
-  push (@output, "</UL>");
+  push (@output, "</UL></foNt>");
   return @output;
 }
 
@@ -991,7 +994,7 @@ EOF
 #######
 sub create_function_index
 {
-  local (@output) = ("<H2 ALIGN=CENTER>Functions/Procedures</H2>");
+  local (@output) = ("<H2 ALIGN=CENTER><foNt face=\"Calibri, Arial\">Functions / Procedures</font></H2>");
   local ($initial) = "";
   
   open (FUNCS, ">$output_dir/funcs.htm") || die "couldn't write $output_dir/funcs.htm";
@@ -1026,12 +1029,12 @@ sub create_function_index
 	    print INDEX_FILE <<"EOF";
 <HTML><HEAD><TITLE>$initial</TITLE></HEAD>
 <BODY bgcolor=#f6e2b8>
-<H2>Functions - $initial</H2>
-<A HREF=../funcs.htm TARGET=_self>[index]</A>
-<UL COMPACT TYPE=DISC>
+<H2><foNt face="Calibri, Arial">Func. / Proc. - $initial</foNt></H2>
+<A HREF=../funcs.htm TARGET=_self><foNt face="Calibri, Arial">[index]</foNt></A>
+<foNt face="Calibri, Arial"><UL COMPACT TYPE=DISC>
 EOF
 				    ;
-	    local ($str) = "<A HREF=funcs/$initial.htm>[$initial]</A>";
+	    local ($str) = "<A HREF=funcs/$initial.htm><foNt face=\"Calibri, Arial\">[$initial]</font></A>";
 	    push (@output, $str);
 	    print FUNCS "$str\n";
 	}
@@ -1051,8 +1054,8 @@ EOF
   }
   else
   {
-    push (@output, "<UL COMPACT TYPE=DISC>");
-    print FUNCS "<UL COMPACT TYPE=DISC>";
+    push (@output, "<foNt face=\"Calibri, Arial\"><UL COMPACT TYPE=DISC>");
+    print FUNCS "<foNt face=\"Calibri, Arial\"><UL COMPACT TYPE=DISC>";
     foreach (sort {&uppercases ($a) cmp &uppercases ($b)} keys %global_index)
     {
       local ($ref);
@@ -1067,10 +1070,11 @@ EOF
     }
   }
   
+  print FUNCS "</UL></foNt>\n";
   print FUNCS &create_footer ("");
   close (FUNCS);
   
-  push (@output, "</UL>");
+  push (@output, "</UL></foNt>");
   return (@output);
 }
 
