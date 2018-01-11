@@ -486,6 +486,14 @@ or<br>
   (some items may go beyond the scope of graphics and GLOBE_3D):
  <p>
   <ul>
+   <li> <a target=_blank href="http://flyx.github.io/OpenGLAda/">OpenGLAda</a> seems a good candidate for
+        replacing the GL layer beneath GLOBE_3D. It is maintained by a small community and includes cool GPU extensions.<br>
+        To do there:
+        <ul>
+            <li>Evaluate: check ease of installing, completeness i.r.o. parts used by GLOBE_3D
+            <li>For smooth transition: adapt "our" GL layer to OpenGLAda types, subprograms, etc.
+            <li>Replace, or (better?): let users choose between "our" GL and OpenGLAda, perhaps with a .gpr switch
+        </ul>
    <li> Move reusable parts of the big demo to Game_Control or other packages (GLUT.Windows in the works)
    <li> Game_Control: add support for configuration files
    <li> 3D Studio / GMAX: see in the max2ada.ms file
