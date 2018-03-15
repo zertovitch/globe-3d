@@ -1,3 +1,9 @@
+--  This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
+--  for the GLOBE_3D project.
+--
+--        GLOBE_3D Web site:   http://globe3d.sf.net/
+--         GLOBE_3D Mirror:    https://github.com/svn2github/GLOBE_3D
+--
 project Globe_3D is
 
    type OS_Kind is

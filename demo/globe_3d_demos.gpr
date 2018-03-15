@@ -1,5 +1,10 @@
 --  This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
---  for the GLOBE_3D ( http://sf.net/projects/globe3d/ ) demos
+--  for the GLOBE_3D demos.
+--
+--        GLOBE_3D Web site:   http://globe3d.sf.net/
+--         GLOBE_3D Mirror:    https://github.com/svn2github/GLOBE_3D
+--
+--
 --  Build me with "gprbuild -P globe_3d_demos.gpr", or open me with GPS
 --  
 --  Target specification:
@@ -13,7 +18,11 @@ with "../globe_3d";
 
 project GLOBE_3D_Demos is
 
-   for Main use ("globe_3d_demo.adb", "g3dem_tb.ads", "mini.adb", "mini_tb.ads");
+   for Main use (
+     "globe_3d_demo.adb", "g3dem_tb.ads", 
+     "mini.adb", "mini_tb.ads", 
+     "get_gl_info.adb"
+   );
    for Source_Dirs use (".", "../tools");
    for Object_Dir use "../obj/gnat_" & external ("Build_Mode", "debug");
    for Exec_Dir use ".";
