@@ -8,7 +8,7 @@ project Simple_Terrain_Win32 is
       ("Fast", "Debug", "Small");
    Build_Mode : Build_Mode_Type := external ("Build_Mode", "Debug");
 
-   for Main use ("launch_terrain_vbo.adb", "terrain_vbo_tb.ads");
+   for Main use ("launch_terrain_vbo.adb");
    for Source_Dirs use (".", "..\..\..\bindings", "..\..\..\bindings\win32", "..\..\..\src\/**", "..\..\..\tools");
    for Exec_Dir use ".";
 

@@ -19,8 +19,8 @@ with "../globe_3d";
 project GLOBE_3D_Demos is
 
    for Main use (
-     "globe_3d_demo.adb", "g3dem_tb.ads", 
-     "mini.adb", "mini_tb.ads", 
+     "globe_3d_demo.adb",
+     "mini.adb",
      "get_gl_info.adb"
    );
    for Source_Dirs use (".", "../tools");

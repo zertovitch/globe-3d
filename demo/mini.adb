@@ -176,7 +176,7 @@ procedure Mini is
     o: in out G3D.Object_3D'Class
   )
   is
-    use GL, G3D, G3D.REF, GLOBE_3D.Math, GL.Math;
+    use GL, G3D, GLOBE_3D.Math, GL.Math;
   begin
     Clear( DEPTH_BUFFER_BIT );
     Disable( LIGHTING );
@@ -221,7 +221,7 @@ procedure Mini is
   totrot: G3D.Real:= 0.0;
 
   procedure Main_Operations is
-    use GL, G3D, G3D.REF, GLOBE_3D.Math;
+    use GL, G3D, GLOBE_3D.Math;
     rot_speed: constant:= 400.0;
     elaps, time_now: Integer;
   begin
@@ -274,7 +274,7 @@ procedure Mini is
   -- GLUT.Devices handles: Keyboard, Motion, Mouse
 
   procedure Start_GLUTs is
-    use GL, GLUT;
+    use GLUT;
   begin
     Init;
     InitDisplayMode( GLUT.DOUBLE or GLUT.RGB or GLUT.DEPTH );
@@ -299,7 +299,6 @@ procedure Mini is
   end Start_GLUTs;
 
   procedure Start_GLs is
-    use GL;
   begin
     Clear_modes;
     Prepare_demo_lighting(0.9);
