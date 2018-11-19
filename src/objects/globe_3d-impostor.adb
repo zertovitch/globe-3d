@@ -100,7 +100,7 @@ package body GLOBE_3D.Impostor is
    is
       pragma Unreferenced (the_pixel_Region);
 
-      use GL, GLOBE_3D.Math, GL.Math;
+      use GL, GL.Math;
       Camera_has_moved : constant Boolean  :=  the_Camera.clipper.eye_position /= o.prior_camera_Position;
       Target_has_moved : constant Boolean  :=  o.Target.centre                 /= o.prior_target_Position;
    begin
@@ -373,7 +373,7 @@ package body GLOBE_3D.Impostor is
    --
    procedure enable_Rotation (o : in Impostor;   camera_Site : in Vector_3D)
    is
-      use GLOBE_3D.Math, GL.Math, GLOBE_3D.REF, GL;
+      use GL.Math, GLOBE_3D.REF, GL;
       lookAt       : constant Vector_3D := (0.0,  0.0,  1.0);
       objToCamProj : constant Vector_3D := Normalized ((camera_Site (0) - o.centre (0),  0.0,  camera_Site (2) - o.centre (2)));
       upAux        : constant Vector_3D := lookAt * objToCamProj;

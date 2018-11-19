@@ -51,8 +51,6 @@ package body GL.Buffer.General is
 
    function  get (Self : access Object) return Element_Array
    is
-      use GL.Buffer;
-
       the_Map      :          read_only_Map'Class renames Map (Self);
       the_Vertices : constant Element_Array            := get (the_Map, Index'First, Self.Length);
    begin

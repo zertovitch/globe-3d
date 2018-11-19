@@ -30,7 +30,6 @@ package body GL.Materials is
   end Identical;
 
   procedure Set_Material(m: GL.Materials.Material_type) is
-     use GL;
   begin
      Material(FRONT_AND_BACK, AMBIENT,   m.ambient);
      Material(FRONT_AND_BACK, DIFFUSE,   m.diffuse);

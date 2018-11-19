@@ -7,7 +7,7 @@ with GLU;
 
 package body GLOBE_3D.Software_Anti_Aliasing is
 
-  use GL,REF;
+  use GL;
 
   type Jitter_matrix is
      array (Positive range <>, Positive range <>) of GL.Double;

@@ -87,7 +87,6 @@ package body GLOBE_3D.Aux is
   )
   return Map_idx_pair
   is
-    use GLOBE_3D.Math;
     first: Boolean:= True;
     C, P, V1, V2, VR: Map_idx_pair;
   begin
@@ -130,7 +129,6 @@ package body GLOBE_3D.Aux is
     function Match_material(M1, M2: GL.Materials.Material_type) return Boolean
       renames GL.Materials.Identical;
     match_count: Natural:= 0;
-    use GL.Materials;
   begin
     if not Match_vector(o.face_internal(fa).normal, o.face_internal(fb).normal) then
       return False;

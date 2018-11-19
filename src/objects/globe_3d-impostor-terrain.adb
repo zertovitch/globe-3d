@@ -36,7 +36,7 @@ package body GLOBE_3D.Impostor.Terrain is
       o.current_pixel_Region := o.get_pixel_Region (the_Camera);
 
       declare
-         use GL, GL.Textures;
+         use GL;
 
          update_Required : Boolean  := o.general_Update_required (the_Camera, o.current_pixel_Region);
 

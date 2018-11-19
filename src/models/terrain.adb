@@ -79,7 +79,7 @@ package body Terrain is
                   scale           : in     GLOBE_3D.Vector_3D;
                   height_Offset   :    out Real)
    is
-      use GL, GL.Geometry, GLOBE_3D.REF;
+      use GL;
 
       the_height_Offset : constant Real               := from_height_Map.min_Height + (from_height_Map.max_Height - from_height_Map.min_Height) / 2.0;
       MidPoint          : constant GL.Geometry.Vertex := ((Real (from_height_Map.column_Count - 1) / 2.0),

@@ -129,7 +129,6 @@ package body GLUT.Devices is
    --
 
   procedure Initialize is
-    use GLUT;
   begin
     IgnoreKeyRepeat(1);
     KeyboardFunc(      Key'Address                   );

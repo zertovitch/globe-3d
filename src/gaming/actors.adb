@@ -3,7 +3,7 @@ with GLOBE_3D.Math;
 
 package body Actors is
 
-  use GLOBE_3D, GLOBE_3D.Math, GLOBE_3D.REF, Game_control, GL, GL.Math;
+  use GLOBE_3D, GLOBE_3D.Math, Game_control, GL, GL.Math;
 
   procedure Limited_Translation(
     actor         : in out GLOBE_3D.Camera;

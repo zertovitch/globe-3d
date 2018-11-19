@@ -693,7 +693,7 @@ procedure GLOBE_3D_Demo is
         0,line,main_size_x, main_size_y, s, GLUT_2D.Helvetica_10
       );
     end Msg;
-    use GL, G3D, G3D.Aux, G3D.REF, G3DM, GL.Math;
+    use GL, G3D, G3D.Aux, G3DM, GL.Math;
     light_info: String(1..8);
   begin
     Disable( LIGHTING );
@@ -1113,7 +1113,7 @@ procedure GLOBE_3D_Demo is
   -- GLUT.Devices handles: Keyboard, Motion, Mouse
 
   procedure Start_GLUTs is
-    use GL,GLUT;
+    use GLUT;
     GLUT_options: GLUT.Unsigned:= GLUT.DOUBLE or GLUT.RGB or GLUT.DEPTH;
   begin
     Init;

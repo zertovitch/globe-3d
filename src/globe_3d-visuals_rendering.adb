@@ -35,7 +35,7 @@ package body GLOBE_3D.Visuals_rendering is
 
    procedure Render (the_Visuals : in Visual_array;   the_Camera : in Camera'Class)
    is
-      use GL, REF, G3DM;
+      use GL, G3DM;
 
       all_Transparents  : GLOBE_3D.Visual_array (1 .. 10_000);
       transparent_Count : Natural                           := 0;
@@ -64,7 +64,6 @@ package body GLOBE_3D.Visuals_rendering is
       --
       for Each in the_Visuals'Range loop
          declare
-            use GL.Skinned_Geometry;
             the_Visual        : Visual'Class                           renames the_Visuals (Each).all;
             visual_geometries : GL.Skinned_Geometry.Skinned_Geometries renames the_Visual.Skinned_Geometries;
          begin
@@ -106,7 +105,7 @@ package body GLOBE_3D.Visuals_rendering is
          procedure Sort is new Ada.Containers.Generic_Array_Sort (Positive,
                                                                   Visual_Geometry,
                                                                   Visual_Geometries);
-         use GL.Skins, GL.Geometry, GL.Skinned_Geometry;
+         use GL.Skins, GL.Geometry;
 
          current_Visual : p_Visual;
 

@@ -19,7 +19,7 @@ use GL.Math,
 
 package body GL.Geometry is
 
-   package REF is new Ada.Numerics.Generic_Elementary_functions (gl.Double);  -- tbd: make this public ?
+   package REF is new Ada.Numerics.Generic_Elementary_functions (GL.Double);  -- tbd: make this public ?
 
    -- Plane
    --

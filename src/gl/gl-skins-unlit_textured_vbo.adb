@@ -10,8 +10,6 @@
 
 package body GL.Skins.unlit_textured_vbo is
 
-   use GL.Geometry;
-   use GL.Materials;
    use GL.Textures;
 
    overriding

@@ -10,7 +10,7 @@ package body Box is
                     scale   :        GLOBE_3D.Real      := 1.0;
                     centre  :        GLOBE_3D.Point_3D  := (0.0, 0.0, 0.0))
    is
-      use GLOBE_3D, GL, GLOBE_3D.REF;
+      use GLOBE_3D, GL;
 
       function Basic_face (P      : GLOBE_3D.Index_array;
                            texture: String;

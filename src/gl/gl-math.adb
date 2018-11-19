@@ -11,7 +11,7 @@
 
 package body GL.Math is
 
-  use GL, REF;
+  use REF;
 
   -------------
   -- Vectors --

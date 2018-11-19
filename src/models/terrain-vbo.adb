@@ -32,7 +32,7 @@ package body Terrain.VBO is
                                                        Scale    : in     GLOBE_3D.Vector_3D;
                                                        Y_Offset :    out Real)
    is
-      use GL.Geometry, GL.Geometry.VBO, GL.Buffer, GL.Buffer.Vertex, GLOBE_3D.REF, GLOBE_3D.Sprite;
+      use GL.Geometry, GL.Geometry.VBO, GL.Buffer, GL.Buffer.Vertex, GLOBE_3D.Sprite;
 
       the_Geometry : constant GL.Geometry.VBO.p_vbo_Geometry := new GL.Geometry.VBO.vbo_Geometry;
 
@@ -131,7 +131,7 @@ package body Terrain.VBO is
                      texture_Transform_t : in     GL.Textures.texture_Transform;
                      Y_Offset            :    out Real)
    is
-      use GL.Geometry, GL.Geometry.VBO, GL.Buffer, GL.Buffer.Vertex, GLOBE_3D.REF, GLOBE_3D.Sprite;
+      use GLOBE_3D.Sprite;
    begin
       Object            := new GLOBE_3D.Sprite.Sprite (max_Geometries => 1);
       Object.is_Terrain := True;
@@ -145,8 +145,6 @@ package body Terrain.VBO is
                      Scale          : in     GLOBE_3D.Vector_3D;
                      base_Texture   : in     String)
    is
-      use GLOBE_3D.REF;
-
       the_height_Map : constant height_Map                    := to_Height_Map (to_Matrix (png_Heights));
 
       Width          : constant Real                          := Real (the_height_Map.column_Count - 1) * Scale (0);

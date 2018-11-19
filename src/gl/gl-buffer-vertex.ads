@@ -3,7 +3,7 @@ with GL.Buffer.General,
 
 package GL.Buffer.Vertex is
    new GL.Buffer.General (base_object        => GL.Buffer.array_Object,
-                          index              => GL.Geometry.positive_vertex_Id,
+                          index              => GL.Geometry.positive_Vertex_Id,
                           element            => GL.Geometry.Vertex,
-                          element_array      => GL.Geometry.vertex_Array,
+                          element_array      => GL.Geometry.Vertex_array,
                           default_Terminator => GL.Geometry.null_Vertex);

@@ -56,8 +56,7 @@ package body GLOBE_3D.tri_Mesh.VBO is
    procedure set_Vertices (Self : in out tri_Mesh;   To : access GL.Geometry.Vertex_array)
    is
       use GL.Buffer.Vertex,
-          GL.Geometry,
-          GL.Geometry.VBO;
+          GL.Geometry;
 
       the_Geometry : GL.Geometry.VBO.vbo_Geometry
              renames GL.Geometry.VBO.vbo_Geometry (Self.skinned_Geometry.Geometry.all);
@@ -72,8 +71,7 @@ package body GLOBE_3D.tri_Mesh.VBO is
    procedure set_Indices  (Self : in out tri_Mesh;   To : access GL.Geometry.vertex_Id_array)
    is
       use GL.Buffer.Indices,
-          GL.Geometry,
-          GL.Geometry.VBO;
+          GL.Geometry;
       the_Geometry : GL.Geometry.VBO.vbo_Geometry
              renames GL.Geometry.VBO.vbo_Geometry (Self.skinned_Geometry.Geometry.all);
    begin

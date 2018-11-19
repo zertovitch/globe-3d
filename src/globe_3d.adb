@@ -10,7 +10,6 @@ with GL.Math,
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Exceptions;                    use Ada.Exceptions;
 with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
-with Ada.Text_IO;                       use Ada.Text_IO;
 
 package body GLOBE_3D is
 
@@ -25,7 +24,7 @@ package body GLOBE_3D is
    procedure Add_Normal_of_3p (o             : in     Object_3D'Class;
                                Pn0, Pn1, Pn2 : in     Integer;
                                N             : in out Vector_3D) is
-      use GL, G3DM, GL.Math, GLOBE_3D.Aux;
+      use GL, GL.Math, GLOBE_3D.Aux;
 
       function Params return String is
       begin
@@ -93,7 +92,7 @@ package body GLOBE_3D is
 
   procedure Check_object(o: Object_3D) is
 
-    use GL.Math, G3DM;
+    use GL.Math;
 
     procedure Check_faces is
 
@@ -158,7 +157,7 @@ package body GLOBE_3D is
   --------------------------------------------
 
   overriding procedure Pre_calculate(o: in out Object_3D) is
-    use GL, GL.Math, G3DM, GLOBE_3D.Aux;
+    use GL, GL.Math, GLOBE_3D.Aux;
 
     N: Vector_3D;
     length_N : Real;
@@ -319,7 +318,7 @@ package body GLOBE_3D is
   end Pre_calculate;
 
   procedure Arrow(P: Point_3D; D: Vector_3D) is
-    use GL, GL.Math, G3DM;
+    use GL, GL.Math;
     V,V1,V2: Vector_3D;
   begin
     if Almost_zero(Norm2(D)) then
@@ -563,7 +562,7 @@ package body GLOBE_3D is
     end Display_face_optimized;
 
     procedure Display_normals is
-      use GL, GL.Math, G3DM;
+      use GL, GL.Math;
       C: Vector_3D;
     begin
       GL.Color( 0.5, 0.5, 1.0, 1.0);
@@ -688,7 +687,7 @@ package body GLOBE_3D is
     )
     is
       procedure Try_portal(f: Positive) is
-        use G3DM, GL, GL.Math;
+        use GL, GL.Math;
         dot_product: Real;
         plane_to_eye: Vector_3D; -- vector from any point in plane to the eye
         bounding_of_face, intersection_clip_and_face: Clipping_area;

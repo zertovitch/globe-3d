@@ -34,7 +34,6 @@ package body GLOBE_3D.Impostor.Simple is
       o.current_pixel_Region            := o.get_pixel_Region (the_Camera);
 
       declare
-         use GL.Textures;
          update_Required : Boolean := o.general_Update_required (the_Camera, o.current_pixel_Region);
       begin
          if         not update_Required
@@ -64,8 +63,7 @@ package body GLOBE_3D.Impostor.Simple is
    procedure update (o : in out Impostor;   the_Camera   : in p_Camera;
                                             texture_Pool : in GL.Textures.p_Pool)
    is
-      use GL, GLOBE_3D.Math;
-      world_Rotation_original : constant GLOBE_3D.Matrix_33 := the_Camera.world_rotation;
+     world_Rotation_original : constant GLOBE_3D.Matrix_33 := the_Camera.world_rotation;
    begin
       the_Camera.world_rotation := o.current_Camera_look_at_Rotation;
       GLOBE_3D.Impostor.Impostor (o).update (the_Camera, texture_Pool);   -- Call base class update().
