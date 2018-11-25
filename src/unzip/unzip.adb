@@ -1,15 +1,45 @@
+-- Legal licensing note:
+
+--  Copyright (c) 1999 .. 2018 Gautier de Montmollin
+--  SWITZERLAND
+
+--  Permission is hereby granted, free of charge, to any person obtaining a copy
+--  of this software and associated documentation files (the "Software"), to deal
+--  in the Software without restriction, including without limitation the rights
+--  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+--  copies of the Software, and to permit persons to whom the Software is
+--  furnished to do so, subject to the following conditions:
+
+--  The above copyright notice and this permission notice shall be included in
+--  all copies or substantial portions of the Software.
+
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+--  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+--  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+--  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+--  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+--  THE SOFTWARE.
+
+-- NB: this is the MIT License, as found 12-Sep-2007 on the site
+-- http://www.opensource.org/licenses/mit-license.php
+
 with Zip.Headers, UnZip.Decompress;
 with Zip_Streams;
 
-with Ada.Exceptions;
+with Ada.Exceptions;                    use Ada.Exceptions;
 with Interfaces;                        use Interfaces;
+
+with Ada.IO_Exceptions;
 
 package body UnZip is
 
-  use Ada.Streams, Ada.Strings.Unbounded;
+  use Ada.Strings.Unbounded;
 
   boolean_to_encoding: constant array(Boolean) of Zip.Zip_name_encoding:=
     (False => Zip.IBM_437, True => Zip.UTF_8);
+
+  fallback_compressed_size : constant File_size_type := File_size_type'Last;
 
   --------------------------------------------------
   -- *The* internal 1-file unzipping procedure.   --
@@ -203,7 +233,7 @@ package body UnZip is
       end if;
     end Inform_User;
 
-    the_name    : String(1..1000);
+    the_name    : String (1 .. 65_535);  --  Seems overkill, but Zip entry names can be that long!
     the_name_len: Natural;
     use Zip, Zip_Streams;
 
@@ -219,15 +249,15 @@ package body UnZip is
       Zip.Headers.Read_and_check(zip_file, local_header );
     exception
       when Zip.Headers.bad_local_header =>
-        raise;
+        raise;  --  Processed later, on Extract
       when others =>
-        raise Read_Error;
+        raise Zip.Archive_corrupted;
     end;
 
     method:= Zip.Method_from_code(local_header.zip_type);
     if method = unknown then
       Ada.Exceptions.Raise_Exception
-        (Unsupported_method'Identity,
+        (UnZip.Unsupported_method'Identity,
          "Format (method) #" & Unsigned_16'Image(local_header.zip_type) &
          " is unknown");
     end if;
@@ -245,10 +275,24 @@ package body UnZip is
     data_descriptor_after_data:= (local_header.bit_flag and 8) /= 0;
 
     if data_descriptor_after_data then
-      -- Sizes and CRC are stored after the data
-      -- We set size to avoid getting a sudden Zip_EOF !
+      --  Sizes and CRC are stored after the data
+      --  We set size to avoid getting a sudden Zip_EOF !
+      if local_header.zip_type = 0
+        and then hint_comp_size = fallback_compressed_size
+      then
+        --  For Stored (Method 0) data we need a correct "compressed" size.
+        --  If the hint is the bogus fallback value, it is better to trust
+        --  the local header, since this size is known in advance. Case found
+        --  in Microsoft's OneDrive cloud storage (in 2018). Zip files,
+        --  created by the server for downloading more than one file, are
+        --  using the "Store" format and a postfixed Data Descriptor for
+        --  writing the CRC value.
+        --
+        null;  --  Do not overwrite the compressed size in that case.
+      else
+        local_header.dd.compressed_size := hint_comp_size;
+      end if;
       local_header.dd.crc_32            := hint_crc_32;
-      local_header.dd.compressed_size   := hint_comp_size;
       local_header.dd.uncompressed_size := File_size_type'Last;
       actual_feedback := null; -- no feedback possible: unknown sizes
     else
@@ -266,7 +310,9 @@ package body UnZip is
 
     if name_from_header then -- Name from local header is used as output name
       the_name_len:= Natural(local_header.filename_length);
-      String'Read(zip_file'Access, the_name(1..the_name_len));
+      if the_name_len > 0 then
+        String'Read(zip_file'Access, the_name(1..the_name_len));
+      end if;
       if not data_descriptor_after_data then
         Inform_User(
           the_name(1..the_name_len),
@@ -330,7 +376,9 @@ package body UnZip is
       begin
         Set_Index ( zip_file, work_index ); -- eventually skips the file name
       exception
-        when others => raise Read_Error;
+        when others =>
+          Raise_Exception(Zip.Archive_corrupted'Identity,
+            "End of stream reached (location: between local header and archived data)");
       end;
       UnZip.Decompress.Decompress_data(
         zip_file                   => zip_file,
@@ -341,7 +389,7 @@ package body UnZip is
         output_stream_access       => dummy_stream,
         feedback                   => actual_feedback,
         explode_literal_tree       => (local_header.bit_flag and 4) /= 0,
-        explode_slide_8KB_LZMA_EOS => (local_header.bit_flag and 2) /= 0,
+        explode_slide_8KB_LZMA_EOS => (local_header.bit_flag and Zip.Headers.LZMA_EOS_Flag_Bit) /= 0,
         data_descriptor_after_data => data_descriptor_after_data,
         is_encrypted               => encrypted,
         password                   => password,
@@ -393,6 +441,9 @@ package body UnZip is
         header_index + ZS_Size_Type(Zip.Headers.data_descriptor_length);
     end if;
 
+  exception
+    when Ada.IO_Exceptions.End_Error =>
+      Raise_Exception (Zip.Archive_corrupted'Identity, "End of stream reached");
   end UnZipFile;
 
   ----------------------------------
@@ -526,6 +577,9 @@ package body UnZip is
       file_system_routines => file_system_routines
     );
     Close(zip_file);
+  exception
+    when Zip.Headers.bad_local_header =>
+      Raise_Exception (Zip.Archive_corrupted'Identity, "Bad local header");
   end Extract;
 
   -- Extract one precise file (what) from an archive (from),
@@ -582,6 +636,9 @@ package body UnZip is
       file_system_routines => file_system_routines
     );
     Close(zip_file);
+  exception
+    when Zip.Headers.bad_local_header =>
+      Raise_Exception (Zip.Archive_corrupted'Identity, "Bad local header");
   end Extract;
 
   -- Extract all files from an archive (from)
@@ -616,7 +673,7 @@ package body UnZip is
         out_name_encoding    => IBM_437, -- ignored
         name_from_header     => True,
         header_index         => header_index,
-        hint_comp_size       => File_size_type'Last,
+        hint_comp_size       => fallback_compressed_size,
         --                      ^ no better hint available if comp_size is 0 in local header
         hint_crc_32          => 0, -- 2.0 decryption can fail if data descriptor after data
         feedback             => feedback,
@@ -629,13 +686,13 @@ package body UnZip is
       );
     end loop all_files;
   exception
-    when Zip.Headers.bad_local_header =>
-      Close(zip_file); -- normal case: end was hit
-    when Zip.Zip_file_open_Error =>
-      raise;    -- couldn't open zip file
+    when Zip.Headers.bad_local_header | Zip.Archive_is_empty =>
+      Close(zip_file);  --  Normal case: end of archived entries (of fuzzy data) was hit
+    when Zip.Zip_file_open_error =>
+      raise;    --  Couldn't open zip file
     when others =>
       Close(zip_file);
-      raise;    -- something else wrong
+      raise;    --  Something else went wrong
   end Extract;
 
   -- Extract all files from an archive (from)
@@ -735,6 +792,11 @@ package body UnZip is
       Close (zip_file);
     end if;
   exception
+    when Zip.Headers.bad_local_header =>
+      if use_a_file and then Is_Open(zip_file) then
+        Close (zip_file);
+      end if;
+      Raise_Exception (Zip.Archive_corrupted'Identity, "Bad local header");
     when others =>
       if use_a_file and then Is_Open(zip_file) then
         Close (zip_file);
@@ -807,6 +869,11 @@ package body UnZip is
       Close (zip_file);
     end if;
   exception
+    when Zip.Headers.bad_local_header =>
+      if use_a_file and then Is_Open(zip_file) then
+        Close (zip_file);
+      end if;
+      Raise_Exception (Zip.Archive_corrupted'Identity, "Bad local header");
     when others =>
       if use_a_file and then Is_Open(zip_file) then
         Close (zip_file);

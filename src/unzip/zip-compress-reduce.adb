@@ -1,3 +1,28 @@
+-- Legal licensing note:
+
+--  Copyright (c) 2009 .. 2018 Gautier de Montmollin
+--  SWITZERLAND
+
+--  Permission is hereby granted, free of charge, to any person obtaining a copy
+--  of this software and associated documentation files (the "Software"), to deal
+--  in the Software without restriction, including without limitation the rights
+--  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+--  copies of the Software, and to permit persons to whom the Software is
+--  furnished to do so, subject to the following conditions:
+
+--  The above copyright notice and this permission notice shall be included in
+--  all copies or substantial portions of the Software.
+
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+--  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+--  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+--  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+--  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+--  THE SOFTWARE.
+
+-- NB: this is the MIT License, as found on the site
+-- http://www.opensource.org/licenses/mit-license.php
 --
 -- "Reduce" method - probabilistic reduction with a Markov chain.
 -- See package specification for details.
@@ -8,10 +33,11 @@
 --  7-Feb-2009: GdM: added a cache for LZ77 output to make 2nd phase faster
 
 with Interfaces; use Interfaces;
-with Zip.LZ77, Zip.CRC_Crypto;
+with LZ77, Zip.CRC_Crypto;
 with Zip_Streams;
 
 with Ada.Text_IO;                       use Ada.Text_IO;
+with Ada.Unchecked_Deallocation;
 
 procedure Zip.Compress.Reduce
  (input,
@@ -63,7 +89,11 @@ is
 
   --  Define data types needed to implement input and output file buffers
 
-  InBuf, OutBuf: Byte_Buffer(1..buffer_size);
+  procedure Dispose is
+    new Ada.Unchecked_Deallocation(Byte_Buffer, p_Byte_Buffer);
+
+  InBuf: p_Byte_Buffer;  --  I/O buffers
+  OutBuf: p_Byte_Buffer;
 
   InBufIdx: Positive;  --  Points to next char in buffer to be read
   OutBufIdx: Positive; --  Points to next free space in output buffer
@@ -75,7 +105,7 @@ is
   begin
     Zip.BlockRead(
       stream        => input,
-      buffer        => InBuf,
+      buffer        => InBuf.all,
       actually_read => MaxInBufIdx
     );
     InputEoF:= MaxInBufIdx = 0;
@@ -84,7 +114,7 @@ is
 
   -- Exception for the case where compression works but produces
   -- a bigger file than the file to be compressed (data is too "random").
-  Compression_unefficient: exception;
+  Compression_inefficient: exception;
 
   procedure Write_Block is
     amount: constant Integer:= OutBufIdx-1;
@@ -95,7 +125,7 @@ is
       -- Useless to go further.
       -- Stop immediately before growing the file more than the
       -- uncompressed size.
-      raise Compression_unefficient;
+      raise Compression_inefficient;
     end if;
     Encode(crypto, OutBuf(1 .. amount));
     Zip.BlockWrite(output, OutBuf(1 .. amount));
@@ -567,16 +597,17 @@ is
     end Write_DL_code;
 
     procedure My_LZ77 is
-      new LZ77 (String_buffer_size => String_buffer_size,
+      new LZ77.Encode
+               (String_buffer_size => String_buffer_size,
                 Look_Ahead         => Look_Ahead,
                 Threshold          => Threshold,
-                Method             => LZHuf,
+                Method             => LZ77.LZHuf,
                 --  NB: Method IZ_9 needs exactly the same set of LZ77 parameters as in
                 --      Deflate. Then the compression is worse, though much faster.
                 Read_byte          => Read_byte,
                 More_bytes         => More_bytes,
-                Write_byte         => Write_normal_byte,
-                Write_code         => Write_DL_code);
+                Write_literal      => Write_normal_byte,
+                Write_DL_code      => Write_DL_code);
 
     procedure Finish_Cache is
       i: LZ_buffer_range:= LZ_buffer_range(lz77_pos mod LZ_cache_size);
@@ -613,6 +644,14 @@ is
   mem: ZS_Index_Type;
 
 begin
+  --  Allocate input and output buffers.
+  if input_size_known then
+    InBuf:= new Byte_Buffer
+      (1..Integer'Min(Integer'Max(8,Integer(input_size)), buffer_size));
+  else
+    InBuf:= new Byte_Buffer(1..buffer_size);
+  end if;
+  OutBuf:= new Byte_Buffer(1..buffer_size);
   OutBufIdx := 1;
   output_size:= 0;
   mem:= Index(input);
@@ -626,10 +665,14 @@ begin
   Save_Followers;  --  Emit the compression structure before the compressed message
   lz77_size:= lz77_pos;
   lz77_pos:= 0;
-  Compress;  --  Emit the compressed message
-  Flush_output;
-  compression_ok:= True;
-exception
-  when Compression_unefficient =>
-    compression_ok:= False;
+  begin
+    Compress;  --  Emit the compressed message
+    Flush_output;
+    compression_ok:= True;
+  exception
+    when Compression_inefficient =>
+      compression_ok:= False;
+  end;
+  Dispose(InBuf);
+  Dispose(OutBuf);
 end Zip.Compress.Reduce;

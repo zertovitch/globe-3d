@@ -1,21 +1,23 @@
---  ________  ___   ______       ______     ___
--- /___..._/  |.|   |.___.\     /. __ .\  __|.|   ____
---    /../    |.|   |.____/     |.|__|.| /....|  __\..\
---  _/../___  |.|   |.|    ===  |..__..||. = .| | = ..|
--- /_______/  |_|  /__|        /__|  |_| \__\_|  \__\_|
+--  ________  ___   ______       ______      ___
+-- /___..._/  |.|   |.___.\     /. __ .\   __|.|   ____
+--    /../    |.|   |.____/     |.|__|.|  /....|  __\..\
+--  _/../___  |.|   |.|    ===  |..__..| |. = .| | = ..|
+-- /_______/  |_|  /__|        /__|  |_|  \__\_|  \__\_|
 
 -- Zip library
 --------------
+--
 -- Library for manipulating archive files in the Zip format
 --
--- Pure Ada 95+ code, 100% portable: OS-, CPU- and compiler- independent.
+-- Pure Ada 2005+ code, 100% portable: OS-, CPU- and compiler- independent.
 --
 -- Version / date / download info: see the version, reference, web strings
 --   defined at the end of the public part of this package.
 
 -- Legal licensing note:
 
---  Copyright (c) 1999 .. 2016 Gautier de Montmollin
+--  Copyright (c) 1999 .. 2018 Gautier de Montmollin
+--  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
 --  of this software and associated documentation files (the "Software"), to deal
@@ -81,9 +83,17 @@ package Zip is
     duplicate_names : in     Duplicate_name_policy:= error_on_duplicate
   );
 
-  Zip_file_Error,
-  Zip_file_open_Error,
+  Archive_corrupted,
+  Zip_file_open_error,
   Duplicate_name: exception;
+
+  --  Old name for Archive_corrupted. Change: 22-Oct-2017
+  --  Issues: archive stream is not necessarily a *file*; the naming
+  --  ("Error") didn't clarify that it covered cases where the data
+  --  is corrupted, which is different than an usual I/O error.
+
+  --  Zip_file_Error: exception renames Archive_corrupted;   --   Now really obsolete.
+  --  pragma Obsolescent(Zip_file_Error);                    --   Now really obsolete.
 
   function Is_loaded( info: in Zip_info ) return Boolean;
 
@@ -104,8 +114,8 @@ package Zip is
 
   ---------
 
-  -- Compression methods or formats in the "official" PKWARE Zip format.
-  -- Details in appnote.txt, part V.J
+  --  Compression "methods" - actually, formats - in the "official" PKWARE Zip format.
+  --  Details in appnote.txt, part V.J
   --   C: supported by Zip-Ada for compressing
   --   D: supported by Zip-Ada for decompressing
 
@@ -119,14 +129,17 @@ package Zip is
      implode,   --   D
      tokenize,
      deflate,   -- C,D
-     deflate_e, --   D - Enhanced deflate
+     deflate_e, --   D - "Enhanced deflate" or "Deflate64"
      bzip2,     --   D
-     lzma,      --   D
+     lzma_meth, -- C,D
      ppmd,
      unknown
    );
 
   subtype reduce is PKZip_method range reduce_1..reduce_4;
+
+  -- Return a String image, nicer than the 'Image attribute.
+  function Image(m: PKZip_method) return String;
 
   -- Technical: translates the method code as set in zip archives
   function Method_from_code(x: Interfaces.Unsigned_16) return PKZip_method;
@@ -198,11 +211,14 @@ package Zip is
   -- Offsets - various procedures giving 1-based indexes to local headers --
   --------------------------------------------------------------------------
 
-  -- Find 1st offset in a Zip stream
+  -- Find 1st offset in a Zip stream (i.e. the first's archived entry's offset)
 
   procedure Find_first_offset(
     file           : in out Zip_Streams.Root_Zipstream_Type'Class;
     file_index     :    out Zip_Streams.ZS_Index_Type );
+
+  --  If the archive is empty (the 22 byte .zip file), there is no first entry or offset.
+  Archive_is_empty: exception;
 
   -- Find offset of a certain compressed file
   -- in a Zip file (file opened and kept open)
@@ -217,12 +233,29 @@ package Zip is
     crc_32         :    out Interfaces.Unsigned_32
   );
 
-  -- Find offset of a certain compressed file in a Zip_info data
+  -- Find offset of a certain compressed file in a pre-loaded Zip_info data
 
   procedure Find_offset(
     info           : in     Zip_info;
     name           : in     String;
     name_encoding  :    out Zip_name_encoding;
+    file_index     :    out Zip_Streams.ZS_Index_Type;
+    comp_size      :    out File_size_type;
+    uncomp_size    :    out File_size_type;
+    crc_32         :    out Interfaces.Unsigned_32
+  );
+
+  -- Find offset of a certain compressed file in a pre-loaded Zip_info data.
+  -- This version scans the whole catalogue and returns the index of the first
+  -- entry with a matching name, ignoring directory information.
+  -- For instance, if the Zip archive contains "zip-ada/zip_lib/zip.ads",
+  -- "zip.ads" will match - or even "ZIP.ads" if info has been loaded in case-insensitive mode.
+  -- Caution: this may be much slower than the exact search with Find_offset.
+
+  procedure Find_offset_without_directory(
+    info           : in     Zip.Zip_info;
+    name           : in     String;
+    name_encoding  :    out Zip.Zip_name_encoding;
     file_index     :    out Zip_Streams.ZS_Index_Type;
     comp_size      :    out File_size_type;
     uncomp_size    :    out File_size_type;
@@ -353,32 +386,36 @@ package Zip is
 
   function Hexadecimal(x: Interfaces.Unsigned_32) return String;
 
-  --  In case you want to use the Zip.LZ77 compression procedure
-  --  separately, you need to pick an appropriate method
-  --
-  type LZ77_method is (LZHuf, IZ_4, IZ_5, IZ_6, IZ_7, IZ_8, IZ_9, IZ_10);
+  -----------------------------------------------------------------
+  --  Information about this package - e.g., for an "about" box  --
+  -----------------------------------------------------------------
 
-  --------------------------------------------------------------
-  -- Information about this package - e.g. for an "about" box --
-  --------------------------------------------------------------
-
-  version   : constant String:= "50_f1";
-  reference : constant String:= "27-Apr-2016";
+  version   : constant String:= "55";
+  reference : constant String:= "22-Nov-2018";
   web       : constant String:= "http://unzip-ada.sf.net/";
-  -- hopefully the latest version is at that URL...  ---^
+  --  Hopefully the latest version is at that URL...  --^
 
-  -------------------
-  -- Private items --
-  -------------------
+  ---------------------
+  --  Private items  --
+  ---------------------
 
 private
-  -- Zip_info, 23.VI.1999.
 
-  -- The PKZIP central directory is coded here as a binary tree
-  -- to allow a fast retrieval of the searched offset in zip file.
-  -- E.g. for a 1000-file archive, the offset will be found in less
-  -- than 11 moves: 2**10=1024 (balanced case), without any read
-  -- in the archive.
+  --  Zip_info, 23.VI.1999.
+  --
+  --  The PKZIP central directory is coded here as a binary tree
+  --  to allow a fast retrieval of the searched offset in zip file.
+  --  E.g. for a 1000-file archive, the offset will be found in less
+  --  than 11 moves: 2**10=1024 (balanced case), without any read
+  --  in the archive.
+  --
+  --  *Note* 19-Oct-2018: rev. 670 to 683 used a Hashed Map and a
+  --  Vector (Ada.Containers). The loading of the dictionary was
+  --  much faster (2x), but there were performance bottlenecks elsewhere,
+  --  not solved by profiling. On an archive with 18000 small entries of
+  --  around 1 KB each, comp_zip ran 100x slower!
+  --  Neither the restricted use of Unbounded_String, nor the replacement
+  --  of the Vector by an array helped solving the performance issue.
 
   type Dir_node;
   type p_Dir_node is access Dir_node;
@@ -399,17 +436,20 @@ private
     user_code        : Integer;
   end record;
 
+  type Zip_archive_format_type is (Zip_32, Zip_64);  --  Supported so far: Zip_32.
+
   type p_String is access String;
 
   type Zip_info is record
-    loaded          : Boolean:= False;
-    case_sensitive  : Boolean;
-    zip_file_name   : p_String;        -- a file name...
-    zip_input_stream: Zip_Streams.Zipstream_Class_Access; -- ...or an input stream
-    -- ^ when not null, we use this and not zip_file_name
-    dir_binary_tree : p_Dir_node;
-    total_entries   : Natural;
-    zip_file_comment: p_String;
+    loaded             : Boolean:= False;
+    case_sensitive     : Boolean;
+    zip_file_name      : p_String;                           -- a file name...
+    zip_input_stream   : Zip_Streams.Zipstream_Class_Access; -- ...or an input stream
+    -- ^ when not null, we use this, and not zip_file_name
+    dir_binary_tree    : p_Dir_node;
+    total_entries      : Natural;
+    zip_file_comment   : p_String;
+    zip_archive_format : Zip_archive_format_type := Zip_32;
   end record;
 
   --  System.Word_Size: 13.3(8): A word is the largest amount of storage
@@ -430,5 +470,21 @@ private
 
   type Unsigned_M16 is mod 2**min_bits_16;
   type Unsigned_M32 is mod 2**min_bits_32;
+
+  --  Codes for compression formats in Zip archives
+  --  See PKWARE's Appnote, "4.4.5 compression method"
+  --
+  package compression_format_code is
+    store     : constant :=  0;
+    shrink    : constant :=  1;
+    reduce    : constant :=  2;
+    implode   : constant :=  6;
+    tokenize  : constant :=  7;
+    deflate   : constant :=  8;
+    deflate_e : constant :=  9;
+    bzip2     : constant := 12;
+    lzma      : constant := 14;
+    ppmd      : constant := 98;
+  end compression_format_code;
 
 end Zip;

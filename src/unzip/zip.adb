@@ -1,8 +1,34 @@
+-- Legal licensing note:
+
+--  Copyright (c) 1999 .. 2018 Gautier de Montmollin
+--  SWITZERLAND
+
+--  Permission is hereby granted, free of charge, to any person obtaining a copy
+--  of this software and associated documentation files (the "Software"), to deal
+--  in the Software without restriction, including without limitation the rights
+--  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+--  copies of the Software, and to permit persons to whom the Software is
+--  furnished to do so, subject to the following conditions:
+
+--  The above copyright notice and this permission notice shall be included in
+--  all copies or substantial portions of the Software.
+
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+--  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+--  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+--  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+--  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+--  THE SOFTWARE.
+
+-- NB: this is the MIT License, as found 12-Sep-2007 on the site
+-- http://www.opensource.org/licenses/mit-license.php
+
 with Zip.Headers;
 
 with Ada.Characters.Handling;
 with Ada.Unchecked_Deallocation;
-with Ada.Exceptions;
+with Ada.Exceptions;                    use Ada.Exceptions;
 with Ada.IO_Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
@@ -63,17 +89,17 @@ package body Zip is
       leaf_count: Integer;
       size : Integer:= size_given;
 
-      procedure Compression( root: p_Dir_node; count: Integer ) is
-        --  compress "count" spine nodes in the tree with pseudo-root "root^"
+      procedure Compression( root_compress: p_Dir_node; count: Integer ) is
+        --  Compress "count" spine nodes in the tree with pseudo-root "root_compress^"
         scanner, child: p_Dir_node;
       begin
-        scanner := root;
-        for i in 1..count loop
-          child := scanner.right;
+        scanner := root_compress;
+        for counter in reverse 1 .. count loop
+          child         := scanner.right;
           scanner.right := child.right;
-          scanner := scanner.right;
-          child.right := scanner.left;
-          scanner.left := child;
+          scanner       := scanner.right;
+          child.right   := scanner.left;
+          scanner.left  := child;
         end loop;
       end Compression;
 
@@ -169,7 +195,6 @@ package body Zip is
       )
     is
       procedure Insert_into_tree(node: in out p_Dir_node) is
-        use type Zip_Streams.ZS_Size_Type;
       begin
         if node = null then
           node:= new Dir_node'
@@ -241,10 +266,7 @@ package body Zip is
     -- Process central directory:
     Zip_Streams.Set_Index(
       from,
-      Zip_Streams.ZS_Index_Type(
-        1 +
-        the_end.offset_shifting + the_end.central_dir_offset
-      )
+      Zip_Streams.ZS_Index_Type(1 + the_end.central_dir_offset) + the_end.offset_shifting
     );
 
     for i in 1..the_end.total_entries loop
@@ -266,8 +288,8 @@ package body Zip is
         -- Now the whole i_th central directory entry is behind
         Insert( dico_name   => Normalize(this_name, case_sensitive),
                 file_name   => Normalize(this_name, True),
-                file_index  => Zip_Streams.ZS_Index_Type
-                 (1 + header.local_header_offset + the_end.offset_shifting),
+                file_index  => Zip_Streams.ZS_Index_Type (1 + header.local_header_offset) +
+                               the_end.offset_shifting,
                 comp_size   => header.short_info.dd.compressed_size,
                 uncomp_size => header.short_info.dd.uncompressed_size,
                 crc_32      => header.short_info.dd.crc_32,
@@ -292,14 +314,20 @@ package body Zip is
       end;
     end loop;
     Binary_tree_rebalancing.Rebalance(p);
-    info:= ( loaded           => True,
-             case_sensitive   => case_sensitive,
-             zip_file_name    => new String'("This is a stream, no direct file!"),
-             zip_input_stream => from'Unchecked_Access,
-             dir_binary_tree  => p,
-             total_entries    => Integer(the_end.total_entries),
-             zip_file_comment => main_comment
+    info:= ( loaded             => True,
+             case_sensitive     => case_sensitive,
+             zip_file_name      => new String'("This is a stream, no direct file!"),
+             zip_input_stream   => from'Unchecked_Access,
+             dir_binary_tree    => p,
+             total_entries      => Integer(the_end.total_entries),
+             zip_file_comment   => main_comment,
+             zip_archive_format => Zip_32
            );
+  exception
+    when Zip.Headers.bad_end =>
+      Raise_Exception (Zip.Archive_corrupted'Identity, "Bad (or no) end-of-central-directory");
+    when Zip.Headers.bad_central_header =>
+      Raise_Exception (Zip.Archive_corrupted'Identity, "Bad central directory entry header");
   end Load;
 
   -----------------------------------------------------------
@@ -321,8 +349,7 @@ package body Zip is
       Open (MyStream, In_File);
     exception
       when others =>
-        Ada.Exceptions.Raise_Exception
-          (Zip_file_open_Error'Identity, "Archive: [" & from & ']');
+        Raise_Exception (Zip_file_open_error'Identity, "Archive: [" & from & ']');
     end;
     -- Call the stream version of Load(...)
     Load(
@@ -400,6 +427,7 @@ package body Zip is
     end if;
     Delete( info.dir_binary_tree );
     Dispose( info.zip_file_name );
+    Dispose( info.zip_file_comment );
     info.loaded:= False; -- <-- added 14-Jan-2002
   end Delete;
 
@@ -413,17 +441,17 @@ package body Zip is
 
   procedure Traverse_private( z: Zip_info ) is
 
-    procedure Traverse( p: p_Dir_node ) is
+    procedure Traverse_tree( p: p_Dir_node ) is
     begin
       if p /= null then
-        Traverse(p.left);
-        Action_private(p.all);
-        Traverse(p.right);
+        Traverse_tree (p.left);
+        Action_private (p.all);
+        Traverse_tree (p.right);
       end if;
-    end Traverse;
+    end Traverse_tree;
 
   begin
-    Traverse(z.dir_binary_tree);
+    Traverse_tree (z.dir_binary_tree);
   end Traverse_private;
 
   -----------------------
@@ -484,7 +512,7 @@ package body Zip is
   is
     sum_depth: Natural:= 0;
 
-    procedure Traverse( p: p_Dir_node; depth: Natural ) is
+    procedure Traverse_tree( p: p_Dir_node; depth: Natural ) is
     begin
       if p /= null then
         total:= total + 1;
@@ -492,15 +520,15 @@ package body Zip is
           max_depth:= depth;
         end if;
         sum_depth:= sum_depth + depth;
-        Traverse(p.left, depth + 1);
-        Traverse(p.right, depth + 1);
+        Traverse_tree (p.left, depth + 1);
+        Traverse_tree (p.right, depth + 1);
       end if;
-    end Traverse;
+    end Traverse_tree;
 
   begin
     total:= 0;
     max_depth:= 0;
-    Traverse(z.dir_binary_tree, 0);
+    Traverse_tree(z.dir_binary_tree, 0);
     if total = 0 then
       avg_depth:= 0.0;
     else
@@ -532,10 +560,14 @@ package body Zip is
     Zip.Headers.Load(file, the_end);
     Set_Index(
       file,
-      ZS_Index_Type (1 + the_end.offset_shifting + the_end.central_dir_offset)
+      ZS_Index_Type (1 + the_end.central_dir_offset) + the_end.offset_shifting
     );
 
-    min_offset:= the_end.central_dir_offset; -- will be lowered
+    min_offset:= the_end.central_dir_offset; -- will be lowered if the archive is not empty.
+
+    if the_end.total_entries = 0 then
+      raise Archive_is_empty;
+    end if;
 
     for i in 1..the_end.total_entries loop
       Zip.Headers.Read_and_check(file, header );
@@ -554,8 +586,13 @@ package body Zip is
       end if;
     end loop;
 
-    file_index:= Zip_Streams.ZS_Index_Type (1 + min_offset + the_end.offset_shifting);
+    file_index:= Zip_Streams.ZS_Index_Type (1 + min_offset) + the_end.offset_shifting;
 
+  exception
+    when Zip.Headers.bad_end | Ada.IO_Exceptions.End_Error =>
+      Raise_Exception (Zip.Archive_corrupted'Identity, "Bad (or no) end-of-central-directory");
+    when Zip.Headers.bad_central_header =>
+      Raise_Exception (Zip.Archive_corrupted'Identity, "Bad central directory entry header");
   end Find_first_offset;
 
   -- Internal: find offset of a zipped file by reading sequentially the
@@ -576,7 +613,7 @@ package body Zip is
     use Zip_Streams;
   begin
     Zip.Headers.Load(file, the_end);
-    Set_Index(file, ZS_Index_Type(1 + the_end.central_dir_offset + the_end.offset_shifting));
+    Set_Index(file, ZS_Index_Type(1 + the_end.central_dir_offset) + the_end.offset_shifting);
     for i in 1..the_end.total_entries loop
       Zip.Headers.Read_and_check(file, header);
       declare
@@ -595,7 +632,7 @@ package body Zip is
            Normalize(name,case_sensitive)
         then
           -- Name found in central directory !
-          file_index := Zip_Streams.ZS_Index_Type (1 + header.local_header_offset + the_end.offset_shifting);
+          file_index := Zip_Streams.ZS_Index_Type (1 + header.local_header_offset) + the_end.offset_shifting;
           comp_size  := File_size_type(header.short_info.dd.compressed_size);
           uncomp_size:= File_size_type(header.short_info.dd.uncompressed_size);
           crc_32     := header.short_info.dd.crc_32;
@@ -603,7 +640,12 @@ package body Zip is
         end if;
       end;
     end loop;
-    Ada.Exceptions.Raise_Exception(File_name_not_found'Identity, "Entry: [" & name & ']');
+    Raise_Exception (File_name_not_found'Identity, "Entry: [" & name & ']');
+  exception
+    when Zip.Headers.bad_end =>
+      Raise_Exception (Zip.Archive_corrupted'Identity, "Bad (or no) end-of-central-directory");
+    when Zip.Headers.bad_central_header =>
+      Raise_Exception (Zip.Archive_corrupted'Identity, "Bad central directory entry header");
   end Find_offset;
 
   -- Internal: find offset of a zipped file using the zip_info tree 8-)
@@ -643,6 +685,70 @@ package body Zip is
       "Archive: [" & info.zip_file_name.all & "], entry: [" & name & ']'
     );
   end Find_offset;
+
+  procedure Find_offset_without_directory(
+    info           : in     Zip_info;
+    name           : in     String;
+    name_encoding  :    out Zip_name_encoding;
+    file_index     :    out Zip_Streams.ZS_Index_Type;
+    comp_size      :    out File_size_type;
+    uncomp_size    :    out File_size_type;
+    crc_32         :    out Interfaces.Unsigned_32
+  )
+  is
+    function Trash_dir( n: String ) return String is
+      idx: Integer:= n'First - 1;
+    begin
+      for i in n'Range loop
+        if n(i)= '/' or n(i)='\' then
+          idx:= i;
+        end if;
+      end loop;
+      -- idx points on the index just before the interesting part
+      return Normalize(n( idx+1 .. n'Last ), info.case_sensitive);
+    end Trash_dir;
+
+    simple_name: constant String:= Trash_dir(name);
+
+    Found: exception;
+
+    procedure Check_entry(
+      entry_name          : String; -- 'name' is compressed entry's name
+      entry_index         : Zip_Streams.ZS_Index_Type;
+      entry_comp_size     : File_size_type;
+      entry_uncomp_size   : File_size_type;
+      entry_crc_32        : Interfaces.Unsigned_32;
+      date_time           : Time;
+      method              : PKZip_method;
+      entry_name_encoding : Zip_name_encoding;
+      read_only           : Boolean;
+      encrypted_2_x       : Boolean; -- PKZip 2.x encryption
+      user_code           : in out Integer
+    )
+    is
+    pragma Unreferenced (date_time, method, read_only, encrypted_2_x, user_code);
+    begin
+      if Trash_dir(entry_name) = simple_name then
+        name_encoding := entry_name_encoding;
+        file_index    := entry_index;
+        comp_size     := entry_comp_size;
+        uncomp_size   := entry_uncomp_size;
+        crc_32        := entry_crc_32;
+        raise Found;
+      end if;
+    end Check_entry;
+    --
+    procedure Search is new Traverse_verbose(Check_entry);
+    --
+  begin
+    begin
+      Search(info);
+    exception
+      when Found =>
+        return;
+    end;
+    raise File_name_not_found;
+  end Find_offset_without_directory;
 
   function Exists(
     info           : in     Zip_info;
@@ -845,24 +951,44 @@ package body Zip is
     end if;
   end BlockWrite;
 
+  function Image(m: PKZip_method) return String is
+  begin
+    case m is
+      when store     => return "Store";
+      when shrink    => return "Shrink";
+      when reduce_1  => return "Reduce 1";
+      when reduce_2  => return "Reduce 2";
+      when reduce_3  => return "Reduce 3";
+      when reduce_4  => return "Reduce 4";
+      when implode   => return "Implode";
+      when tokenize  => return "Tokenize";
+      when deflate   => return "Deflate";
+      when deflate_e => return "Deflate64";
+      when bzip2     => return "BZip2";
+      when lzma_meth => return "LZMA";
+      when ppmd      => return "PPMd";
+      when unknown   => return "(unknown)";
+    end case;
+  end Image;
+
   function Method_from_code(x: Natural) return PKZip_method is
     -- An enumeration clause might be more elegant, but needs
     -- curiously an Unchecked_Conversion... (RM 13.4)
   begin
     case x is
-      when  0 => return store;
-      when  1 => return shrink;
-      when  2 => return reduce_1;
-      when  3 => return reduce_2;
-      when  4 => return reduce_3;
-      when  5 => return reduce_4;
-      when  6 => return implode;
-      when  7 => return tokenize;
-      when  8 => return deflate;
-      when  9 => return deflate_e;
-      when 12 => return bzip2;
-      when 14 => return lzma;
-      when 98 => return ppmd;
+      when compression_format_code.store      => return store;
+      when compression_format_code.shrink     => return shrink;
+      when compression_format_code.reduce     => return reduce_1;
+      when compression_format_code.reduce + 1 => return reduce_2;
+      when compression_format_code.reduce + 2 => return reduce_3;
+      when compression_format_code.reduce + 3 => return reduce_4;
+      when compression_format_code.implode    => return implode;
+      when compression_format_code.tokenize   => return tokenize;
+      when compression_format_code.deflate    => return deflate;
+      when compression_format_code.deflate_e  => return deflate_e;
+      when compression_format_code.bzip2      => return bzip2;
+      when compression_format_code.lzma       => return lzma_meth;
+      when compression_format_code.ppmd       => return ppmd;
       when others => return unknown;
     end case;
   end Method_from_code;
@@ -897,7 +1023,7 @@ package body Zip is
       end if;
       Zip.BlockRead(from, buf(1..Integer'Min(remains, buf'Last)), actually_read);
       if actually_read = 0 then -- premature end, unexpected
-        raise Zip.Zip_file_Error;
+        raise Zip.Archive_corrupted;
       end if;
       remains:= remains - actually_read;
       Zip.BlockWrite(into, buf(1..actually_read));

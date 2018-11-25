@@ -1,3 +1,29 @@
+--  Legal licensing note:
+
+--  Copyright (c) 2008 .. 2018 Gautier de Montmollin (maintainer)
+--  SWITZERLAND
+
+--  Permission is hereby granted, free of charge, to any person obtaining a copy
+--  of this software and associated documentation files (the "Software"), to deal
+--  in the Software without restriction, including without limitation the rights
+--  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+--  copies of the Software, and to permit persons to whom the Software is
+--  furnished to do so, subject to the following conditions:
+
+--  The above copyright notice and this permission notice shall be included in
+--  all copies or substantial portions of the Software.
+
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+--  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+--  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+--  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+--  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+--  THE SOFTWARE.
+
+-- NB: this is the MIT License, as found 21-Aug-2016 on the site
+-- http://www.opensource.org/licenses/mit-license.php
+
 with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 with Ada.Text_IO;
@@ -9,7 +35,7 @@ package body Zip.Create is
    procedure Create(Info          : out Zip_Create_info;
                     Z_Stream      : in Zipstream_Class_Access;
                     Name          : String;
-                    Compress      : Zip.Compress.Compression_Method:= Zip.Compress.Shrink;
+                    Compress      : Zip.Compress.Compression_Method:= Zip.Compress.Deflate_1;
                     Duplicates    : Duplicate_name_policy:= admit_duplicates
    )
    is
@@ -100,39 +126,15 @@ package body Zip.Create is
    end Add_catalogue_entry;
 
    --  This is just for detecting duplicates
-   procedure Insert_to_name_dictionary(file_name: String; node: in out p_Dir_node) is
+   procedure Insert_to_name_dictionary(file_name: String; m: in out Name_mapping.Map) is
+     cm : Name_mapping.Cursor;
+     OK : Boolean;
    begin
-     if node = null then
-       node:= new Dir_node'
-         ( (name_len          => file_name'Length,
-            left              => null,
-            right             => null,
-            file_name         => file_name)
-         );
-     elsif file_name > node.file_name then
-       Insert_to_name_dictionary( file_name, node.right );
-     elsif file_name < node.file_name then
-       Insert_to_name_dictionary( file_name, node.left );
-     else
-       --  Name already registered
-       raise Duplicate_name;
+     m.Insert (To_Unbounded_String (file_name), cm, OK);
+     if not OK then  --  Name already registered
+       raise Duplicate_name with "Entry name = " & file_name;
      end if;
    end Insert_to_name_dictionary;
-
-   procedure Clear_name_dictionary(Info : in out Zip_Create_info) is
-     procedure Clear( p: in out p_Dir_node ) is
-        procedure Dispose is new Ada.Unchecked_Deallocation (Dir_node, p_Dir_node);
-     begin
-       if p /= null then
-         Clear(p.left);
-         Clear(p.right);
-         Dispose(p);
-         p:= null;
-       end if;
-     end Clear;
-   begin
-     Clear(Info.dir);
-   end Clear_name_dictionary;
 
    procedure Add_Stream (Info     : in out Zip_Create_info;
                          Stream   : in out Root_Zipstream_Type'Class;
@@ -143,6 +145,11 @@ package body Zip.Create is
    begin
      Add_Stream(Info, Stream, null, Password, Compressed_Size, Final_Method);
    end Add_Stream;
+
+   four_gb : constant := 4 * (1024 ** 3);
+
+   Zip_32_exceeded_message : constant String :=
+     "Zip file too large (for Zip_32 archive format): more than 4GB.";
 
    procedure Add_Stream (Info           : in out Zip_Create_info;
                          Stream         : in out Root_Zipstream_Type'Class;
@@ -204,13 +211,34 @@ package body Zip.Create is
            method           => Info.Compress,
            feedback         => Feedback,
            password         => Password,
+           content_hint     => Guess_type_from_name(entry_name),
            CRC              => shi.dd.crc_32,
            output_size      => shi.dd.compressed_size,
            zip_type         => shi.zip_type
           );
+        if shi.zip_type = compression_format_code.lzma then
+          --
+          --  For LZMA, we always put an EOS marker. From PKWARE's Appnote:
+          --
+          --      5.8.9 Data compressed with method 14, LZMA, may include an end-of-stream
+          --      (EOS) marker ending the compressed data stream.  This marker is not
+          --      required, but its use is highly recommended to facilitate processing
+          --      and implementers should include the EOS marker whenever possible.
+          --      When the EOS marker is used, general purpose bit 1 must be set.  If
+          --      general purpose bit 1 is not set, the EOS marker is not present.
+          --
+          shi.bit_flag := shi.bit_flag or LZMA_EOS_Flag_Bit;
+        end if;
         mem2 := Index (Info.Stream.all);
-        --  Go back to the local header to rewrite it
-        --  with complete informations
+        if Info.zip_archive_format = Zip_32
+          and then mem2 > four_gb
+        then
+          Ada.Exceptions.Raise_Exception
+            (Zip_Capacity_Exceeded'Identity,
+             Zip_32_exceeded_message);
+        end if;
+        --  Go back to the local header to rewrite it with complete informations
+        --  known after the compression: CRC value, compressed size, actual compression format.
         Set_Index (Info.Stream.all, mem1);
         Zip.Headers.Write (Info.Stream.all, shi);
         --  Return to momentaneous end of file
@@ -307,21 +335,23 @@ package body Zip.Create is
    end Add_String;
 
    procedure Add_Compressed_Stream (
-     Info           : in out Zip_Create_info;
-     Stream         : in out Root_Zipstream_Type'Class;
+     Info           : in out Zip_Create_info;            --  Destination
+     Stream         : in out Root_Zipstream_Type'Class;  --  Source
      Feedback       : in     Feedback_proc
    )
    is
-      lh: Zip.Headers.Local_File_Header;
+      lh : Zip.Headers.Local_File_Header;
+      data_descriptor_after_data : Boolean;
    begin
       Zip.Headers.Read_and_check(Stream, lh);
-      -- Copy name and ignore extra field
+      data_descriptor_after_data := (lh.bit_flag and 8) /= 0;
+      --  Copy name and ignore extra field
       declare
-        name: String(1..Positive(lh.filename_length));
-        extra: String(1..Natural(lh.extra_field_length));
+        name  : String (1..Positive(lh.filename_length));
+        extra : String (1..Natural(lh.extra_field_length));
       begin
-        String'Read(Stream'Access, name);
-        String'Read(Stream'Access, extra);
+        String'Read (Stream'Access, name);
+        String'Read (Stream'Access, extra);
         if Info.Duplicates = error_on_duplicate then
           --  Check for duplicates; raises Duplicate_name in this case:
           Insert_to_name_dictionary (name, Info.dir);
@@ -330,7 +360,7 @@ package body Zip.Create is
         Info.Contains (Info.Last_entry).head.local_header_offset :=
           Unsigned_32 (Index (Info.Stream.all)) - 1;
         Info.Contains (Info.Last_entry).name := new String'(name);
-        lh.extra_field_length:= 0; -- extra field is zeroed (causes problems if not)
+        lh.extra_field_length := 0;  --  extra field is zeroed (causes problems if not)
         Zip.Headers.Write(Info.Stream.all, lh);  --  Copy local header to new stream
         String'Write(Info.Stream, name);         --  Copy entry name to new stream
       end;
@@ -340,26 +370,53 @@ package body Zip.Create is
         Integer(lh.dd.compressed_size),
         Feedback => Feedback
       );
-      Info.Contains (Info.Last_entry).head.short_info:= lh;
+      --  Postfixed data descriptor contains the correct values for
+      --  CRC and sizes. Example of Zip files using that descriptor: those
+      --  created by Microsoft's OneDrive cloud storage (for downloading
+      --  more than one file), in 2018.
+      if data_descriptor_after_data then
+        --  NB: some faulty JAR files may fail with Read_and_check.
+        --  See UnZip.Decompress, Process_descriptor.
+        Zip.Headers.Read_and_check (Stream, lh.dd);
+        --  lh's values have been corrected on the way.
+        Zip.Headers.Write (Info.Stream.all, lh.dd);  --  Copy descriptor to new stream.
+      end if;
+      Info.Contains (Info.Last_entry).head.short_info := lh;
    end Add_Compressed_Stream;
 
    procedure Finish (Info : in out Zip_Create_info) is
       ed : Zip.Headers.End_of_Central_Dir;
       procedure Dispose is new Ada.Unchecked_Deallocation (String, p_String);
+      current_index : ZS_Index_Type;
+      procedure Get_index_and_check_Zip_32_limit is
+      begin
+        current_index := Index (Info.Stream.all);
+        if Info.zip_archive_format = Zip_32
+          and then current_index > four_gb
+        then
+          Ada.Exceptions.Raise_Exception
+            (Zip_Capacity_Exceeded'Identity,
+             Zip_32_exceeded_message);
+        end if;
+      end Get_index_and_check_Zip_32_limit;
    begin
       --
       --  2/ Almost done - write Central Directory:
       --
-      ed.central_dir_offset := Unsigned_32 (Index (Info.Stream.all)) - 1;
+      Get_index_and_check_Zip_32_limit;
+      ed.central_dir_offset := Unsigned_32 (current_index) - 1;
       ed.total_entries := 0;
       ed.central_dir_size := 0;
       ed.main_comment_length := 0;
-      if Info.Last_entry > Integer(Unsigned_16'Last) then
+      if Info.zip_archive_format = Zip_32
+        and then Info.Last_entry > Integer (Unsigned_16'Last)
+      then
         Ada.Exceptions.Raise_Exception
-          (Constraint_Error'Identity, "Too many entries - need ZIP64");
+          (Zip_Capacity_Exceeded'Identity,
+           "Too many entries (for Zip_32 archive format): more than 65535.");
       end if;
       if Info.Contains /= null then
-        for e in 1..Info.Last_entry loop
+        for e in 1 .. Info.Last_entry loop
            ed.total_entries := ed.total_entries + 1;
            Zip.Headers.Write (Info.Stream.all, Info.Contains (e).head);
            String'Write(Info.Stream, Info.Contains (e).name.all);
@@ -369,15 +426,16 @@ package body Zip.Create is
                Zip.Headers.central_header_length +
                  Unsigned_32 (Info.Contains (e).head.short_info.filename_length);
           Dispose(Info.Contains(e).name);
+          Get_index_and_check_Zip_32_limit;
         end loop;
         Dispose (Info.Contains);
       end if;
       Info.Last_entry:= 0;
-      Clear_name_dictionary (Info);
       ed.disknum := 0;
       ed.disknum_with_start := 0;
       ed.disk_total_entries := ed.total_entries;
       Zip.Headers.Write (Info.Stream.all, ed);
+      Get_index_and_check_Zip_32_limit;
       --
       -- If we have a real file (File_Zipstream or descendent), close the file too:
       --

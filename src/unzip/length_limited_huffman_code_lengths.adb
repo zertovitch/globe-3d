@@ -1,23 +1,37 @@
---  Copyright 2011 Google Inc. All Rights Reserved.
+--  Legal licensing note:
 
---  Licensed under the Apache License, Version 2.0 (the "License");
---  you may not use this file except in compliance with the License.
---  You may obtain a copy of the License at
+--  Copyright (c) 2016 .. 2018 Gautier de Montmollin
+--  SWITZERLAND
+--  The copyright holder is only the maintainer of the Ada version;
+--  authors of the C code and those of the algorithm are cited below.
 
---  http://www.apache.org/licenses/LICENSE-2.0
+--  Permission is hereby granted, free of charge, to any person obtaining a copy
+--  of this software and associated documentation files (the "Software"), to deal
+--  in the Software without restriction, including without limitation the rights
+--  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+--  copies of the Software, and to permit persons to whom the Software is
+--  furnished to do so, subject to the following conditions:
 
---  Unless required by applicable law or agreed to in writing, software
---  distributed under the License is distributed on an "AS IS" BASIS,
---  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
---  See the License for the specific language governing permissions and
---  limitations under the License.
+--  The above copyright notice and this permission notice shall be included in
+--  all copies or substantial portions of the Software.
+
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+--  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+--  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+--  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+--  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+--  THE SOFTWARE.
+
+-- NB: this is the MIT License, as found 21-Aug-2016 on the site
+-- http://www.opensource.org/licenses/mit-license.php
 
 --  Author: lode.vandevenne [*] gmail [*] com (Lode Vandevenne)
 --  Author: jyrki.alakuijala [*] gmail [*] com (Jyrki Alakuijala)
 
 --  Bounded package merge algorithm, based on the paper
---  "A Fast and Space-Economical Algorithm for Length-Limited Coding
---  Jyrki Katajainen, Alistair Moffat, Andrew Turpin".
+--    "A Fast and Space-Economical Algorithm for Length-Limited Coding
+--    Jyrki Katajainen, Alistair Moffat, Andrew Turpin".
 
 --  Translated by G. de Montmollin to Ada from katajainen.c (Zopfli project), 7-Feb-2016
 --
@@ -67,19 +81,19 @@ is
   length_exceeds_length_limit       : exception;
   buggy_sorting                     : exception;
 
-  procedure Init_Node(weight, count: Count_Type; tail, node: Index_Type) is
+  procedure Init_Node(weight, count: Count_Type; tail, node_idx: Index_Type) is
   begin
-    pool(node).weight := weight;
-    pool(node).count  := count;
-    pool(node).tail   := tail;
-    pool(node).in_use := True;
+    pool(node_idx).weight := weight;
+    pool(node_idx).count  := count;
+    pool(node_idx).tail   := tail;
+    pool(node_idx).in_use := True;
   end Init_Node;
 
   --  Finds a free location in the memory pool. Performs garbage collection if needed.
   --  If use_lists = True, used to mark in-use nodes during garbage collection.
 
   function Get_Free_Node(use_lists: Boolean) return Index_Type is
-    node: Index_Type;
+    node_idx: Index_Type;
   begin
     loop
       if pool_next > pool'Last then
@@ -89,10 +103,10 @@ is
         end loop;
         if use_lists then
           for i in 0 .. Index_Type(max_bits * 2 - 1) loop
-            node:= lists(i / 2)(i mod 2);
-            while node /= null_index loop
-              pool(node).in_use := True;
-              node := pool(node).tail;
+            node_idx:= lists(i / 2)(i mod 2);
+            while node_idx /= null_index loop
+              pool(node_idx).in_use := True;
+              node_idx := pool(node_idx).tail;
             end loop;
           end loop;
         end if;
@@ -162,13 +176,13 @@ is
   --  chain: Chain to extract the bit length from (last chain from last list).
 
   procedure Extract_Bit_Lengths(chain: Index_Type) is
-    node: Index_Type:= chain;
+    node_idx: Index_Type:= chain;
   begin
-    while node /= null_index loop
-      for i in 0 .. pool(node).count - 1 loop
+    while node_idx /= null_index loop
+      for i in 0 .. pool(node_idx).count - 1 loop
         bit_lengths(leaves(i).symbol):= bit_lengths(leaves(i).symbol) + 1;
       end loop;
-      node := pool(node).tail;
+      node_idx := pool(node_idx).tail;
     end loop;
   end Extract_Bit_Lengths;
 
@@ -206,7 +220,7 @@ is
     Quick_sort(a(a'First + i .. a'Last));
   end Quick_sort;
 
-  paranoid: constant Boolean:= True;
+  paranoid: constant Boolean:= False;
 
 begin
   bit_lengths:= (others => 0);

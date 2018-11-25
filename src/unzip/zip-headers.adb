@@ -1,3 +1,29 @@
+-- Legal licensing note:
+
+--  Copyright (c) 2000 .. 2018 Gautier de Montmollin
+--  SWITZERLAND
+
+--  Permission is hereby granted, free of charge, to any person obtaining a copy
+--  of this software and associated documentation files (the "Software"), to deal
+--  in the Software without restriction, including without limitation the rights
+--  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+--  copies of the Software, and to permit persons to whom the Software is
+--  furnished to do so, subject to the following conditions:
+
+--  The above copyright notice and this permission notice shall be included in
+--  all copies or substantial portions of the Software.
+
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+--  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+--  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+--  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+--  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+--  THE SOFTWARE.
+
+-- NB: this is the MIT License, as found on the site
+-- http://www.opensource.org/licenses/mit-license.php
+
 package body Zip.Headers is
 
   -----------------------------------------------------------
@@ -216,22 +242,26 @@ package body Zip.Headers is
     the_end :    out End_of_Central_Dir
   )
   is
-    min_end_start: ZS_Size_Type;
+    min_end_start: ZS_Index_Type;  --  min_end_start >= 1
     max_comment: constant:= 65_535;
     -- In appnote.txt :
     -- .ZIP file comment length        2 bytes
   begin
+    if Size (stream) < 22 then
+      raise bad_end;
+    end if;
     -- 20-Jun-2001: abandon search below min_end_start.
-    if Size(stream) <= max_comment then
+    if Size (stream) <= max_comment then
       min_end_start:= 1;
     else
       min_end_start:= Size(stream) - max_comment;
     end if;
-    Set_Index(stream, ZS_Index_Type(min_end_start));
+    Set_Index(stream, min_end_start);
     declare
       -- We copy a large chunk of the zip stream's tail into a buffer.
       large_buffer: Byte_Buffer(0 .. Natural(Size(stream) - min_end_start));
       ilb: Integer;
+      x : ZS_Size_Type;
     begin
       BlockRead(stream, large_buffer);
       for i in reverse min_end_start .. Size(stream) - 21 loop
@@ -242,18 +272,26 @@ package body Zip.Headers is
           Copy_and_check( large_buffer(ilb .. ilb + 21), the_end );
           -- At this point, the buffer was successfully read, the_end is
           -- is set with its standard contents.
-          the_end.offset_shifting:=
-          -- This is the real position of the end-of-central-directory block.
-          Unsigned_32(i)
-          -
-          -- This is the theoretical position of the end-of-central-directory,
-          -- block. Should coincide with the real position if the zip file
-          -- is not appended.
-          (
-            1 +
-            the_end.central_dir_offset +
-            the_end.central_dir_size
-          );
+          --
+          --  This is the *real* position of the end-of-central-directory block, to begin with:
+          x:= i;
+          --  We subtract the *theoretical* (stored) position of the end-of-central-directory.
+          --  The theoretical position is equal to central_dir_offset + central_dir_size.
+          --  The theoretical position should be smaller or equal than the real position -
+          --  unless the archive is corrupted.
+          --  We do it step by step, because ZS_Size_Type was modular until rev. 644.
+          --  Now it's a signed 64 bits, but we don't want to change anything again...
+          --
+          x := x - 1;  --  i >= 1, so no dragons here. The "- 1" is for adapting from the 1-based Ada index.
+          exit when ZS_Size_Type(the_end.central_dir_offset) > x;  --  fuzzy value, will trigger bad_end
+          x := x - ZS_Size_Type(the_end.central_dir_offset);
+          exit when ZS_Size_Type(the_end.central_dir_size) > x;  --  fuzzy value, will trigger bad_end
+          x := x - ZS_Size_Type(the_end.central_dir_size);
+          --  Now, x is the difference : real - theoretical.
+          --    x > 0  if the archive was appended to another file (typically an executable
+          --           for self-extraction purposes).
+          --    x = 0  if this is a "pure" Zip archive.
+          the_end.offset_shifting:= x;
           Set_Index(stream, i + 22);
           return; -- the_end found and filled -> exit
         end if;

@@ -1,20 +1,21 @@
---  ________  ___   ______       ______     ___
--- /___..._/  |.|   |.___.\     /. __ .\  __|.|   ____
---    /../    |.|   |.____/     |.|__|.| /....|  __\..\
---  _/../___  |.|   |.|    ===  |..__..||. = .| | = ..|
--- /_______/  |_|  /__|        /__|  |_| \__\_|  \__\_|
+--  ________  ___   ______       ______      ___
+-- /___..._/  |.|   |.___.\     /. __ .\   __|.|   ____
+--    /../    |.|   |.____/     |.|__|.|  /....|  __\..\
+--  _/../___  |.|   |.|    ===  |..__..| |. = .| | = ..|
+-- /_______/  |_|  /__|        /__|  |_|  \__\_|  \__\_|
 
 -- UnZip
 --------
--- This library allows to uncompress deflated, enhanced deflated, bzip2-ed,
+--
+-- This library allows to uncompress deflated, enhanced deflated, bzip2-ed, lzma-ed,
 -- imploded, reduced, shrunk and stored streams from a Zip archive stream.
 --
--- Pure Ada 95 code, 100% portable: OS-, CPU- and compiler- independent.
+-- Pure Ada 2005+ code, 100% portable: OS-, CPU- and compiler- independent.
 
 --  Ada translation and substantial rewriting by Gautier de Montmollin
---    On the web: see the Zip.web constant below.
+--    On the web: see the Zip.web constant.
 --  based on Pascal version 2.10 by Abimbola A Olowofoyeku,
---    http://www.greatchief.plus.com/
+--    http://www.foyeh.org/
 --  itself based on Pascal version by Christian Ghisler,
 --  itself based on C code by Info-Zip group (Mark Adler et al.)
 --    http://www.info-zip.org/UnZip.html
@@ -23,7 +24,8 @@
 
 -- Legal licensing note:
 
---  Copyright (c) 1999..2015 Gautier de Montmollin
+--  Copyright (c) 1999 .. 2018 Gautier de Montmollin
+--  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
 --  of this software and associated documentation files (the "Software"), to deal
@@ -294,8 +296,7 @@ package UnZip is
   Wrong_password,
   User_abort,
   Not_supported,
-  Unsupported_method,
-  Internal_Error : exception;
+  Unsupported_method : exception;
 
   tolerance_wrong_password: constant:= 4;
   -- If password is wrong at the Nth attempt, Wrong_password is raised

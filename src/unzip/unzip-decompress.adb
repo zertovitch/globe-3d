@@ -1,4 +1,30 @@
-with Zip.CRC_Crypto, UnZip.Decompress.Huffman, BZip2, LZMA_Decoding;
+-- Legal licensing note:
+
+--  Copyright (c) 2007 .. 2018 Gautier de Montmollin
+--  SWITZERLAND
+
+--  Permission is hereby granted, free of charge, to any person obtaining a copy
+--  of this software and associated documentation files (the "Software"), to deal
+--  in the Software without restriction, including without limitation the rights
+--  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+--  copies of the Software, and to permit persons to whom the Software is
+--  furnished to do so, subject to the following conditions:
+
+--  The above copyright notice and this permission notice shall be included in
+--  all copies or substantial portions of the Software.
+
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+--  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+--  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+--  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+--  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+--  THE SOFTWARE.
+
+-- NB: this is the MIT License, as found on the site
+-- http://www.opensource.org/licenses/mit-license.php
+
+with Zip.CRC_Crypto, UnZip.Decompress.Huffman, BZip2.Decoding, LZMA.Decoding;
 
 with Ada.Exceptions, Ada.Streams.Stream_IO, Ada.Text_IO, Interfaces;
 
@@ -170,7 +196,7 @@ package body UnZip.Decompress is
       procedure Process_compressed_end_reached is
       begin
         if Zip_EOF then -- We came already here once
-          Raise_Exception(Zip.Zip_file_Error'Identity,
+          Raise_Exception(Zip.Archive_corrupted'Identity,
             "Decoding went past compressed data size plus one buffer length");
           -- Avoid infinite loop on data with exactly buffer's length and no end marker
         else
@@ -296,7 +322,7 @@ package body UnZip.Decompress is
       end Bit_buffer;
 
       procedure Flush ( x: Natural ) is
-        use Zip, UnZip, Ada.Streams;
+        use Zip, Ada.Streams;
       begin
         if full_trace then
           Ada.Text_IO.Put("[Flush...");
@@ -521,7 +547,7 @@ package body UnZip.Decompress is
       Writebuf : Zip.Byte_Buffer ( 0..Write_Max );  -- Write buffer
 
       procedure Unshrink_Flush is
-        use Zip, UnZip, Ada.Streams, Ada.Streams.Stream_IO;
+        use Zip, Ada.Streams, Ada.Streams.Stream_IO;
       begin
         if full_trace then
           Ada.Text_IO.Put("[Unshrink_Flush]");
@@ -629,7 +655,7 @@ package body UnZip.Decompress is
         Stack        := (others=> 0);
         Writebuf     := (others=> 0);
 
-        if UnZ_Glob.compsize = Unsigned_32'Last then
+        if UnZ_Glob.compsize = File_size_type'Last then
           -- Compressed Size was not in header!
           raise UnZip.Not_supported;
         elsif UnZ_Glob.uncompsize = 0 then
@@ -647,6 +673,9 @@ package body UnZip.Decompress is
 
         Read_Code;
         Last_Incode  := Incode;
+        if Incode not in 0 .. 255 then
+          Raise_Exception(Zip.Archive_corrupted'Identity, "Wrong LZW (Shrink) 1st byte");
+        end if;
         Last_Outcode := Zip.Byte( Incode );
         Write_Byte ( Last_Outcode );
         S:= S - 1;
@@ -664,12 +693,12 @@ package body UnZip.Decompress is
                   );
                 end if;
                 if Code_Size > Maximum_Code_Size then
-                  raise Zip.Zip_file_Error;
+                  Raise_Exception(Zip.Archive_corrupted'Identity, "Wrong LZW (Shrink) code size");
                 end if;
               when Code_Clear_table =>
                 Clear_Leaf_Nodes;
               when others =>
-                Raise_Exception(Zip.Zip_file_Error'Identity,
+                Raise_Exception(Zip.Archive_corrupted'Identity,
                   "Wrong LZW (Shrink) special code" & Integer'Image(Incode));
             end case;
 
@@ -690,7 +719,7 @@ package body UnZip.Decompress is
                 if Stack_Ptr < Stack'First or
                    Incode > Actual_Code'Last
                 then
-                  raise Zip.Zip_file_Error;
+                  raise Zip.Archive_corrupted;
                 end if;
                 Stack( Stack_Ptr ):= Actual_Code( Incode );
                 Stack_Ptr:= Stack_Ptr -1;
@@ -709,6 +738,9 @@ package body UnZip.Decompress is
             end if;
             Incode := Next_Free;
             if Incode <= Max_Code then
+              if Incode not in Previous_Code'Range then
+                Raise_Exception(Zip.Archive_corrupted'Identity, "Wrong LZW (Shrink) index");
+              end if;
               Next_Free := - Previous_Code( Incode );
               -- Next node in free list
               Previous_Code( Incode ) := Last_Incode;
@@ -892,7 +924,7 @@ package body UnZip.Decompress is
           B := ( J  and  16#0F# ) + 1;
           J := ( J  and  16#F0# ) / 16 + 1;
           if  K + J > N then
-            raise Zip.Zip_file_Error;
+            raise Zip.Archive_corrupted;
           end if;
 
           loop
@@ -908,7 +940,7 @@ package body UnZip.Decompress is
         end loop;
 
         if  K /= N then
-          raise Zip.Zip_file_Error;
+          raise Zip.Archive_corrupted;
         end if;
 
         if full_trace then
@@ -949,7 +981,7 @@ package body UnZip.Decompress is
               exit when E <= 16;
 
               if E = invalid then
-                raise Zip.Zip_file_Error;
+                raise Zip.Archive_corrupted;
               end if;
 
               UnZ_IO.Bit_buffer.Dump( Ct(Ci).bits );
@@ -973,7 +1005,7 @@ package body UnZip.Decompress is
               exit when  E <= 16;
 
               if E = invalid then
-                raise Zip.Zip_file_Error;
+                raise Zip.Archive_corrupted;
               end if;
 
               UnZ_IO.Bit_buffer.Dump( Ct(Ci).bits );
@@ -993,7 +1025,7 @@ package body UnZip.Decompress is
               exit when  E <= 16;
 
               if E = invalid then
-                raise Zip.Zip_file_Error;
+                raise Zip.Archive_corrupted;
               end if;
 
               UnZ_IO.Bit_buffer.Dump( Ct(Ci).bits );
@@ -1022,7 +1054,7 @@ package body UnZip.Decompress is
 
         UnZ_IO.Flush ( W );
         if Zip_EOF then
-          raise UnZip.Read_Error;
+          Raise_Exception(Zip.Archive_corrupted'Identity, "End of stream reached");
         end if;
 
         if full_trace then
@@ -1067,7 +1099,7 @@ package body UnZip.Decompress is
               exit when  E <= 16;
 
               if E = invalid then
-                raise Zip.Zip_file_Error;
+                raise Zip.Archive_corrupted;
               end if;
 
               UnZ_IO.Bit_buffer.Dump( Ct(Ci).bits );
@@ -1087,7 +1119,7 @@ package body UnZip.Decompress is
               exit when  E <= 16;
 
               if E = invalid then
-                raise Zip.Zip_file_Error;
+                raise Zip.Archive_corrupted;
               end if;
 
               UnZ_IO.Bit_buffer.Dump( Ct(Ci).bits );
@@ -1116,7 +1148,7 @@ package body UnZip.Decompress is
 
         UnZ_IO.Flush ( W );
         if Zip_EOF then
-          raise UnZip.Read_Error;
+          Raise_Exception(Zip.Archive_corrupted'Identity, "End of stream reached");
         end if;
 
         if full_trace then
@@ -1182,11 +1214,11 @@ package body UnZip.Decompress is
             HufT_build( L, 256, empty, empty, Tb, Bb, huft_incomplete );
             if huft_incomplete then
               HufT_free (Tb);
-              raise Zip.Zip_file_Error;
+              raise Zip.Archive_corrupted;
             end if;
           exception
             when others =>
-              raise Zip.Zip_file_Error;
+              raise Zip.Archive_corrupted;
           end;
 
           begin
@@ -1194,7 +1226,7 @@ package body UnZip.Decompress is
           exception
             when others=>
               HufT_free( Tb );
-              raise Zip.Zip_file_Error;
+              raise Zip.Archive_corrupted;
           end;
 
           begin
@@ -1204,12 +1236,12 @@ package body UnZip.Decompress is
             if huft_incomplete then
               HufT_free(Tl);
               HufT_free(Tb);
-              raise Zip.Zip_file_Error;
+              raise Zip.Archive_corrupted;
             end if;
           exception
             when others =>
               HufT_free (Tb);
-              raise Zip.Zip_file_Error;
+              raise Zip.Archive_corrupted;
           end;
 
           begin
@@ -1218,7 +1250,7 @@ package body UnZip.Decompress is
             when others=>
               HufT_free( Tb );
               HufT_free( Tl );
-              raise Zip.Zip_file_Error;
+              raise Zip.Archive_corrupted;
           end;
 
           begin
@@ -1230,7 +1262,7 @@ package body UnZip.Decompress is
                 HufT_free(Td);
                 HufT_free(Tl);
                 HufT_free(Tb);
-                raise Zip.Zip_file_Error;
+                raise Zip.Archive_corrupted;
               end if;
               -- Exploding, method: 8k slide, 3 trees
               Explode_Lit ( 7, Tb, Tl, Td, Bb, Bl, Bd );
@@ -1242,7 +1274,7 @@ package body UnZip.Decompress is
                 HufT_free(Td);
                 HufT_free(Tl);
                 HufT_free(Tb);
-                raise Zip.Zip_file_Error;
+                raise Zip.Archive_corrupted;
               end if;
               -- Exploding, method: 4k slide, 3 trees
               Explode_Lit ( 6, Tb, Tl, Td, Bb, Bl, Bd );
@@ -1251,7 +1283,7 @@ package body UnZip.Decompress is
             when  others =>
               HufT_free(Tl);
               HufT_free(Tb);
-              raise Zip.Zip_file_Error;
+              raise Zip.Archive_corrupted;
           end;
           HufT_free ( Td );
           HufT_free ( Tl );
@@ -1263,7 +1295,7 @@ package body UnZip.Decompress is
             Get_Tree ( L( 0..63 ) );
           exception
             when others=>
-              raise Zip.Zip_file_Error;
+              raise Zip.Archive_corrupted;
           end;
 
           begin
@@ -1272,11 +1304,11 @@ package body UnZip.Decompress is
             );
             if huft_incomplete then
               HufT_free(Tl);
-              raise Zip.Zip_file_Error;
+              raise Zip.Archive_corrupted;
             end if;
           exception
             when others =>
-              raise Zip.Zip_file_Error;
+              raise Zip.Archive_corrupted;
           end;
 
           begin
@@ -1284,7 +1316,7 @@ package body UnZip.Decompress is
           exception
             when others=>
               HufT_free (Tl);
-              raise Zip.Zip_file_Error;
+              raise Zip.Archive_corrupted;
           end;
 
           begin
@@ -1295,7 +1327,7 @@ package body UnZip.Decompress is
               if huft_incomplete then
                 HufT_free(Td);
                 HufT_free(Tl);
-                raise Zip.Zip_file_Error;
+                raise Zip.Archive_corrupted;
               end if;
               -- Exploding, method: 8k slide, 2 trees
               Explode_Nolit( 7, Tl, Td, Bl, Bd );
@@ -1306,7 +1338,7 @@ package body UnZip.Decompress is
               if huft_incomplete then
                 HufT_free(Td);
                 HufT_free(Tl);
-                raise Zip.Zip_file_Error;
+                raise Zip.Archive_corrupted;
               end if;
               -- Exploding, method: 4k slide, 2 trees
               Explode_Nolit( 6, Tl, Td, Bl, Bd );
@@ -1314,7 +1346,7 @@ package body UnZip.Decompress is
           exception
             when others=>
               HufT_free(Tl);
-              raise Zip.Zip_file_Error;
+              raise Zip.Archive_corrupted;
           end;
           HufT_free ( Td );
           HufT_free ( Tl );
@@ -1343,7 +1375,8 @@ package body UnZip.Decompress is
             end loop;
           exception
             when others=>
-              raise UnZip.Read_Error;
+              Raise_Exception(Zip.Archive_corrupted'Identity,
+                "End of stream reached (format: Store)");
           end;
           begin
             UnZ_IO.Flush ( Natural(read_in) );  -- Takes care of CRC too
@@ -1381,13 +1414,17 @@ package body UnZip.Decompress is
         -- inflate the coded data
         main_loop:
         while not Zip_EOF loop
+          if Tl = null then
+            Raise_Exception(Zip.Archive_corrupted'Identity,
+              "Null table list (on data decoding, Huffman tree for literals or LZ lengths)");
+          end if;
           CT:= Tl.table;
           CT_idx:= UnZ_IO.Bit_buffer.Read(Bl);
           loop
             E := CT(CT_idx).extra_bits;
             exit when E <= 16;
             if E = invalid then
-              raise Zip.Zip_file_Error;
+              raise Zip.Archive_corrupted;
             end if;
 
             -- then it's a literal
@@ -1400,7 +1437,7 @@ package body UnZip.Decompress is
           UnZ_IO.Bit_buffer.Dump ( CT(CT_idx).bits );
 
           case E is
-            when 16 =>     -- CT(CT_idx).N is a Literal
+            when 16 =>     -- CT(CT_idx).N is a Literal (code 0 .. 255)
               literal:= Zip.Byte( CT(CT_idx).n );
               if some_trace then
                 lt_count:= lt_count + 1;
@@ -1420,7 +1457,7 @@ package body UnZip.Decompress is
               end if;
               exit main_loop;
 
-            when others => -- We have a length/distance
+            when others => -- We have a length/distance code
               if some_trace then
                 dl_count:= dl_count + 1;
               end if;
@@ -1428,13 +1465,17 @@ package body UnZip.Decompress is
               length:= CT(CT_idx).n + UnZ_IO.Bit_buffer.Read_and_dump(E);
 
               -- Decode distance of block to copy:
+              if Td = null then
+                Raise_Exception(Zip.Archive_corrupted'Identity,
+                  "Null table list (on data decoding, Huffman tree for LZ distances)");
+              end if;
               CT:= Td.table;
               CT_idx:= UnZ_IO.Bit_buffer.Read(Bd);
               loop
                 E := CT(CT_idx).extra_bits;
                 exit when E <= 16;
                 if E = invalid then
-                  raise Zip.Zip_file_Error;
+                  raise Zip.Archive_corrupted;
                 end if;
                 UnZ_IO.Bit_buffer.Dump( CT(CT_idx).bits );
                 E:= E - 16;
@@ -1473,7 +1514,7 @@ package body UnZip.Decompress is
          (not UnZ_IO.Bit_buffer.Read_and_dump_U32(16))
          and 16#ffff#)
         then
-          raise Zip.Zip_file_Error;
+          raise Zip.Archive_corrupted;
         end if;
         while N > 0 and then not Zip_EOF loop
           -- Read and output the non-compressed data
@@ -1552,7 +1593,7 @@ package body UnZip.Decompress is
         exception
           when huft_out_of_memory | huft_error =>
             HufT_free( Tl );
-            raise Zip.Zip_file_Error;
+            raise Zip.Archive_corrupted;
         end;
         --  Decompress the block's data, until an end-of-block code.
         Inflate_Codes ( Tl, Td, Bl, Bd );
@@ -1596,7 +1637,7 @@ package body UnZip.Decompress is
         procedure Repeat_length_code( amount: Natural ) is
         begin
           if defined + amount > number_of_lengths then
-            raise Zip.Zip_file_Error;
+            raise Zip.Archive_corrupted;
           end if;
           for c in reverse 1..amount loop
             Ll ( defined ) := current_length;
@@ -1615,10 +1656,10 @@ package body UnZip.Decompress is
         Nb :=   4 + UnZ_IO.Bit_buffer.Read_and_dump(4);
 
         if Nl > 288 or else Nd > 32 then
-          raise Zip.Zip_file_Error;
+          raise Zip.Archive_corrupted;
         end if;
 
-        -- Read in bit-length-code lengths.
+        -- Read in bit-length-code lengths for decoding the compression structure.
         -- The rest, Ll( Bit_Order( Nb .. 18 ) ), is already = 0
         for J in  0 .. Nb - 1  loop
           Ll ( bit_order_for_dynamic_block( J ) ) := UnZ_IO.Bit_buffer.Read_and_dump(3);
@@ -1632,43 +1673,61 @@ package body UnZip.Decompress is
           );
           if huft_incomplete then
             HufT_free(Tl);
-            Raise_Exception(Zip.Zip_file_Error'Identity, "Incomplete code set for compression structure");
+            Raise_Exception(Zip.Archive_corrupted'Identity, "Incomplete code set for compression structure");
           end if;
         exception
           when others =>
-            Raise_Exception(Zip.Zip_file_Error'Identity, "Error when building tables for compression structure");
+            Raise_Exception(Zip.Archive_corrupted'Identity, "Error when building tables for compression structure");
         end;
 
-        -- Read in literal and distance code lengths
+        -- Read in the compression structure: literal and distance code lengths
         number_of_lengths := Nl + Nd;
         defined := 0;
         current_length := 0;
 
         while  defined < number_of_lengths  loop
+          if Tl = null then
+            Raise_Exception(Zip.Archive_corrupted'Identity,
+            "Null table list (on compression structure)");
+          end if;
           CT:= Tl.table;
           CT_idx:= UnZ_IO.Bit_buffer.Read(Bl);
           UnZ_IO.Bit_buffer.Dump( CT(CT_idx).bits );
 
           case CT(CT_idx).n is
-            when 0..15 =>       -- length of code in bits (0..15)
+            when 0 .. 15 =>     --  Length of code for symbol of index 'defined', in bits (0..15)
               current_length:= CT(CT_idx).n;
               Ll (defined) := current_length;
               defined:= defined + 1;
-            when 16 =>          -- repeat last length 3 to 6 times
+            when 16 =>          --  16 means: repeat last bit length 3 to 6 times
+              if defined = 0 then
+                --  Nothing in the Ll array has been defined so far. Then, current_length is
+                --  (theoretically) undefined and cannot be repeated.
+                --  This unspecified case is treated as an error by zlib's inflate.c.
+                Raise_Exception (Zip.Archive_corrupted'Identity,
+                  "Illegal data for compression structure (repeat an undefined code length)");
+              end if;
               Repeat_length_code(3 + UnZ_IO.Bit_buffer.Read_and_dump(2));
-            when 17 =>          -- 3 to 10 zero length codes
+            when 17 =>          --  17 means: the next 3 to 10 symbols' codes have zero bit lengths
               current_length:= 0;
               Repeat_length_code(3 + UnZ_IO.Bit_buffer.Read_and_dump(3));
-            when 18 =>          -- 11 to 138 zero length codes
+            when 18 =>          --  18 means: the next 11 to 138 symbols' codes have zero bit lengths
               current_length:= 0;
               Repeat_length_code(11 + UnZ_IO.Bit_buffer.Read_and_dump(7));
             when others =>      --  Shouldn't occur if this tree is correct
-              if full_trace then
-                Ada.Text_IO.Put_Line("Illegal length code: " & Integer'Image(CT(CT_idx).n));
-              end if;
+              Raise_Exception(Zip.Archive_corrupted'Identity,
+                "Illegal data for compression structure (values should be in the range 0 .. 18): "
+                & Integer'Image(CT(CT_idx).n));
           end case;
         end loop;
+        --  Free the Huffman tree that was used for decoding the compression
+        --  structure, which is contained now in Ll.
         HufT_free ( Tl );
+        if Ll (256) = 0 then
+          --  No code length for the End-Of-Block symbol, implies infinite stream!
+          --  This case is unspecified but obviously we must stop here.
+          Raise_Exception(Zip.Archive_corrupted'Identity, "No code for End-Of-Block symbol #256");
+        end if;
         --  Build the decoding tables for literal/length codes
         Bl := Lbits;
         begin
@@ -1679,11 +1738,11 @@ package body UnZip.Decompress is
           );
           if huft_incomplete then
             HufT_free(Tl);
-            Raise_Exception(Zip.Zip_file_Error'Identity, "Incomplete code set for literals/lengths");
+            Raise_Exception(Zip.Archive_corrupted'Identity, "Incomplete code set for literals/lengths");
           end if;
         exception
           when others =>
-            Raise_Exception(Zip.Zip_file_Error'Identity, "Error when building tables for literals/lengths");
+            Raise_Exception(Zip.Archive_corrupted'Identity, "Error when building tables for literals/lengths");
         end;
         --  Build the decoding tables for distance codes
         Bd := Dbits;
@@ -1695,7 +1754,7 @@ package body UnZip.Decompress is
           );
           if huft_incomplete then
             if deflate_strict then
-              Raise_Exception(Zip.Zip_file_Error'Identity, "Incomplete code set for distances");
+              Raise_Exception(Zip.Archive_corrupted'Identity, "Incomplete code set for distances");
             elsif some_trace then  --  not deflate_strict => don't stop
               Ada.Text_IO.Put_Line("Huffman tree incomplete - PKZIP 1.93a bug workaround");
             end if;
@@ -1703,7 +1762,7 @@ package body UnZip.Decompress is
         exception
           when huft_out_of_memory | huft_error =>
             HufT_free(Tl);
-            Raise_Exception(Zip.Zip_file_Error'Identity, "Error when building tables for distances");
+            Raise_Exception(Zip.Archive_corrupted'Identity, "Error when building tables for distances");
         end;
         --  Decompress the block's data, until an end-of-block code.
         Inflate_Codes ( Tl, Td, Bl, Bd );
@@ -1726,7 +1785,7 @@ package body UnZip.Decompress is
                          fix:= fix + 1;
           when 2 =>      Inflate_dynamic_block;
                          dyn:= dyn + 1;
-          when others => raise Zip.Zip_file_Error; -- Bad block type (3)
+          when others => raise Zip.Archive_corrupted; -- Bad block type (3)
         end case;
       end Inflate_Block;
 
@@ -1786,15 +1845,22 @@ package body UnZip.Decompress is
             UnZ_IO.Flush_if_full(UnZ_Glob.slide_index);
           end loop;
         end Write;
-        package My_BZip2 is new BZip2
+        package My_BZip2 is new BZip2.Decoding
           ( Buffer    => BZ_Buffer,
-            check_CRC => False, -- Already done by UnZ_IO
+            check_CRC => False,  --  CRC check is already done by UnZ_IO
             Read      => Read,
             Write     => Write
           );
       begin
         My_BZip2.Decompress;
         UnZ_IO.Flush( UnZ_Glob.slide_index );
+      exception
+        when E: My_BZip2.bad_header_magic | My_BZip2.bad_block_magic | My_BZip2.data_error =>
+          Raise_Exception(Zip.Archive_corrupted'Identity,
+            "BZip2 error: " & Exception_Name(E) & " - " & Exception_Message(E));
+        when E: My_BZip2.randomized_not_yet_implemented =>
+          Raise_Exception(UnZip.Unsupported_method'Identity,
+            "BZip2: " & Exception_Name(E) & " - " & Exception_Message(E));
       end Bunzip2;
 
       --------[ Method: LZMA ]--------
@@ -1809,7 +1875,7 @@ package body UnZip.Decompress is
           UnZ_IO.Flush_if_full(UnZ_Glob.slide_index);
         end Write_Byte;
         --
-        package My_LZMA_Decoding is new LZMA_Decoding(UnZ_IO.Read_byte_decrypted, Write_Byte);
+        package My_LZMA_Decoding is new LZMA.Decoding(UnZ_IO.Read_byte_decrypted, Write_Byte);
         b3, b4: Unsigned_8;
       begin
         b3:= UnZ_IO.Read_byte_decrypted; -- LZMA SDK major version (e.g.: 9)
@@ -1817,18 +1883,19 @@ package body UnZip.Decompress is
         b3:= UnZ_IO.Read_byte_decrypted; -- LZMA properties size low byte
         b4:= UnZ_IO.Read_byte_decrypted; -- LZMA properties size high byte
         if Natural(b3) + 256 * Natural(b4) /= 5 then
-          Raise_Exception(Zip.Zip_file_Error'Identity, "Unexpected LZMA properties block size");
+          Raise_Exception(Zip.Archive_corrupted'Identity, "Unexpected LZMA properties block size");
         end if;
         My_LZMA_Decoding.Decompress(
           (has_size               => False,
-           given_size             => My_LZMA_Decoding.Data_Bytes_Count(UnZ_Glob.uncompsize),
+           given_size             => LZMA.Data_Bytes_Count (UnZ_Glob.uncompsize),
            marker_expected        => explode_slide_8KB_LZMA_EOS,
            fail_on_bad_range_code => True)
         );
         UnZ_IO.Flush( UnZ_Glob.slide_index );
       exception
         when E: My_LZMA_Decoding.LZMA_Error =>
-          Raise_Exception(Zip.Zip_file_Error'Identity, "LZMA error: " & Exception_Message(E));
+          Raise_Exception(Zip.Archive_corrupted'Identity,
+            "LZMA error: " & Exception_Name(E) & " - " & Exception_Message(E));
       end LZMA_Decode;
 
     end UnZ_Meth;
@@ -1855,7 +1922,7 @@ package body UnZip.Decompress is
       Zip.Headers.Copy_and_check( dd_buffer, dd );
     exception
       when Zip.Headers.bad_data_descriptor =>
-        raise Zip.Zip_file_Error;
+        raise Zip.Archive_corrupted;
     end Process_descriptor;
 
     work_index: Zip_Streams.ZS_Index_Type;
@@ -1910,7 +1977,7 @@ package body UnZip.Decompress is
           Zip_Streams.Set_Index ( zip_file, work_index );
         exception
           when others =>
-            raise Read_Error;
+            Raise_Exception(UnZip.Read_Error'Identity, "Failure after password interaction");
         end;
         UnZ_IO.Init_Buffers;
       end loop password_passes;
@@ -1929,8 +1996,8 @@ package body UnZip.Decompress is
         when deflate | deflate_e =>
           UnZ_Meth.deflate_e_mode:= format = deflate_e;
           UnZ_Meth.Inflate;
-        when Zip.bzip2 => UnZ_Meth.Bunzip2;
-        when Zip.lzma  => UnZ_Meth.LZMA_Decode;
+        when Zip.bzip2     => UnZ_Meth.Bunzip2;
+        when Zip.lzma_meth => UnZ_Meth.LZMA_Decode;
         when others =>
           Raise_Exception(Unsupported_method'Identity,
              "Format/method " & PKZip_method'Image(format) & " not supported for decompression");

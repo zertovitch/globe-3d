@@ -3,6 +3,34 @@
 --  Contributed by ITEC - NXP Semiconductors
 --  June 2008
 --
+
+--  Legal licensing note:
+
+--  Copyright (c) 2008 .. 2018 Gautier de Montmollin (maintainer)
+--  SWITZERLAND
+
+--  Permission is hereby granted, free of charge, to any person obtaining a copy
+--  of this software and associated documentation files (the "Software"), to deal
+--  in the Software without restriction, including without limitation the rights
+--  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+--  copies of the Software, and to permit persons to whom the Software is
+--  furnished to do so, subject to the following conditions:
+
+--  The above copyright notice and this permission notice shall be included in
+--  all copies or substantial portions of the Software.
+
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+--  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+--  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+--  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+--  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+--  THE SOFTWARE.
+
+-- NB: this is the MIT License, as found 21-Aug-2016 on the site
+-- http://www.opensource.org/licenses/mit-license.php
+
+--
 --  Change log:
 --  ==========
 --
@@ -24,10 +52,12 @@
 --   4-Feb-2009: GdM: Added procedure Add_File
 --
 
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Zip.Headers; use Zip.Headers;
 with Zip.Compress; use Zip.Compress;
 with Zip_Streams; use Zip_Streams;
+
+with Ada.Containers.Hashed_Maps;
+with Ada.Strings.Unbounded.Hash;
 
 package Zip.Create is
 
@@ -38,7 +68,7 @@ package Zip.Create is
    procedure Create(Info          : out Zip_Create_info;
                     Z_Stream      : in Zipstream_Class_Access;
                     Name          : String;
-                    Compress      : Zip.Compress.Compression_Method:= Zip.Compress.Shrink;
+                    Compress      : Zip.Compress.Compression_Method:= Zip.Compress.Deflate_1;
                     Duplicates    : Duplicate_name_policy:= admit_duplicates
    );
 
@@ -52,7 +82,7 @@ package Zip.Create is
 
    function Name(Info: Zip_Create_info) return String;
 
-   -- Add a new entry to a Zip archive, from a general Zipstream
+   -- Add a new entry to a Zip archive, from a general input Zipstream
 
    procedure Add_Stream (Info     : in out Zip_Create_info;
                          Stream   : in out Root_Zipstream_Type'Class;
@@ -93,6 +123,8 @@ package Zip.Create is
                          Creation_time     : Zip.Time:= default_time
    );
 
+   use Ada.Strings.Unbounded;
+
    procedure Add_String (Info              : in out Zip_Create_info;
                          Contents          : Unbounded_String;
                          Name_in_archive   : String;
@@ -103,20 +135,29 @@ package Zip.Create is
                          Creation_time     : Zip.Time:= default_time
    );
 
-   -- Add a new entry to a Zip archive, copied from another Zip archive.
-   -- The stream is set at the beginning of a local header in the archive.
-
+   --  Add a new entry to a Zip archive, copied from another Zip archive.
+   --  This is useful for duplicating archives with some differences, like adding, replacing,
+   --  removing or recompressing entries - see the AZip file manager for an application example.
+   --  The streams' indices are set at the beginning of local headers in both archives.
+   --
    procedure Add_Compressed_Stream (
-     Info           : in out Zip_Create_info;
-     Stream         : in out Root_Zipstream_Type'Class;
+     Info           : in out Zip_Create_info;            --  Destination
+     Stream         : in out Root_Zipstream_Type'Class;  --  Source
      Feedback       : in     Feedback_proc
    );
 
-   -- Complete the Zip archive; close the file if the stream is a file
+   --  Complete the Zip archive; close the file if the stream is a file
 
    procedure Finish (Info       : in out Zip_Create_info);
 
+   --  The following is raised on cases when the Zip archive creation exceeds
+   --  the Zip_32 format's capacity: 4GB total size, 65535 entries.
+
+   Zip_Capacity_Exceeded : exception;
+
 private
+
+   type p_String is access String;
 
    type Dir_entry is record
       head : Zip.Headers.Central_File_Header;
@@ -126,22 +167,22 @@ private
    type Dir_entries is array (Positive range <>) of Dir_entry;
    type Pdir_entries is access Dir_entries;
 
-   type Dir_node;
-   type p_Dir_node is access Dir_node;
-   type Dir_node(name_len: Natural) is record
-     left, right      : p_Dir_node;
-     file_name        : String(1..name_len);
-   end record;
+   --  The use of Hashed_Maps makes Test_Zip_Create_Info_Timing run ~10x faster than
+   --  with the unbalanced binary tree of previous versions.
+   --
+   package Name_mapping is
+     new Ada.Containers.Hashed_Maps (Unbounded_String, Positive, Hash, "=");
 
    type Zip_Create_info is record
-      Stream     : Zipstream_Class_Access;
-      Compress   : Zip.Compress.Compression_Method;
-      Contains   : Pdir_entries:= null;
-      --  'Contains' has unused room, to avoid reallocating each time:
-      Last_entry : Natural:= 0;
-      Duplicates : Duplicate_name_policy;
-      --  We set up a name dictionary just for avoiding duplicate entries:
-      dir        : p_Dir_node:= null;
+     Stream             : Zipstream_Class_Access;
+     Compress           : Zip.Compress.Compression_Method;
+     Contains           : Pdir_entries := null;
+     --  'Contains' has unused room, to avoid reallocating each time:
+     Last_entry         : Natural := 0;
+     Duplicates         : Duplicate_name_policy;
+     --  We set up a name dictionary just for avoiding duplicate entries:
+     dir                : Name_mapping.Map;
+     zip_archive_format : Zip_archive_format_type := Zip_32;
    end record;
 
 end Zip.Create;

@@ -1,15 +1,44 @@
---  ________  ___   ______       ______     ___
--- /___..._/  |.|   |.___.\     /. __ .\  __|.|   ____
---    /../    |.|   |.____/     |.|__|.| /....|  __\..\
---  _/../___  |.|   |.|    ===  |..__..||. = .| | = ..|
--- /_______/  |_|  /__|        /__|  |_| \__\_|  \__\_|
+--  ________  ___   ______       ______      ___
+-- /___..._/  |.|   |.___.\     /. __ .\   __|.|   ____
+--    /../    |.|   |.____/     |.|__|.|  /....|  __\..\
+--  _/../___  |.|   |.|    ===  |..__..| |. = .| | = ..|
+-- /_______/  |_|  /__|        /__|  |_|  \__\_|  \__\_|
 
--- This package provides:
+--  Zip.Headers
+---------------
+--
+--  This package provides:
 --
 -- * Definiton of PKZIP information structures (cf appnote.txt),
 -- * Reading a header from a data stream (Read_and_check),
 -- * Copying a header from a buffer (Copy_and_check)
 -- * Writing a header to a data stream (Write)
+
+-- Legal licensing note:
+
+--  Copyright (c) 2000 .. 2018 Gautier de Montmollin
+--  SWITZERLAND
+
+--  Permission is hereby granted, free of charge, to any person obtaining a copy
+--  of this software and associated documentation files (the "Software"), to deal
+--  in the Software without restriction, including without limitation the rights
+--  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+--  copies of the Software, and to permit persons to whom the Software is
+--  furnished to do so, subject to the following conditions:
+
+--  The above copyright notice and this permission notice shall be included in
+--  all copies or substantial portions of the Software.
+
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+--  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+--  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+--  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+--  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+--  THE SOFTWARE.
+
+-- NB: this is the MIT License, as found on the site
+-- http://www.opensource.org/licenses/mit-license.php
 
   -- Some quick explanations about the Zip file structure - GdM 2001, 2012
   --
@@ -97,8 +126,15 @@ package Zip.Headers is
   -- PKZIP local file header, in front of every file in archive - PK34 --
   -----------------------------------------------------------------------
 
-  Encryption_Flag_Bit        : constant := 2** 0;
-  Language_Encoding_Flag_Bit : constant := 2**11;
+  --  Appnote: 4.4.4 general purpose bit flag: (2 bytes)
+  --
+  --  Bit 0:  If set, indicates that the file is encrypted.
+  Encryption_Flag_Bit        : constant := 2 **  0;
+  --  Bit 1:  If set, indicates an EOS marker is used.
+  LZMA_EOS_Flag_Bit          : constant := 2 **  1;
+  --  Bit 11: Language encoding flag (EFS). If this bit is set, the filename and
+  --          comment fields for this file MUST be encoded using UTF-8.
+  Language_Encoding_Flag_Bit : constant := 2 ** 11;
 
   type Local_File_Header is record
     -- PK34                                --  1.. 4
@@ -184,14 +220,17 @@ package Zip.Headers is
     -- The real offset of the end-of-central-dir
     -- will be N + central_dir_size + central_dir_offset.
     -- This way, we have an unique chance to determine N when reading the
-    -- end-of-central-dir. N is stored in the field hereafter.
-    offset_shifting    : Unsigned_32;
+    -- end-of-central-dir. N is stored in the field hereafter:
+    offset_shifting    : ZS_Size_Type;  --  NB: type is at least 32 bits.
   end record;
 
   end_of_central_dir_length : constant:= 22;
 
-  -- This header needs to be read in special
-  -- ways (see Load) -> access to a buffer
+  --  The End-of-Central-Dir header is followed by a comment of
+  --  unkown size and hence needs to be searched in special ways (see Load).
+
+  --  Copy_and_check and Read_and_check assume a buffer or a stream
+  --  pointing to the End-of-Central-Dir signature.
   procedure Copy_and_check(
     buffer  : in     Byte_Buffer;
     the_end :    out End_of_Central_Dir
@@ -204,8 +243,7 @@ package Zip.Headers is
 
   bad_end: exception;
 
-  -- A bit more elaborated: from an open file (not a stream),
-  -- find the End-of-Central-dir and load it; keep the file open.
+  --  A bit more elaborated variant: find the End-of-Central-Dir and load it.
   procedure Load(
     stream  : in out Root_Zipstream_Type'Class;
     the_end :    out End_of_Central_Dir
