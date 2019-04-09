@@ -99,7 +99,7 @@ package body GLOBE_3D.Textures is
       -- Tip: use rather the TGA format: single, better compression in the Zip archive.
       Try_image_type(tex_name & ".GIF");
     exception
-      when Zip.Zip_file_open_Error =>
+      when Zip.Zip_file_open_error =>
         null;
     end Try_archive;
   begin
@@ -217,7 +217,7 @@ package body GLOBE_3D.Textures is
       Traverse(zif);
       -- That's it!
     exception
-      when Zip.Zip_file_open_Error =>
+      when Zip.Zip_file_open_error =>
         null;
     end Register;
 

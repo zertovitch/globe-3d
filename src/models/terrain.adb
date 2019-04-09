@@ -21,7 +21,7 @@ package body Terrain is
          end loop;
       end loop;
 
-      Free (the_Image.Data);
+      Free (the_Image.data);
 
       return the_Heights;
    end to_Matrix;

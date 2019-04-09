@@ -1,26 +1,29 @@
-------------------------------------------------------------------------------
+------------------------------------------------------------------
 --  File:            GL-IO.ads
 --  Description:     I/O for (Open)GL graphics
 --
---                   This package provides currently:
+--  This package provides currently:
 --
---                   ******************************************************
---                   * INPUT * from a file or a data stream, to a texture *
---                   ******************************************************
+--  ******************************************************
+--  * INPUT * from a file or a data stream, to a texture *
+--  ******************************************************
 --
---                    - TGA image: RGA, RGBA, Grey
---                    - BMP image: B&W, 16 colours indexed (palette),
---                        256 colours indexed
+--   - BMP, GIF, JPEG, PNG, PNM, TGA images, including
+--     transparency for TGA, PNG (alpha level) and GIF (on/off)
 --
---                   ***************************************************
---                   * OUTPUT * from the GL active viewport, to a file *
---                   ***************************************************
+--  ***************************************************
+--  * OUTPUT * from the GL active viewport, to a file *
+--  ***************************************************
 --
---                    - BMP image: screenshot
---                    - AVI video: video capture
+--   - BMP image: screenshot
+--   - AVI video: video capture
 --
-------------------------------------------------------------------------------
+------------------------------------------------------------------
 -- Change log:
+--
+-- 21-Jun-2016 (GdM): GL.IO image input switched to GID ( http://gen-img-dec.sf.net/ )
+--                      format support extended from TGA & indexed BMP to the
+--                      formats listed above.
 --
 -- 19-Jan-2010 (GdM): using workaround to the slow attribute I/O issue (GNAT,OA);
 --                      buffered input; improvements on BMP
@@ -56,21 +59,26 @@ package GL.IO is
 
   type Image is
     record
-      blending_hint    : Boolean;        -- has the image blending / transparency /alpha ?
-      tex_Format       : GL.TexFormatEnm;
-      tex_pixel_Format : GL.TexPixelFormatEnm;
+      blending_hint    : Boolean;        -- has the image blending / transparency / alpha ?
+      tex_format       : GL.TexFormatEnm;
+      tex_pixel_format : GL.TexPixelFormatEnm;
       size             : Integer;
-      Width,
-      Height           : Integer;
-      Data             : Byte_array_ptr;
+      width            : Integer;  --  Some hardware assume a multiple of 2 or 4, or a power of 2.
+      height           : Integer;  --  Same for height (less likely).
+      data             : Byte_array_ptr;
     end record;
+
+
+  function To_greyscale_pixels (the_Image : in Image) return Byte_grid;
+
+  --  Input from a file or a stream to an object of the Image type.
 
   function Load (file_name : in  String) return Image;
   function Load (S : in  Ada.Streams.Stream_IO.Stream_Access ) return Image;
 
-  function To_greyscale_pixels (the_Image : in Image) return Byte_grid;
-
-  -- Multi-format loader:
+  --  Input from a file or a stream to GL, using a given identifier.
+  --  NB: Some hardware assume an image width of a multiple of 2 or 4, or a power of 2.
+  --      Display can appear slanted otherwise. Same for height (less likely).
 
   procedure Load (
     file_name    :     String;

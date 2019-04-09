@@ -1,6 +1,6 @@
 --
 -- Input:
---   Uses GID, the Generic Image Decoder ( http://gen-img-dec.sourceforge.net/ )
+--   Uses GID, the Generic Image Decoder ( http://gen-img-dec.sf.net/ )
 --
 -- Output:
 --   BMP : from http://wiki.delphigl.com/index.php/Screenshot (Delphi)
@@ -27,14 +27,14 @@ package body GL.IO is
 
   function To_greyscale_pixels (the_Image : in Image) return Byte_grid
   is
-     the_Grid : Byte_grid (1 .. the_Image.Height, 1 .. the_Image.Width);
+     the_Grid : Byte_grid (1 .. the_Image.height, 1 .. the_Image.width);
   begin
-     case the_Image.tex_pixel_Format is
+     case the_Image.tex_pixel_format is
         when GL.LUMINANCE =>
 
            for Row in the_Grid'Range (1) loop
               for Col in the_Grid'Range (2) loop
-                 the_Grid (Row, Col) := the_Image.Data (the_Image.Width * (Row - 1) + Col - 1);
+                 the_Grid (Row, Col) := the_Image.data (the_Image.width * (Row - 1) + Col - 1);
               end loop;
            end loop;
 
@@ -174,7 +174,7 @@ package body GL.IO is
 
       procedure Set_X_Y (x, y: Natural) is
       begin
-        idx:= (bit_depth / 8) * (x + the_Image.Width * y);
+        idx:= (bit_depth / 8) * (x + the_Image.width * y);
       end Set_X_Y;
       --
       procedure Put_Pixel (
@@ -186,13 +186,13 @@ package body GL.IO is
       begin
         case bit_depth is  --  This test happens actually at compile time :-)
           when 32 =>
-            the_Image.Data(idx..idx+3):= (red, green, blue, alpha);
+            the_Image.data(idx..idx+3):= (red, green, blue, alpha);
             idx:= idx + 4;  -- Index on next pixel on the right, for next time.
           when 24 =>
-            the_Image.Data(idx..idx+2):= (red, green, blue);
+            the_Image.data(idx..idx+2):= (red, green, blue);
             idx:= idx + 3;  -- Index on next pixel on the right, for next time.
           when  8 =>
-            the_Image.Data(idx):= red;  --  = green = blue
+            the_Image.data(idx):= red;  --  = green = blue
             idx:= idx + 1;  -- Index on next pixel on the right, for next time.
           when others =>
             null;
@@ -220,10 +220,10 @@ package body GL.IO is
   begin
     --  TGA files are headerless, so, "know your data!"
     GID.Load_image_header(im_desc, S.all, try_tga => True);
-    the_Image.Width:=  GID.Pixel_width(im_desc);
-    the_Image.Height:= GID.Pixel_height(im_desc);
+    the_Image.width:=  GID.Pixel_width(im_desc);
+    the_Image.height:= GID.Pixel_height(im_desc);
     imageBits   := GID.Bits_per_pixel(im_desc);
-    the_Image.size := the_Image.Width * the_Image.Height;
+    the_Image.size := the_Image.width * the_Image.height;
     --
     --  Now a little headache.
     --
@@ -246,23 +246,23 @@ package body GL.IO is
     end case;
 
     -- Allocation
-    the_Image.Data:= new Byte_array(0..(dest_bits/8)*the_Image.size-1);
+    the_Image.data:= new Byte_array(0..(dest_bits/8)*the_Image.size-1);
     case dest_bits is
       when 32 =>
         GID_32bpp(im_desc);
         the_Image.blending_hint:= True;
-        the_Image.tex_Format      := GL.RGBA;
-        the_Image.tex_pixel_Format:= GL.RGBA;
+        the_Image.tex_format      := GL.RGBA;
+        the_Image.tex_pixel_format:= GL.RGBA;
       when 24 =>
         GID_24bpp(im_desc);
         the_Image.blending_hint:= False;
-        the_Image.tex_Format      := GL.RGB;
-        the_Image.tex_pixel_Format:= GL.RGB;
+        the_Image.tex_format      := GL.RGB;
+        the_Image.tex_pixel_format:= GL.RGB;
       when 4 | 8  =>
         GID_8bpp(im_desc);
         the_Image.blending_hint:= True;
-        the_Image.tex_Format      := GL.LUMINANCE; -- ALPHA
-        the_Image.tex_pixel_Format:= GL.LUMINANCE;
+        the_Image.tex_format      := GL.LUMINANCE; -- ALPHA
+        the_Image.tex_pixel_format:= GL.LUMINANCE;
       when others =>
         raise Constraint_Error with "BPP not supported" & Integer'Image(imageBits);
     end case;
@@ -320,14 +320,14 @@ package body GL.IO is
     Insert_into_GL(
               id             => ID,
               size           => the_Image.size,
-              width          => the_Image.Width,
-              height         => the_Image.Height,
-              texFormat      => the_Image.tex_Format,
-              texPixelFormat => the_Image.tex_pixel_Format,
-              image_p        => the_Image.Data
+              width          => the_Image.width,
+              height         => the_Image.height,
+              texFormat      => the_Image.tex_format,
+              texPixelFormat => the_Image.tex_pixel_format,
+              image_p        => the_Image.data
     );
     --  Release our data, its been uploaded to the GL system
-    Free( the_Image.Data );
+    Free( the_Image.data );
     blending_hint := the_Image.blending_hint;
   end Load;
 
