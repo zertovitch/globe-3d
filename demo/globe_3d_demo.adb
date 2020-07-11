@@ -74,14 +74,15 @@ procedure GLOBE_3D_Demo is
   frontal_light: G3D.Light_definition;
 
   procedure Prepare_demo_lighting(fact: GL.Float) is
-    use GL, G3D;
+    use G3D;
+    use type GL.Float;
     proto_light: Light_definition:=
       (position => (3.0, 4.0, 10.0, 1.0),
        ambient  => (0.2, 0.2, 0.2, fact),
        diffuse  => (0.9, 0.9, 0.9, fact),  -- +/- a bulb
        specular => (0.8, 0.8, 0.8, fact)); -- +/- a flashlight
   begin
-    Enable( LIGHTING );
+    GL.Enable( GL.LIGHTING );
     G3D.Define( 1, proto_light);
     frontal_light:= proto_light;
     proto_light.diffuse:= (0.5, 0.9, 0.5, fact);

@@ -158,7 +158,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
             Self.impostor_load_Slots (Each).impostors_Count := 0;        -- empty each slot's contents.
          end loop;
 
-         Self.Viewer.enable;                       -- for multi-window operation (tbd: check this is needed)
+         Self.Viewer.Enable;                       -- for multi-window operation (tbd: check this is needed)
 
          for Each in 1 .. Last loop
             declare
@@ -248,7 +248,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
             end;
          end loop;
 
-         Self.Viewer.freshen (time_Step => By,
+         Self.Viewer.Freshen (Time_Step => By,
                               Extras    => the_Sprites (1 .. new_Last));
       end;
 

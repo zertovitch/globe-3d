@@ -24,7 +24,7 @@ package body GLOBE_3D is
    procedure Add_Normal_of_3p (o             : in     Object_3D'Class;
                                Pn0, Pn1, Pn2 : in     Integer;
                                N             : in out Vector_3D) is
-      use GL, GL.Math, GLOBE_3D.Aux;
+      use GL.Math, GLOBE_3D.Aux;
 
       function Params return String is
       begin
@@ -157,7 +157,7 @@ package body GLOBE_3D is
   --------------------------------------------
 
   overriding procedure Pre_calculate(o: in out Object_3D) is
-    use GL, GL.Math, GLOBE_3D.Aux;
+    use GL.Math, GLOBE_3D.Aux;
 
     N: Vector_3D;
     length_N : Real;
@@ -318,7 +318,7 @@ package body GLOBE_3D is
   end Pre_calculate;
 
   procedure Arrow(P: Point_3D; D: Vector_3D) is
-    use GL, GL.Math;
+    use GL.Math;
     V,V1,V2: Vector_3D;
   begin
     if Almost_zero(Norm2(D)) then
@@ -328,14 +328,14 @@ package body GLOBE_3D is
     if Almost_zero(Norm2(V)) then -- bad luck, it is zero
       V:= (0.0,-D(2),D(1));       -- 2nd try
     end if;
-    V:= (0.2/Norm(V)) * V;
-    V1:= 0.7*D + V;
-    V2:= 0.7*D - V;
-    GL_Begin(GL.LINES);
-    Vertex(P+D);    Vertex(P);
-    Vertex(P+D);    Vertex(P+V1);
-    Vertex(P+D);    Vertex(P+V2);
-    GL_End;
+    V := (0.2/Norm(V)) * V;
+    V1 := 0.7 * D + V;
+    V2 := 0.7 * D - V;
+    GL.GL_Begin(GL.LINES);
+    GL.Vertex(P+D);    GL.Vertex(P);
+    GL.Vertex(P+D);    GL.Vertex(P+V1);
+    GL.Vertex(P+D);    GL.Vertex(P+V2);
+    GL.GL_End;
   end Arrow;
 
   shiny_material :
@@ -373,22 +373,22 @@ package body GLOBE_3D is
     end Display_face_optimized;
 
     package body Display_face_optimized is
-      use GL, GL.Materials;
+      use GL.Materials;
 
       procedure Draw_polygon (fa: Face_type; fi: Face_internal_type) is
       begin
         case fi.last_edge is
-          when 3 => GL_Begin( TRIANGLES );
-          when 4 => GL_Begin( QUADS );
+          when 3 => GL.GL_Begin( GL.TRIANGLES );
+          when 4 => GL.GL_Begin( GL.QUADS );
         end case;
         for i in 1..fi.last_edge loop
           if is_textured(fa.skin) then
-            TexCoord(fi.UV_extrema(i).U, fi.UV_extrema(i).V);
+            GL.TexCoord (fi.UV_extrema(i).U, fi.UV_extrema(i).V);
           end if;
-          Normal(o.edge_vector(fi.P_compact(i)));
-          Vertex(o.point(fi.P_compact(i)));
+          GL.Normal (o.edge_vector(fi.P_compact(i)));
+          GL.Vertex (o.point(fi.P_compact(i)));
         end loop;
-        GL_End;
+        GL.GL_End;
       end Draw_polygon;
 
       procedure Display_face (First_Face : Boolean; fa: Face_type; fi: in out Face_internal_type) is
@@ -397,9 +397,9 @@ package body GLOBE_3D is
         procedure Display_texture_label(name: Ident; p: Point_3D) is
           use GL.Simple_text;
         begin
-          Disable( TEXTURE_2D );
+          GL.Disable ( GL.TEXTURE_2D );
           Text_output(p, name, (0.7, 0.7, 0.9, 1.0), 5.0, Sans_Serif);
-          Enable( TEXTURE_2D );
+          GL.Enable ( GL.TEXTURE_2D );
         end Display_texture_label;
 
       begin -- Display_face
@@ -423,7 +423,7 @@ package body GLOBE_3D is
         then
           case fa.skin is
             when material_only | material_texture =>
-              Disable(COLOR_MATERIAL);
+              GL.Disable (GL.COLOR_MATERIAL);
               Set_Material(fa.material);
             when invisible =>
               null;  --  NB: this case doesn't happen since procedure was quitted before
@@ -444,10 +444,10 @@ package body GLOBE_3D is
             when material_only | material_texture =>
               null; -- done above
             when colour_only | coloured_texture =>
-              Enable(COLOR_MATERIAL);
-              ColorMaterial(FRONT_AND_BACK, AMBIENT_AND_DIFFUSE);
+              GL.Enable (GL.COLOR_MATERIAL);
+              GL.ColorMaterial (GL.FRONT_AND_BACK, GL.AMBIENT_AND_DIFFUSE);
             when texture_only =>
-              Disable(COLOR_MATERIAL);
+              GL.Disable (GL.COLOR_MATERIAL);
             when invisible =>
               null;
           end case;
@@ -460,7 +460,7 @@ package body GLOBE_3D is
                           GL.Math.Almost_zero(fa.alpha - Previous_face.alpha))
            )
         then
-          Color(
+          GL.Color (
                 red   => fa.colour.red,
                 green => fa.colour.green,
                 blue  => fa.colour.blue,
@@ -487,9 +487,9 @@ package body GLOBE_3D is
         then
           case fa.skin is
             when texture_only | coloured_texture | material_texture =>
-              Enable( TEXTURE_2D );
+              GL.Enable ( GL.TEXTURE_2D );
             when colour_only | material_only =>
-              Disable( TEXTURE_2D );
+              GL.Disable ( GL.TEXTURE_2D );
             when invisible =>
               null;
           end case;
@@ -504,7 +504,7 @@ package body GLOBE_3D is
                 )
           )
         then
-          BindTexture( TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.texture)+1) );
+          GL.BindTexture ( GL.TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.texture)+1) );
         end if;
 
         ------------------------------------------
@@ -516,13 +516,13 @@ package body GLOBE_3D is
           or else fi.blending /= Previous_face_internal.blending
         then
           if fi.blending then
-            Enable( BLEND ); -- See 4.1.7 Blending
-            BlendFunc( sfactor => SRC_ALPHA,
-                       dfactor => ONE_MINUS_SRC_ALPHA );
+            GL.Enable ( GL.BLEND ); -- See 4.1.7 Blending
+            GL.BlendFunc ( sfactor => GL.SRC_ALPHA,
+                           dfactor => GL.ONE_MINUS_SRC_ALPHA );
             -- Disable( DEPTH_TEST );
             -- Disable( CULL_FACE );
           else
-            Disable( BLEND );
+            GL.Disable ( GL.BLEND );
             -- Enable( DEPTH_TEST );
             -- Enable( CULL_FACE );
             -- CullFace( BACK );
@@ -550,7 +550,7 @@ package body GLOBE_3D is
         if is_textured(fa.skin) and then fa.specular_map /= null_image then
           G3DT.Check_2D_texture(fa.specular_map, blending_hint);
           if fa.specular_map /= Previous_specular_face.specular_map then
-            BindTexture( TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.specular_map)+1) );
+            GL.BindTexture ( GL.TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.specular_map)+1) );
           end if;
           --  NB: display only works when setting GL.DepthFunc(GL.LEQUAL)
           --  Default is GL.LESS, and thus only first texture per face will be drawn.
@@ -562,7 +562,7 @@ package body GLOBE_3D is
     end Display_face_optimized;
 
     procedure Display_normals is
-      use GL, GL.Math;
+      use GL.Math;
       C: Vector_3D;
     begin
       GL.Color( 0.5, 0.5, 1.0, 1.0);
@@ -583,15 +583,16 @@ package body GLOBE_3D is
     end Display_normals;
 
     procedure Set_for_specular is
-      use GL, GL.Materials;
+      use GL.Materials;
     begin
-      Disable(COLOR_MATERIAL);
-      Set_Material(shiny_material);
-      Enable( BLEND );
-      BlendFunc( sfactor => ONE, dfactor => ONE );
+      GL.Disable (GL.COLOR_MATERIAL);
+      Set_Material (shiny_material);
+      GL.Enable ( GL.BLEND );
+      GL.BlendFunc ( sfactor => GL.ONE, dfactor => GL.ONE );
     end Set_for_specular;
 
-    use GL, G3DM;
+    use G3DM;
+    use type GL.ErrorEnm;
 
   begin -- Display_one
 
@@ -604,7 +605,7 @@ package body GLOBE_3D is
 
     --      gl.disableClientState (gl.TEXTURE_COORD_ARRAY);
     --      gl.disable    (ALPHA_TEST);
-    GL.Enable (LIGHTING);
+    GL.Enable (GL.LIGHTING);
 
     GL.PushMatrix; -- 26-May-2006: instead of rotating/translating back
     GL.Translate( o.centre );
@@ -616,7 +617,7 @@ package body GLOBE_3D is
         null;
       when Generate_List =>
         o.List_Id := Integer(GL.GenLists(1));
-        GL.NewList (GL.Uint (o.List_Id), COMPILE_AND_EXECUTE);
+        GL.NewList (GL.Uint (o.List_Id), GL.COMPILE_AND_EXECUTE);
     end case;
 
     --  List generation phase or execution.
@@ -649,7 +650,7 @@ package body GLOBE_3D is
         null;
       when Generate_List  =>
         GL.EndList;
-        if GL.GetError = OUT_OF_MEMORY then
+        if GL.GetError = GL.OUT_OF_MEMORY then
           o.List_Status := No_List;
         else
           o.List_Status := Is_List;
@@ -687,7 +688,7 @@ package body GLOBE_3D is
     )
     is
       procedure Try_portal(f: Positive) is
-        use GL, GL.Math;
+        use GL.Math;
         dot_product: Real;
         plane_to_eye: Vector_3D; -- vector from any point in plane to the eye
         bounding_of_face, intersection_clip_and_face: Clipping_area;
@@ -888,15 +889,14 @@ package body GLOBE_3D is
   -- lights: array( Light_ident ) of Light_definition;
   light_defined: array( Light_ident ) of Boolean:= (others => False);
 
-  procedure Define(which: Light_ident; as: Light_definition) is
-    id: constant GL.LightIDEnm:= GL.LightIDEnm'Val(which-1);
-    use GL;
+  procedure Define (which: Light_ident; as: Light_definition) is
+    id: constant GL.LightIDEnm := GL.LightIDEnm'Val(which-1);
   begin
     -- lights(which):= as;
-    Light( id, POSITION, as.position );
-    Light( id, AMBIENT,  as.ambient  );
-    Light( id, DIFFUSE,  as.diffuse  );
-    Light( id, SPECULAR, as.specular );
+    GL.Light ( id, GL.POSITION, as.position );
+    GL.Light ( id, GL.AMBIENT,  as.ambient  );
+    GL.Light ( id, GL.DIFFUSE,  as.diffuse  );
+    GL.Light ( id, GL.SPECULAR, as.specular );
     light_defined(which):= True;
   end Define;
 
@@ -943,7 +943,7 @@ package body GLOBE_3D is
       begin
         Zip.Load( zif, name );
       exception
-        when Zip.Zip_file_open_Error => -- Try with lower case:
+        when Zip.Zip_file_open_error => -- Try with lower case:
           Zip.Load( zif, To_Lower(name) );
       end;
     end if;

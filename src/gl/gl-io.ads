@@ -68,7 +68,6 @@ package GL.IO is
       data             : Byte_array_ptr;
     end record;
 
-
   function To_greyscale_pixels (the_Image : in Image) return Byte_grid;
 
   --  Input from a file or a stream to an object of the Image type.

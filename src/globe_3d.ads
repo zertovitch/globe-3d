@@ -476,9 +476,9 @@ package GLOBE_3D is
 
    type p_Window is access all Window'Class;
 
-  procedure enable  (Self      : in out Window) is abstract;
-  procedure freshen (Self      : in out Window;
-                     time_Step : in     GLOBE_3D.Real;
+  procedure Enable  (Self      : in out Window) is abstract;
+  procedure Freshen (Self      : in out Window;
+                     Time_Step : in     GLOBE_3D.Real;
                      Extras    : in     GLOBE_3D.Visual_array := GLOBE_3D.null_Visuals) is abstract;
 
   -- Exceptions

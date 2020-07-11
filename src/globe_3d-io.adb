@@ -467,13 +467,13 @@ package body GLOBE_3D.IO is
       Try( zif_level, S(level_data_name) );
     exception
       when Zip.File_name_not_found |
-           Zip.Zip_file_open_Error =>
+           Zip.Zip_file_open_error =>
         -- Not found in level-specific pack
         Try( zif_global, S(global_data_name) );
     end;
   exception
     when Zip.File_name_not_found |
-         Zip.Zip_file_open_Error =>
+         Zip.Zip_file_open_error =>
       -- Never found - neither in level, nor in global pack
       raise Missing_object with
         animal & " not found in any data resource pack: " & name_in_resource;
