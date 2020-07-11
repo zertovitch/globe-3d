@@ -48,6 +48,8 @@ copy /B globe_3d.zip globe_3d_release_%nice_date%.zip
 
 cd globe3d
 cd globe_3d
+cd g3d
+
 cd tools
 
 pause

@@ -2,7 +2,7 @@
 --  for the GLOBE_3D ( http://sf.net/projects/globe3d/ ) common tools
 --
 --        GLOBE_3D Web site:   http://globe3d.sf.net/
---         GLOBE_3D Mirror:    https://github.com/svn2github/GLOBE_3D
+--         GLOBE_3D Mirror:    https://github.com/zertovitch/globe-3d
 --
 --
 --  Build me with "gprbuild -P globe_3d_tools.gpr", or open me with GPS

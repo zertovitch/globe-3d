@@ -1,6 +1,6 @@
 @echo off
 echo.
-echo make_y: option -r writes doom3.y files from doom3.pry
+echo make_y: option -r writes doom3.y parser files from doom3.pry
 echo.
 if not "%1"=="-r" goto fin
 

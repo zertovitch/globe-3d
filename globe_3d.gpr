@@ -2,7 +2,7 @@
 --  for the GLOBE_3D project.
 --
 --        GLOBE_3D Web site:   http://globe3d.sf.net/
---         GLOBE_3D Mirror:    https://github.com/svn2github/GLOBE_3D
+--         GLOBE_3D Mirror:    https://github.com/zertovitch/globe-3d
 --
 project Globe_3D is
 

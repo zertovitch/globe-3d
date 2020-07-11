@@ -1,75 +1,62 @@
-rem for cleanacu: see gnatpaqs.zip on Gautier's Ada page
-rem
+@echo off
+
 rem go to g3d root:
 cd..
-rem
-cd obj
-cd gnat_debug
-rem We don't need to keep the .ali, GPS/GNATMAKE can now put all .ali/.o files in a single directory
-rem cleanacu
- del *.ali
- del *.o
-del b~*
-cd..
-cd gnat_fast
-rem We don't need to keep the .ali, GPS/GNATMAKE can now put all .ali/.o files in a single directory
-rem cleanacu
- del *.ali
- del *.o
-del b~*
-cd..
-cd gnat_small
-rem We don't need to keep the .ali, GPS/GNATMAKE can now put all .ali/.o files in a single directory
-rem cleanacu
- del *.ali
- del *.o
-del b~*
-cd..
-cd..
-cd demo
-rem del *.exe
-del *.#*
-del b~*
-del *.bak
-del *.bk.?
-cd..
+
+call :sub_clean_modes obj
+call :sub_clean_modes lib
+
+call :sub_clean demo
+call :sub_clean src
+
 cd src
-del *.bak
-del *.bk.?
-cd models
-del *.bak
-del *.bk.?
+call :sub_clean models
+call :sub_clean gaming
+call :sub_clean unzip
 cd..
-cd gaming
-del *.bak
-del *.bk.?
-cd..
-cd unzip
-del *.bak
-del *.bk.?
-cd..
-cd..
+
+call :sub_clean bindings
 cd bindings
-del *.bak
-del *.bk.?
+call :sub_clean win32
 cd win32
-del *.bak
-del *.bk.?
-cd gcc_fmt
-del *.bak
-del *.bk.?
+call :sub_clean gcc_fmt
 cd..
 cd..
-cd..
+
+call :sub_clean tools
 cd tools
-del *.bak
-del *.bk.?
-del b~*
-del *.ali
-del *.o
 cd vrml
 call cleanw2a
 cd..
 cd doom3
 call clean_doom
 cd..
+
+goto :eof
+
+:sub_clean_modes
+ cd %1
+    call :sub_clean gnat_debug
+    call :sub_clean gnat_fast
+    call :sub_clean gnat_small
+ cd ..
+
+:sub_clean
+ cd %1
+   call :sub_del *.ali
+   call :sub_del *.bexch
+   call :sub_del *.lexch
+   call :sub_del *.o
+   call :sub_del *.stderr
+   call :sub_del *.stdout
+   call :sub_del b~*
+   call :sub_del b__*
+   call :sub_del *.#*
+   call :sub_del *.bak
+   call :sub_del *.bk.?
+   call :sub_del libglobe3d.a
+ cd ..
+ goto :eof
+
+:sub_del
+if exist %1 del %1

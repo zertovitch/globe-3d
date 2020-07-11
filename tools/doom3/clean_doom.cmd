@@ -1,41 +1,47 @@
 @echo off
-echo.
-echo -- Cleanup id's Doom3 / Quake 4 / ... tools --
-echo.
 
-del *.a
-del *.#*
-del *.ali
-del *.o
+echo --  Cleanup of id's Doom3 / Quake 4 / ... tools  --
+
+call :sub_del  *.a
+call :sub_del  *.#*
+call :sub_del  *.ali
+call :sub_del  *.o
+call :sub_del  *.bak
 
 cd to_ada
 
-del *.bak
-del *.bk.?
-del *.def
-del *.#*
-del b~*.*
-del allada.txt
-del *.log
-del *.a
-del *.ali
-del *.o
+call :sub_del  *.bak
+call :sub_del  *.bk.?
+call :sub_del  *.def
+call :sub_del  *.#*
+call :sub_del  b~*.*
+call :sub_del  allada.txt
+call :sub_del  *.log
+call :sub_del  *.a
+call :sub_del  *.ali
+call :sub_del  *.o
 
 cd..
 
 cd to_g3d
 
-del *.bak
-del *.bk.?
-del *.def
-del *.#*
-del b~*.*
-del allada.txt
-del *.log
-del *.a
-del *.ali
-del *.o
-del *.bsp
-del *.g3d
+call :sub_del  *.bak
+call :sub_del  *.bk.?
+call :sub_del  *.def
+call :sub_del  *.#*
+call :sub_del  b~*.*
+call :sub_del  allada.txt
+call :sub_del  *.log
+call :sub_del  *.a
+call :sub_del  *.ali
+call :sub_del  *.o
+call :sub_del  *.bsp
+call :sub_del  *.g3d
 
 cd..
+
+
+goto :eof
+
+:sub_del
+if exist %1 del %1
