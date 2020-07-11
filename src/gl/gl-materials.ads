@@ -32,8 +32,8 @@ package GL.Materials is
 
   function Is_transparent (Self : in Material_type) return Boolean;
 
-  function Identical(a, b: Material_Float_vector) return Boolean;
-  function Identical(m1, m2: Material_type) return Boolean;
+  function Identical (a, b: Material_Float_vector) return Boolean;
+  function Identical (m1, m2: Material_type) return Boolean;
 
   procedure Set_Material (m: Material_type);
 

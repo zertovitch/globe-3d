@@ -9,15 +9,16 @@ package GLOBE_3D.Portals is
 
   --  Find the smallest rectangle on screen in which the object will be displayed.
 
-  procedure Find_bounding_box(
+  procedure Find_bounding_box (
     o      :     Object_3D'Class;
     face   :     Positive;
     b      : out Rectangle;
     success: out Boolean
   );
 
-  --  This is for experimentation or debugging: we show current bounding box (clip) for clipping.
+  --  This is for experimentation or visual debugging: we
+  --  display the current bounding box (clip) for clipping.
 
-  procedure Draw_boundary( main, clip: Rectangle; portal_depth: Natural:= 0 );
+  procedure Draw_boundary ( main, clip : Rectangle; portal_depth : Natural := 0 );
 
 end GLOBE_3D.Portals;

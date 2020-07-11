@@ -93,7 +93,7 @@ package body GLUT_2D is
     Push_3D_set_2D(main_size_x, main_size_y);
     GL.Translate(GL.Double(x),GL.Double(y),0.0);
     -- GL.Enable( GL.TEXTURE_2D );
-    GL.BindTexture(GL.TEXTURE_2D, GL.Uint(Image_ID));
+    GL.BindTexture(GL.Texture_2D, GL.Uint(Image_ID));
     GL.GL_Begin(GL.QUADS);
     GL.TexCoord(0.0,0.0);
     GL.Vertex(0,size_y);

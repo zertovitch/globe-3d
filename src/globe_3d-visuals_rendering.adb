@@ -48,11 +48,11 @@ package body GLOBE_3D.Visuals_rendering is
       -- prepare openGL to display visuals.
       --
       Clear    (COLOR_BUFFER_BIT or DEPTH_BUFFER_BIT);
-      Enable   (DEPTH_TEST);
+      Enable   (Depth_Test);
 
-      Enable   (LIGHTING);                               -- enable lighting for G3D.Display in 'separate Visuals' (obsolete).
-      Enable   (CULL_FACE);
-      CullFace (BACK);
+      Enable   (Lighting);                               -- enable lighting for G3D.Display in 'separate Visuals' (obsolete).
+      Enable   (Cull_Face);
+      CullFace (Back);
 
       MatrixMode    (MODELVIEW);
       Set_GL_Matrix (the_Camera.world_rotation);
@@ -177,8 +177,8 @@ package body GLOBE_3D.Visuals_rendering is
 
          GL.DepthMask (GL_FALSE);  -- make depth buffer read-only, for correct transparency
 
-         Enable    (LIGHTING);   -- ensure lighting is enabled for G3D.Display of transparents (obsolete).
-         Enable    (BLEND);
+         Enable    (Lighting);   -- ensure lighting is enabled for G3D.Display of transparents (obsolete).
+         Enable    (Blend);
          BlendFunc (sfactor => ONE,
                     dfactor => ONE_MINUS_SRC_ALPHA);
 

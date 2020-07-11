@@ -136,8 +136,8 @@ package body GL.Textures is
    begin
       pragma Assert (Self.Name > 0);
 
-      GL.Enable      (GL.TEXTURE_2D);
-      GL.BindTexture (GL.TEXTURE_2D, Self.Name);
+      GL.Enable      (GL.Texture_2D);
+      GL.BindTexture (GL.Texture_2D, Self.Name);
    end enable;
 
    -- Pool
@@ -191,13 +191,13 @@ package body GL.Textures is
          --TexParameter ( TEXTURE_2D, TEXTURE_WRAP_T, REPEAT );
           -- TexParameter ( TEXTURE_2D, TEXTURE_WRAP_S, CLAMP );       --      make them user settable !
           -- TexParameter ( TEXTURE_2D, TEXTURE_WRAP_T, CLAMP );
-         TexParameter ( TEXTURE_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE );       --      make them user settable !
-         TexParameter ( TEXTURE_2D, TEXTURE_WRAP_T, CLAMP_TO_EDGE );
+         TexParameter ( Texture_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE );       --      make them user settable !
+         TexParameter ( Texture_2D, TEXTURE_WRAP_T, CLAMP_TO_EDGE );
 
          --TexParameter (TEXTURE_2D, TEXTURE_MAG_FILTER, NEAREST);
          --TexParameter (TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
-         TexParameter ( TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR);
-         TexParameter ( TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR);
+         TexParameter ( Texture_2D, TEXTURE_MAG_FILTER, LINEAR);
+         TexParameter ( Texture_2D, TEXTURE_MIN_FILTER, LINEAR);
 
          TexEnv ( TEXTURE_ENV, TEXTURE_ENV_MODE, MODULATE );
          --TexEnv ( TEXTURE_ENV, TEXTURE_ENV_MODE, DECAL );

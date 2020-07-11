@@ -21,14 +21,14 @@ procedure Mini is
   frontal_light: G3D.Light_definition;
 
   procedure Prepare_demo_lighting(fact: GL.Float) is
-    use GL, G3D;
+    use G3D;
     proto_light: Light_definition:=
       (position => (10.0, 4.0, 10.0, 1.0),
        ambient  => (0.1, 0.1, 0.1, fact),
        diffuse  => (1.0, 0.8, 0.8, fact),
        specular => (0.8, 0.8, 1.0, fact));
   begin
-    Enable( LIGHTING );
+    GL.Enable( GL.Lighting );
     G3D.Define( 1, proto_light);
     frontal_light:= proto_light;
     proto_light.diffuse:= (0.5, 0.9, 0.5, fact);
@@ -38,13 +38,12 @@ procedure Mini is
   end Prepare_demo_lighting;
 
   procedure Clear_modes is
-    use GL;
   begin
-    Disable( BLEND );
-    Disable( LIGHTING );
-    Disable( AUTO_NORMAL );
-    Disable( NORMALIZE );
-    Disable( DEPTH_TEST );
+    GL.Disable (GL.Blend );
+    GL.Disable (GL.Lighting );
+    GL.Disable (GL.Auto_Normal );
+    GL.Disable (GL.Normalize );
+    GL.Disable (GL.Depth_Test );
   end Clear_modes;
 
   ego: G3D.Camera;
@@ -153,49 +152,49 @@ procedure Mini is
   end Create_objects;
 
   procedure Title is
-    use GL;
-    logo: G3D.Image_ID;
-    f: constant:= 2;
+    logo : G3D.Image_ID;
+    f : constant:= 2;
+    use type GL.Int;
   begin
-    PushMatrix;
-    Disable( LIGHTING );
-    Color(1.0,1.0,1.0);
-    Enable( TEXTURE_2D );
-    Enable(BLEND);
-    BlendFunc(sfactor => SRC_ALPHA, dfactor => ONE_MINUS_SRC_ALPHA);
-    logo:= G3D.Textures.Texture_ID("g3d_logo");
-    G3D.Textures.Check_2D_texture(logo);
+    GL.PushMatrix;
+    GL.Disable (GL.Lighting);
+    GL.Color (1.0,1.0,1.0);
+    GL.Enable (GL.Texture_2D);
+    GL.Enable (GL.Blend);
+    GL.BlendFunc (sfactor => GL.SRC_ALPHA, dfactor => GL.ONE_MINUS_SRC_ALPHA);
+    logo := G3D.Textures.Texture_ID ("g3d_logo");
+    G3D.Textures.Check_2D_texture (logo);
     GLUT_2D.Put_Image(
-      G3D.Image_ID'Pos(logo)+1,
-      0, Int'Max(0,Int(main_size_y)-128/f), 512/f, 128/f, main_size_x, main_size_y
+      G3D.Image_ID'Pos(logo) + 1,
+      0, GL.Int'Max(0, GL.Int(main_size_y)-128/f), 512/f, 128/f, main_size_x, main_size_y
     );
-    PopMatrix;
+    GL.PopMatrix;
   end Title;
 
   procedure Display_scene(
     o: in out G3D.Object_3D'Class
   )
   is
-    use GL, G3D, GLOBE_3D.Math, GL.Math;
+    use G3D, GLOBE_3D.Math, GL.Math;
   begin
-    Clear( DEPTH_BUFFER_BIT );
-    Disable( LIGHTING );
-    Enable( DEPTH_TEST );
+    GL.Clear ( GL.DEPTH_BUFFER_BIT );
+    GL.Disable (GL.Lighting);
+    GL.Enable (GL.Depth_Test);
     --  Depth comparison function set to LEQUAL is needed for multitexturing:
     --  LESS (the default) prevents showing another texture onto the first one.
-    DepthFunc( LEQUAL );
-    MatrixMode( MODELVIEW );
+    GL.DepthFunc( GL.LEQUAL );
+    GL.MatrixMode( GL.MODELVIEW );
     Set_GL_Matrix( ego.world_rotation );
-    Enable( LIGHTING );
-    Enable( CULL_FACE );
-    CullFace( BACK );
+    GL.Enable (GL.Lighting);
+    GL.Enable (GL.Cull_Face);
+    GL.CullFace (GL.Back);
     GL.Translate( - ego.clipper.eye_position );
     ------------------------
     -- Display the object --
     ------------------------
-    PushMatrix;
+    GL.PushMatrix;
     G3D.Display( o, ego.clipper );
-    PopMatrix;
+    GL.PopMatrix;
     Title;
   end Display_scene;
 

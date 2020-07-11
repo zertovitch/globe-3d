@@ -77,13 +77,13 @@ package body GL.Skins is
    procedure enable (Self : in out Skin_opaque_unlit_mono_color)
    is
    begin
-      GL.Disable (LIGHTING);
-      GL.Disable (ALPHA_TEST);
-      GL.Disable (TEXTURE_2D);
-      GL.Disable (COLOR_MATERIAL);
+      GL.Disable (Lighting);
+      GL.Disable (Alpha_Test);
+      GL.Disable (Texture_2D);
+      GL.Disable (Color_Material);
       GL.DisableClientState (TEXTURE_COORD_ARRAY);
 
-      Enable (BLEND); -- See 4.1.7 Blending
+      Enable (Blend); -- See 4.1.7 Blending
       BlendFunc (sfactor => SRC_ALPHA,
                  dfactor => ONE_MINUS_SRC_ALPHA);
 
@@ -124,12 +124,12 @@ package body GL.Skins is
    procedure enable (Self : in out Skin_opaque_lit_mono_color)
    is
    begin
-      GL.Disable            (TEXTURE_2D);
-      GL.Disable            (COLOR_MATERIAL);
+      GL.Disable            (Texture_2D);
+      GL.Disable            (Color_Material);
       GL.DisableClientState (TEXTURE_COORD_ARRAY);
-      GL.Disable            (ALPHA_TEST);
+      GL.Disable            (Alpha_Test);
 
-      GL.Enable    (LIGHTING);
+      GL.Enable    (Lighting);
       Set_Material (Self.Material);
    end enable;
 
@@ -177,13 +177,13 @@ package body GL.Skins is
    procedure enable (Self : in out Skin_transparent_unlit_textured)
    is
    begin
-      GL.Disable    (LIGHTING);
-      GL.Disable    (COLOR_MATERIAL);
+      GL.Disable    (Lighting);
+      GL.Disable    (Color_Material);
       Disable_VBO;    -- Disable 'vertex buffer objects'.
 
       GL.Color     (1.0, 1.0, 1.0, 1.0);
 
-      GL.Enable    (ALPHA_TEST);
+      GL.Enable    (Alpha_Test);
       GL.AlphaFunc (GREATER, 0.1);
 
       enable (Self.Texture);

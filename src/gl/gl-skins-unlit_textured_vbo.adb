@@ -41,8 +41,8 @@ package body GL.Skins.unlit_textured_vbo is
    procedure enable (Self : in out Skin)
    is
    begin
-      GL.Disable (LIGHTING);
-      GL.Disable (ALPHA_TEST);
+      GL.Disable (Lighting);
+      GL.Disable (Alpha_Test);
 
       enable (Self.Texture);
    end enable;

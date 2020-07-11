@@ -65,14 +65,15 @@ package body GLUT.Windows is
    procedure Prepare_default_lighting (Self : in out Window;
                                        fact : in     GL.Float)
    is
-      use GL, G3D;
+      use G3D;
+      use type GL.Float;
 
       proto_light : Light_definition := (position => (0.0, 500.0,  0.0,  1.0),
                                          ambient  => (0.3,   0.3,  0.3,  fact),
                                          diffuse  => (0.9,   0.9,  0.9,  fact),
                                          specular => (0.05,  0.05, 0.01, fact));
    begin
-      Enable( LIGHTING );
+      GL.Enable( GL.Lighting );
 
       G3D.Define (1, proto_light);
       Self.frontal_light   := proto_light;
@@ -113,13 +114,12 @@ package body GLUT.Windows is
    end Prepare_default_lighting;
 
    procedure Clear_modes is
-     use GL;
    begin
-     Disable( BLEND );
-     Disable( LIGHTING );
-     Disable( AUTO_NORMAL );
-     Disable( NORMALIZE );
-     Disable( DEPTH_TEST );
+     GL.Disable ( GL.Blend );
+     GL.Disable ( GL.Lighting );
+     GL.Disable ( GL.Auto_Normal );
+     GL.Disable ( GL.Normalize );
+     GL.Disable ( GL.Depth_Test );
    end Clear_modes;
 
    procedure Reset_for_3D (Self : in out Window'Class)
@@ -221,17 +221,18 @@ package body GLUT.Windows is
    procedure Display_status (Self : in out Window;
                              sec  : GLOBE_3D.Real)
    is
-      use GL, G3D, G3D.Aux;
-      light_info : String(1..8);
+      use G3D, G3D.Aux;
+      use type GL.Double;
+      light_info : String (1 .. 8);
    begin
-      PushMatrix;
+      GL.PushMatrix;
 
-      Disable( LIGHTING );
-      Disable( TEXTURE_2D );
+      GL.Disable( GL.Lighting );
+      GL.Disable( GL.Texture_2D );
 
-      Color( red   => 0.7,
-             green => 0.7,
-             blue  => 0.6);
+      GL.Color( red   => 0.7,
+                green => 0.7,
+                blue  => 0.6);
 
       GLUT_2D.Text_output ((1.0, 0.0, 0.0),  "(x)",  GLUT_2D.Times_Roman_24 );
       GLUT_2D.Text_output ((0.0, 1.0, 0.0),  "(y)",  GLUT_2D.Times_Roman_24 );
@@ -282,7 +283,7 @@ package body GLUT.Windows is
          Self.extra_Status.Clear;
       end;
 
-      PopMatrix;
+      GL.PopMatrix;
 
    end Display_status;
 
@@ -595,7 +596,6 @@ package body GLUT.Windows is
 
    procedure Start_GLs (Self : in out Window)
    is
-      use GL;
       fog_colour : GL.Light_Float_Vector := (0.2,0.2,0.2,0.1);
    begin
 
@@ -603,16 +603,16 @@ package body GLUT.Windows is
       Prepare_default_lighting (Self, 0.9);
 
       if Self.foggy then
-         Enable (FOG);
-         Fogfv  (FOG_COLOR,   fog_colour(0)'Unchecked_Access);
-         Fogf   (FOG_DENSITY, 0.02);
+         GL.Enable (GL.Fog);
+         GL.Fogfv  (GL.FOG_COLOR,   fog_colour(0)'Unchecked_Access);
+         GL.Fogf   (GL.FOG_DENSITY, 0.02);
       end if;
 
       Reset_for_3D (Self);
 
       if Self.Smoothing = hardware then
-         Enable( MULTISAMPLE_ARB );
-         Enable( SAMPLE_COVERAGE_ARB ); -- Hope it helps switching on the AA...
+         GL.Enable( GL.MULTISAMPLE_ARB );
+         GL.Enable( GL.SAMPLE_COVERAGE_ARB ); -- Hope it helps switching on the AA...
       end if;
 
    end Start_GLs;

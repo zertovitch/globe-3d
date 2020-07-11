@@ -397,9 +397,9 @@ package body GLOBE_3D is
         procedure Display_texture_label(name: Ident; p: Point_3D) is
           use GL.Simple_text;
         begin
-          GL.Disable ( GL.TEXTURE_2D );
+          GL.Disable ( GL.Texture_2D );
           Text_output(p, name, (0.7, 0.7, 0.9, 1.0), 5.0, Sans_Serif);
-          GL.Enable ( GL.TEXTURE_2D );
+          GL.Enable ( GL.Texture_2D );
         end Display_texture_label;
 
       begin -- Display_face
@@ -423,7 +423,7 @@ package body GLOBE_3D is
         then
           case fa.skin is
             when material_only | material_texture =>
-              GL.Disable (GL.COLOR_MATERIAL);
+              GL.Disable (GL.Color_Material);
               Set_Material(fa.material);
             when invisible =>
               null;  --  NB: this case doesn't happen since procedure was quitted before
@@ -444,10 +444,10 @@ package body GLOBE_3D is
             when material_only | material_texture =>
               null; -- done above
             when colour_only | coloured_texture =>
-              GL.Enable (GL.COLOR_MATERIAL);
-              GL.ColorMaterial (GL.FRONT_AND_BACK, GL.AMBIENT_AND_DIFFUSE);
+              GL.Enable (GL.Color_Material);
+              GL.ColorMaterial (GL.Front_And_Back, GL.AMBIENT_AND_DIFFUSE);
             when texture_only =>
-              GL.Disable (GL.COLOR_MATERIAL);
+              GL.Disable (GL.Color_Material);
             when invisible =>
               null;
           end case;
@@ -487,24 +487,24 @@ package body GLOBE_3D is
         then
           case fa.skin is
             when texture_only | coloured_texture | material_texture =>
-              GL.Enable ( GL.TEXTURE_2D );
+              GL.Enable ( GL.Texture_2D );
             when colour_only | material_only =>
-              GL.Disable ( GL.TEXTURE_2D );
+              GL.Disable ( GL.Texture_2D );
             when invisible =>
               null;
           end case;
         end if;
 
-        if is_textured(fa.skin) and then
+        if is_textured (fa.skin) and then
           (First_Face
              or else not
                 ( --  In this case we don't need to bind again the same image ID
-                  is_textured(Previous_face.skin) and then
+                  is_textured (Previous_face.skin) and then
                   fa.texture = Previous_face.texture
                 )
           )
         then
-          GL.BindTexture ( GL.TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.texture)+1) );
+          GL.BindTexture ( GL.Texture_2D, GL.Uint (Image_ID'Pos (fa.texture) + 1) );
         end if;
 
         ------------------------------------------
@@ -516,13 +516,13 @@ package body GLOBE_3D is
           or else fi.blending /= Previous_face_internal.blending
         then
           if fi.blending then
-            GL.Enable ( GL.BLEND ); -- See 4.1.7 Blending
+            GL.Enable ( GL.Blend ); -- See 4.1.7 Blending
             GL.BlendFunc ( sfactor => GL.SRC_ALPHA,
                            dfactor => GL.ONE_MINUS_SRC_ALPHA );
             -- Disable( DEPTH_TEST );
             -- Disable( CULL_FACE );
           else
-            GL.Disable ( GL.BLEND );
+            GL.Disable ( GL.Blend );
             -- Enable( DEPTH_TEST );
             -- Enable( CULL_FACE );
             -- CullFace( BACK );
@@ -550,7 +550,7 @@ package body GLOBE_3D is
         if is_textured(fa.skin) and then fa.specular_map /= null_image then
           G3DT.Check_2D_texture(fa.specular_map, blending_hint);
           if fa.specular_map /= Previous_specular_face.specular_map then
-            GL.BindTexture ( GL.TEXTURE_2D, GL.Uint(Image_ID'Pos(fa.specular_map)+1) );
+            GL.BindTexture ( GL.Texture_2D, GL.Uint(Image_ID'Pos(fa.specular_map)+1) );
           end if;
           --  NB: display only works when setting GL.DepthFunc(GL.LEQUAL)
           --  Default is GL.LESS, and thus only first texture per face will be drawn.
@@ -561,7 +561,7 @@ package body GLOBE_3D is
 
     end Display_face_optimized;
 
-    procedure Display_normals is
+    procedure Display_normal_vectors is
       use GL.Math;
       C: Vector_3D;
     begin
@@ -580,14 +580,14 @@ package body GLOBE_3D is
         C:= (1.0/Real(o.face_internal(f).last_edge)) * C;
         Arrow(C, arrow_inflator * o.face_internal(f).normal);
       end loop;
-    end Display_normals;
+    end Display_normal_vectors;
 
     procedure Set_for_specular is
       use GL.Materials;
     begin
-      GL.Disable (GL.COLOR_MATERIAL);
+      GL.Disable (GL.Color_Material);
       Set_Material (shiny_material);
-      GL.Enable ( GL.BLEND );
+      GL.Enable ( GL.Blend );
       GL.BlendFunc ( sfactor => GL.ONE, dfactor => GL.ONE );
     end Set_for_specular;
 
@@ -605,7 +605,7 @@ package body GLOBE_3D is
 
     --      gl.disableClientState (gl.TEXTURE_COORD_ARRAY);
     --      gl.disable    (ALPHA_TEST);
-    GL.Enable (GL.LIGHTING);
+    GL.Enable (GL.Lighting);
 
     GL.PushMatrix; -- 26-May-2006: instead of rotating/translating back
     GL.Translate( o.centre );
@@ -659,10 +659,10 @@ package body GLOBE_3D is
     end case;
 
     if show_normals then
-      GL.Disable( GL.LIGHTING );
-      GL.Disable( GL.TEXTURE_2D );
-      Display_normals;
-      GL.Enable( GL.LIGHTING ); -- mmmh...
+      GL.Disable (GL.Lighting);
+      GL.Disable (GL.Texture_2D);
+      Display_normal_vectors;
+      GL.Enable (GL.Lighting); -- mmmh...
     end if;
 
     GL.PopMatrix; -- 26-May-2006: instead of rotating/translating back
@@ -736,8 +736,8 @@ package body GLOBE_3D is
         Pre_calculate(o);
       end if;
       --
-      -- a/ Display connected objects which are visible through o's faces
-      --    This is where recursion happens
+      --  a/ Display connected objects which are visible through o's faces.
+      --     This is where the main recursion happens.
       if (not filter_portal_depth) or else -- filter_portal_depth: test/debug
          portal_depth <= 6
       then
@@ -759,7 +759,9 @@ package body GLOBE_3D is
           end if;
         end loop;
       end if;
-      -- b/ Display the object itself
+      --
+      --  b/ Display the object itself
+      --
       if (not filter_portal_depth) or else -- filter_portal_depth: test/debug
          (portal_depth = 1 or portal_depth = 5)
       then
@@ -767,7 +769,7 @@ package body GLOBE_3D is
         -- - almost no speedup on the ATI Radeon 9600 Pro (hardware)
         -- - factor: ~ Sqrt(clipped surface ratio) with software GL
         if portal_depth > 0 then
-          GL.Enable(GL.SCISSOR_TEST);
+          GL.Enable (GL.Scissor_Test);
           GL.Scissor(
             x      => GL.Int(clip_area.X1),
             y      => GL.Int(clip_area.Y1),
@@ -775,21 +777,21 @@ package body GLOBE_3D is
             height => GL.Sizei(clip_area.Y2 - clip_area.Y1+1)
           );
         else
-          GL.Disable(GL.SCISSOR_TEST);
+          GL.Disable (GL.Scissor_Test);
         end if;
         if portal_tracking then
           info_b_ntl2:= info_b_ntl2 + 1;
           info_b_ntl3:= Natural'Max(portal_depth, info_b_ntl3);
         end if;
-        Display_one(o);
+        Display_one (o);
         so:= o.sub_objects;
         while so /= null loop
-          Display_one(so.objc.all);  -- No portals, sub-obj recursion in this call - may want it.
+          Display_one (so.objc.all);  -- No portals, sub-obj recursion in this call - may want it.
           so:= so.next;
         end loop;
       end if;
       if show_portals and then portal_depth > 0 then
-        Draw_boundary(clip.main_clipping, clip_area, portal_depth);
+        Draw_boundary (clip.main_clipping, clip_area, portal_depth);
       end if;
     end Display_clipped;
 

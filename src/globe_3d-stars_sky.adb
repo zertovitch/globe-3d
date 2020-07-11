@@ -13,7 +13,7 @@ package body GLOBE_3D.Stars_sky is
   begin
     PushMatrix;
     Set_GL_Matrix(Rotation);
-    Disable( TEXTURE_2D );
+    Disable( Texture_2D );
     for i in 1..num_stars loop
       Color( col(i) );
       GL_Begin(GL.POINTS);

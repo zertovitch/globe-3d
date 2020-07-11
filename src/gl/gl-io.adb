@@ -44,7 +44,7 @@ package body GL.IO is
      return the_Grid;
   end To_greyscale_pixels;
 
-  procedure Insert_into_GL(
+  procedure Insert_into_GL (
               id             : Integer;
               size           : Integer;
               width          : Integer;
@@ -57,14 +57,14 @@ package body GL.IO is
     pragma Unreferenced (size);
     ptr: constant GL.pointer:= image_p(0)'Access;
   begin
-    BindTexture ( TEXTURE_2D, Uint(id) );
+    BindTexture ( Texture_2D, Uint(id) );
     PixelStore ( UNPACK_ALIGNMENT, 1 );
-    TexParameter ( TEXTURE_2D, TEXTURE_WRAP_S, REPEAT );
-    TexParameter ( TEXTURE_2D, TEXTURE_WRAP_T, REPEAT );
+    TexParameter ( Texture_2D, TEXTURE_WRAP_S, REPEAT );
+    TexParameter ( Texture_2D, TEXTURE_WRAP_T, REPEAT );
     -- TexParameter (TEXTURE_2D, TEXTURE_MAG_FILTER, NEAREST);
-    TexParameter ( TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR);
+    TexParameter ( Texture_2D, TEXTURE_MAG_FILTER, LINEAR);
     -- TexParameter (TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
-    TexParameter ( TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR);
+    TexParameter ( Texture_2D, TEXTURE_MIN_FILTER, LINEAR);
     TexEnv ( TEXTURE_ENV, TEXTURE_ENV_MODE, MODULATE );
     TexImage2D ( TEXTURE_2D, 0, texFormat, Sizei( width ),
                  Sizei( height ), 0, texPixelFormat, GL_UNSIGNED_BYTE,

@@ -102,14 +102,14 @@ package body GLOBE_3D.Portals is
     val: constant Real:= 0.3 + 0.7 * Exp(-GL.Double(portal_depth));
     text_size: constant:= 12.5;
   begin
-    GL.Disable( GL.LIGHTING );
-    GL.Disable( GL.TEXTURE_2D );
+    GL.Disable ( GL.Lighting );
+    GL.Disable ( GL.Texture_2D );
     -- GL.Disable( GL.DEPTH_TEST ); -- eeerh, @#*$!, doesn't work!
     -- Workaround, we make the rectangle 1 pixel smaller
     rect:= (clip.X1+1,clip.Y1+1,clip.X2-1,clip.Y2-1);
     -- Push current matrix mode and viewport attributes.
-    GL.PushAttrib(GL.TRANSFORM_BIT + GL.VIEWPORT_BIT);
-    GL.MatrixMode(GL.PROJECTION);
+    GL.PushAttrib (GL.TRANSFORM_BIT + GL.VIEWPORT_BIT);
+    GL.MatrixMode (GL.PROJECTION);
     GL.PushMatrix;
     GL.LoadIdentity;
     GL.Ortho(
@@ -121,7 +121,7 @@ package body GLOBE_3D.Portals is
       far_val  => 1.0
     );
 
-    GL.MatrixMode(GL.MODELVIEW);
+    GL.MatrixMode (GL.MODELVIEW);
     GL.PushMatrix;
     GL.LoadIdentity;
 
@@ -149,7 +149,7 @@ package body GLOBE_3D.Portals is
     GL.MatrixMode(GL.PROJECTION);
     GL.PopMatrix;
     GL.PopAttrib;
-    GL.Enable( GL.LIGHTING );
+    GL.Enable( GL.Lighting );
     -- GL.Enable( GL.DEPTH_TEST );
 
   end Draw_boundary;

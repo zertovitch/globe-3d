@@ -399,19 +399,20 @@ package GL is
 
   procedure LogicOp (opcode: LogicOpEnm);
 
-  -- Face culling
+  --  Face culling.
+  --  In OpenGLAda: see type Face_Selector in the package GL.Culling.
   type FaceEnm is
   (
-     FRONT,
-     BACK,
-     FRONT_AND_BACK
+     Front,
+     Back,
+     Front_And_Back
   );
 
   for FaceEnm use
   (
-     FRONT                                   => 16#0404#,
-     BACK                                    => 16#0405#,
-     FRONT_AND_BACK                          => 16#0408#
+     Front                                   => 16#0404#,
+     Back                                    => 16#0405#,
+     Front_And_Back                          => 16#0408#
   );
   for FaceEnm'Size use GL.enum'Size;
 
@@ -550,7 +551,8 @@ package GL is
 
   procedure ReadBuffer (mode: ReadBufferEnm);
 
-  -- Server-side capabilities
+  --  Server-side capabilities.
+  --  In OpenGLAda: see type Toggle in the package GL.Toggles.
   type ServerCapabilityEnm is
   (
      POINT_SMOOTH,
@@ -558,24 +560,24 @@ package GL is
      LINE_STIPPLE,
      POLYGON_SMOOTH,
      POLYGON_STIPPLE,
-     CULL_FACE,
-     LIGHTING,
-     COLOR_MATERIAL,
-     FOG,
-     DEPTH_TEST,
+     Cull_Face,
+     Lighting,
+     Color_Material,
+     Fog,
+     Depth_Test,
      STENCIL_TEST,
-     NORMALIZE,
-     ALPHA_TEST,
+     Normalize,
+     Alpha_Test,
      DITHER,
-     BLEND,
+     Blend,
      INDEX_LOGIC_OP,
      COLOR_LOGIC_OP,
-     SCISSOR_TEST,
+     Scissor_Test,
      TEXTURE_GEN_S,
      TEXTURE_GEN_T,
      TEXTURE_GEN_R,
      TEXTURE_GEN_Q,
-     AUTO_NORMAL,
+     Auto_Normal,
      MAP1_COLOR_4,
      MAP1_INDEX,
      MAP1_NORMAL,
@@ -594,8 +596,8 @@ package GL is
      MAP2_TEXTURE_COORD_4,
      MAP2_VERTEX_3,
      MAP2_VERTEX_4,
-     TEXTURE_1D,
-     TEXTURE_2D,
+     Texture_1D,
+     Texture_2D,
      POLYGON_OFFSET_POINT,
      POLYGON_OFFSET_LINE,
      CLIP_PLANE0,
@@ -632,24 +634,24 @@ package GL is
      LINE_STIPPLE                            => 16#0B24#,
      POLYGON_SMOOTH                          => 16#0B41#,
      POLYGON_STIPPLE                         => 16#0B42#,
-     CULL_FACE                               => 16#0B44#,
-     LIGHTING                                => 16#0B50#,
-     COLOR_MATERIAL                          => 16#0B57#,
-     FOG                                     => 16#0B60#,
-     DEPTH_TEST                              => 16#0B71#,
+     Cull_Face                               => 16#0B44#,
+     Lighting                                => 16#0B50#,
+     Color_Material                          => 16#0B57#,
+     Fog                                     => 16#0B60#,
+     Depth_Test                              => 16#0B71#,
      STENCIL_TEST                            => 16#0B90#,
-     NORMALIZE                               => 16#0BA1#,
-     ALPHA_TEST                              => 16#0BC0#,
+     Normalize                               => 16#0BA1#,
+     Alpha_Test                              => 16#0BC0#,
      DITHER                                  => 16#0BD0#,
-     BLEND                                   => 16#0BE2#,
+     Blend                                   => 16#0BE2#,
      INDEX_LOGIC_OP                          => 16#0BF1#,
      COLOR_LOGIC_OP                          => 16#0BF2#,
-     SCISSOR_TEST                            => 16#0C11#,
+     Scissor_Test                            => 16#0C11#,
      TEXTURE_GEN_S                           => 16#0C60#,
      TEXTURE_GEN_T                           => 16#0C61#,
      TEXTURE_GEN_R                           => 16#0C62#,
      TEXTURE_GEN_Q                           => 16#0C63#,
-     AUTO_NORMAL                             => 16#0D80#,
+     Auto_Normal                             => 16#0D80#,
      MAP1_COLOR_4                            => 16#0D90#,
      MAP1_INDEX                              => 16#0D91#,
      MAP1_NORMAL                             => 16#0D92#,
@@ -668,8 +670,8 @@ package GL is
      MAP2_TEXTURE_COORD_4                    => 16#0DB6#,
      MAP2_VERTEX_3                           => 16#0DB7#,
      MAP2_VERTEX_4                           => 16#0DB8#,
-     TEXTURE_1D                              => 16#0DE0#,
-     TEXTURE_2D                              => 16#0DE1#,
+     Texture_1D                              => 16#0DE0#,
+     Texture_2D                              => 16#0DE1#,
      POLYGON_OFFSET_POINT                    => 16#2A01#,
      POLYGON_OFFSET_LINE                     => 16#2A02#,
      CLIP_PLANE0                             => 16#3000#,
@@ -2161,13 +2163,13 @@ package GL is
 
   type TargetTexEnm is
   (
-     TEXTURE_1D,
-     TEXTURE_2D
+     Texture_1D,
+     Texture_2D
   );
   for TargetTexEnm use
   (
-     TEXTURE_1D                              => 16#0DE0#,
-     TEXTURE_2D                              => 16#0DE1#
+     Texture_1D                              => 16#0DE0#,
+     Texture_2D                              => 16#0DE1#
   );
   for TargetTexEnm'Size use GL.enum'Size;
 
@@ -3197,7 +3199,7 @@ package GL is
   -- Clears
   procedure ClearIndex (c: GL.Float);
 
-  procedure ClearColor (red  : GL.Clampf;
+  procedure ClearColor (  red  : GL.Clampf;
                           green: GL.Clampf;
                           blue : GL.Clampf;
                           alpha: GL.Clampf);
@@ -3206,7 +3208,7 @@ package GL is
 
   procedure ClearDepth (depth: GL.Clampd);
 
-  procedure ClearAccum (red  : GL.Float;
+  procedure ClearAccum (  red  : GL.Float;
                           green: GL.Float;
                           blue : GL.Float;
                           alpha: GL.Float);
@@ -3214,7 +3216,7 @@ package GL is
   -- Masks
   procedure IndexMask (mask: GL.Uint);
 
-  procedure ColorMask (red  : GL_Boolean;
+  procedure ColorMask (  red  : GL_Boolean;
                          green: GL_Boolean;
                          blue : GL_Boolean;
                          alpha: GL_Boolean);
@@ -3224,10 +3226,10 @@ package GL is
 
   procedure LineWidth (width: GL.Float);
 
-  procedure LineStipple (factor : GL.Int;
+  procedure LineStipple (  factor : GL.Int;
                            pattern: GL.Ushort);
 
-  procedure PolygonOffset (factor: GL.Float;
+  procedure PolygonOffset (  factor: GL.Float;
                              units : GL.Float);
 
   procedure PolygonStipple (mask: ubytePtr);
@@ -3238,7 +3240,7 @@ package GL is
 
   procedure EdgeFlagv (flag: GL_BooleanPtr);
 
-  procedure Scissor (x     : GL.Int;
+  procedure Scissor (  x     : GL.Int;
                        y     : GL.Int;
                        width : GL.Sizei;
                        height: GL.Sizei);
