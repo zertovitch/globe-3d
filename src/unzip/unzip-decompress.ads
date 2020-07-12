@@ -1,10 +1,10 @@
--- UnZip.Decompress
--------------------
--- Private, internal to the UnZip package.
+--  UnZip.Decompress
+--------------------
+--  Private, internal to the UnZip package.
 
--- Legal licensing note:
+--  Legal licensing note:
 
---  Copyright (c) 2007 .. 2018 Gautier de Montmollin
+--  Copyright (c) 2007 .. 2019 Gautier de Montmollin
 --  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,32 +25,33 @@
 --  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 --  THE SOFTWARE.
 
--- NB: this is the MIT License, as found on the site
--- http://www.opensource.org/licenses/mit-license.php
+--  NB: this is the MIT License, as found on the site
+--  http://www.opensource.org/licenses/mit-license.php
 
 ---------------------
 --
--- Created 9-Mar-2007
+--  Created 9-Mar-2007
 --
--- This package includes the decompression algorithms for methods
--- Store, Reduce, Shrink (LZW), Implode, Deflate, BZip2 and LZMA.
+--  This package includes the decompression algorithms for methods
+--  Store, Reduce, Shrink (LZW), Implode, Deflate, BZip2 and LZMA.
 --
--- The package body contains the packages UnZ_IO, UnZ_Glob, UnZ_Infl,
--- UnZ_Olds and UnZ_Misc that were separate in previous versions of Zip-Ada.
--- They became local packages inside the Decompress_Data procedure.
--- Previously global variables are since then local and task-safe
--- with one copy per concurrent call.
+--  The package body contains the packages UnZ_IO, UnZ_Glob, UnZ_Infl,
+--  UnZ_Olds and UnZ_Misc that were separate in previous versions of Zip-Ada.
+--  They became local packages inside the Decompress_Data procedure.
+--  Previously global variables are since then local and task-safe
+--  with one copy per concurrent call.
 
 with Zip.Headers;
-with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
 with Zip_Streams;
+
+with Ada.Strings.Unbounded;
 
 private package UnZip.Decompress is
 
-   procedure Decompress_data(
+   procedure Decompress_data (
     zip_file                   : in out Zip_Streams.Root_Zipstream_Type'Class;
-    -- zip_file must be open and its index is meant
-    -- to point to the beginning of compressed data
+    --  zip_file must be open and its index is meant
+    --  to point to the beginning of compressed data
     format                     : PKZip_method;
     mode                       : Write_mode;
     output_file_name           : String; -- relevant only if mode = write_to_file
@@ -61,12 +62,12 @@ private package UnZip.Decompress is
     explode_slide_8KB_LZMA_EOS : Boolean; -- relevant for the "explode" and "LZMA" formats
     data_descriptor_after_data : Boolean;
     is_encrypted               : Boolean;
-    password                   : in out Unbounded_String;
+    password                   : in out Ada.Strings.Unbounded.Unbounded_String;
     get_new_password           : Get_password_proc; -- if null, initial pwd must fit
     hint                       : in out Zip.Headers.Local_File_Header
-    -- Values are known, or smart fakes, and are later corrected if a closing
-    -- Data_descriptor is appended to the compressed data (1-pass written
-    -- zip files, like JAR, OpenDocument, etc.)
+    --  Values are known, or smart fakes, and are later corrected if a closing
+    --  Data_descriptor is appended to the compressed data (1-pass written
+    --  zip files, like JAR, OpenDocument, etc.)
   );
 
 private
@@ -77,16 +78,16 @@ private
   --  the check can be bypassed with deflate_strict = False, but this lessens the
   --  data error detection.
   --
-  deflate_strict: constant Boolean:= True;
+  deflate_strict : constant Boolean := True;
 
-  -- Primitive tracing using Ada.Text_IO, plus a few statistics
+  --  Primitive tracing using Ada.Text_IO, plus a few statistics
   --
   type Trace_type is (none, some_t, full);
 
-  trace: constant Trace_type:= none; --  <==  Choice is here
+  trace : constant Trace_type := none; --  <==  Choice is here
 
-  no_trace  : constant Boolean:= trace = none;
-  some_trace: constant Boolean:= trace >= some_t;
-  full_trace: constant Boolean:= trace = full;
+  no_trace   : constant Boolean := trace = none;
+  some_trace : constant Boolean := trace >= some_t;
+  full_trace : constant Boolean := trace = full;
 
 end UnZip.Decompress;

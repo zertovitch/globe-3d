@@ -5,7 +5,7 @@ project multi_Window is
    for Source_Dirs use (".");
    for Main use ("launch_multi_window.adb");
 
-   for Object_Dir use "../../obj/gnat_" & external ("Build_Mode", "debug");
+   for Object_Dir use "../../obj/gnat_" & external ("G3D_GNAT_Obj_Suffix", "debug");
    for Exec_Dir use ".";
 
    package Ide      renames Globe_3D.Ide;

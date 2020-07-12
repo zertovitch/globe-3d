@@ -32,7 +32,7 @@ package body Terrain.VBO is
                                                        Scale    : in     GLOBE_3D.Vector_3D;
                                                        Y_Offset :    out Real)
    is
-      use GL.Geometry, GL.Geometry.VBO, GL.Buffer, GL.Buffer.Vertex, GLOBE_3D.Sprite;
+      use GL.Geometry, GL.Geometry.VBO, GL.Buffer, GL.Buffer.Vertex;
 
       the_Geometry : constant GL.Geometry.VBO.p_vbo_Geometry := new GL.Geometry.VBO.vbo_Geometry;
 

@@ -15,16 +15,17 @@ package body Doom3_Help is
       return Trim(s, Both);
     end if;
   end Fac_trim;
+  pragma Unreferenced (Fac_trim);
 
   -- Minimal represention of a floating-point value
   -- accepted by an Ada compiler
 
-  function Short_Float_Image( t: String ) return String is
+  function Short_Float_Image ( t: String ) return String is
     p,e,l: Natural;
-    function Expo( ex: String ) return String is
+    function Expo ( ex: String ) return String is
       b: Natural;
     begin
-      if ex'Length<=0 then
+      if ex'Length = 0 then
         return "";
       else
         b:= ex'Last+1;
@@ -65,16 +66,16 @@ package body Doom3_Help is
   begin
     -- Try with no exponent
     RIO.Put(s,r,14,0);
-    return Short_Float_Image(Trim(s,left));
+    return Short_Float_Image (Trim(s,Left));
   exception
     when Ada.Text_IO.Layout_Error =>
       -- With exponent etc.
-      return Short_Float_Image(Real'Image(r));
+      return Short_Float_Image (Real'Image(r));
   end Image;
 
   function Image( i: Integer ) return String is
   begin
-    return Trim(Integer'Image(i),both);
+    return Trim (Integer'Image(i),Both);
   end Image;
 
   function Coords( p: Point_3D ) return String is
@@ -134,7 +135,7 @@ package body Doom3_Help is
 
   procedure iPut_Line(s: String; as_comment: Boolean) is
   begin
-    if Pretty or not as_comment then
+    if pretty or not as_comment then
       iPut(s, as_comment);
     end if; -- else: discard comment
     iNew_Line;
@@ -147,46 +148,46 @@ package body Doom3_Help is
     Ada_Put( v2 ); Ada_Put(",");
     Ada_Put( v3 );
     Ada_Put(")");
-  end;
+  end Ada_Put_Triangle;
 
   procedure Ada_Comment(s: String) is
   begin
     iPut_Line("-- " & s, as_comment => True);
-  end;
+  end Ada_Comment;
 
   procedure Doom3_Info(s: String) is
   begin
     if pretty then
       Ada_Comment("Doom3 Info: [" & s & ']');
     end if;
-  end;
+  end Doom3_Info;
 
   procedure Doom3_Comment(s: String) is
   begin
     if pretty then
       Ada_Comment("Doom3: [" & s & ']');
     end if;
-  end;
+  end Doom3_Comment;
 
   procedure Ada_Put(s: String) is
   begin
     iPut(s, as_comment => False);
-  end;
+  end Ada_Put;
 
   procedure Ada_Put(i: Integer) is
   begin
     Ada_Put(Image(i));
-  end;
+  end Ada_Put;
 
   procedure Ada_Put_Line(s: String) is
   begin
     iPut_Line(s, as_comment => False);
-  end;
+  end Ada_Put_Line;
 
   procedure Ada_New_Line is
   begin
     iNew_Line;
-  end;
+  end Ada_New_Line;
 
   function Strip_quotes(s:String) return String is
     f, l: Natural;
@@ -292,7 +293,7 @@ package body Doom3_Help is
   function Current_Model_name return String is
   begin
     return S(model_stack(model_top).name);
-  end;
+  end Current_Model_name;
 
   -- Current texture - see also Surfaces
 
@@ -302,12 +303,12 @@ package body Doom3_Help is
     name: constant String:= Optional_Junk(Strip_quotes(name_with_quotes));
   begin
     current_texture:= U(name);
-  end;
+  end Set_current_texture;
 
   function Get_current_texture return String is
   begin
     return S(current_texture);
-  end;
+  end Get_current_texture;
 
   function pkg return String is
   begin
@@ -332,21 +333,21 @@ package body Doom3_Help is
   -----------------------
   -- Same textures appear numerous times in a .proc file, then
   -- it is difficult to figure out how many and which ones they are
-  type dir_node;
+  type Dir_node;
   type p_Dir_node is access Dir_node;
 
-  type Dir_node(name_len: natural) is record
-    left, right : p_dir_node;
-    name        : string(1..name_len);
+  type Dir_node(name_len: Natural) is record
+    left, right : p_Dir_node;
+    name        : String (1..name_len);
   end record;
 
   catalogue: p_Dir_node:= null;
 
-  procedure Insert( name: String;
-                    node: in out p_dir_node ) is
+  procedure Insert ( name: String;
+                     node: in out p_Dir_node ) is
   begin
     if node = null then
-      node:= new dir_node'
+      node:= new Dir_node'
         ( (name_len => name'Length,
            left => null, right => null,
            name => name) );
@@ -361,12 +362,12 @@ package body Doom3_Help is
 
   procedure Write_catalogue is
     use Ada.Text_IO;
-    f: File_type;
+    f: File_Type;
     n: Natural:= 0;
     type Style_kind is (Ada_enum, Unzip_list, Unzip_cmd);
     junk_opt: String(1..2):= "  ";
 
-    procedure Traverse( p: p_dir_node; style: Style_kind ) is
+    procedure Traverse ( p: p_Dir_node; style: Style_kind ) is
     begin
       if p /= null then
         Traverse(p.left,style);
@@ -376,7 +377,7 @@ package body Doom3_Help is
               s: constant String:= Junk(p.name);
             begin
               if Col(f)+s'Length > 75 then New_Line(f); else Put(f,' '); end if;
-              Put(f,junk(p.name) & ',');
+              Put(f, Junk(p.name) & ',');
             end;
           when Unzip_list => Put_Line(f,p.name & "*");
           when Unzip_cmd  => Put_Line(f,"unzip " & junk_opt & " pak004.zip " & p.name & "*");
@@ -390,12 +391,12 @@ package body Doom3_Help is
     if junk_dirs then
       junk_opt:= "-j";
     end if;
-    Create(f,out_file, pkg & "_textures.txt");
+    Create(f,Out_File, pkg & "_textures.txt");
     for style in Style_kind loop
       n:= 0;
       Put_Line(f,"***" & Style_kind'Image(style) & ':');
       case style is
-        when Ada_Enum => null;
+        when Ada_enum => null;
         when Unzip_list =>
           Put_Line(f,"7zip e -i@list.txt pak004.zip");
         when Unzip_cmd =>
@@ -418,7 +419,7 @@ package body Doom3_Help is
     nfaces       : Natural;
   end record;
 
-  surface_stack: array(1..10_000) of Surface;
+  surface_stack: array (1..10_000) of Surface;
 
   surface_top: Natural:= 0;
 
@@ -426,7 +427,7 @@ package body Doom3_Help is
   begin
     surface_top:= 0;
     surface_count:= 0;
-  end;
+  end Reset_surfaces;
 
   procedure Add_surface(
     name_with_quotes: String;
@@ -447,22 +448,22 @@ package body Doom3_Help is
       st.npoints:= npoints;
       st.nfaces:=  nfaces;
     end;
-  end;
+  end Add_surface;
 
   function Get_surface_texture_name(nb: Natural) return String is
   begin
     return S(surface_stack(nb).texture_name);
-  end;
+  end Get_surface_texture_name;
 
   function Get_surface_npoints(nb: Natural) return Natural is
   begin
     return surface_stack(nb).npoints;
-  end;
+  end Get_surface_npoints;
 
   function Get_surface_nfaces(nb: Natural) return Natural is
   begin
     return surface_stack(nb).nfaces;
-  end;
+  end Get_surface_nfaces;
 
   ------------------------------
   -- IAP - Inter Area Portals --
@@ -490,7 +491,7 @@ package body Doom3_Help is
     begin
       -- !! return S(model_stack(area_stack(area_nb)).name)
       for i in 1..model_top loop
-        if model_Stack(i).area = area_nb then
+        if model_stack(i).area = area_nb then
           return S(model_stack(i).name);
         end if;
       end loop;
@@ -540,9 +541,9 @@ package body Doom3_Help is
     end Include_Portals;
 
   begin
-    for i in 1..iap_top loop
-      Include_Portals(i, iap_stack(i).iap_pos, iap_stack(i).iap_neg, True);
-      Include_Portals(i, iap_stack(i).iap_neg, iap_stack(i).iap_pos, False);
+    for i in 1..IAP_top loop
+      Include_Portals (i, IAP_stack(i).iap_pos, IAP_stack(i).iap_neg, True);
+      Include_Portals (i, IAP_stack(i).iap_neg, IAP_stack(i).iap_pos, False);
     end loop;
   end Complete_area_with_portals;
 
@@ -654,7 +655,7 @@ package body Doom3_Help is
 
   ---------
 
-  procedure Ada_create is
+  procedure Ada_Create is
   begin
     indent:= 1;
     Ada_New_Line;
@@ -665,7 +666,7 @@ package body Doom3_Help is
     indent:= 1;
     Ada_Put_Line("centre  : in     GLOBE_3D.Point_3D");
     Ada_Put(")");
-  end Ada_create;
+  end Ada_Create;
 
   procedure Ada_Begin is
     pretty_mem: constant Boolean:= pretty;
@@ -715,7 +716,7 @@ package body Doom3_Help is
     Ada_Put_Line("end record;");
     Ada_Put_Line("type D3_BSP_node_array is array( Natural range <> ) of D3_BSP_node_type;");
     Ada_New_Line;
-  end;
+  end Ada_Begin;
 
   -- Portals must be inserted as supplemental (transparent) faces of areas
 
@@ -727,7 +728,7 @@ package body Doom3_Help is
         model_stack(area_stack(area)).portals_to_be_added:=
           model_stack(area_stack(area)).portals_to_be_added + 1;
       end if;
-    end;
+    end Increment_number_of_portals;
 
   begin
     if IAP_top=0 then
@@ -779,7 +780,7 @@ package body Doom3_Help is
       );
       Ada_Put_Line(
         "group(" &
-        image(i) & "):= " & S(model_stack(i).name) &';'
+        Image(i) & "):= " & S(model_stack(i).name) &';'
       );
     end loop;
     -- All models and then also areas are allocated, we can link the
@@ -828,20 +829,20 @@ package body Doom3_Help is
     indent:= 0;
     Ada_Put_Line("end Create;");
     Ada_Put_Line("end " & pkg & ';');
-    Ada_comment("Largest amount of faces for an object (model) :" & Image(max_faces));
-    Ada_comment("Largest amount of points for an object (model) :" & Image(max_points));
+    Ada_Comment("Largest amount of faces for an object (model) :" & Image(max_faces));
+    Ada_Comment("Largest amount of points for an object (model) :" & Image(max_points));
     Write_catalogue;
-    Ada_comment(blurb);
+    Ada_Comment(blurb);
   end YY_Accept;
 
   procedure YY_Abort is
   begin
     null;
-  end;
+  end YY_Abort;
 
   procedure YY_Terminate is
   begin
     null;
-  end;
+  end YY_Terminate;
 
 end Doom3_Help;

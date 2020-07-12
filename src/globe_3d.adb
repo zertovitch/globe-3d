@@ -939,22 +939,22 @@ package body GLOBE_3D is
   -- Resource I/O --
   ------------------
 
-  procedure Load_if_needed( zif: in out Zip.Zip_info; name: String) is
+  procedure Load_if_needed ( zif: in out Zip.Zip_info; name: String) is
   begin
     if not Zip.Is_loaded(zif) then
       begin
         Zip.Load( zif, name );
       exception
-        when Zip.Zip_file_open_error => -- Try with lower case:
+        when Zip.Archive_open_error => -- Try with lower case:
           Zip.Load( zif, To_Lower(name) );
       end;
     end if;
   end Load_if_needed;
 
-  procedure Set_local_data_name(s: String) is
+  procedure Set_local_data_name (s: String) is
   begin
-    if Zip.Is_loaded( zif_level ) then
-      Zip.Delete( zif_level );
+    if zif_level.Is_loaded then
+      zif_level.Finalize;
     end if;
     -- ^ Possible resource name change -> need this, will be reloaded on next use
     level_data_name:= U(s);
@@ -963,10 +963,10 @@ package body GLOBE_3D is
     end if;
   end Set_local_data_name;
 
-  procedure Set_global_data_name(s: String) is
+  procedure Set_global_data_name (s: String) is
   begin
-    if Zip.Is_loaded( zif_global ) then
-      Zip.Delete( zif_global );
+    if zif_global.Is_loaded then
+      zif_global.Finalize;
     end if;
     -- ^ Possible resource name change -> need this, will be reloaded on next use
     global_data_name:= U(s);

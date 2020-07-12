@@ -9,9 +9,10 @@
 --  
 --  Target specification:
 --  
---  For Windows 32-bits (default) : gprbuild -P globe_3d_tools.gpr -XOS_Kind=win32
---  For Linux                     : gprbuild -P globe_3d_tools.gpr -XOS_Kind=linux
---  For Mac OS X (untested)       : gprbuild -P globe_3d_tools.gpr -XOS_Kind=macosx
+--  For Windows 64-bits (default) : gprbuild -P globe_3d_demos.gpr -XOS_Kind=win64
+--  For Windows 32-bits           : gprbuild -P globe_3d_demos.gpr -XOS_Kind=win32
+--  For Linux                     : gprbuild -P globe_3d_demos.gpr -XOS_Kind=linux
+--  For Mac OS X (untested)       : gprbuild -P globe_3d_demos.gpr -XOS_Kind=macosx
 --
 
 with "../globe_3d";
@@ -20,7 +21,7 @@ project GLOBE_3D_Tools is
 
    for Main use ("get_gl_info.adb", "gl_overloader.adb");
    for Source_Dirs use (".");
-   for Object_Dir use "../obj/gnat_" & external ("Build_Mode", "debug");
+   for Object_Dir use "../obj/gnat_" & external ("G3D_GNAT_Obj_Suffix", "debug");
    for Exec_Dir use ".";
 
    package Ide      renames GLOBE_3D.Ide;

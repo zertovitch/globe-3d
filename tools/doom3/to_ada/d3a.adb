@@ -29,8 +29,9 @@ begin
       arg: constant String:= Argument(i);
       u_arg: constant String:= To_Upper( arg );
     begin
-      if u_arg'length > 1 and then
-        (u_arg(1) = '-' or u_arg(1) = '/') then
+      if u_arg'Length > 1 and then
+        (u_arg(1) = '-' or u_arg(1) = '/')
+      then
         case u_arg(2) is
           when 'P' =>
             Doom3_Help.pretty:= True;
@@ -52,7 +53,7 @@ begin
           begin
             Doom3_IO.Open_Input (fname => arg);
             Inp_Opened := True;
-            Put_Line(Standard_error,
+            Put_Line(Standard_Error,
               "D3A from '" & arg & "' to Standard_Output" );
           exception
             when Name_Error =>
@@ -66,12 +67,12 @@ begin
     end;
   end loop;
 
-  if not Inp_opened then
-    Put_Line(Standard_error,
+  if not Inp_Opened then
+    Put_Line (Standard_Error,
       "D3A from Standard_Input to Standard_Output. Rerun ""D3A -h"" for help." );
   end if;
 
-  Doom3_Help.has_input:= inp_opened;
+  Doom3_Help.has_input := Inp_Opened;
 
   Doom3_Help.Ada_Begin;
 

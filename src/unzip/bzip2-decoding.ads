@@ -3,7 +3,7 @@
 --
 --  Legal licensing note:
 --
---  Copyright (c) 2009 .. 2018 Gautier de Montmollin (maintainer of the Ada version)
+--  Copyright (c) 2009 .. 2019 Gautier de Montmollin (maintainer of the Ada version)
 --  SWITZERLAND
 --
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -47,19 +47,19 @@
 
 generic
 
-  input_buffer_size : Integer:= 1024;
-  output_buffer_size: Integer:= 4096;
+  input_buffer_size  : Integer := 1024;
+  output_buffer_size : Integer := 4096;
 
-  type Buffer is array(Natural range <>) of Interfaces.Unsigned_8;
+  type Buffer is array (Natural range <>) of Interfaces.Unsigned_8;
 
   --  CRC checking is useless if the whole bzip stream is enclosed
   --  in another CRC-checked stream, like a in Zip archive.
-  check_CRC: Boolean;
+  check_CRC : Boolean;
 
   --  Input:
-  with procedure Read(buf: out Buffer);
+  with procedure Read (buf : out Buffer);
   --  Output:
-  with procedure Write(buf: in Buffer);
+  with procedure Write (buf : in Buffer);
 
 package BZip2.Decoding is
 

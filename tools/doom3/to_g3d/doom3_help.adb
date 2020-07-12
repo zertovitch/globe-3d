@@ -188,7 +188,7 @@ package body Doom3_Help is
   function Current_Model_name return String is
   begin
     return S(model_stack(model_top).name);
-  end;
+  end Current_Model_name;
 
   -- Current texture - see also Surfaces
 
@@ -198,12 +198,12 @@ package body Doom3_Help is
     name: constant String:= Optional_Junk(Strip_quotes(name_with_quotes));
   begin
     current_texture:= U(name);
-  end;
+  end Set_current_texture;
 
   function Get_current_texture return String is
   begin
     return S(current_texture);
-  end;
+  end Get_current_texture;
 
   function pkg return String is
   begin
@@ -274,17 +274,17 @@ package body Doom3_Help is
         when Unzip_list =>
           return "_unzip_list.txt";
         when Unzip_cmd1 =>
-          return "_unzip1.bat";
+          return "_unzip1.cmd";
         when Unzip_cmd2 =>
-          return "_unzip2.bat";
+          return "_unzip2.cmd";
         when add_suffix1 =>
-          return "_add_tex_suffix1.bat";
+          return "_add_tex_suffix1.cmd";
         when add_suffix2 =>
-          return "_add_tex_suffix2.bat";
+          return "_add_tex_suffix2.cmd";
         when copy_fakes =>
-          return "_copy_fakes.bat";
+          return "_copy_fakes.cmd";
       end case;
-    end;
+    end File_suffix;
 
     junk_opt: String(1..2):= "  ";
 
@@ -450,14 +450,14 @@ package body Doom3_Help is
     st.curr_pt:= st.curr_pt + 1;
     st.point(st.curr_pt):= p;
     st.d3_pt_to_pt(st.curr_d3_pt):= st.curr_pt;
-  end;
+  end Set_current_surface_current_point;
 
   procedure Set_current_surface_current_uv(uv: GLOBE_3D.Map_idx_pair) is
     st: Surface renames surface_stack(surface_top);
   begin
     st.curr_uv:= st.curr_uv + 1;
     st.uv(st.curr_uv):= uv;
-  end;
+  end Set_current_surface_current_uv;
 
   procedure Set_current_surface_current_triangle is
     st: Surface renames surface_stack(surface_top);
@@ -479,22 +479,22 @@ package body Doom3_Help is
     st.curr_tri:= st.curr_tri + 1;
     st.tri(st.curr_tri).P:= (w1,w2,w3,Integer'Last);
     st.tri_d3(st.curr_tri).P:= (v1,v2,v3,Integer'Last);
-  end;
+  end Set_current_surface_current_triangle;
 
   function Get_surface_texture_name(nb: Natural) return String is
   begin
     return S(surface_stack(nb).texture_name);
-  end;
+  end Get_surface_texture_name;
 
   function Get_surface_npoints(nb: Natural) return Natural is
   begin
     return surface_stack(nb).npoints;
-  end;
+  end Get_surface_npoints;
 
   function Get_surface_nfaces(nb: Natural) return Natural is
   begin
     return surface_stack(nb).nfaces;
-  end;
+  end Get_surface_nfaces;
 
   ------------------------------
   -- IAP - Inter Area Portals --
@@ -627,7 +627,7 @@ package body Doom3_Help is
         model_stack(area_stack(area)).portals_to_be_added:=
           model_stack(area_stack(area)).portals_to_be_added + 1;
       end if;
-    end;
+    end Increment_number_of_portals;
 
   begin
     if IAP_top=0 then
@@ -719,7 +719,7 @@ package body Doom3_Help is
       farm(i):= new GLOBE_3D.BSP.BSP_node;
     end loop;
     current_BSP_node:= -1;
-  end;
+  end Allocate_BSP_farm;
 
   procedure Process_BSP_Node is
     use GLOBE_3D.BSP, GL.Math, GL;
@@ -785,10 +785,10 @@ package body Doom3_Help is
   begin
     whole_merged_triangles:= whole_merged_triangles + (o.Max_faces - o2.Max_faces);
     return o2;
-  end;
+  end Merge_triangles_trace;
 
   procedure Write_Summary(log_name, root_name: String) is
-    use GL, GL.Math, GLOBE_3D.Aux;
+    use GLOBE_3D.Aux;
     log: File_Type;
   begin
     Create(log, Out_File, log_name);
@@ -926,28 +926,27 @@ package body Doom3_Help is
   end YY_Accept;
 
   procedure D3G_Init is
-    use GL;
   begin
     face_0.skin:= texture_only;
     face_0.whole_texture:= False;
     face_0.P(4):= 0; -- we have triangles, P(4) is set to 0
     face_0.texture_edge_map:= ((0.0,0.0),(0.0,0.0),(0.0,0.0),(0.0,0.0));
     face_portal.skin:= invisible;
-  end;
+  end D3G_Init;
 
   procedure YY_Abort is
   begin
     null;
-  end;
+  end YY_Abort;
 
   procedure YY_Terminate is
   begin
     null;
-  end;
+  end YY_Terminate;
 
   procedure Doom3_Comment(s: String) is -- dummy
   begin
     null;
-  end;
+  end Doom3_Comment;
 
 end Doom3_Help;

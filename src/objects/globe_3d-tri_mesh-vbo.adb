@@ -70,8 +70,7 @@ package body GLOBE_3D.tri_Mesh.VBO is
    overriding
    procedure set_Indices  (Self : in out tri_Mesh;   To : access GL.Geometry.vertex_Id_array)
    is
-      use GL.Buffer.Indices,
-          GL.Geometry;
+      use GL.Buffer.Indices;
       the_Geometry : GL.Geometry.VBO.vbo_Geometry
              renames GL.Geometry.VBO.vbo_Geometry (Self.skinned_Geometry.Geometry.all);
    begin

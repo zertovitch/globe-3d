@@ -1,13 +1,6 @@
 -- This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
 -- for the W2A tool (VRML World to Ada (GLOBE_3D))
 -- Build me with "gnatmake -P w2a.gpr", or open me with GPS
---
---  Target specification:
---  
---  For Windows 32-bits (default) : gprbuild -P w2a.gpr -XOS_Kind=win32
---  For Linux                     : gprbuild -P w2a.gpr -XOS_Kind=linux
---  For Mac OS X (untested)       : gprbuild -P w2a.gpr -XOS_Kind=macosx
---
 
 with "../../globe_3d";
 
@@ -15,7 +8,7 @@ project W2A is
 
    for Main use ("wrl2ada.adb");
    for Source_Dirs use (".", "..");
-   for Object_Dir use "../../obj/gnat_" & external ("Build_Mode", "debug");
+   for Object_Dir use "../../obj/gnat_" & external ("G3D_GNAT_Obj_Suffix", "debug");
    for Exec_Dir use ".";
 
    package Ide      renames GLOBE_3D.Ide;

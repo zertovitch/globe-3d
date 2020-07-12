@@ -79,9 +79,9 @@ package GLOBE_3D is
   -- searched in the global data. The idea is to set the global
   -- data once in the execution of the program, and change the local data
   -- upon context change (e.g., in a game, a change of level).
-  procedure Set_local_data_name(s: String);
-  procedure Set_level_data_name(s: String) renames Set_local_data_name;
-  procedure Set_global_data_name(s: String);
+  procedure Set_local_data_name  (s: String);
+  procedure Set_level_data_name  (s: String) renames Set_local_data_name;
+  procedure Set_global_data_name (s: String);
 
   data_file_not_found: exception;
 

@@ -1,8 +1,8 @@
---  ________  ___   ______       ______      ___
--- /___..._/  |.|   |.___.\     /. __ .\   __|.|   ____
---    /../    |.|   |.____/     |.|__|.|  /....|  __\..\
---  _/../___  |.|   |.|    ===  |..__..| |. = .| | = ..|
--- /_______/  |_|  /__|        /__|  |_|  \__\_|  \__\_|
+--   ________  ___   ______       ______      ___
+--  /___..._/  |.|   |.___.\     /. __ .\   __|.|   ____
+--     /../    |.|   |.____/     |.|__|.|  /....|  __\..\
+--   _/../___  |.|   |.|    ===  |..__..| |. = .| | = ..|
+--  /_______/  |_|  /__|        /__|  |_|  \__\_|  \__\_|
 
 --  Zip.Compress
 ----------------
@@ -20,9 +20,9 @@
 --  two criteria that usually go in opposite directions: speed and
 --  compression ratio, a bit like risk and return in finance.
 
--- Legal licensing note:
+--  Legal licensing note:
 
---  Copyright (c) 2007 .. 2018 Gautier de Montmollin (Maintainer of the Ada version)
+--  Copyright (c) 2007 .. 2019 Gautier de Montmollin (Maintainer of the Ada version)
 --  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -43,8 +43,8 @@
 --  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 --  THE SOFTWARE.
 
--- NB: this is the MIT License, as found on the site
--- http://www.opensource.org/licenses/mit-license.php
+--  NB: this is the MIT License, as found on the site
+--  http://www.opensource.org/licenses/mit-license.php
 
 ---------------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ package Zip.Compress is
   --  Zip specifications.
 
   type Compression_Method is
-    (--  No compression:
+   ( --  No compression:
      Store,
      --  Shrink = LZW algorithm, as in GIF pictures:
      Shrink,
@@ -66,12 +66,15 @@ package Zip.Compress is
      Reduce_2,
      Reduce_3,
      Reduce_4,
-     --  Deflate combines LZ and Huffman encoding; 4 strengths available:
+     --  Deflate combines LZ and Huffman encoding:
      Deflate_Fixed,
+     Deflate_0,        --  0: No LZ77, only Huffman.
      Deflate_1,
      Deflate_2,
      Deflate_3,
+     Deflate_R,
      --  LZMA:
+     LZMA_0,           --  0: No LZ77, only "MA" part.
      LZMA_1,
      LZMA_2,
      LZMA_3,           --  NB: LZMA_3 can be very slow on large data
@@ -96,30 +99,30 @@ package Zip.Compress is
      Preselection_2   --  Can be very slow on large data; selects Deflate_3, LZMA_2* or LZMA_3*
     );
 
-  type Method_to_Format_type is array(Compression_Method) of PKZip_method;
-  Method_to_Format: constant Method_to_Format_type;
+  type Method_to_Format_type is array (Compression_Method) of PKZip_method;
+  Method_to_Format : constant Method_to_Format_type;
 
   subtype Reduction_Method is Compression_Method range Reduce_1 .. Reduce_4;
 
   --  Deflate_Fixed compresses the data into a single block and with predefined
   --  ("fixed") compression structures. The data are basically LZ-compressed
   --  only, since the Huffman code sets are flat and not tailored for the data.
-  subtype Deflation_Method is Compression_Method range Deflate_Fixed .. Deflate_3;
+  subtype Deflation_Method is Compression_Method range Deflate_Fixed .. Deflate_R;
 
   --  The multi-block Deflate methods use refined techniques to decide when to
   --  start a new block and what sort of block to put next.
-  subtype Taillaule_Deflation_Method is Compression_Method range Deflate_1 .. Deflate_3;
+  subtype Taillaule_Deflation_Method is Compression_Method range Deflate_0 .. Deflation_Method'Last;
 
-  subtype LZMA_Method is Compression_Method range LZMA_1 .. LZMA_for_WAV;
+  subtype LZMA_Method is Compression_Method range LZMA_0 .. LZMA_for_WAV;
 
   subtype Multi_Method is Compression_Method range Preselection_1 .. Preselection_2;
 
   subtype Preselection_Method is Compression_Method range Preselection_1 .. Preselection_2;
 
   subtype Single_Method is Compression_Method
-    range Compression_Method'First .. Compression_Method'Pred(Multi_Method'First);
+    range Compression_Method'First .. Compression_Method'Pred (Multi_Method'First);
 
-  User_abort: exception;
+  User_abort : exception;
 
   type Data_content_type is (
     Neutral,
@@ -137,28 +140,28 @@ package Zip.Compress is
   --  End_Of_File(input) = True, or number of input bytes = input_size .
   --  If password /= "", an encryption header is written.
 
-  procedure Compress_data(
+  procedure Compress_data (
     input,
-    output          : in out Zip_Streams.Root_Zipstream_Type'Class;
-    input_size_known: Boolean;
-    input_size      : File_size_type; -- ignored if input_size_known = False
-    method          : Compression_Method;
-    feedback        : Feedback_proc;
-    password        : String;
-    content_hint    : Data_content_type;
-    CRC             : out Interfaces.Unsigned_32;
-    output_size     : out File_size_type;
-    zip_type        : out Interfaces.Unsigned_16
-    -- ^ code corresponding to the compression method actually used
+    output           : in out Zip_Streams.Root_Zipstream_Type'Class;
+    input_size_known : Boolean;
+    input_size       : File_size_type; -- ignored if input_size_known = False
+    method           : Compression_Method;
+    feedback         : Feedback_proc;
+    password         : String;
+    content_hint     : Data_content_type;
+    CRC              : out Interfaces.Unsigned_32;
+    output_size      : out File_size_type;
+    zip_type         : out Interfaces.Unsigned_16
+    --  ^ code corresponding to the compression method actually used
   );
 
-  function Guess_type_from_name(name: String) return Data_content_type;
+  function Guess_type_from_name (name : String) return Data_content_type;
 
 private
 
-  buffer_size: constant:= 1024 * 1024; -- 1 MB
+  buffer_size : constant := 1024 * 1024;  --  1 MiB
 
-  Method_to_Format: constant Method_to_Format_type :=
+  Method_to_Format : constant Method_to_Format_type :=
     (Store               => store,
      Shrink              => shrink,
      Reduce_1            => reduce_1,

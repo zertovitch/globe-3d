@@ -402,7 +402,7 @@ procedure O2G is
   begin
     Put_Line("Model name: " & Simple_Name(model_name));
     --  For convenience, make a Zip archive with the .g3d object, textures, and original data
-    Create (archive, zip_file'Unchecked_Access, model_name & ".zip", Deflate_1 );
+    Create_Archive (archive, zip_file'Unchecked_Access, model_name & ".zip", Deflate_1 );
     Count_items(o_name);
     Put_Line(
       "First pass (sizes) done," &
@@ -462,8 +462,11 @@ procedure O2G is
     Put_Line(Current_Error, "   -Kscale      : set scaling factor");
     New_Line(Current_Error );
     Put_Line(Current_Error, "Output: model.g3d, model.zip");
+    Put_Line(Current_Error, "            (the .zip archive contains the .g3d file,");
+    Put_Line(Current_Error, "             plus texture bitmap files, original .obj and .mtl,");
+    Put_Line(Current_Error, "             a viewer script, and a ""readme"")");
     New_Line(Current_Error );
-    Put_Line(Current_Error, "Works with drag & drop 'model.obj' onto 'o2g.exe'");
+    Put_Line(Current_Error, "Works with dragging & dropping 'model.obj' onto 'o2g.exe'");
   end Syntax;
 
   procedure Set_new_centre(ps: String) is

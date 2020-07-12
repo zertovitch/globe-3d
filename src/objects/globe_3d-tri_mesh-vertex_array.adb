@@ -82,7 +82,6 @@ package body GLOBE_3D.tri_Mesh.vertex_array is
    overriding
    function face_Count (o : in tri_Mesh) return Natural
    is
-      use GL;
       the_Geometry : GL.Geometry.VA.primal_Geometry
              renames GL.Geometry.VA.primal_Geometry (o.skinned_Geometry.Geometry.all);
    begin

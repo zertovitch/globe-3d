@@ -7,25 +7,44 @@
 project Globe_3D is
 
    type OS_Kind is
-      ("win32", "linux", "macosx");
-   OS : OS_Kind := external ("OS_Kind", "win32");
+      ("win32", "win64", "linux", "macosx");
 
-   type Build_Mode_Type is
-      ("debug", "fast", "small");
-   Build_Mode : Build_Mode_Type := external ("Build_Mode", "debug");
+   OS : OS_Kind := external ("OS_Kind", "win64");
+
+   type G3D_Build_Mode_Type is
+      ("debug",
+       "style_checks",  --  This mode is identical to "debug", but provides code style checks along with compilation.
+       "fast",
+       "small"
+      );
+   G3D_Build_Mode : G3D_Build_Mode_Type := external ("G3D_Build_Mode", "debug");
 
    Binder_Options := ("-Es");  --  -Es: Store tracebacks in exception occurrences, and enable symbolic tracebacks
 
-   Style_Options  := ("-gnatyaknpr",  --  Check all casings: a:attribute, k:keywords, n:package Standard identifiers, p:pragma, r:identifier references.
+   Common_Options :=   ("-gnatwa",
+                        "-fno-strict-aliasing");
+
+   Debug_Options := Common_Options & "-gnato"
+                                   & "-fstack-check"
+                                   & "-g";
+
+   case OS is
+      when "linux"  =>
+         Debug_Options := Debug_Options & "-gnatVa";
+      when "win32" | "win64" =>
+         Debug_Options := Debug_Options & "-fno-inline"
+                                        & "-gnatVcdeimoprst";
+--                                      & "-gnatVf"             -- (2016) turned off floating point validity check, seems to give false positives on a scalar product for collision detection
+      when "macosx" =>
+         null;
+   end case;
+
+   Style_Checks_Options := Debug_Options &
+                     ("-gnatyaknpr",  --  Check all casings: a:attribute, k:keywords, n:package Standard identifiers, p:pragma, r:identifier references.
                       "-gnatybfhiu",  --  Check b:no blanks at end of lines, f:no ff/vtabs, h: no htabs, i:if-then layout, u:no unnecessary blank lines.
                       "-gnatyO",      --  Check that overriding subprograms are explicitly marked as such.
                       "-gnatye",      --  Check that labels on end statements (ending subprograms), and on exit statements (exiting named loops), are present.
                       "-gnatyx");     --  Check x:no extra parens.
-
-   Compiler_Options :=   ("-gnat12",
-                          "-gnatwa",
-                          "-fno-strict-aliasing")
-                        & Style_Options;
 
    Fast_Options := ("-O2", 
                     "-gnatn",
@@ -47,38 +66,26 @@ project Globe_3D is
                      "-falign-functions=0",
                      "-mpreferred-stack-boundary=2");
 
-   case Build_Mode 
-   is
-      when "debug" =>
-         Compiler_Options := Compiler_Options & "-gnato"
-                                              & "-fstack-check"
-                                              & "-g";
-         case OS
-         is
-            when "linux"  =>
-               Compiler_Options := Compiler_Options & "-gnatVa";
+   Compiler_Options := ();
 
-            when "win32"  =>
-               Compiler_Options := Compiler_Options & "-fno-inline"
-                                                    & "-gnatVcdeimoprst";
---                                                  & "-gnatVf"             -- (2016) turned off floating point validity check, seems to give false positives on a scalar product for collision detection
-            when "macosx" =>
-               null;
-         end case;
+   case G3D_Build_Mode 
+   is
+      when "debug"        => Compiler_Options := Debug_Options;
+      when "style_checks" => Compiler_Options := Style_Checks_Options;
 
       when "fast" =>
          case OS
          is
             when "linux"  =>
-               Compiler_Options := Compiler_Options & Fast_Options 
-                                                    & "-fomit-frame-pointer";
-            when "win32"  =>
-               Compiler_Options := Compiler_Options & Fast_Options
-                                                    & "-fipa-cp-clone"
-                                                    & "-fgcse-after-reload" 
-                                                    & "-ftree-vectorize"
-                                                    & "-mfpmath=sse"
-                                                    & "-msse3";
+               Compiler_Options := Common_Options & Fast_Options 
+                                                  & "-fomit-frame-pointer";
+            when "win32" | "win64" =>
+               Compiler_Options := Common_Options & Fast_Options
+                                                  & "-fipa-cp-clone"
+                                                  & "-fgcse-after-reload" 
+                                                  & "-ftree-vectorize"
+                                                  & "-mfpmath=sse"
+                                                  & "-msse3";
             when "macosx" =>
                null;
          end case;
@@ -87,10 +94,10 @@ project Globe_3D is
          case OS
          is
             when "linux"  =>
-               Compiler_Options := Compiler_Options & Small_Options 
-                                                    & "-fdata-sections";
-            when "win32"  =>
-               Compiler_Options := Compiler_Options & Small_Options;
+               Compiler_Options := Common_Options & Small_Options 
+                                                  & "-fdata-sections";
+            when "win32" | "win64"  =>
+               Compiler_Options := Common_Options & Small_Options;
 
             when "macosx" =>
                null;
@@ -108,37 +115,44 @@ project Globe_3D is
       when "linux" =>
          Binder_Options   := Binder_Options   & "-static";
 
-      when "win32" =>
+      when others =>
          null;
    end case;
 
+   G3D_GNAT_Obj_Suffix := "";
+
+   case G3D_Build_Mode is
+      when "style_checks" => G3D_GNAT_Obj_Suffix := "debug";
+      when others         => G3D_GNAT_Obj_Suffix := external ("G3D_Build_Mode", "debug");
+    end case;
 
    for Library_Name    use "globe3d";
-   for Library_Dir     use "lib/gnat_" & external ("Build_Mode", "debug");
-   for Library_Ali_Dir use "lib/gnat_" & external ("Build_Mode", "debug");
-   for Object_Dir      use "obj/gnat_" & external ("Build_Mode", "debug");
+   for Library_Dir     use "lib/gnat_" & G3D_GNAT_Obj_Suffix;
+   for Library_Ali_Dir use "lib/gnat_" & G3D_GNAT_Obj_Suffix;
+   for Object_Dir      use "obj/gnat_" & G3D_GNAT_Obj_Suffix;
 
-   for Source_Dirs use ("bindings",
-                        "bindings/" & external ("OS_Kind", "win32"), 
-                        "src/**");
+   case OS is
+      when "win64"  =>   for Source_Dirs use ("bindings", "bindings/win32", "src/**");
+      when others   =>   for Source_Dirs use ("bindings", "bindings/" & external ("OS_Kind", "win32"), "src/**");
+   end case;
 
    package Ide is
       case OS
       is
-         when "linux"  =>   for Default_Switches ("adacontrol") use ("-Ftgnat_short");
-         when "win32"  =>   for Default_Switches ("adacontrol") use ("-F", "gnat_short");
-         when "macosx" =>   for Default_Switches ("adacontrol") use ();
+         when "linux"            =>   for Default_Switches ("adacontrol") use ("-Ftgnat_short");
+         when "win32" | "win64"  =>   for Default_Switches ("adacontrol") use ("-F", "gnat_short");
+         when "macosx"           =>   for Default_Switches ("adacontrol") use ();
       end case;
    end Ide;
 
    package Builder is
       for Default_Switches ("ada") use ("-C", "-j5");
 
-      case Build_Mode 
+      case G3D_Build_Mode 
       is
-         when "debug" =>   for Global_Configuration_Pragmas use "obj/debug.pra";
-         when "fast"  =>   null;
-         when "small" =>   null;
+         when "debug" | "style_checks" =>   for Global_Configuration_Pragmas use "obj/debug.pra";
+         when "fast"                   =>   null;
+         when "small"                  =>   null;
       end case;
    end Builder;
 
@@ -155,6 +169,7 @@ project Globe_3D is
       is
          when "linux"  =>   for Linker_Options use ("-g", "-lGL", "-lGLU", "-lglut");
          when "win32"  =>   for Linker_Options use ("-g", "-Wl,--gc-sections", "obj/libwin32/glee.o", "-lopengl32", "-lglu32", "-lfreeglut", "-Lobj/libwin32", "-Xlinker", "--stack=0x40000000,0x400000");
+         when "win64"  =>   for Linker_Options use ("-g", "-Wl,--gc-sections", "obj/libwin64/glee.o", "-lopengl32", "-lglu32", "-lfreeglut", "-Lobj/libwin64", "-Xlinker", "--stack=0x40000000,0x400000");
          when "macosx" =>   for Linker_Options use ("-g", "-bind_at_load", "-framework", "/GLUT", "-framework", "/OpenGL", "-lm");
       end case;
    end Linker;

@@ -69,7 +69,7 @@ package body GLOBE_3D.Textures is
         Close( ftex );
         found:= True;
       exception
-        when Zip.File_name_not_found =>
+        when Zip.Entry_name_not_found =>
           null;  --  Nothing bad, item just not found.
         when e: others =>
           Raise_Exception(
@@ -99,7 +99,7 @@ package body GLOBE_3D.Textures is
       -- Tip: use rather the TGA format: single, better compression in the Zip archive.
       Try_image_type(tex_name & ".GIF");
     exception
-      when Zip.Zip_file_open_error =>
+      when Zip.Archive_open_error =>
         null;
     end Try_archive;
   begin
@@ -217,7 +217,7 @@ package body GLOBE_3D.Textures is
       Traverse(zif);
       -- That's it!
     exception
-      when Zip.Zip_file_open_error =>
+      when Zip.Archive_open_error =>
         null;
     end Register;
 

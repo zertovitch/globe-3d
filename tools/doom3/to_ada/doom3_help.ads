@@ -25,9 +25,9 @@ package Doom3_Help is
   argument_pos_source: Natural:= 0;
 
   subtype Real is Long_Float;
-  
+
   type Point_3D is array(0..2) of Real;
-  
+
   last_pt: Point_3D;
   last_U, last_V, last_d: Real;
 
@@ -46,7 +46,7 @@ package Doom3_Help is
   consider_current_model: Boolean;
 
   procedure Add_Model(name_with_quotes: String);
-  
+
   function Current_Model_name return String;
 
   procedure Reset_surfaces;
@@ -74,13 +74,13 @@ package Doom3_Help is
     specular,
     emission  : Material_Float_vector;
     shininess : Real; -- 0.0 .. 128.0
-  end record;  
+  end record;
 
-  default_material   : constant Material_type:= (                                
-            ambient =>        (0.2, 0.2, 0.2, 1.0),        
-            diffuse =>        (0.8, 0.8, 0.8, 1.0),        
-            specular =>       (0.0, 0.0, 0.0, 1.0),        
-            emission =>       (0.0, 0.0, 0.0, 1.0),        
+  default_material   : constant Material_type:= (
+            ambient =>        (0.2, 0.2, 0.2, 1.0),
+            diffuse =>        (0.8, 0.8, 0.8, 1.0),
+            specular =>       (0.0, 0.0, 0.0, 1.0),
+            emission =>       (0.0, 0.0, 0.0, 1.0),
             shininess =>       25.6);
 
   current_matos: Material_type:= default_material;
@@ -108,5 +108,5 @@ package Doom3_Help is
 
   procedure Ada_Build_Model_Header;
   procedure Ada_Build_Model_Footer;
-  
+
 end Doom3_Help;

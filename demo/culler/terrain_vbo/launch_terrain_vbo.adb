@@ -10,7 +10,6 @@ with
 use
     GLOBE_3D.Culler.Impostoring_frustum,
     GLOBE_3D.Sprite,
-    Terrain.VBO,
     GLUT.Windows,
     Ada.Text_IO;
 with GL.Skins;

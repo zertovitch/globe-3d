@@ -8,7 +8,7 @@
 
 --  Legal licensing note:
 
---  Copyright (c) 2016 .. 2018 Gautier de Montmollin (maintainer of the Ada version)
+--  Copyright (c) 2016 .. 2019 Gautier de Montmollin (maintainer of the Ada version)
 --  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -29,8 +29,8 @@
 --  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 --  THE SOFTWARE.
 
--- NB: this is the MIT License, as found 21-Aug-2016 on the site
--- http://www.opensource.org/licenses/mit-license.php
+--  NB: this is the MIT License, as found 21-Aug-2016 on the site
+--  http://www.opensource.org/licenses/mit-license.php
 
 with Interfaces;
 
@@ -48,27 +48,32 @@ package LZ77 is
     IZ_9,
     IZ_10,
     --  Use LZMA SDK's BT4 algorithm (see body for details and credits)
-    BT4
+    BT4,
+    --  A nice simple LZ77 compressor by Rich Geldreich, Jr.
+    Rich,
+    --  Just send literals (plain bytes), no LZ77 compression at all.
+    --  It is better with LZMA on some rare image formats for instance.
+    No_LZ77
   );
 
   subtype Byte is Interfaces.Unsigned_8;
 
   generic
     ----- LZSS Parameters -----
-    String_buffer_size : Integer := 2**12;
-    Look_Ahead         : Integer := 65;
-    Threshold          : Integer := 2;
+    String_buffer_size : Integer := 2**12;  --  Default values.
+    Look_Ahead         : Integer := 65;     --  Default values.
+    Threshold          : Integer := 2;      --  Default values.
     --
-    Method: Method_Type;
+    Method : Method_Type;
     --
-    -- Input of data:
+    --  Input of data:
     with function  Read_byte return Byte;
     with function  More_bytes return Boolean;
-    -- Output of LZ-compressed data:
-    with procedure Write_literal( b: Byte );
-    with procedure Write_DL_code( distance, length: Integer );
+    --  Output of LZ-compressed data:
+    with procedure Write_literal (b : Byte);
+    with procedure Write_DL_code (distance, length : Integer);
     --
-    LZMA_friendly: Boolean:= True;  --  Up to 4 recent distances may be preferred
+    LZMA_friendly : Boolean := True;  --  Up to 4 recent distances may be preferred
   procedure Encode;
 
 end LZ77;
