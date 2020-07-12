@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  File:            GLOBE_3D_Demo.adb
 --  Description:     A small demo for GLOBE_3D
---  Copyright (c) Gautier de Montmollin 2002 .. 2016
+--  Copyright (c) Gautier de Montmollin 2002 .. 2020
 ------------------------------------------------------------------------------
 
 with GL,
@@ -43,10 +43,9 @@ with Vehic001, Vehic002,
      Sierpinski
      ;
 
--- with Ada.Text_IO;
-
 with Ada.Numerics;                      use Ada.Numerics;
 with Ada.Command_Line;
+with Ada.Directories;
 with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;             use Ada.Strings.Unbounded;
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
@@ -58,7 +57,7 @@ procedure GLOBE_3D_Demo is
   package G3D  renames GLOBE_3D;
   package G3DM renames G3D.Math;
 
-  fairly_far: constant:= 10_000.0;
+  fairly_far : constant:= 10_000.0;
 
   package Stars is new GLOBE_3D.Stars_sky(
     num_stars => 5_000,
@@ -567,7 +566,7 @@ procedure GLOBE_3D_Demo is
       G3D.Set_level_data_name(doom3_custom & ".zip");
       G3D.Textures.Reset_textures;
       G3D.Textures.Register_textures_from_resources;
-      Load_Doom(doom3_custom);
+      Load_Doom(Ada.Directories.Simple_Name (doom3_custom));
     end if;
 
     if load and doom3_custom = "" then

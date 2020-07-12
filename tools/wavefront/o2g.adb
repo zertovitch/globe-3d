@@ -17,7 +17,7 @@ with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Command_Line;                  use Ada.Command_Line;
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Vectors;
-with Ada.Directories;                   use Ada.Directories;
+with Ada.Directories;
 with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
 with Ada.Strings.Unbounded.Hash;        use Ada.Strings.Unbounded;
 with Ada.Text_IO;                       use Ada.Text_IO;
@@ -89,8 +89,8 @@ procedure O2G is
     Add_File(
       archive,
       Name,   --  Mame of file to be added, for accessing it (may have full path)
-      Name_in_archive =>   Simple_Name(Name),
-      Modification_time => Zip.Convert(Modification_Time(Name))
+      Name_in_archive =>   Ada.Directories.Simple_Name (Name),
+      Modification_time => Zip.Convert (Ada.Directories.Modification_Time(Name))
     );
   end My_Add_File;
 
@@ -400,9 +400,9 @@ procedure O2G is
     end Argument_Chain;
     --
   begin
-    Put_Line("Model name: " & Simple_Name(model_name));
+    Put_Line("Model name: " & Ada.Directories.Simple_Name(model_name));
     --  For convenience, make a Zip archive with the .g3d object, textures, and original data
-    Create_Archive (archive, zip_file'Unchecked_Access, model_name & ".zip", Deflate_1 );
+    Create_Archive (archive, zip_file'Unchecked_Access, model_name & ".zip", Deflate_3 );
     Count_items(o_name);
     Put_Line(
       "First pass (sizes) done," &
@@ -417,7 +417,7 @@ procedure O2G is
       Acquire_texture_points(o_name, uvs);
       Put_Line("Second pass (acquisition of texture points) done.");
       Acquire_object(o_name, uvs, x);
-      Set_name(x, Simple_Name(model_name));
+      Set_name(x, Ada.Directories.Simple_Name(model_name));
       declare
         opti: Object_3D:= Merge_triangles(x);
       begin
@@ -435,10 +435,11 @@ procedure O2G is
     My_Add_File(o_name);
     Pack_textures;
     --  Create a command line script for lazy Windows users, for viewing the object.
-    Create(cmd, Out_File, model_name & ".cmd");
-    Put_Line(cmd, "GLOBE_3D_Demo.exe -load=" & Simple_Name(model_name));
-    Close(cmd);
-    My_Add_File(model_name & ".cmd");
+    Create (cmd, Out_File, model_name & ".cmd");
+    Put_Line (cmd, "cd ..\..\demo");
+    Put_Line (cmd, "GLOBE_3D_Demo.exe -load=" & Ada.Directories.Full_Name (model_name));
+    Close (cmd);
+    My_Add_File (model_name & ".cmd");
     --  Create a virtual "readme" file.
     Add_String(archive,
       "O2G (see ./tools/wavefront)" & ASCII.LF &
@@ -446,7 +447,7 @@ procedure O2G is
       ASCII.LF & ASCII.LF &
       "O2G was invoked with the following command line: o2g " & ASCII.LF &
       Argument_Chain,
-      Simple_Name(model_name & "_readme.txt"),
+      Ada.Directories.Simple_Name(model_name & "_readme.txt"),
       Creation_time => Zip.Convert(Ada.Calendar.Clock)
     );
     Finish (archive);
