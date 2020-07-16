@@ -902,8 +902,8 @@ MFVec3f_coo	:  { Ada_Put("(1 => "); }
 
 -- wrl2ada
 
-with VRML_Tokens, VRML_Shift_Reduce, VRML_Goto, VRML_Help;
-use  VRML_Tokens, VRML_Shift_Reduce, VRML_Goto, VRML_Help;
+with VRML_Tokens, VRML_Shift_Reduce, VRML_Goto, VRML_Help, VRML_IO;
+use  VRML_Tokens, VRML_Shift_Reduce, VRML_Goto, VRML_Help, VRML_IO;
 
 with VRML_DFA, YYroutines, YYerror;
 use  VRML_DFA, YYroutines;

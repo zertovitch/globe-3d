@@ -114,7 +114,7 @@ package body VRML_Help is
     indent:= 1;
     Ada_Put_Line("centre:        GLOBE_3D.Point_3D");
     Ada_Put(")");
-  end;
+  end Ada_create;
 
   function pkg return String is
   begin
@@ -235,22 +235,22 @@ package body VRML_Help is
   procedure YY_Abort is
   begin
     null;
-  end;
+  end YY_Abort;
 
   procedure YY_Terminate is
   begin
     null;
-  end;
+  end YY_Terminate;
 
   procedure Ada_Comment(s: String) is
   begin
     iPut_Line("-- " & s, as_comment => True);
-  end;
+  end Ada_Comment;
 
   procedure VRML_Info(s: String) is
   begin
     Ada_Comment("VRML Info: [" & s & ']');
-  end;
+  end VRML_Info;
 
   header_done: Boolean:= False;
 
@@ -278,29 +278,29 @@ package body VRML_Help is
       header_done:= True;
       table_area:= True;
     end if;
-  end;
+  end VRML_Comment;
 
   procedure Ada_Put(s: String) is
   begin
     iPut(s, as_comment => False);
-  end;
+  end Ada_Put;
 
   procedure Ada_Put_Line(s: String) is
   begin
     iPut_Line(s, as_comment => False);
-  end;
+  end Ada_Put_Line;
 
   procedure Ada_New_Line is
   begin
     iNew_Line;
-  end;
+  end Ada_New_Line;
 
   ig: Integer:= 0;
 
   procedure Reset_index_grouping is
   begin
     ig:= 0;
-  end;
+  end Reset_index_grouping;
 
   W2A_Not_supported_Polygon: exception;
 
@@ -313,7 +313,7 @@ package body VRML_Help is
     begin
       idx_point_buffer:= idx_point_buffer + 1;
       point_buffer(idx_point_buffer):= v;
-    end;
+    end Store;
 
   begin
     if ig = 0 then

@@ -6,10 +6,10 @@ package body doom3_io is
 -- gets input and stuffs it into 'buf'.  number of characters read, or YY_NULL,
 -- is returned in 'result'.
 
-procedure YY_INPUT(buf: out unbounded_character_array; result: out integer; max_size: in integer) is
-    c : character;
-    i : integer := 1;
-    loc : integer := buf'first;
+  procedure YY_INPUT (buf: out unbounded_character_array; result: out Integer; max_size: in Integer) is
+    c : Character;
+    i : Integer := 1;
+    loc : Integer := buf'First;
 -- UMASS CODES :
 --    Since buf is an out parameter which is not readable
 --    and saved lines is a string pointer which space must
@@ -18,10 +18,10 @@ procedure YY_INPUT(buf: out unbounded_character_array; result: out integer; max_
 --    save it into the saved line 2.
    Temp_Line : String ( 1 .. YY_BUF_SIZE + 2 );
 -- END OF UMASS CODES.
-begin
+  begin
 -- UMASS CODES :
     -- buf := ( others => ASCII.NUL ); -- CvdL: does not work in GNAT
-   for j in buf'first..buf'last loop
+   for j in buf'First..buf'Last loop
      buf(j) := ASCII.NUL;
    end loop;
 -- Move the saved lines forward.
@@ -29,11 +29,11 @@ begin
     Line_Number_Of_Saved_Tok_Line1 := Line_Number_Of_Saved_Tok_Line2;
 -- END OF UMASS CODES.
 
-    if is_open(user_input_file) then
+    if Is_Open (user_input_file) then
       while i <= max_size loop
-         if end_of_line(user_input_file) then -- Ada ate our newline, put it back on the end.
-             buf(loc) := ASCII.LF;
-             skip_line(user_input_file, 1);
+         if End_Of_Line (user_input_file) then -- Ada ate our newline, put it back on the end.
+             buf (loc) := ASCII.LF;
+             Skip_Line (user_input_file, 1);
 -- UMASS CODES :
 --   We try to get one line by one line. So we return
 --   here because we saw the end_of_line.
@@ -51,9 +51,9 @@ begin
 --    in Ayacc-extension specific codes. Definitely, we can read the character
 --    into the Temp_Line and then set the buf. But Temp_Line will only
 --    be used in Ayacc-extension specific codes which makes this approach impossible.
-           get(user_input_file, c);
-           buf(loc) := c;
---         get(user_input_file, buf(loc));
+           Get (user_input_file, c);
+           buf (loc) := c;
+--         Get (user_input_file, buf (loc));
 -- UMASS CODES :
            Temp_Line(i) := c;
 -- END OF UMASS CODES.
@@ -64,9 +64,9 @@ begin
       end loop;
     else
       while i <= max_size loop
-         if end_of_line then -- Ada ate our newline, put it back on the end.
-             buf(loc) := ASCII.LF;
-             skip_line(1);
+         if End_Of_Line then -- Ada ate our newline, put it back on the end.
+             buf (loc) := ASCII.LF;
+             Skip_Line (1);
 -- UMASS CODES :
 --   We try to get one line by one line. So we return
 --   here because we saw the end_of_line.
@@ -86,20 +86,20 @@ begin
 --    in Ayacc-extension specific codes. Definitely, we can read the character
 --    into the Temp_Line and then set the buf. But Temp_Line will only
 --    be used in Ayacc-extension specific codes which makes this approach impossible.
-           get(c);
-           buf(loc) := c;
---         get(buf(loc));
+           Get (c);
+           buf (loc) := c;
+--         Get (buf (loc));
 -- UMASS CODES :
            Temp_Line(i) := c;
 -- END OF UMASS CODES.
-         end if; 
+         end if;
 
          loc := loc + 1;
          i := i + 1;
       end loop;
     end if; -- for input file being standard input
 
-    result := i - 1; 
+    result := i - 1;
 -- UMASS CODES :
 --   Since we get one line by one line, if we
 --   reach here, it means that current line have
@@ -107,10 +107,10 @@ begin
 --   impossible to hold the whole line. We
 --   report the warning message and continue.
     buf(loc - 1) := Ascii.LF;
-    if is_open(user_input_file) then
-      skip_line(user_input_file, 1);
+    if Is_Open (user_input_file) then
+      Skip_Line (user_input_file, 1);
     else
-      skip_line(1);
+      Skip_Line (1);
     end if;
     Temp_Line(i-1) := ASCII.LF;
     Saved_Tok_Line2 := new String ( 1 .. i - 1);
@@ -123,9 +123,9 @@ begin
                & " characters, ... truncated." );
 -- END OF UMASS CODES.
     exception
-        when END_ERROR => result := i - 1;
+        when End_Error => result := i - 1;
     -- when we hit EOF we need to set yy_eof_has_been_seen
-    yy_eof_has_been_seen := true;
+    yy_eof_has_been_seen := True;
 -- UMASS CODES :
 --   Processing incomplete line.
         if i /= 1 then
@@ -137,22 +137,22 @@ begin
           Line_Number_Of_Saved_Tok_Line2 := Line_Number_Of_Saved_Tok_Line1 + 1;
         end if;
 -- END OF UMASS CODES.
-end YY_INPUT;
+  end YY_INPUT;
 
 -- yy_get_next_buffer - try to read in new buffer
 --
 -- returns a code representing an action
---     EOB_ACT_LAST_MATCH - 
+--     EOB_ACT_LAST_MATCH -
 --     EOB_ACT_RESTART_SCAN - restart the scanner
 --     EOB_ACT_END_OF_FILE - end of file
 
-function yy_get_next_buffer return eob_action_type is
-    dest : integer := 0;
-    source : integer := yytext_ptr - 1; -- copy prev. char, too
-    number_to_move : integer;
+  function yy_get_next_buffer return eob_action_type is
+    dest   : Integer := 0;
+    source : Integer := yytext_ptr - 1;  --  copy prev. char, too
+    number_to_move : Integer;
     ret_val : eob_action_type;
-    num_to_read : integer;
-begin    
+    num_to_read : Integer;
+  begin
     if yy_c_buf_p > yy_n_chars + 1 then
         raise NULL_IN_INPUT;
     end if;
@@ -162,39 +162,39 @@ begin
     -- first move last chars to start of buffer
     number_to_move := yy_c_buf_p - yytext_ptr;
 
-    for i in 0..number_to_move - 1 loop
-        yy_ch_buf(dest) := yy_ch_buf(source);
-    dest := dest + 1;
-    source := source + 1;
+    for i in 0 .. number_to_move - 1 loop
+      yy_ch_buf (dest) := yy_ch_buf (source);
+      dest := dest + 1;
+      source := source + 1;
     end loop;
         
     if yy_eof_has_been_seen then
     -- don't do the read, it's not guaranteed to return an EOF,
     -- just force an EOF
 
-    yy_n_chars := 0;
+      yy_n_chars := 0;
     else
-    num_to_read := YY_BUF_SIZE - number_to_move - 1;
+      num_to_read := YY_BUF_SIZE - number_to_move - 1;
 
-    if num_to_read > YY_READ_BUF_SIZE then
+      if num_to_read > YY_READ_BUF_SIZE then
         num_to_read := YY_READ_BUF_SIZE;
-        end if;
+      end if;
 
     -- read in more data
-    YY_INPUT( yy_ch_buf(number_to_move..yy_ch_buf'last), yy_n_chars, num_to_read );
+    YY_INPUT ( yy_ch_buf (number_to_move .. yy_ch_buf'Last), yy_n_chars, num_to_read );
     end if;
     if yy_n_chars = 0 then
-    if number_to_move = 1 then
+      if number_to_move = 1 then
         ret_val := EOB_ACT_END_OF_FILE;
-    else
+      else
         ret_val := EOB_ACT_LAST_MATCH;
-        end if;
+      end if;
 
-    yy_eof_has_been_seen := true;
+      yy_eof_has_been_seen := True;
     else
     ret_val := EOB_ACT_RESTART_SCAN;
     end if;
-    
+
     yy_n_chars := yy_n_chars + number_to_move;
     yy_ch_buf(yy_n_chars) := YY_END_OF_BUFFER_CHAR;
     yy_ch_buf(yy_n_chars + 1) := YY_END_OF_BUFFER_CHAR;
@@ -209,14 +209,14 @@ begin
     yytext_ptr := 1;
 
     return ret_val;
-end yy_get_next_buffer;
+  end yy_get_next_buffer;
 
-procedure yyunput( c : character; yy_bp: in out integer ) is
-    number_to_move : integer;
-    dest : integer;
-    source : integer;
-    tmp_yy_cp : integer;
-begin
+  procedure yyUnput ( c : Character; yy_bp: in out Integer ) is
+    number_to_move : Integer;
+    dest : Integer;
+    source : Integer;
+    tmp_yy_cp : Integer;
+  begin
     tmp_yy_cp := yy_c_buf_p;
     yy_ch_buf(tmp_yy_cp) := yy_hold_char; -- undo effects of setting up yytext
 
@@ -254,11 +254,11 @@ begin
     yy_hold_char := yy_ch_buf(tmp_yy_cp);
     yy_ch_buf(tmp_yy_cp) := ASCII.NUL;
     yy_c_buf_p := tmp_yy_cp;
-end yyunput;
+  end yyUnput;
 
   procedure Unput(c : Character) is
   begin
-     yyunput( c, yy_bp );
+     yyUnput( c, yy_bp );
   end Unput;
 
   function Input return Character is
@@ -276,7 +276,7 @@ end yyunput;
         -- that above
 
         when EOB_ACT_END_OF_FILE =>
-          if yywrap then
+          if yyWrap then
             yy_c_buf_p := yytext_ptr;
             return ASCII.NUL;
           end if;
@@ -285,7 +285,7 @@ end yyunput;
           yy_n_chars := 1;
           yy_ch_buf(yy_n_chars) := YY_END_OF_BUFFER_CHAR;
           yy_ch_buf(yy_n_chars + 1) := YY_END_OF_BUFFER_CHAR;
-          yy_eof_has_been_seen := false;
+          yy_eof_has_been_seen := False;
           yy_c_buf_p := 1;
           yytext_ptr := yy_c_buf_p;
           yy_hold_char := yy_ch_buf(yy_c_buf_p);
@@ -308,16 +308,16 @@ end yyunput;
 
   procedure Output(c : Character) is
   begin
-    if is_open(user_output_file) then
-      Text_IO.put(user_output_file, c);
+    if Is_Open (user_output_file) then
+      Text_IO.Put (user_output_file, c);
     else
-      Text_IO.put(c);
+      Text_IO.Put (c);
     end if;
   end Output;
 
   procedure Output_New_Line is
   begin
-    if is_open(user_output_file) then
+    if Is_Open (user_output_file) then
       Text_IO.New_Line(user_output_file);
     else
       Text_IO.New_Line;
@@ -326,7 +326,7 @@ end yyunput;
 
   function Output_Column return Text_IO.Count is
   begin
-    if is_open(user_output_file) then
+    if Is_Open (user_output_file) then
       return Text_IO.Col(user_output_file);
     else
       return Text_IO.Col;
@@ -334,10 +334,10 @@ end yyunput;
   end Output_Column;
 
   function Input_Line return Text_IO.Count is
-   l: Text_IO.Count:= 1;
+    l : Text_IO.Count := 1;
   begin
 -- UMASS CODES :
-    l:= Text_IO.Count(Line_Number_Of_Saved_Tok_Line2);
+    l := Text_IO.Count (Line_Number_Of_Saved_Tok_Line2);
 -- END OF UMASS CODES.
     return l; -- from file, always 1
     -- if is_open(user_input_file) then
@@ -347,38 +347,38 @@ end yyunput;
     -- end if;
   end Input_Line;
 
--- default yywrap function - always treat EOF as an EOF
-function yywrap return boolean is
-begin
-    return true;
-end yywrap;
+  -- default yyWrap function - always treat EOF as an EOF
+  function yyWrap return Boolean is
+  begin
+    return True;
+  end yyWrap;
 
-procedure Open_Input(fname : in String) is
-begin
-    yy_init := true;
-    open(user_input_file, in_file, fname);
-end Open_Input;
+  procedure Open_Input(fname : in String) is
+  begin
+    yy_init := True;
+    Open (user_input_file, In_File, fname);
+  end Open_Input;
 
-procedure Create_Output(fname : in String := "") is
-begin
+  procedure Create_Output(fname : in String := "") is
+  begin
     if fname /= "" then
-        create(user_output_file, out_file, fname);
+        Create (user_output_file, Out_File, fname);
     end if;
-end Create_Output;
+  end Create_Output;
 
-procedure Close_Input is
-begin
-   if is_open(user_input_file) then
-     Text_IO.close(user_input_file);
+  procedure Close_Input is
+  begin
+   if Is_Open (user_input_file) then
+     Text_IO.Close(user_input_file);
    end if;
-end Close_Input;
+  end Close_Input;
 
-procedure Close_Output is
-begin
-   if is_open(user_output_file) then
-     Text_IO.close(user_output_file);
-   end if;
-end Close_Output;
+  procedure Close_Output is
+  begin
+    if Is_Open (user_output_file) then
+      Text_IO.Close (user_output_file);
+    end if;
+  end Close_Output;
 
 -- UMASS CODES :
 procedure Yy_Get_Token_Line ( Yy_Line_String : out String;

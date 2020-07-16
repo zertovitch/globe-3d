@@ -1453,7 +1453,7 @@ when 139 =>
 
 when 140 => 
 --# line 284 "vrml.l"
- yylval.floatval := Float'Value(yytext);
+ yylval.floatval := Real'Value(yytext);
                       return FLOAT_t;
 
 when 141 => 
