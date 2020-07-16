@@ -13,7 +13,7 @@ rem We also may need the .map file.
 if not exist %1.map unzip %1.zip %1.map
 if not exist %1.map unzip -j %1.pk4 *.map
 
-call make_d3g -O
+call make_d3g
 
 echo.
 echo *********************
@@ -43,7 +43,8 @@ cd tmp
 del *.bmp
 del *.tga
 
-echo   ** Put: *Original* DOOM 3 or QUAKE 4 textures (d3tex.zip has contents of pak004.pk4, but flat directory)
+echo   ** Put: *Original* DOOM 3 or QUAKE 4 textures (d3tex.zip has the 
+echo      contents of pak004.pk4, but a flat directory)
 rem * Fast
 7z e -y -i@..\%1_textures_unzip_list.txt ..\d3tex.zip
 7z e -y -i@..\%1_textures_unzip_list.txt ..\q4tex.zip
@@ -81,10 +82,12 @@ zip -9 ..\%1.zip *.bmp *.tga
 
 cd..
 
-echo GLOBE_3D_Demo.exe -load=%1 >%1.bat
+echo cd ..\..\..\demo >%1.cmd
+echo start GLOBE_3D_Demo.exe -load=..\tools\doom3\to_g3d\%1 >>%1.cmd
+echo cd ..\tools\doom3\to_g3d >>%1.cmd
 
 rem Preserve the precious .proc and .map files
-zip -9 %1.zip %1.proc %.map %1.bat
+zip -9 %1.zip %1.proc %1.map %1.cmd
 
 echo.
 echo ** Display and Play!

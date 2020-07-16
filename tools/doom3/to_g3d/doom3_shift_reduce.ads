@@ -296,9 +296,9 @@ package Doom3_Shift_Reduce is
 -- State  138
 ,(-1,-32)
 );
---  The offset vector
-SHIFT_REDUCE_OFFSET : array (0.. 138) of Integer :=
-( 0,
+  --  The offset vector
+  Shift_Reduce_Offset : array (0 .. 138) of Integer :=
+  ( 0,
  4, 5, 6, 11, 12, 13, 14, 16, 18, 23, 24, 25, 26, 27, 29, 31,
  32, 33, 34, 36, 37, 38, 40, 42, 44, 46, 47, 48, 49, 51, 53, 55,
  57, 59, 60, 61, 63, 65, 66, 68, 70, 72, 73, 75, 77, 79, 80, 81,

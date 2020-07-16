@@ -311,6 +311,7 @@ package body Doom3_Help is
               if junk_dirs then
                 Put_Line(f,"unzip -o ..\d3tex.zip " & p.name & ".tga");
                 Put_Line(f,"unzip -o ..\d3tex.zip " & tex & ".tga");
+                Put_Line(f,"unzip -o ..\d3tex.zip " & tex & "_s.tga");  --  Specular
               else
                 -- unused variant
                 Put_Line(f,"unzip C:\Transferts\Doom3map\pak004.zip " & p.name & "*");
@@ -318,18 +319,21 @@ package body Doom3_Help is
             when Unzip_cmd2  =>
               Put_Line(f,"unzip -o ..\palettex.zip " & p.name & ".*");
               Put_Line(f,"unzip -o ..\palettex.zip " & tex & ".*");
+              Put_Line(f,"unzip -o ..\palettex.zip " & tex & "_s.*");  --  Specular
             when add_suffix1 =>
-              --  Example: if not exist black_d.tga ren black.tga black_d.tga
-              Put_Line(f,"if not exist " & p.name & ".tga ren " & tex & ".tga " & p.name & ".tga");
+              --  Example: if not exist black_d.tga  ren black.tga black_d.tga
+              Put_Line (f, "if not exist " & p.name & ".tga  ren " & tex & ".tga " & p.name & ".tga");
             when copy_fakes =>
-              Put_Line(f, "if not exist " & p.name & ".tga copy ..\_fake.bmp " & p.name & ".bmp");
+              Put_Line (f, "if not exist " & p.name & ".tga  if not exist " & p.name & ".bmp  copy ..\_fake.bmp " & p.name & ".bmp");
             when add_suffix2 =>
+              --  Remove unused textures (bump, etc.)
               Put_Line(f,"if exist " & tex & ".tga       del " & tex & ".tga");
               Put_Line(f,"if exist " & tex & "_bmp.tga   del " & tex & "_bmp.tga");
-              --  Put_Line(f,"if exist " & tex & "_s.tga     del " & tex & "_s.tga");
               Put_Line(f,"if exist " & tex & "_h.tga     del " & tex & "_h.tga");
               Put_Line(f,"if exist " & tex & "_local.tga del " & tex & "_local.tga");
-              Put_Line(f,"if exist " & p.name & ".bmp del " & p.name & ".tga");
+              --  Prefer .bmp over .tga if both exist (typically, .bmp from palettex.zip and .tga from d3tex.zip)
+              Put_Line(f,"if exist " & p.name & ".bmp      del " & p.name & ".tga");
+              Put_Line(f,"if exist " & tex    & "_s.bmp    del " & tex & "_s.tga");
           end case;
         end;
         n:= n + 1;

@@ -14,16 +14,19 @@ procedure D3G is
 
   procedure Syntax is
   begin
-    Put_Line( Standard_Error, "Syntax: d3g [option] input_file" );
+    Put_Line( Standard_Error, "Syntax: d3g [option] input_file.proc" );
     New_Line( Standard_Error );
     Put_Line( Standard_Error, "D3G translates a Doom 3 or Quake 4 processed map file" );
     Put_Line( Standard_Error, "(.proc) into GLOBE_3D objects (.g3d) and bsp (.bsp) files." );
     New_Line( Standard_Error );
-    Put_Line( Standard_Error, "options:" );
-    Put_Line( Standard_Error, " -J[unk]      : junk directories of texture names" );
-    Put_Line( Standard_Error, " -A[reas]     : consider areas only, junk other models" );
-    Put_Line( Standard_Error, " -Carea-number: center on a certain area" );
-    Put_Line( Standard_Error, " -S(x,y,z)    : shifts centering by (x,y,z)" );
+    Put_Line( Standard_Error, "Options:" );
+    Put_Line( Standard_Error, "  -J[unk]       : junk directories of texture names" );
+    Put_Line( Standard_Error, "  -A[reas]      : consider areas only, junk other models" );
+    Put_Line( Standard_Error, "  -Carea-number : center on a certain area" );
+    Put_Line( Standard_Error, "  -S(x,y,z)     : shifts centering by (x,y,z)" );
+    New_Line( Standard_Error );
+    Put_Line( Standard_Error, "See procpack.cmd for a complete script which calls D3G and");
+    Put_Line( Standard_Error, "  prepares a level's .zip with .g3d, .bsp and textures." );
   end Syntax;
 
   procedure Set_new_centre(ps: String) is

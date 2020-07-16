@@ -47,7 +47,7 @@ procedure YYParse is
        stack_size : constant Natural := yy_sizes.stack_size; -- was 300, then 8192
 
        -- subtype rule         is natural;
-       subtype parse_state  is natural;
+       subtype parse_state  is Natural;
        -- subtype nonterminal  is integer;
 
        -- encryption constants
@@ -57,87 +57,87 @@ procedure YYParse is
        error_code        : constant := -3000;
 
        -- stack data used by the parser
-       tos                : natural := 0;
-       value_stack        : array(0..stack_size) of yy_tokens.yystype;
+       tos                : Natural := 0;
+       value_stack        : array(0..stack_size) of yy_tokens.YYSType;
        state_stack        : array(0..stack_size) of parse_state;
 
        -- current input symbol and action the parser is on
-       action             : integer;
-       rule_id            : rule;
-       input_symbol       : yy_tokens.token:= Error;
+       action             : Integer;
+       rule_id            : Rule;
+       input_symbol       : yy_tokens.Token:= Error;
 
 
        -- error recovery flag
-       error_flag : natural := 0;
+       error_flag : Natural := 0;
           -- indicates  3 - (number of valid shifts after an error occurs)
 
-       look_ahead : boolean := true;
-       index      : integer;
+       look_ahead : Boolean := True;
+       index      : Integer;
 
        -- Is Debugging option on or off
-        DEBUG : constant boolean := FALSE;
+       debug : constant Boolean := FALSE;
 
     end yy;
 
 
     function goto_state
       (state : yy.parse_state;
-       sym   : nonterminal) return yy.parse_state;
+       sym   : Nonterminal) return yy.parse_state;
 
     function parse_action
       (state : yy.parse_state;
-       t     : yy_tokens.token) return integer;
+       t     : yy_tokens.Token) return Integer;
 
     pragma inline(goto_state, parse_action);
 
 
     function goto_state(state : yy.parse_state;
-                        sym   : nonterminal) return yy.parse_state is
-        index : integer;
+                        sym   : Nonterminal) return yy.parse_state is
+        index : Integer;
     begin
         index := goto_offset(state);
-        while  integer(goto_matrix(index).nonterm) /= sym loop
+        while Integer (Goto_Matrix(index).nonterm) /= sym loop
             index := index + 1;
         end loop;
-        return integer(goto_matrix(index).newstate);
+        return Integer (Goto_Matrix(index).newstate);
     end goto_state;
 
 
     function parse_action(state : yy.parse_state;
-                          t     : yy_tokens.token) return integer is
-        index      : integer;
-        tok_pos    : integer;
-        default    : constant integer := -1;
+                          t     : yy_tokens.token) return Integer is
+        index      : Integer;
+        tok_pos    : Integer;
+        default    : constant Integer := -1;
     begin
         tok_pos := yy_tokens.token'pos(t);
-        index   := shift_reduce_offset(state);
-        while integer(shift_reduce_matrix(index).t) /= tok_pos and then
-              integer(shift_reduce_matrix(index).t) /= default
+        index   := Shift_Reduce_Offset(state);
+        while Integer (Shift_Reduce_Matrix(index).t) /= tok_pos and then
+              Integer (Shift_Reduce_Matrix(index).t) /= default
         loop
             index := index + 1;
         end loop;
-        return integer(shift_reduce_matrix(index).act);
+        return Integer (shift_reduce_matrix(index).act);
     end parse_action;
 
 -- error recovery stuff
 
     procedure handle_error is
-      temp_action : integer;
+      temp_action : Integer;
     begin
 
-      if yy.error_flag = 3 then -- no shift yet, clobber input.
+      if yy.error_flag = 3 then  --  no shift yet, clobber input.
       if yy.debug then
-          text_io.put_line("  -- Ayacc.YYParse: Error Recovery Clobbers " &
-                   yy_tokens.token'image(yy.input_symbol));
+          Text_IO.Put_Line("  -- Ayacc.YYParse: Error Recovery Clobbers " &
+                   yy_tokens.token'Image(yy.input_symbol));
       end if;
-        if yy.input_symbol = yy_tokens.end_of_input then  -- don't discard,
+        if yy.input_symbol = yy_tokens.end_of_input then  --  don't discard,
         if yy.debug then
-            text_io.put_line("  -- Ayacc.YYParse: Can't discard END_OF_INPUT, quiting...");
+            Text_IO.Put_Line("  -- Ayacc.YYParse: Can't discard END_OF_INPUT, quitting...");
         end if;
-        raise yy_tokens.syntax_error;
+        raise yy_tokens.Syntax_Error;
         end if;
 
-            yy.look_ahead := true;   -- get next token
+            yy.look_ahead := True;   -- get next token
         return;                  -- and try again...
     end if;
 
@@ -154,19 +154,19 @@ procedure YYParse is
     -- find state on stack where error is a valid shift --
 
     if yy.debug then
-        text_io.put_line("  -- Ayacc.YYParse: Looking for state with error as valid shift");
+        Text_IO.Put_Line("  -- Ayacc.YYParse: Looking for state with error as valid shift");
     end if;
 
     loop
         if yy.debug then
-          text_io.put_line("  -- Ayacc.YYParse: Examining State " &
-               yy.parse_state'image(yy.state_stack(yy.tos)));
+          Text_IO.Put_Line("  -- Ayacc.YYParse: Examining State " &
+               yy.parse_state'Image(yy.state_stack(yy.tos)));
         end if;
         temp_action := parse_action(yy.state_stack(yy.tos), error);
 
             if temp_action >= yy.first_shift_entry then
                 if yy.tos = yy.stack_size then
-                    text_io.put_line("  -- Ayacc.YYParse: Stack size exceeded on state_stack");
+                    Text_IO.Put_Line("  -- Ayacc.YYParse: Stack size exceeded on state_stack");
                     raise yy_Tokens.syntax_error;
                 end if;
                 yy.tos := yy.tos + 1;
@@ -184,15 +184,15 @@ procedure YYParse is
 
         if yy.tos = 0 then
           if yy.debug then
-            text_io.put_line("  -- Ayacc.YYParse: Error recovery popped entire stack, aborting...");
+            Text_IO.Put_Line("  -- Ayacc.YYParse: Error recovery popped entire stack, aborting...");
           end if;
           raise yy_tokens.syntax_error;
         end if;
     end loop;
 
     if yy.debug then
-        text_io.put_line("  -- Ayacc.YYParse: Shifted error token in state " &
-              yy.parse_state'image(yy.state_stack(yy.tos)));
+        Text_IO.Put_Line("  -- Ayacc.YYParse: Shifted error token in state " &
+              yy.parse_state'Image(yy.state_stack(yy.tos)));
     end if;
 
     end handle_error;
@@ -200,15 +200,15 @@ procedure YYParse is
    -- print debugging information for a shift operation
    procedure shift_debug(state_id: yy.parse_state; lexeme: yy_tokens.token) is
    begin
-       text_io.put_line("  -- Ayacc.YYParse: Shift "& yy.parse_state'image(state_id)&" on input symbol "&
-               yy_tokens.token'image(lexeme) );
+       Text_IO.Put_Line("  -- Ayacc.YYParse: Shift "& yy.parse_state'Image(state_id)&" on input symbol "&
+               yy_tokens.token'Image(lexeme) );
    end;
 
    -- print debugging information for a reduce operation
    procedure reduce_debug(rule_id: rule; state_id: yy.parse_state) is
    begin
-       text_io.put_line("  -- Ayacc.YYParse: Reduce by rule "&rule'image(rule_id)&" goto state "&
-               yy.parse_state'image(state_id));
+       Text_IO.Put_Line("  -- Ayacc.YYParse: Reduce by rule "&rule'Image(rule_id)&" goto state "&
+               yy.parse_state'Image(state_id));
    end;
 
    -- make the parser believe that 3 valid shifts have occured.
@@ -233,7 +233,7 @@ begin
 
     loop
 
-        yy.index := shift_reduce_offset(yy.state_stack(yy.tos));
+        yy.index := Shift_Reduce_Offset(yy.state_stack(yy.tos));
         if integer(shift_reduce_matrix(yy.index).t) = yy.default then
             yy.action := integer(shift_reduce_matrix(yy.index).act);
         else
@@ -255,7 +255,7 @@ begin
 
             -- Enter new state
             if yy.tos = yy.stack_size then
-                text_io.put_line(" Stack size exceeded on state_stack");
+                Text_IO.Put_Line(" Stack size exceeded on state_stack");
                 raise yy_Tokens.syntax_error;
             end if;
             yy.tos := yy.tos + 1;
@@ -275,7 +275,7 @@ begin
 
         elsif yy.action = yy.accept_code then
             if yy.debug then
-                text_io.put_line("  -- Ayacc.YYParse: Accepting Grammar...");
+                Text_IO.Put_Line("  -- Ayacc.YYParse: Accepting Grammar...");
             end if;
             exit;
 
@@ -617,20 +617,23 @@ yy.value_stack(yy.tos)); -- Float
 
 
             -- Pop RHS states and goto next state
+            if yy.rule_id < 0 then
+              raise Constraint_Error with "yy.rule_id = " & Integer'Image (yy.rule_id) & " < 0";
+            end if;
             yy.tos      := yy.tos - rule_length(yy.rule_id) + 1;
             if yy.tos > yy.stack_size then
-                text_io.put_line(" Stack size exceeded on state_stack");
-                raise yy_Tokens.syntax_error;
+                Text_IO.Put_Line (" Stack size exceeded on state_stack");
+                raise yy_Tokens.Syntax_Error;
             end if;
             yy.state_stack(yy.tos) := goto_state(yy.state_stack(yy.tos-1) ,
-                                 get_lhs_rule(yy.rule_id));
+                                 Get_LHS_Rule (yy.rule_id));
 
               yy.value_stack(yy.tos) := yyval;
 
             if yy.debug then
                 reduce_debug(yy.rule_id,
                     goto_state(yy.state_stack(yy.tos - 1),
-                               get_lhs_rule(yy.rule_id)));
+                               Get_LHS_Rule (yy.rule_id)));
             end if;
 
         end if;
@@ -639,4 +642,4 @@ yy.value_stack(yy.tos)); -- Float
     end loop;
 
 
-end yyparse;
+end YYParse;
