@@ -44,6 +44,8 @@ goto :eof
 :sub_clean
  cd %1
    call :sub_del *.ali
+   call :sub_del *.db
+   call :sub_del *.xml
    call :sub_del *.bexch
    call :sub_del *.lexch
    call :sub_del *.o

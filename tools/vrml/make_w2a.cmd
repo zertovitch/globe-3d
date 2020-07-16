@@ -1,6 +1,6 @@
 @echo off
-echo make_w2a: option -f recreates sources from the vrml.y, vrml.l files
-if not "%1"=="-f" goto comp
+echo make_w2a: option -r recreates sources from the vrml.y, vrml.l files
+if not "%1"=="-r" goto comp
 rem
 echo 1) Compile AYACC/AFLEX files to Ada sources
 rem

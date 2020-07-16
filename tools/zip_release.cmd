@@ -9,7 +9,7 @@ rem   Then run this.
 del *.bak
 cd ..
 cd demo
-if "%1"=="-b" gprbuild -PGLOBE_3D_Demos.gpr GLOBE_3D_Demo.adb Mini.adb -XOS_Kind=win32 -XBuild_Mode=small
+if "%1"=="-b" gprbuild -PGLOBE_3D_Demos.gpr GLOBE_3D_Demo.adb Mini.adb -XOS_Kind=win64 -XBuild_Mode=small
 cd ..
 cd tools
 

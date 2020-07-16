@@ -1,4 +1,4 @@
-with Doom3_tokens; use Doom3_tokens;
-with yylex;
+with Doom3_Tokens; use Doom3_Tokens;
+with YYLex;
 
-function Doom3_yylex return token renames yylex;
+function Doom3_yylex return Token renames YYLex;

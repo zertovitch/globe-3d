@@ -21,7 +21,7 @@ package vrml_io is
   YY_END_OF_BUFFER_CHAR :  constant Character :=  ASCII.NUL;
   yy_n_chars : Integer;       -- number of characters read into yy_ch_buf
 
--- true when we've seen an EOF for the current input file
+  -- True when we've seen an EOF for the current input file
   yy_eof_has_been_seen : Boolean;
 
 

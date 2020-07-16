@@ -91,7 +91,7 @@ package body vrml_io is
       dest := dest + 1;
       source := source + 1;
     end loop;
-        
+
     if yy_eof_has_been_seen then
     -- don't do the read, it's not guaranteed to return an EOF,
     -- just force an EOF

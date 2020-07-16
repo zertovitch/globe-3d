@@ -21,34 +21,34 @@ package doom3_io is
   YY_END_OF_BUFFER_CHAR :  constant Character :=  ASCII.NUL;
   yy_n_chars : Integer;       -- number of characters read into yy_ch_buf
 
--- true when we've seen an EOF for the current input file
+  -- True when we've seen an EOF for the current input file
   yy_eof_has_been_seen : Boolean;
 
 -- UMASS CODES :
---   In order to support YY_Get_Token_Line, we need
---   a variable to hold current line.
+  --   In order to support YY_Get_Token_Line, we need
+  --   a variable to hold current line.
   type String_Ptr is access String;
-  Saved_Tok_Line1 : String_Ptr := Null;
+  Saved_Tok_Line1 : String_Ptr := null;
   Line_Number_Of_Saved_Tok_Line1 : Integer := 0;
-  Saved_Tok_Line2 : String_Ptr := Null;
+  Saved_Tok_Line2 : String_Ptr := null;
   Line_Number_Of_Saved_Tok_Line2 : Integer := 0;
--- Aflex will try to get next buffer before it processs the
--- last token. Since now Aflex has been changed to accept
--- one line by one line, the last token in the buffer is
--- always end_of_line ( or end_of_buffer ). So before the
--- end_of_line is processed, next line will be retrieved
--- into the buffer. So we need to maintain two lines,
--- which line will be returned in Get_Token_Line is
--- determined according to the line number. It is the same
--- reason that we can not reinitialize tok_end_col to 0 in
--- Yy_Input, but we must do it in yylex after we process the
--- end_of_line.
-  Tok_Begin_Line : integer := 1;
-  Tok_End_Line : integer := 1;
-  Tok_End_Col : integer := 0;
-  Tok_Begin_Col : integer := 0;
+  --  Aflex will try to get next buffer before it processs the
+  --  last token. Since now Aflex has been changed to accept
+  --  one line by one line, the last token in the buffer is
+  --  always end_of_line ( or end_of_buffer ). So before the
+  --  end_of_line is processed, next line will be retrieved
+  --  into the buffer. So we need to maintain two lines,
+  --  which line will be returned in Get_Token_Line is
+  --  determined according to the line number. It is the same
+  --  reason that we can not reinitialize tok_end_col to 0 in
+  --  Yy_Input, but we must do it in yylex after we process the
+  --  end_of_line.
+  Tok_Begin_Line : Integer := 1;
+  Tok_End_Line   : Integer := 1;
+  Tok_End_Col    : Integer := 0;
+  Tok_Begin_Col  : Integer := 0;
   Token_At_End_Of_Line : Boolean := False;
--- Indicates whether or not last matched token is end_of_line.
+  -- Indicates whether or not last matched token is end_of_line.
 -- END OF UMASS CODES.
 
   procedure YY_INPUT (buf: out unbounded_character_array; result: out Integer; max_size: in Integer);

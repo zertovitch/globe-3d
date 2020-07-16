@@ -106,7 +106,7 @@ package body doom3_io is
 --   more that max_size characters. So it is
 --   impossible to hold the whole line. We
 --   report the warning message and continue.
-    buf(loc - 1) := Ascii.LF;
+    buf(loc - 1) := ASCII.LF;
     if Is_Open (user_input_file) then
       Skip_Line (user_input_file, 1);
     else
@@ -167,7 +167,7 @@ package body doom3_io is
       dest := dest + 1;
       source := source + 1;
     end loop;
-        
+
     if yy_eof_has_been_seen then
     -- don't do the read, it's not guaranteed to return an EOF,
     -- just force an EOF
@@ -387,13 +387,13 @@ begin
   -- Currently processing line is either in saved token line1 or
   -- in saved token line2.
   if Yy_Line_Number = Line_Number_Of_Saved_Tok_Line1 then
-    Yy_Line_Length := Saved_Tok_Line1.all'length;
-    Yy_Line_String ( Yy_Line_String'First .. ( Yy_Line_String'First + Saved_Tok_Line1.all'length - 1 ))
-      := Saved_Tok_Line1 ( 1 .. Saved_Tok_Line1.all'length );
+    Yy_Line_Length := Saved_Tok_Line1.all'Length;
+    Yy_Line_String ( Yy_Line_String'First .. ( Yy_Line_String'First + Saved_Tok_Line1.all'Length - 1 ))
+      := Saved_Tok_Line1 ( 1 .. Saved_Tok_Line1.all'Length );
   else
-    Yy_Line_Length := Saved_Tok_Line2.all'length;
-    Yy_Line_String ( Yy_Line_String'First .. ( Yy_Line_String'First + Saved_Tok_Line2.all'length - 1 ))
-      := Saved_Tok_Line2 ( 1 .. Saved_Tok_Line2.all'length );
+    Yy_Line_Length := Saved_Tok_Line2.all'Length;
+    Yy_Line_String ( Yy_Line_String'First .. ( Yy_Line_String'First + Saved_Tok_Line2.all'Length - 1 ))
+      := Saved_Tok_Line2 ( 1 .. Saved_Tok_Line2.all'Length );
   end if;
 end Yy_Get_Token_Line;
 
