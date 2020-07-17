@@ -73,6 +73,9 @@ package body Doom3_Help is
   origin_cat: Model_Origins.Map;
 
   procedure Parse_map_file is
+    --  We parse only the following line pairs in the .map file:
+    --    "model" "func_static_54265"
+    --    "origin" "20 -1178 1397"
     f: File_Type;
     P_id, P: GL.Double_Vector_3D;
     model: Unbounded_String;
@@ -106,7 +109,7 @@ package body Doom3_Help is
               P_id(2):= Real'Value(vec(j..vec'Last));
             end;
             P:= (P_id(1), P_id(2), P_id(0));  -- id Software to GL coord. conversion
-            origin_cat.Include(model, P);
+            origin_cat.Include (model, P);
             Put_Line(Standard_Error, "Model " & To_String(model) & " has origin " & GLOBE_3D.Aux.Coords(P));
             prev_line_model:= False;
           else
@@ -811,19 +814,19 @@ package body Doom3_Help is
       "All vertices, distinct per model" & Integer'Image(whole_pts) &
       " from" & Integer'Image(whole_d3_pts) &
       ", i.e." & Integer'Image((100*whole_pts)/whole_d3_pts) &
-      '%'
+      "% were distinct"
     );
     Put_Line(log,
       "All valid triangles" & Integer'Image(whole_tris) &
       " from" & Integer'Image(whole_d3_tris) &
       ", i.e." & Integer'Image((100*whole_tris)/whole_d3_tris) &
-      '%'
+      "% were valid"
     );
     Put_Line(log,
-      "All merged triangles" & Integer'Image(whole_merged_triangles) &
+      "Triangle pairs merged into rectangles" & Integer'Image(whole_merged_triangles) &
       " from" & Integer'Image(whole_tris) &
       ", i.e." & Integer'Image((100*whole_merged_triangles)/whole_tris) &
-      '%'
+      "% triangle to rectangle merges"
     );
     New_Line(log);
     for i in 1..model_top loop

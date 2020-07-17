@@ -1170,7 +1170,7 @@ procedure GLOBE_3D_Demo is
       GL.Fog (GL.FOG_COLOR, fog_colour(0)'Unchecked_Access);
       GL.Hint (GL.FOG_HINT, GL.FASTEST);
       GL.Fog (GL.FOG_START, 1.0);
-      GL.Fog (GL.FOG_END, 0.125 * fairly_far);
+      GL.Fog (GL.FOG_END, 0.5 * fairly_far);
     end if;
     Reset_for_3D( Integer(main_size_x), Integer(main_size_y ));
     case smoothing is

@@ -203,11 +203,11 @@ package body GLOBE_3D.Aux is
     return True;
   end Matching_right_angled_triangles;
 
-  function Merge_triangles(obj: Object_3D) return Object_3D is
+  function Merge_triangles (obj: Object_3D) return Object_3D is
     o: Object_3D:= obj;  --  Clone, for pre-calculating if needed.
-    right_angled_triangle_idx_0123: array(1..o.Max_faces) of Zero_or_tri_count;
-    matching_index: array(1..o.Max_faces) of Natural:= (others => 0);
-    matched: array(1..o.Max_faces) of Boolean:= (others => False);
+    right_angled_triangle_idx_0123 : array (1 .. o.Max_faces) of Zero_or_tri_count;
+    matching_index: array(1 .. o.Max_faces) of Natural:= (others => 0);
+    matched: array (1 .. o.Max_faces) of Boolean:= (others => False);
     raa, rab: Zero_or_tri_count;
     face_reduction: Natural:= 0;
   begin
@@ -215,22 +215,27 @@ package body GLOBE_3D.Aux is
       o.Pre_calculate;
     end if;
     --  First, flag all right-angled triangles.
-    for f in 1..o.Max_faces loop
-      right_angled_triangle_idx_0123(f):= Is_right_angled_triangle(o, f);
+    for f in 1 .. o.Max_faces loop
+      right_angled_triangle_idx_0123 (f):= Is_right_angled_triangle (o, f);
     end loop;
     --  Find matching pairs of right-angled triangles.
-    for fa in 1..o.Max_faces loop
-      raa:= right_angled_triangle_idx_0123(fa);
+    for fa in 1 .. o.Max_faces loop
+      raa := right_angled_triangle_idx_0123 (fa);
       if raa > 0 then
-        for fb in fa+1..o.Max_faces loop
-          rab:= right_angled_triangle_idx_0123(fb);
+        for fb in fa + 1 .. o.Max_faces loop
+          rab := right_angled_triangle_idx_0123 (fb);
           if rab > 0 then
-            if Matching_right_angled_triangles(o, fa, fb, raa, rab) then
-              --  fa will become a rectangle in new object.
-              --  fb will be ignored in new object.
-              matching_index(fa):= fb;
-              matched(fb):= True;
-              face_reduction:= face_reduction + 1;
+            if Matching_right_angled_triangles (o, fa, fb, raa, rab) then
+              if matched (fb) then
+                null;  --  Triangle fb has already been matched.
+              else
+                --  fa will become a rectangle in new object.
+                --  fb will be ignored in new object.
+                matching_index (fa) := fb;
+                matched (fb) := True;
+                face_reduction := face_reduction + 1;
+                exit;
+              end if;
             end if;
           end if;
         end loop;
@@ -238,24 +243,24 @@ package body GLOBE_3D.Aux is
     end loop;
     --  Build compacted object
     declare
-      res: Object_3D( Max_points=> o.Max_points, Max_faces=> o.Max_faces - face_reduction );
-      nf: Natural:= 0;
-      fb: Natural;
-      ra: Tri_count;
-      new_vertex_id: Positive;
-      new_UV: Map_idx_pair;
-      aux: Positive;
+      res : Object_3D ( Max_points=> o.Max_points, Max_faces=> o.Max_faces - face_reduction );
+      nf : Natural:= 0;
+      fb : Natural;
+      ra : Tri_count;
+      new_vertex_id : Positive;
+      new_UV : Map_idx_pair;
+      aux : Positive;
     begin
       --  Clone basic features
       res.ID          := o.ID;
       res.centre      := o.centre;
       res.point       := o.point;
       res.sub_objects := o.sub_objects;
-      for f in 1..o.Face_Count loop
+      for f in 1 .. o.Max_faces loop
         if matched(f) then
           null;  --  skip this face
         else
-          nf:= nf + 1;
+          nf := nf + 1;
           --  Clone face features
           res.face(nf):= o.face(f);
           res.face_internal(nf):= o.face_internal(f);

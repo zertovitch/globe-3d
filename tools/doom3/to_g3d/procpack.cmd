@@ -92,7 +92,7 @@ zip -9 %1.zip %1.proc %1.map %1.cmd
 echo.
 echo ** Display and Play!
 
-start %1
+call %1
 
 goto fin
 

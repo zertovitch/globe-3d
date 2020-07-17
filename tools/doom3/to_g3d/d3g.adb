@@ -14,10 +14,12 @@ procedure D3G is
 
   procedure Syntax is
   begin
-    Put_Line( Standard_Error, "Syntax: d3g [option] input_file.proc" );
+    Put_Line( Standard_Error, "Syntax: d3g [option] my_level.proc" );
     New_Line( Standard_Error );
     Put_Line( Standard_Error, "D3G translates a Doom 3 or Quake 4 processed map file" );
-    Put_Line( Standard_Error, "(.proc) into GLOBE_3D objects (.g3d) and bsp (.bsp) files." );
+    Put_Line( Standard_Error, "  (.proc) into GLOBE_3D objects (.g3d) and bsp (.bsp) files." );
+    Put_Line( Standard_Error, "  If found, the corresponding map file (.map) is used to get" );
+    Put_Line( Standard_Error, "  some additional information." );
     New_Line( Standard_Error );
     Put_Line( Standard_Error, "Options:" );
     Put_Line( Standard_Error, "  -J[unk]       : junk directories of texture names" );
@@ -25,8 +27,11 @@ procedure D3G is
     Put_Line( Standard_Error, "  -Carea-number : center on a certain area" );
     Put_Line( Standard_Error, "  -S(x,y,z)     : shifts centering by (x,y,z)" );
     New_Line( Standard_Error );
+    Put_Line( Standard_Error, "Inputs  : my_level.proc, my_level.map" );
+    Put_Line( Standard_Error, "Outputs : my_level_$_[objects].g3d, my_level.bsp, my_level*.cmd" );
+    New_Line( Standard_Error );
     Put_Line( Standard_Error, "See procpack.cmd for a complete script which calls D3G and");
-    Put_Line( Standard_Error, "  prepares a level's .zip with .g3d, .bsp and textures." );
+    Put_Line( Standard_Error, "  prepares a level's .zip with .g3d's, .bsp's and textures." );
   end Syntax;
 
   procedure Set_new_centre(ps: String) is

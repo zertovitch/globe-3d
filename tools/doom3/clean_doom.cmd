@@ -24,20 +24,7 @@ call :sub_del  *.o
 cd..
 
 cd to_g3d
-
-call :sub_del  *.bak
-call :sub_del  *.bk.?
-call :sub_del  *.def
-call :sub_del  *.#*
-call :sub_del  b~*.*
-call :sub_del  allada.txt
-call :sub_del  *.log
-call :sub_del  *.a
-call :sub_del  *.ali
-call :sub_del  *.o
-call :sub_del  *.bsp
-call :sub_del  *.g3d
-
+call clean_doom.cmd
 cd..
 
 
