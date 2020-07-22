@@ -61,6 +61,18 @@ for %%I in (*.bmp) do if exist %%~nI.tga del %%~nI.tga
 
 echo   ** Put: Textures from the custom level (%1) PK4 file
 unzip -j -n ..\%1.PK4 *.tga
+rem Some maps such as "Make It To Morning Custom Doom3"
+rem (www.makeittomorning.co.uk) have different suffixes.
+
+rem The following borks under CMD...
+REM ren *_silver_diffuse.tga   *_sil_d.tga
+REM ren *_interior_diffuse.tga *_in_d.tga
+REM ren *_blue_diffuse.tga     *_blu_d.tga
+REM ren *_red_diffuse.tga      *_red_d.tga
+REM ren *_yellow_diffuse.tga   *_yel_d.tga
+
+ren *_diffuse.tga *_d.tga
+ren *_specular.tga *_s.tga
 
 echo   ** Put: *Already stored* textures
 unzip -o ..\%1.zip *.tga *.bmp

@@ -492,9 +492,8 @@ or<br>
         replacing the GL layer beneath GLOBE_3D. It is maintained by a small community and includes cool GPU extensions.<br>
         To do there:
         <ul>
-            <li>Evaluate: check ease of installing, completeness i.r.o. parts used by GLOBE_3D
-            <li>For smooth transition: adapt "our" GL layer to OpenGLAda types, subprograms, etc.
-            <li>Replace, or (better?): let users choose between "our" GL and OpenGLAda, perhaps with a .gpr switch
+            <li>For a smooth transition: adapt "our" GL layer to OpenGLAda types, subprograms, etc. (work in progress)
+            <li>Let users choose between "our" GL and OpenGLAda, perhaps with a .gpr switch
         </ul>
    <li> Move reusable parts of the big demo to Game_Control or other packages (GLUT.Windows in the works)
    <li> Game_Control: add support for configuration files
@@ -502,17 +501,12 @@ or<br>
    <li> (demos) improve lightings, better calibrate mouse movements
    <li> I/O: store texture name only if different
    <li> implement sub-objects or neighour-objects (linked lists)
-   <li> make a demo or a game with <a target=_blank href=http://coreland.ath.cx/code/openal-ada>OpenAL-Ada</a>
-        (sound/music).
+   <li> make a demo or a game with OpenAL or SDL for sounds &amp; music.
    <li> Implement an
         <a target=_blank href=http://www.web3d.org/>X3D</a> (the successor of VRML)
         translator or reader
    <li> VRML: support for textures
-   <li> GL.IO: JPEG support, since some photos are not too damaged by JPEG compression
-        and of course much smaller in storage;
-        probably a translation of the PasJPEG library to Ada (see
-        <a target=_blank href=http://datacompression.info/JPEG.shtml>here</a>) with P2Ada
-        would be fine
+   <li> More support for Blender format(s)
    <li> add a facility for the <a target=_blank href=http://en.wikipedia.org/wiki/Vertigo_effect>Vertigo effect / Dolly zoom</a>
   </ul>
  </p>
