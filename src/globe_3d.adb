@@ -975,16 +975,19 @@ package body GLOBE_3D is
     end if;
   end Set_global_data_name;
 
-  procedure Set_name(o: in out Visual'class; new_name: String) is
+  procedure Set_name (o: in out Visual'class; new_name: String) is
   begin
     if new_name'Length > Ident'Length then
-      raise Constraint_Error with "Visual identifier is too long, maximum is" & Integer'Image(Ident'Length);
+      raise Constraint_Error with
+        "Visual identifier for """ & new_name & """ is too long (" &
+        Integer'Image(new_name'Length) &
+        "), maximum is" & Integer'Image(Ident'Length);
     end if;
     o.ID:= empty;
     o.ID(1..new_name'Length):= new_name;
   end Set_name;
 
-  function Get_name(o: Visual'class) return String is
+  function Get_name (o: Visual'class) return String is
   begin
     return Trim(o.ID,Right);
   end Get_name;

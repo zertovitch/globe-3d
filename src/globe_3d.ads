@@ -66,7 +66,7 @@ with Ada.Strings.Unbounded.Hash;        use Ada.Strings.Unbounded;
 
 package GLOBE_3D is
 
-  subtype Ident is String(1..40);
+  subtype Ident is String (1 .. 50);
   -- Identifiers for naming things (textures, objects, ...)
   -- Identifiers are case insensitive and stored as UPPER_CASE
 
@@ -187,8 +187,8 @@ package GLOBE_3D is
 
    type Visual is abstract tagged
       record
-         ID                     : Ident:= "-Nameless-                              ";
-         --                                1234567890123456789012345678901234567890
+         ID                     : Ident:= "-Nameless-                                        ";
+         --                                12345678901234567890123456789012345678901234567890
 
          centre                 : Point_3D  := (0.0, 0.0, 0.0); -- vertex coords are relative to the centre.
          centre_camera_space    : Point_3D;                     -- the visuals 'centre' in camera space.

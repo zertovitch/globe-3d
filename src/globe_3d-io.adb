@@ -142,7 +142,9 @@ package body GLOBE_3D.IO is
     GL.IO.Get_Byte(sb,l8);
     l:= Natural(l8);
     if l > str'Length then
-      raise Constraint_Error;
+      raise Constraint_Error with
+        "String length in data is" & Integer'Image(l) &
+        ", exceeds target string length" & Integer'Image(str'Length);
     end if;
     for i in str'First .. str'First+l-1 loop
       GL.IO.Get_Byte(sb,l8);
