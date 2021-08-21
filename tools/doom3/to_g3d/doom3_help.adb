@@ -923,7 +923,7 @@ package body Doom3_Help is
       );
       --  Save each object
       GLOBE_3D.IO.Save_file(
-        Merge_triangles_trace(Object_3D(model_stack(i).obj.all))
+        Merge_triangles_trace (model_stack(i).obj.all)
       );
     end loop;
     Put_Line(Standard_Error, "Writing texture catalogue (.txt).");

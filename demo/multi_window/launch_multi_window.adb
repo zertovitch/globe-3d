@@ -25,37 +25,37 @@ begin
    Set_global_data_name ("../g3demo_global_resources.zip");
    Set_level_data_name  ("../g3demo_level_resources.zip");
 
-   GLUT.Windows.initialize;
+   GLUT.Windows.Initialize;
 
    Viewer_1.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
    Viewer_2.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
    Viewer_3.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
 
-   define (Viewer_1);
-   define (Viewer_2);
-   define (Viewer_3);
+   Define (Viewer_1);
+   Define (Viewer_2);
+   Define (Viewer_3);
 
-   Box.create (the_Object);
+   Box.Create (the_Object);
 
-   the_Object.Centre := (0.0, 2.0, -5.0);
+   the_Object.centre := (0.0, 2.0, -5.0);
 
-   add (Viewer_1,  the_Object.all'Access);
-   add (Viewer_2,  the_Object.all'Access);
-   add (Viewer_3,  the_Object.all'Access);
+   Add (Viewer_1,  the_Object.all'Access);
+   Add (Viewer_2,  the_Object.all'Access);
+   Add (Viewer_3,  the_Object.all'Access);
 
    loop
       GLUT.MainLoopEvent;
 
-      exit when     Viewer_1.is_Closed
-                and Viewer_2.is_Closed
-                and Viewer_3.is_Closed;
+      exit when     Viewer_1.Is_Closed
+                and Viewer_2.Is_Closed
+                and Viewer_3.Is_Closed;
 
-      freshen (Viewer_1,  time_step => 0.02);
-      freshen (Viewer_2,  time_step => 0.02);
-      freshen (Viewer_3,  time_step => 0.02);
+      Freshen (Viewer_1,  Time_Step => 0.02);
+      Freshen (Viewer_2,  Time_Step => 0.02);
+      Freshen (Viewer_3,  Time_Step => 0.02);
    end loop;
 
-   destroy (Viewer_1);
-   destroy (Viewer_2);
-   destroy (Viewer_3);
+   Destroy (Viewer_1);
+   Destroy (Viewer_2);
+   Destroy (Viewer_3);
 end launch_multi_Window;

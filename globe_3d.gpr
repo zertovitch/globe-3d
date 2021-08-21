@@ -6,10 +6,10 @@
 --
 project Globe_3D is
 
-   type OS_Kind is
+   type G3D_OS_Kind is
       ("win32", "win64", "linux", "macosx");
 
-   OS : OS_Kind := external ("OS_Kind", "win64");
+   G3D_OS : G3D_OS_Kind := external ("G3D_OS", "win64");
 
    type G3D_Build_Mode_Type is
       ("debug",
@@ -28,7 +28,7 @@ project Globe_3D is
                                    & "-fstack-check"
                                    & "-g";
 
-   case OS is
+   case G3D_OS is
       when "linux"  =>
          Debug_Options := Debug_Options & "-gnatVa";
       when "win32" | "win64" =>
@@ -56,7 +56,7 @@ project Globe_3D is
                     "-fweb",
                     "-frename-registers"); 
 
-   Small_Options := ("-Os",
+   Small_Options := ("-G3D_OS",
                      "-gnatp",
                      "-fno-inline",
                      "-march=i386",
@@ -74,7 +74,7 @@ project Globe_3D is
       when "style_checks" => Compiler_Options := Style_Checks_Options;
 
       when "fast" =>
-         case OS
+         case G3D_OS
          is
             when "linux"  =>
                Compiler_Options := Common_Options & Fast_Options 
@@ -91,7 +91,7 @@ project Globe_3D is
          end case;
 
       when "small" =>
-         case OS
+         case G3D_OS
          is
             when "linux"  =>
                Compiler_Options := Common_Options & Small_Options 
@@ -105,7 +105,7 @@ project Globe_3D is
    end case;
 
 
-   case OS
+   case G3D_OS
    is
       when "macosx" =>
          Compiler_Options := Compiler_Options & "-gnatf" 
@@ -131,13 +131,13 @@ project Globe_3D is
    for Library_Ali_Dir use "lib/gnat_" & G3D_GNAT_Obj_Suffix;
    for Object_Dir      use "obj/gnat_" & G3D_GNAT_Obj_Suffix;
 
-   case OS is
+   case G3D_OS is
       when "win64"  =>   for Source_Dirs use ("bindings", "bindings/win32", "src/**");
-      when others   =>   for Source_Dirs use ("bindings", "bindings/" & external ("OS_Kind", "win32"), "src/**");
+      when others   =>   for Source_Dirs use ("bindings", "bindings/" & external ("G3D_OS_Kind", "win32"), "src/**");
    end case;
 
    package Ide is
-      case OS
+      case G3D_OS
       is
          when "linux"            =>   for Default_Switches ("adacontrol") use ("-Ftgnat_short");
          when "win32" | "win64"  =>   for Default_Switches ("adacontrol") use ("-F", "gnat_short");
@@ -165,7 +165,7 @@ project Globe_3D is
    end Binder;
 
    package Linker is
-      case OS
+      case G3D_OS
       is
          when "linux"  =>   for Linker_Options use ("-g", "-lGL", "-lGLU", "-lglut");
          when "win32"  =>   for Linker_Options use ("-g", "-Wl,--gc-sections", "obj/libwin32/glee.o", "-lopengl32", "-lglu32", "-lfreeglut", "-Lobj/libwin32", "-Xlinker", "--stack=0x40000000,0x400000");

@@ -21,19 +21,19 @@ with GLOBE_3D;
 
 package GLUT.Windows is
 
-   procedure initialize;   -- called before any other operation
+   procedure Initialize;   -- called before any other operation
 
    type Window is new GLOBE_3D.Window with private;
    type Window_view is access all Window'Class;
 
-   procedure define  (Self : in out Window);
-   procedure destroy (Self : in out Window);
+   procedure Define  (Self : in out Window);
+   procedure Destroy (Self : in out Window);
 
    procedure Name_is (Self : in out Window;   Now : in String);
    function  Name    (Self : in     Window) return String;
 
    overriding
-   procedure enable (Self : in out Window);
+   procedure Enable (Self : in out Window);
 
    type Renderer_Access is
       access procedure (the_Visuals : in GLOBE_3D.Visual_array; the_Camera : in GLOBE_3D.Camera'Class);
@@ -41,19 +41,19 @@ package GLUT.Windows is
    procedure Set_renderer(Self: in out Window; Renderer: Renderer_Access);
 
    overriding
-   procedure freshen (Self      : in out Window;
-                      time_Step : in     GLOBE_3D.Real;
+   procedure Freshen (Self      : in out Window;
+                      Time_Step : in     GLOBE_3D.Real;
                       Extras    : in     GLOBE_3D.Visual_array := GLOBE_3D.null_Visuals);
 
-   function is_Closed (Self : in Window) return Boolean;
+   function Is_Closed (Self : in Window) return Boolean;
 
    -- objects
    --
 
-   procedure add (Self : in out Window;   the_Object : in GLOBE_3D.p_Visual);
-   procedure rid (Self : in out Window;   the_Object : in GLOBE_3D.p_Visual);
+   procedure Add (Self : in out Window;   the_Object : in GLOBE_3D.p_Visual);
+   procedure Rid (Self : in out Window;   the_Object : in GLOBE_3D.p_Visual);
 
-   function  object_Count (Self : in Window) return Natural;
+   function  Object_Count (Self : in Window) return Natural;
 
    no_such_Object : exception;   -- raised when trying to 'rid' an object which has not been added to the Window.
 
@@ -68,11 +68,11 @@ package GLUT.Windows is
    -- Status display
    --
 
-   procedure add_status_Line (Self : in out Window;   Text : in String;
+   procedure Add_status_Line (Self : in out Window;   Text : in String;
                                                       X, Y : in Integer);
 
-   function  show_Status (Self : in     Window) return Boolean;
-   procedure show_Status (Self : in out Window;
+   function  Show_Status (Self : in     Window) return Boolean;
+   procedure Show_Status (Self : in out Window;
                           Show : in     Boolean := True);
 
    procedure Display_status (Self : in out Window;

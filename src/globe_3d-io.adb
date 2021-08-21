@@ -348,7 +348,7 @@ package body GLOBE_3D.IO is
       end loop;
       -- 2/ Portal connection: object name is stored
       if face.connecting = null then
-        Write_String(s, empty);
+        Write_String(s, empty_ident);
       else
         Write_String(s, face.connecting.ID);
       end if;
@@ -550,7 +550,7 @@ package body GLOBE_3D.IO is
         if node.front_child = null then
           Write_Intel(U32'(0)); --  Leaf nodes have index 0.
           if node.front_leaf = null then
-            Write_String(s, empty);
+            Write_String(s, empty_ident);
           else
             Write_String(s, node.front_leaf.ID);
           end if;
@@ -560,7 +560,7 @@ package body GLOBE_3D.IO is
         if node.back_child = null then
           Write_Intel(U32'(0)); --  Leaf nodes have index 0.
           if node.back_leaf = null then
-            Write_String(s, empty);
+            Write_String(s, empty_ident);
           else
             Write_String(s, node.back_leaf.ID);
           end if;
@@ -610,7 +610,7 @@ package body GLOBE_3D.IO is
       use Visuals_Mapping;
       c: Cursor;
     begin
-      if ID = empty then
+      if ID = empty_ident then
         return null;
       end if;
       c:= referred.Find(U(ID));

@@ -70,7 +70,7 @@ package GLOBE_3D is
   -- Identifiers for naming things (textures, objects, ...)
   -- Identifiers are case insensitive and stored as UPPER_CASE
 
-  empty: constant Ident:= (others=> ' ');
+  empty_ident: constant Ident:= (others=> ' ');
   package Ident_Vectors is new Ada.Containers.Vectors(Positive, Ident);
 
   -- Set the name of Zip archives containing the data.
@@ -249,7 +249,7 @@ package GLOBE_3D is
    --
 
   type Object_3D;
-  type p_Object_3D is access all Object_3D'Class;
+  type p_Object_3D is access all Object_3D;
 
   -------------------
   -- Define a face --
@@ -564,15 +564,15 @@ private
      --  When the object group has been loaded, that name is set;
      --  the face(f).connecting accesses can be resolved using
      --  the face_internal(f).connect_name . See procedure Rebuild_links.
-     connect_name: Ident:= empty;
+     connect_name: Ident:= empty_ident;
      --  texture_name: helper. face(f).texture can be resolved using
      --  face_internal(f).texture_name and the function Texture_ID (in GLOBE_3D.Textures),
      --  or the procedure Rebuild_links.
-     texture_name: Ident:= empty;
+     texture_name: Ident:= empty_ident;
      --  specular_name: helper. face(f).specular_map can be resolved using
      --  face_internal(f).specular_name and the function Texture_ID (in GLOBE_3D.Textures),
      --  or the procedure Rebuild_links.
-     specular_name: Ident:= empty;
+     specular_name: Ident:= empty_ident;
      --  portal_seen is always False, except during Display to avoid possible infinite
      --  recursion; it is reset to False at the end of Display.
      portal_seen : Boolean:= False;

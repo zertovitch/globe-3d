@@ -33,12 +33,12 @@ begin
    g3d.Set_global_data_name ("../../g3demo_global_resources.zip");
    g3d.Set_level_data_name  ("../../g3demo_level_resources.zip");
 
-   GLUT.Windows.initialize;
+   GLUT.Windows.Initialize;
    Viewer.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
 
    -- Setup the viewing window and inform the culler.
    --
-   define (Viewer);
+   Define (Viewer);
    Viewer.Camera.clipper.eye_position := (0.0, 200.0, 0.0);
    Culler.Viewer_is (Viewer'Unchecked_Access);                   -- Tell culler where to send culled visuals.
 
@@ -63,12 +63,12 @@ begin
 
    -- Main loop.
    --
-   while not Viewer.is_Closed loop
+   while not Viewer.Is_Closed loop
       GLUT.MainLoopEvent;
       evolve (Culler,  By => 0.02);
    end loop;
 
-   destroy (Viewer);
+   Destroy (Viewer);
    Put_Line ("Done.");
 
 exception

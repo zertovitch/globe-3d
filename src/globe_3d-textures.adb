@@ -16,7 +16,7 @@ package body GLOBE_3D.Textures is
   type Texture_info is record
     loaded       : Boolean:= False;
     blending_hint: Boolean:= False;
-    name         : Ident:= empty;
+    name         : Ident:= empty_ident;
   end record;
 
   type Texture_info_array is array( Image_ID range <>) of Texture_info;
@@ -161,7 +161,7 @@ package body GLOBE_3D.Textures is
     new_tab: p_Texture_info_array;
     up_name: constant String:= To_Upper(name);
     -- Convention: UPPER_CASE for identifiers
-    n_id: Ident:= empty;
+    n_id: Ident:= empty_ident;
     pos: Texture_Name_Mapping.Cursor;
     success: Boolean;
   begin

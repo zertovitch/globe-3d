@@ -56,11 +56,11 @@ package body GLUT.Windows is
       return To_String (Self.Name);
    end Name;
 
-   function is_Closed (Self : in Window) return Boolean
+   function Is_Closed (Self : in Window) return Boolean
    is
    begin
       return Self.is_Closed;
-   end is_Closed;
+   end Is_Closed;
 
    procedure Prepare_default_lighting (Self : in out Window;
                                        fact : in     GL.Float)
@@ -617,38 +617,38 @@ package body GLUT.Windows is
 
    end Start_GLs;
 
-   procedure initialize
+   procedure Initialize
    is
    begin
       GLUT.Init;
       GLUT.SetOption (GLUT.GLUT_RENDERING_CONTEXT, GLUT.GLUT_USE_CURRENT_CONTEXT);
       GLUT.SetOption (GLUT.ACTION_ON_WINDOW_CLOSE, ACTION_CONTINUE_EXECUTION);
-   end initialize;
+   end Initialize;
 
-   procedure define (Self : in out Window)
+   procedure Define (Self : in out Window)
    is
    begin
       Start_GLUTs (Self);    -- Initialize the GLUT things
       Start_GLs   (Self);    -- Initialize the (Open)GL things
       Reset_eye   (Self);
 
-      freshen     (Self, 0.02);    -- do an initial freshen, to initialise Camera, etc.
-   end define;
+      Freshen     (Self, 0.02);    -- do an initial freshen, to initialise Camera, etc.
+   end Define;
 
-   procedure destroy (Self : in out Window)
+   procedure Destroy (Self : in out Window)
    is
    begin
       DestroyWindow (Self.glut_Window);
-   end destroy;
+   end Destroy;
 
    overriding
-   procedure enable (Self : in out Window)
+   procedure Enable (Self : in out Window)
    is
    begin
       GLUT.SetWindow  (Self.glut_Window);
 --      opengl.glx.glXMakeCurrent;
 
-   end enable;
+   end Enable;
 
    procedure Set_renderer(Self: in out Window; Renderer: Renderer_Access) is
    begin
@@ -656,14 +656,14 @@ package body GLUT.Windows is
    end Set_renderer;
 
    overriding
-   procedure freshen (Self      : in out Window;
-                      time_Step : in     G3D.Real;
+   procedure Freshen (Self      : in out Window;
+                      Time_Step : in     G3D.Real;
                       Extras    : in     GLOBE_3D.Visual_array := GLOBE_3D.null_Visuals)
    is
    begin
-      enable (Self);  -- for multi-window operation.
-      Main_operations (Self'Access, time_Step, Extras);
-   end freshen;
+      Enable (Self);  -- for multi-window operation.
+      Main_operations (Self'Access, Time_Step, Extras);
+   end Freshen;
 
    -- traits
    --
@@ -681,14 +681,14 @@ package body GLUT.Windows is
       Self.Smoothing := Now;
    end Smoothing_is;
 
-   procedure add (Self : in out Window;   the_Object : in GLOBE_3D.p_Visual)
+   procedure Add (Self : in out Window;   the_Object : in GLOBE_3D.p_Visual)
    is
    begin
       Self.object_Count                := Self.object_Count + 1;
       Self.Objects (Self.object_Count) := the_Object.all'Access;
-   end add;
+   end Add;
 
-   procedure rid (Self : in out Window;   the_Object : in GLOBE_3D.p_Visual)
+   procedure Rid (Self : in out Window;   the_Object : in GLOBE_3D.p_Visual)
    is
       use G3D;
    begin
@@ -707,38 +707,38 @@ package body GLUT.Windows is
       end loop;
 
       raise no_such_Object;
-   end rid;
+   end Rid;
 
-   function object_Count (Self : in Window) return Natural
+   function Object_Count (Self : in Window) return Natural
    is
    begin
       return Self.object_Count;
-   end object_Count;
+   end Object_Count;
 
    -- status display
    --
 
-   procedure add_status_Line (Self : in out Window;   Text : in String;
+   procedure Add_status_Line (Self : in out Window;   Text : in String;
                                                       X, Y : in Integer)
    is
    begin
       Self.extra_Status.Append (New_Item => (Text => To_Unbounded_String (Text),
                                              X    => GL.Int (X),
                                              Y    => GL.Int (Y)));
-   end add_status_Line;
+   end Add_status_Line;
 
-   function  show_Status (Self : in     Window) return Boolean
+   function  Show_Status (Self : in     Window) return Boolean
    is
    begin
       return Self.show_Status;
-   end show_Status;
+   end Show_Status;
 
-   procedure show_Status (Self : in out Window;
+   procedure Show_Status (Self : in out Window;
                           Show : in     Boolean := True)
    is
    begin
       Self.show_Status := Show;
-   end show_Status;
+   end Show_Status;
 
    -- Devices
    --

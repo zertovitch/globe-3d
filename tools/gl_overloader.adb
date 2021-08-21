@@ -14,7 +14,7 @@ procedure GL_Overloader is
          when 's' => return "short";
          when others => return "???";
        end case;
-     end;
+     end Typ_name;
 
      xyzw: constant String(1..4):= "xyzw";
      nums: constant String:= Positive'Image(n);

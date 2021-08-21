@@ -351,7 +351,7 @@ procedure GLOBE_3D_Demo is
         Basic_cube_face((3,4,1,2),"face6",(1.0,0.0,1.0),6));
     Set_name(cube.all,"Trust the Cube !");
     --  Basic cube, but with a specular map. A glossy 'S' should appear...
-    cube_glossy:= new G3D.Object_3D'Class'(cube.all);  --  cloning
+    cube_glossy:= new G3D.Object_3D'(cube.all);  --  cloning
     for f in cube.face'Range loop
       cube_glossy.face(f).specular_map:= Texture_ID("face_specular");
     end loop;
@@ -372,11 +372,11 @@ procedure GLOBE_3D_Demo is
     end loop;
     Set_name(cube_tri.all,"Triangular Cube !");
 
-    cube_tri_quad:= new G3D.Object_3D'(GLOBE_3D.Aux.Merge_triangles(Object_3D(cube_tri.all)));
+    cube_tri_quad := new G3D.Object_3D'(GLOBE_3D.Aux.Merge_triangles(cube_tri.all));
     Set_name(cube_tri_quad.all,"Cube, triangles merged to squares");
 
     -- Also a cube with half-faces, but playing with colour/texture
-    cube_bico:= new G3D.Object_3D'Class'(cube_tri.all); -- cloning
+    cube_bico:= new G3D.Object_3D'(cube_tri.all); -- cloning
     Set_name(cube_bico.all,"Technicolor");
     for f in cube_bico.face'Range loop
       if f mod 2 = 0 then

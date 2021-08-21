@@ -5,10 +5,10 @@ with
      GLOBE_3D.Textures,
      GLOBE_3D.Visuals_rendering,
 
-     GL.Geometry.vbo,
+     GL.Geometry.VBO,
 --       gl.Primitive,
-     GL.Buffer.vertex,
-     GL.Buffer.indices,
+     GL.Buffer.Vertex,
+     GL.Buffer.Indices,
      GL.Skins,
      GL.Textures,
      GL.Extended;
@@ -19,10 +19,10 @@ use
     GLOBE_3D.Sprite,
     GLOBE_3D.Textures,
 
-    GL.Geometry.vbo,
+    GL.Geometry.VBO,
 --      GL.Primitive,
-    GL.Buffer.vertex,
-    GL.Buffer.indices,
+    GL.Buffer.Vertex,
+    GL.Buffer.Indices,
     GL.Skins,
     GL.Textures,
     GL.Extended;
@@ -49,20 +49,19 @@ begin
 
    g3d.Textures.Register_textures_from_resources;
 
-   GLUT.Windows.initialize;
+   GLUT.Windows.Initialize;
 
    the_Viewer.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
-   define (the_Viewer);
+   Define (the_Viewer);
 
-
-   G3D.Textures.Check_all_textures; -- Preload the textures
+   g3d.Textures.Check_all_textures; -- Preload the textures
 
    the_Sprite := new g3d.Sprite.Sprite (max_Geometries => 1);
 
    -- Using VBO geometry.
    --
    declare
-      the_Geometry : constant GL.Geometry.vbo.p_vbo_Geometry    := new GL.Geometry.vbo.vbo_Geometry;
+      the_Geometry : constant GL.Geometry.VBO.p_vbo_Geometry    := new GL.Geometry.VBO.vbo_Geometry;
       the_Skin     : constant p_Skin_transparent_unlit_textured := new Skin_transparent_unlit_textured;
 
       the_Vertices : aliased GL.Geometry.Vertex_array    := (1 => (-100.0, -100.0, 0.0),
@@ -76,17 +75,17 @@ begin
    begin
       decrement (the_Indices);     -- Convert Indices to 0-based.
 
-      the_Geometry.Vertices := to_Buffer (the_Vertices'Access, usage => STATIC_DRAW);
-      the_Geometry.Indices  := to_Buffer (the_Indices 'Access, usage => STATIC_DRAW);
+      the_Geometry.Vertices := to_Buffer (the_Vertices'Access, Usage => STATIC_DRAW);
+      the_Geometry.Indices  := to_Buffer (the_Indices 'Access, Usage => STATIC_DRAW);
 
       the_Geometry.vertex_Count  := GL.Sizei (the_Vertices'Length);
       the_Geometry.indices_Count := GL.Sizei (the_Indices'Length);
       the_Geometry.primitive_Id  := GL.QUADS;
 
-      set_Name (the_Skin.Texture,  to => GL.Textures.texture_Name (Texture_ID ("face1")));
+      set_Name (the_Skin.Texture,  To => GL.Textures.texture_Name (Texture_ID ("face1")));
 
-      the_Sprite.add (geometry => the_Geometry.all'Access,
-                      skin     => the_Skin);
+      the_Sprite.add (Geometry => the_Geometry.all'Access,
+                      Skin     => the_Skin);
 
       declare
          the_Veneer : constant p_Veneer_transparent_unlit_textured
@@ -100,8 +99,7 @@ begin
 
    end;
 
-   add (the_Viewer, the_Sprite.all'Access);
-
+   Add (the_Viewer, the_Sprite.all'Access);
 
    -- Using primitive_Geometry.  -- tbd: update this
    --
@@ -148,12 +146,11 @@ begin
 
 --   add (the_Viewer, the_Sprite.all'access);
 
-
-   while not the_Viewer.is_Closed
+   while not the_Viewer.Is_Closed
    loop
       GLUT.MainLoopEvent;
-      freshen (the_Viewer, time_step => 0.02);
+      Freshen (the_Viewer, Time_Step => 0.02);
    end loop;
 
-   destroy (the_Viewer);
+   Destroy (the_Viewer);
 end launch_sprite_Demo;

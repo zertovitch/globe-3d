@@ -1,11 +1,10 @@
 with
      GLOBE_3D.Sprite,
-     GLOBE_3D.Culler.impostoring_frustum,
+     GLOBE_3D.Culler.Impostoring_frustum,
      GLOBE_3D.Visuals_rendering,
 
      GLUT.Windows,
      GLUT.Devices,
-     GLUT_2D,
 
      GL.Extended,
      GL.Skins,
@@ -17,7 +16,7 @@ with
 use
     GLOBE_3D,
     GLOBE_3D.Sprite,
-    GLOBE_3D.Culler.impostoring_frustum,
+    GLOBE_3D.Culler.Impostoring_frustum,
 
     GLUT.Windows,
     GLUT.Devices,
@@ -30,7 +29,7 @@ is
    package g3d renames GLOBE_3D;
 
    Viewer : aliased GLUT.Windows.Window;
-   Culler :         GLOBE_3D.Culler.impostoring_frustum.Culler;
+   Culler :         GLOBE_3D.Culler.Impostoring_frustum.Culler;
 
    procedure VBO_Callback
    is
@@ -65,10 +64,10 @@ begin
    g3d.Set_global_data_name ("../../g3demo_global_resources.zip");
    g3d.Set_level_data_name  ("../../g3demo_level_resources.zip");
 
-   GLUT.Windows.initialize;
+   GLUT.Windows.Initialize;
    Viewer.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
 
-   define (Viewer);
+   Define (Viewer);
    Culler.Viewer_is (Viewer'Unchecked_Access);    -- Tell culler where to send culled visuals.
 
    -- Add X29_vbo's.
@@ -94,11 +93,11 @@ begin
       default_vanish_point_size_Min : constant Real := Culler.vanish_point_size_Min;
       default_impostor_size_Min     : constant Real := Culler.impostor_size_Min;
    begin
-      while not Viewer.is_Closed
+      while not Viewer.Is_Closed
       loop
          GLUT.MainLoopEvent;
 
-         if strike_Once ('V', Viewer.Keyboard)
+         if Strike_once ('V', Viewer.Keyboard)
          then
             if Culler.vanish_point_size_Min = default_vanish_point_size_Min then
                Culler.vanish_point_size_Min_is (0.0);
@@ -106,7 +105,7 @@ begin
                Culler.vanish_point_size_Min_is (default_vanish_point_size_Min);
             end if;
 
-         elsif strike_Once ('F', Viewer.Keyboard)
+         elsif Strike_once ('F', Viewer.Keyboard)
          then
             if Culler.frustum_culling_Enabled then
                Culler.frustum_culling_Enabled_is (False);
@@ -114,7 +113,7 @@ begin
                Culler.frustum_culling_Enabled_is (True);
             end if;
 
-         elsif strike_Once ('I', Viewer.Keyboard)
+         elsif Strike_once ('I', Viewer.Keyboard)
          then
             if Culler.impostor_size_Min = default_impostor_size_Min then
                Culler.impostor_size_Min_is (0.0);
@@ -124,24 +123,24 @@ begin
          end if;
 
          if Culler.impostor_size_Min = 0.0
-         then   Viewer.add_status_Line ("Impostors:     Off", 300, 50);
-         else   Viewer.add_status_Line ("Impostors:     On",  300, 50);
+         then   Viewer.Add_status_Line ("Impostors:     Off", 300, 50);
+         else   Viewer.Add_status_Line ("Impostors:     On",  300, 50);
          end if;
 
          if Culler.vanish_point_size_Min = 0.0
-         then   Viewer.add_status_Line ("Vanish Point: Off", 300, 60);
-         else   Viewer.add_status_Line ("Vanish Point: On",  300, 60);
+         then   Viewer.Add_status_Line ("Vanish Point: Off", 300, 60);
+         else   Viewer.Add_status_Line ("Vanish Point: On",  300, 60);
          end if;
 
          if Culler.frustum_culling_Enabled
-         then   Viewer.add_status_Line ("Frustum Cull:  On",  300, 70);
-         else   Viewer.add_status_Line ("Frustum Cull:  Off", 300, 70);
+         then   Viewer.Add_status_Line ("Frustum Cull:  On",  300, 70);
+         else   Viewer.Add_status_Line ("Frustum Cull:  Off", 300, 70);
          end if;
 
-         evolve (Culler,  by => 0.02);
+         evolve (Culler,  By => 0.02);
       end loop;
    end;
 
-   destroy (Viewer);
+   Destroy (Viewer);
    Put_Line ("Done.");
 end launch_Armada;

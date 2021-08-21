@@ -983,7 +983,7 @@ package body GLOBE_3D is
         Integer'Image(new_name'Length) &
         "), maximum is" & Integer'Image(Ident'Length);
     end if;
-    o.ID:= empty;
+    o.ID:= empty_ident;
     o.ID(1..new_name'Length):= new_name;
   end Set_name;
 
@@ -1020,10 +1020,10 @@ package body GLOBE_3D is
   begin
     for f in o.face'Range loop
       --  1/ Find texture IDs:
-      if is_textured(o.face(f).skin) and then o.face_internal(f).texture_name /= empty then
+      if is_textured(o.face(f).skin) and then o.face_internal(f).texture_name /= empty_ident then
         begin
           o.face(f).texture:= Textures.Texture_ID( o.face_internal(f).texture_name );
-          if o.face_internal(f).specular_name /= empty then
+          if o.face_internal(f).specular_name /= empty_ident then
             Relink_specular(o.face(f), o.face_internal(f));
           end if;
         exception
@@ -1037,7 +1037,7 @@ package body GLOBE_3D is
         end;
       end if;
       --  2/ Connections through portals:
-      if o.face_internal(f).connect_name /= empty then
+      if o.face_internal(f).connect_name /= empty_ident then
         c:= neighbouring.Find(U(o.face_internal(f).connect_name));
         if c = Visuals_Mapping.No_Element then
           -- Key not found

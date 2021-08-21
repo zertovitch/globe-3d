@@ -345,7 +345,7 @@ package body GLOBE_3D.Aux is
     if name'Length > Ident'Length then
       raise Constraint_Error with "Name too long for fixed-length type Ident";
     end if;
-    i:= empty;  --  Stuff with blanks.
+    i:= empty_ident;  --  Stuff with blanks.
     i(1..name'Length):= name;
   end Set_ident;
 
