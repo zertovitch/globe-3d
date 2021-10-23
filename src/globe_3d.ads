@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GLOBE_3D - GL-based, real-time, 3D engine
 --
---  Copyright (c) Gautier de Montmollin 2001 .. 2016
+--  Copyright (c) Gautier de Montmollin 2001 .. 2021
 --  SWITZERLAND
 --  Copyright (c) Rod Kay 2006 .. 2008
 --  AUSTRALIA

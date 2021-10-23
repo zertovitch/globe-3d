@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  File:            GLUT-Windows.ads
 --  Description:     A Windowed viewer for GLOBE_3D, based on GLUT
---  Copyright (c) Gautier de Montmollin/Rod Kay 2006..2008
+--  Copyright (c) Gautier de Montmollin / Rod Kay 2006 .. 2021
 ------------------------------------------------------------------------------
 
 -- tbd: - add new 'traits' for glutGet state data.

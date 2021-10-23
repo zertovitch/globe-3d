@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  File:            GLUT-Windows.adb
---  Description:     models a GLUT window
---  Copyright (c) Gautier de Montmollin/Rod Kay 2006..2007
+--  Description:     A Windowed viewer for GLOBE_3D, based on GLUT
+--  Copyright (c) Gautier de Montmollin / Rod Kay 2006 .. 2021
 ------------------------------------------------------------------------------
 
 --with opengl.glx;
@@ -722,9 +722,10 @@ package body GLUT.Windows is
                                                       X, Y : in Integer)
    is
    begin
-      Self.extra_Status.Append (New_Item => (Text => To_Unbounded_String (Text),
-                                             X    => GL.Int (X),
-                                             Y    => GL.Int (Y)));
+      Self.extra_Status.Append (
+         New_Item => status_Line'(Text => To_Unbounded_String (Text),
+                                  X    => GL.Int (X),
+                                  Y    => GL.Int (Y)));
    end Add_status_Line;
 
    function  Show_Status (Self : in     Window) return Boolean
