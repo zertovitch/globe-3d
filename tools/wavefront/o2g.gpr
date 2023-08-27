@@ -1,12 +1,12 @@
---  This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
+--  This is a GNAT, GCC or GNAT Studio project file
 --  for the O2G tool (Wavefront object to GLOBE_3D object)
---  Build me with "gprbuild -P o2g.gpr", or open me with GPS
+--  Build me with "gprbuild -P o2g.gpr", or open me with GNAT Studio
 --  
 --  Target specification:
 --  
---  For Windows 32-bits (default) : gprbuild -P o2g.gpr -XOS_Kind=win32
---  For Linux                     : gprbuild -P o2g.gpr -XOS_Kind=linux
---  For Mac OS X (untested)       : gprbuild -P o2g.gpr -XOS_Kind=macosx
+--  For Windows 64-bits (default) : gprbuild -P o2g.gpr -XG3D_OS=win64
+--  For Linux                     : gprbuild -P o2g.gpr -XG3D_OS=linux
+--  For Mac OS X (untested)       : gprbuild -P o2g.gpr -XG3D_OS=macosx
 --
 
 with "../../globe_3d";

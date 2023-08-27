@@ -1,8 +1,8 @@
 -- *** Consider using globe_3d_demos.gpr instead, and choosing the appropriate target OS.
 
--- This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
+-- This is a GNAT, GCC or GNAT Studio project file
 -- for the GLOBE_3D ( http://sf.net/projects/globe3d/ ) demos
--- Build me with "gnatmake -P globe_3d_darwin.gpr", or open me with GPS
+-- Build me with "gnatmake -P globe_3d_darwin.gpr", or open me with GNAT Studio
 --
 project GLOBE_3D_Darwin is
 

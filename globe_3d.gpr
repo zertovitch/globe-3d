@@ -149,7 +149,9 @@ project Globe_3D is
    end Ide;
 
    package Builder is
-      for Default_Switches ("ada") use ("-C", "-j5");
+      --   "If -j0 is used, then the maximum number of simultaneous compilation
+      --    jobs is the number of core processors on the platform."
+      for Default_Switches ("ada") use ("-C", "-j0");
 
       case G3D_Build_Mode 
       is

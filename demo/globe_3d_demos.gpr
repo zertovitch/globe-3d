@@ -1,18 +1,18 @@
---  This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
+--  This is a GNAT, GCC or GNAT Studio project file
 --  for the GLOBE_3D demos.
 --
 --        GLOBE_3D Web site:   http://globe3d.sf.net/
 --         GLOBE_3D Mirror:    https://github.com/zertovitch/globe-3d
 --
 --
---  Build me with "gprbuild -P globe_3d_demos.gpr", or open me with GPS
+--  Build me with "gprbuild -P globe_3d_demos.gpr", or open me with GNAT Studio
 --  
 --  Target specification:
 --  
---  For Windows 64-bits (default) : gprbuild -P globe_3d_demos.gpr -XOS_Kind=win64
---  For Windows 32-bits           : gprbuild -P globe_3d_demos.gpr -XOS_Kind=win32
---  For Linux                     : gprbuild -P globe_3d_demos.gpr -XOS_Kind=linux
---  For Mac OS X (untested)       : gprbuild -P globe_3d_demos.gpr -XOS_Kind=macosx
+--  For Windows 64-bits (default) : gprbuild -P globe_3d_demos.gpr -XG3D_OS=win64
+--  For Windows 32-bits           : gprbuild -P globe_3d_demos.gpr -XG3D_OS=win32
+--  For Linux                     : gprbuild -P globe_3d_demos.gpr -XG3D_OS=linux
+--  For Mac OS X (untested)       : gprbuild -P globe_3d_demos.gpr -XG3D_OS=macosx
 --
 
 with "../globe_3d";
