@@ -64,7 +64,7 @@ package body GLUT.Devices is
   --  GLUT Callback procedures  --
   --------------------------------
 
-  procedure Key (k : GLUT.Key_Type; x, y : Integer) is
+  procedure Key (k : GLUT.Key_type; x, y : Integer) is
   pragma Unreferenced (x, y);
   begin
     --  key k is pressed
@@ -72,7 +72,7 @@ package body GLUT.Devices is
     Update_Modifier_Keys;
   end Key;
 
-  procedure Key_Up (k : GLUT.Key_Type; x, y : Integer) is
+  procedure Key_Up (k : GLUT.Key_type; x, y : Integer) is
   pragma Unreferenced (x, y);
   begin
     Current_Keyboard.normal_set (To_Upper (Character'Val (k))) := False;  -- key k is unpressed

@@ -37,14 +37,14 @@ package GLUT.Windows is
 
    type Renderer_Access is
       access procedure
-        (the_Visuals : in GLOBE_3D.Visual_array; the_Camera : in GLOBE_3D.Camera'Class);
+        (the_Visuals : in GLOBE_3D.Visual_Array; the_Camera : in GLOBE_3D.Camera'Class);
 
    procedure Set_Renderer (Self : in out Window; Renderer : Renderer_Access);
 
    overriding
    procedure Freshen (Self      : in out Window;
                       Time_Step : in     GLOBE_3D.Real;
-                      Extras    : in     GLOBE_3D.Visual_array := GLOBE_3D.null_Visuals);
+                      Extras    : in     GLOBE_3D.Visual_Array := GLOBE_3D.null_Visuals);
 
    function Is_Closed (Self : in Window) return Boolean;
 
@@ -110,7 +110,7 @@ private
                           Ada.Strings.Unbounded.To_Unbounded_String ("globe3d glut window");
          glut_Window  : Integer;
 
-         Objects      : GLOBE_3D.Visual_array (1 .. 5_000);
+         Objects      : GLOBE_3D.Visual_Array (1 .. 5_000);
          object_Count : Natural := 0;
 
          Smoothing    : Smoothing_method := hardware;

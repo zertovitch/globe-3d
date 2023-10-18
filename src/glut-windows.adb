@@ -56,7 +56,7 @@ package body GLUT.Windows is
       return Self.is_Closed;
    end Is_Closed;
 
-   procedure Prepare_default_lighting (Self : in out Window;
+   procedure Prepare_Default_Lighting (Self : in out Window;
                                        fact : in     GL.Float)
    is
       use G3D;
@@ -95,17 +95,17 @@ package body GLUT.Windows is
       proto_light.ambient  := (0.0, 0.0, 0.6, 0.1);
       G3D.Define (8, proto_light);
 
-      G3D.Switch_lights (True);
+      G3D.Switch_Lights (True);
 
-      G3D.Switch_light (2, False);
-      G3D.Switch_light (3, False);
-      G3D.Switch_light (4, False);
-      G3D.Switch_light (5, False);
-      G3D.Switch_light (6, False);
-      G3D.Switch_light (7, False);
-      G3D.Switch_light (8, False);
+      G3D.Switch_Light (2, False);
+      G3D.Switch_Light (3, False);
+      G3D.Switch_Light (4, False);
+      G3D.Switch_Light (5, False);
+      G3D.Switch_Light (6, False);
+      G3D.Switch_Light (7, False);
+      G3D.Switch_Light (8, False);
 
-   end Prepare_default_lighting;
+   end Prepare_Default_Lighting;
 
    procedure Clear_Modes is
    begin
@@ -292,7 +292,7 @@ package body GLUT.Windows is
    end Frames_Per_Second;
 
    procedure Graphic_display (Self   : in out Window'Class;
-                              Extras : in     GLOBE_3D.Visual_array := GLOBE_3D.null_Visuals)
+                              Extras : in     GLOBE_3D.Visual_Array := GLOBE_3D.null_Visuals)
    is
       use GL, G3D;
    begin
@@ -310,7 +310,7 @@ package body GLUT.Windows is
    end Graphic_display;
 
    procedure Fill_screen (Self   : in out Window'Class;
-                          Extras : in     GLOBE_3D.Visual_array := GLOBE_3D.null_Visuals)
+                          Extras : in     GLOBE_3D.Visual_Array := GLOBE_3D.null_Visuals)
    is
       use GL;
 
@@ -361,7 +361,7 @@ package body GLUT.Windows is
 
    procedure Main_Operations (Self      : access Window;
                               time_Step :        G3D.Real;
-                              Extras    : in     GLOBE_3D.Visual_array := GLOBE_3D.null_Visuals)
+                              Extras    : in     GLOBE_3D.Visual_Array := GLOBE_3D.null_Visuals)
    is
       use GL, G3D, G3DM, G3D.REF, Game_Control;
 
@@ -390,7 +390,7 @@ package body GLUT.Windows is
 
       for c in n1 .. n8 loop
          if Self.game_command (c) then
-            Reverse_light_switch (1 + Command'Pos (c) - Command'Pos (n1));
+            Reverse_Light_Switch (1 + Command'Pos (c) - Command'Pos (n1));
          end if;
       end loop;
 
@@ -602,7 +602,7 @@ package body GLUT.Windows is
    begin
 
       Clear_Modes;
-      Prepare_default_lighting (Self, 0.9);
+      Prepare_Default_Lighting (Self, 0.9);
 
       if Self.foggy then
          GL.Enable (GL.Fog);
@@ -660,7 +660,7 @@ package body GLUT.Windows is
    overriding
    procedure Freshen (Self      : in out Window;
                       Time_Step : in     G3D.Real;
-                      Extras    : in     GLOBE_3D.Visual_array := GLOBE_3D.null_Visuals)
+                      Extras    : in     GLOBE_3D.Visual_Array := GLOBE_3D.null_Visuals)
    is
    begin
       Enable (Self);  -- for multi-window operation.
