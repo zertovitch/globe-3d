@@ -5,7 +5,8 @@
 --         GLOBE_3D Mirror:    https://github.com/zertovitch/globe-3d
 --
 --
---  Build me with "gprbuild -P globe_3d_demos.gpr", or open me with GNAT Studio
+--  Build me with "gnatmake -P globe_3d_demos", "gprbuild -P globe_3d_demos",
+--  or open me with GNAT Studio
 --  
 --  Target specification:
 --  

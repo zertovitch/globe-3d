@@ -4,6 +4,9 @@
 --        GLOBE_3D Web site:   http://globe3d.sf.net/
 --         GLOBE_3D Mirror:    https://github.com/zertovitch/globe-3d
 --
+--  Build me with "gnatmake -P globe_3d", "gprbuild -P globe_3d",
+--  or open me with GNAT Studio.
+--
 project Globe_3D is
 
    type G3D_OS_Kind is
@@ -13,130 +16,154 @@ project Globe_3D is
 
    type G3D_Build_Mode_Type is
       ("debug",
-       "style_checks",  --  This mode is identical to "debug", but provides code style checks along with compilation.
        "fast",
-       "small"
-      );
+       "small");
+
    G3D_Build_Mode : G3D_Build_Mode_Type := external ("G3D_Build_Mode", "debug");
+
+   type G3D_Styles_Checks_Type is
+      ("off",
+       "level_1",
+       "level_2");
+
+   G3D_Styles_Checks : G3D_Styles_Checks_Type := external ("G3D_Styles_Checks", "off");
 
    Binder_Options := ("-Es");  --  -Es: Store tracebacks in exception occurrences, and enable symbolic tracebacks
 
-   Common_Options :=   ("-gnatwa",
-                        "-gnatX",
-                        "-fno-strict-aliasing");
+   Common_Compiler_Options :=
+     ("-gnatwa",
+      "-gnatX",
+      "-fno-strict-aliasing");
 
-   Debug_Options := Common_Options & "-gnato"
-                                   & "-fstack-check"
-                                   & "-g";
+   Style_Checks_1 := 
+     ("-gnatyaknpr",   --  Style: check all casings: a:attribute, k:keywords, n:package Standard identifiers, p:pragma, r:identifier references
+      "-gnatyO",       --  Style: check overriding indicators
+      "-gnatyM100",    --  Style: check line length <= 100 characters
+      "-gnatyx");      --  Style: check x:no extra parens
+
+   Style_Checks_2 := 
+     ("-gnatybfhiu",   --  Style: check b:no blanks at end of lines, f:no ff/vtabs, h: no htabs, i:if-then layout, u:no unnecessary blank lines
+      "-gnatye",       --  Style: check e:end/exit labels present
+      "-gnatytc",      --  Style: check t:token separation rules, c:comment format (two spaces)
+      "-gnatwh");      --  Warnings switches (h:turn on warnings for hiding declarations)
+
+   case G3D_Styles_Checks is
+      when "off"   => null;
+      when "level_1" => Common_Compiler_Options := Common_Compiler_Options & Style_Checks_1;
+      when "level_2" => Common_Compiler_Options := Common_Compiler_Options & Style_Checks_1 & Style_Checks_2;
+   end case;
+
+
+   Debug_Options :=
+     Common_Compiler_Options &
+     "-gnato" &
+     "-fstack-check" &
+     "-g";
 
    case G3D_OS is
-      when "linux"  =>
-         Debug_Options := Debug_Options & "-gnatVa";
       when "win32" | "win64" =>
          Debug_Options := Debug_Options & "-fno-inline"
                                         & "-gnatVcdeimoprst";
 --                                      & "-gnatVf"             -- (2016) turned off floating point validity check, seems to give false positives on a scalar product for collision detection
-      when "macosx" =>
-         null;
+      when others =>
+         Debug_Options := Debug_Options & "-gnatVa";
    end case;
 
-   Style_Checks_Options := Debug_Options &
-                     ("-gnatyaknpr",  --  Check all casings: a:attribute, k:keywords, n:package Standard identifiers, p:pragma, r:identifier references.
-                      "-gnatybfhiu",  --  Check b:no blanks at end of lines, f:no ff/vtabs, h: no htabs, i:if-then layout, u:no unnecessary blank lines.
-                      "-gnatyO",      --  Check that overriding subprograms are explicitly marked as such.
-                      "-gnatye",      --  Check that labels on end statements (ending subprograms), and on exit statements (exiting named loops), are present.
-                      "-gnatyt",      --  Style: check t:token separation rules
-                      "-gnatyc",      --  Style: check c:comment format (two spaces)
-                      "-gnatyx");     --  Check x:no extra parens.
+   Fast_Options :=
+     Common_Compiler_Options & 
+       ("-O2", 
+        "-gnatn",
+        "-gnatp",
+        "-funroll-loops",
+        "-fpeel-loops",
+        "-ftracer",
+        "-funswitch-loops",
+        "-fweb",
+        "-frename-registers"); 
 
-   Fast_Options := ("-O2", 
-                    "-gnatn",
-                    "-gnatp",
-                    "-funroll-loops",
-                    "-fpeel-loops",
-                    "-ftracer",
-                    "-funswitch-loops",
-                    "-fweb",
-                    "-frename-registers"); 
-
-   Small_Options := ("-G3D_OS",
-                     "-gnatp",
-                     "-fno-inline",
-                     "-march=i386",
-                     "-ffunction-sections",
-                     "-falign-jumps=0",
-                     "-falign-loops=0",
-                     "-falign-functions=0",
-                     "-mpreferred-stack-boundary=2");
+   Small_Options :=
+     Common_Compiler_Options & 
+       ("-Os",
+        "-gnatp",
+        "-fno-inline",
+        "-ffunction-sections");
 
    Compiler_Options := ();
 
    case G3D_Build_Mode 
    is
-      when "debug"        => Compiler_Options := Debug_Options;
-      when "style_checks" => Compiler_Options := Style_Checks_Options;
+      when "debug" =>
+         Compiler_Options := Debug_Options;
 
       when "fast" =>
          case G3D_OS
          is
             when "linux"  =>
-               Compiler_Options := Common_Options & Fast_Options 
-                                                  & "-fomit-frame-pointer";
+               Compiler_Options := 
+                  Fast_Options &
+                  "-fomit-frame-pointer";
             when "win32" | "win64" =>
-               Compiler_Options := Common_Options & Fast_Options
-                                                  & "-fipa-cp-clone"
-                                                  & "-fgcse-after-reload" 
-                                                  & "-ftree-vectorize"
-                                                  & "-mfpmath=sse"
-                                                  & "-msse3";
-            when "macosx" =>
-               null;
+               Compiler_Options := 
+                  Fast_Options &
+                    ("-fipa-cp-clone",
+                     "-fgcse-after-reload",
+                     "-ftree-vectorize",
+                     "-mfpmath=sse",
+                     "-msse3");
+            when others =>
+               Compiler_Options := Fast_Options;
          end case;
 
       when "small" =>
          case G3D_OS
          is
             when "linux"  =>
-               Compiler_Options := Common_Options & Small_Options 
-                                                  & "-fdata-sections";
-            when "win32" | "win64"  =>
-               Compiler_Options := Common_Options & Small_Options;
-
-            when "macosx" =>
-               null;
+               Compiler_Options :=
+                 Small_Options & "-fdata-sections";
+            when others  =>
+               Compiler_Options := Small_Options;
          end case;
    end case;
-
 
    case G3D_OS
    is
       when "macosx" =>
-         Compiler_Options := Compiler_Options & "-gnatf" 
-                                              & "-gnatE" 
-                                              & "-gnatVcfimorst"
-                                              & "-gnatyhiknp";
+         Compiler_Options :=
+           Compiler_Options &
+             ("-gnatf", 
+              "-gnatE",
+              "-gnatVcfimorst",
+              "-gnatyhiknp");
       when "linux" =>
-         Binder_Options   := Binder_Options   & "-static";
+         Binder_Options :=
+           Binder_Options & "-static";
 
       when others =>
          null;
    end case;
 
-   G3D_GNAT_Obj_Suffix := "";
-
-   case G3D_Build_Mode is
-      when "style_checks" => G3D_GNAT_Obj_Suffix := "debug";
-      when others         => G3D_GNAT_Obj_Suffix := external ("G3D_Build_Mode", "debug");
-    end case;
+   G3D_GNAT_Obj_Suffix := external ("G3D_Build_Mode", "debug");
 
    for Library_Name    use "globe3d";
    for Library_Dir     use "lib/gnat_" & G3D_GNAT_Obj_Suffix;
    for Library_Ali_Dir use "lib/gnat_" & G3D_GNAT_Obj_Suffix;
    for Object_Dir      use "obj/gnat_" & G3D_GNAT_Obj_Suffix;
 
+   Source_Dir_List :=
+     ("bindings",
+      "src",
+      "src/culler",
+      "src/gaming",
+      "src/gl",
+      "src/models",
+      "src/objects",
+      --  Here are external projects's sources:
+      "src/gid",
+      "src/unzip");
+
    case G3D_OS is
-      when "win64"  =>   for Source_Dirs use ("bindings", "bindings/win32", "src/**");
-      when others   =>   for Source_Dirs use ("bindings", "bindings/" & external ("G3D_OS_Kind", "win32"), "src/**");
+      when "win64"  => for Source_Dirs use ("bindings", "bindings/win32", "src/**");
+      when others   => for Source_Dirs use ("bindings", "bindings/" & external ("G3D_OS_Kind", "win32"), "src/**");
    end case;
 
    package Ide is
@@ -155,9 +182,9 @@ project Globe_3D is
 
       case G3D_Build_Mode 
       is
-         when "debug" | "style_checks" =>   for Global_Configuration_Pragmas use "obj/debug.pra";
-         when "fast"                   =>   null;
-         when "small"                  =>   null;
+         when "debug" =>   for Global_Configuration_Pragmas use "obj/debug.pra";
+         when "fast"  =>   null;
+         when "small" =>   null;
       end case;
    end Builder;
 
