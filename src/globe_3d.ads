@@ -166,14 +166,15 @@ package GLOBE_3D is
          rotation            : Vector_3D := (0.0, 0.0, 0.0);
          --  ^ this vector is updated, whatever the state of 'compose_rotations'
 
-         FoVy                : Real  := default_field_of_view_Angle;  --  field of view angle (deg) in the y direction
-         Aspect              : Real;                                  --  x/y aspect ratio
+         FoVy                : Real  := default_field_of_view_Angle;
+         --  ^ field of view angle (deg) in the y direction
+         Aspect              : Real;  --  x/y aspect ratio
 
-         near_plane_Distance : Real  := 1.0;                          --  distance to the near clipping plane
+         near_plane_Distance : Real := 1.0;  --  distance to the near clipping plane
          near_plane_Width    : Real;
          near_plane_Height   : Real;
 
-         far_plane_Distance  : Real  := fairly_Far;                   --  distance to the far clipping plane
+         far_plane_Distance  : Real := fairly_Far;  --  distance to the far clipping plane
          far_plane_Width     : Real;
          far_plane_Height    : Real;
 
@@ -192,8 +193,10 @@ package GLOBE_3D is
          ID                     : Ident := "-Nameless-                                        ";
          --                                 12345678901234567890123456789012345678901234567890
 
-         centre                 : Point_3D  := (0.0, 0.0, 0.0);  --  vertex coords are relative to the centre.
-         centre_camera_space    : Point_3D;                      --  the visuals 'centre' in camera space.
+         centre                 : Point_3D  := (0.0, 0.0, 0.0);
+         --  ^ vertex coords are relative to the centre.
+         centre_camera_space    : Point_3D;
+         --  ^ the visuals 'centre' in camera space.
          rotation               : Matrix_33 := Id_33;
 
          is_Terrain             : Boolean   := False;
@@ -217,7 +220,8 @@ package GLOBE_3D is
    function Face_Count (o : in Visual) return Natural                   is abstract;
    function Bounds     (o : in Visual) return GL.Geometry.Bounds_record is abstract;
 
-   function Skinned_Geometries (o : in Visual) return GL.Skinned_Geometry.Skinned_Geometries is abstract;
+   function Skinned_Geometries (o : in Visual) return GL.Skinned_Geometry.Skinned_Geometries
+     is abstract;
 
    procedure Display (o          : in out Visual;
                       clip       : in     Clipping_Data
@@ -352,7 +356,7 @@ package GLOBE_3D is
 
   type Object_3D_List;
   type p_Object_3D_List is access Object_3D_List;
-  type Object_3D_list is record
+  type Object_3D_List is record
     objc : p_Object_3D;
     next : p_Object_3D_List;
   end record;
@@ -411,7 +415,8 @@ package GLOBE_3D is
   overriding function  Is_Transparent (o : in Object_3D) return Boolean;
   overriding function  Face_Count     (o : in Object_3D) return Natural;
   overriding function  Bounds         (o : in Object_3D) return GL.Geometry.Bounds_record;
-  overriding function  Skinned_Geometries (o : in Object_3D) return GL.Skinned_Geometry.Skinned_Geometries;
+  overriding function  Skinned_Geometries (o : in Object_3D)
+    return GL.Skinned_Geometry.Skinned_Geometries;
 
   --  Check object for invalid or duplicate vertices
   procedure Check_Object (o : Object_3D);
@@ -460,7 +465,7 @@ package GLOBE_3D is
   -- Display of a single object --
   --------------------------------
 
-  procedure Display_one (o : in out Object_3D);
+  procedure Display_One (o : in out Object_3D);
   --  Display only this object and not connected objects
   --  "out" for o because object might be pre_calculated if not yet
 
@@ -488,30 +493,30 @@ package GLOBE_3D is
   Missing_texture : exception;
   Missing_object  : exception;
 
-  zero_normal : exception;
-  zero_summed_normal : exception;
-  zero_averaged_normal : exception;
+  Zero_normal : exception;
+  Zero_summed_normal : exception;
+  Zero_averaged_normal : exception;
 
   --------------
   -- Lighting --
   --------------
 
-  subtype Light_count is Natural range 0 .. 8;
+  subtype Light_Count is Natural range 0 .. 8;
   --  GL supports up to 8 sources.
-  subtype Light_ident is Light_count range 1 .. Light_count'Last;
+  subtype Light_Ident is Light_Count range 1 .. Light_Count'Last;
 
   type Light_definition is record
     position, ambient, diffuse, specular : GL.Light_Float_Vector;
   end record;
 
-  procedure Define (which : Light_ident; as : Light_definition);
+  procedure Define (which : Light_Ident; as : Light_definition);
 
   procedure Switch_Lights (on : Boolean);
-  procedure Switch_Light (which : Light_ident; on : Boolean);
+  procedure Switch_Light (which : Light_Ident; on : Boolean);
 
-  procedure Reverse_Light_Switch (which : Light_ident);
+  procedure Reverse_Light_Switch (which : Light_Ident);
 
-  function Is_light_switched (which : Light_ident) return Boolean;
+  function Is_light_switched (which : Light_Ident) return Boolean;
 
   --  NB: Image, Coords, Angles_modulo_360 were moved to GLOBE_3D.Aux.
 
@@ -548,7 +553,7 @@ private
 
   type p_String is access String;
 
-  type Face_internal_type is record
+  type Face_Internal_Type is record
      P_compact   : Idx_4_Array;
                      --  indices of the edges (anticlockwise),
                      --  in compact range : 1..3 for triangle

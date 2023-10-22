@@ -1,6 +1,6 @@
 package body GLOBE_3D.Options is
 
-  function Is_debug_mode return Boolean is
+  function Is_Debug_Mode return Boolean is
   begin
     return
       show_normals or
@@ -10,6 +10,6 @@ package body GLOBE_3D.Options is
       filter_portal_depth or
       portal_tracking or
       BSP_tracking;
-  end Is_debug_mode;
+  end Is_Debug_Mode;
 
 end GLOBE_3D.Options;

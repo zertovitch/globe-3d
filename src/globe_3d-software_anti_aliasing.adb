@@ -1,7 +1,7 @@
--- Change log:
+--  Change log:
 
--- RK  18-Oct-2006: removed initialisation by dynamic allocation,
---                  to avoid memory leaks
+--  RK  18-Oct-2006: removed initialisation by dynamic allocation,
+--                   to avoid memory leaks
 
 with GLU;
 
@@ -9,33 +9,33 @@ package body GLOBE_3D.Software_Anti_Aliasing is
 
   use GL;
 
-  type Jitter_matrix is
+  type Jitter_Matrix is
      array (Positive range <>, Positive range <>) of GL.Double;
 
-  type p_Jitter_matrix is access all Jitter_matrix;
+  type p_Jitter_Matrix is access all Jitter_Matrix;
 
-  -- Matrices for anti-aliasing (choice: matrix J at the end of Jitter) :
+  --  Matrices for anti-aliasing (choice: matrix J at the end of Jitter) :
 
-  J3 : aliased Jitter_matrix := (
-    ((0.5, 0.5),
+  J3 : aliased Jitter_Matrix :=
+   (((0.5, 0.5),
      (1.35899e-05, 0.230369),
      (0.000189185, 0.766878)));
 
-  J4: aliased Jitter_matrix := (
-    (0.375, 0.23), (0.123, 0.77),
+  J4 : aliased Jitter_Matrix :=
+   ((0.375, 0.23), (0.123, 0.77),
      (0.875, 0.27), (0.627, 0.73));
 
-  J11 : aliased Jitter_matrix := (
-    ((0.5, 0.5), (0.406537, 0.135858),
+  J11 : aliased Jitter_Matrix :=
+   (((0.5, 0.5), (0.406537, 0.135858),
      (0.860325, 0.968558), (0.680141, 0.232877),
      (0.775694, 0.584871), (0.963354, 0.309056),
      (0.593493, 0.864072), (0.224334, 0.415055),
      (0.0366643, 0.690884), (0.139685, 0.0313988),
      (0.319861, 0.767097)));
 
-  J16 : aliased Jitter_matrix := (
-    ((0.4375, 0.4375), (0.1875, 0.5625),
-     (0.9375, 1.1875), (0.4375,-0.0625),
+  J16 : aliased Jitter_Matrix :=
+   (((0.4375, 0.4375), (0.1875, 0.5625),
+     (0.9375, 1.1875), (0.4375, -0.0625),
      (0.6875, 0.5625), (0.1875, 0.0625),
      (0.6875, 0.3125), (0.1875, 0.3125),
      (0.4375, 0.1875), (-0.0625, 0.4375),
@@ -43,8 +43,8 @@ package body GLOBE_3D.Software_Anti_Aliasing is
      (0.6875, 0.0625), (0.9375, 0.9375),
      (1.1875, 0.8125), (0.9375, 0.6875)));
 
-  J29 : aliased Jitter_matrix := (
-    ((0.5, 0.5), (0.498126, 0.141363),
+  J29 : aliased Jitter_Matrix :=
+   (((0.5, 0.5), (0.498126, 0.141363),
      (0.217276, 0.651732), (0.439503, 0.954859),
      (0.734171, 0.836294), (0.912454, 0.79952),
      (0.406153, 0.671156), (0.0163892, 0.631994),
@@ -60,8 +60,8 @@ package body GLOBE_3D.Software_Anti_Aliasing is
      (0.109533, 0.812811), (0.131325, 0.471624),
      (0.0196755, 0.331813)));
 
-  J90 : aliased Jitter_matrix := (
-    ((0.5, 0.5), (0.784289, 0.417355),
+  J90 : aliased Jitter_Matrix :=
+   (((0.5, 0.5), (0.784289, 0.417355),
      (0.608691, 0.678948), (0.546538, 0.976002),
      (0.972245, 0.270498), (0.765121, 0.189392),
      (0.513193, 0.743827), (0.123709, 0.874866),
@@ -107,53 +107,53 @@ package body GLOBE_3D.Software_Anti_Aliasing is
      (0.156488, 0.376783), (0.140434, 0.977416),
      (0.808155, 0.77305), (0.282973, 0.188937)));
 
-  J: p_Jitter_matrix;
+  J : p_Jitter_Matrix;
 
-  function Anti_Alias_phases return Positive is
+  function Anti_Alias_Phases return Positive is
   begin
     if J = null then
       return 1;
     else
-      return J'Length(1) + 2;
+      return J'Length (1) + 2;
     end if;
-  end Anti_Alias_phases;
+  end Anti_Alias_Phases;
 
-  procedure Display_with_Anti_Aliasing(phase: Positive) is
+  procedure Display_with_Anti_Aliasing (phase : Positive) is
 
     procedure Jitter is
-      Dxy : array(J'Range(2)) of GL.Double;
-      weight: constant GL.Float:= 1.0 / GL.Float (J'Length(1));
+      Dxy : array (J'Range (2)) of GL.Double;
+      weight : constant GL.Float := 1.0 / GL.Float (J'Length (1));
 
-      procedure LoadDxDy(jt: Positive) is
-        view: aliased GLU.viewPortRec;
-        inv: array(1..2) of GL.Double;
+      procedure LoadDxDy (jt : Positive) is
+        view : aliased GLU.viewPortRec;
+        inv : array (1 .. 2) of GL.Double;
       begin
-        -- GLU.Get( VIEWPORT, view'unrestricted_access );
-        GLU.Get( view );
-        inv(1):= 10.0 / GL.Double (view.Width);
-        inv(2):= 10.0 / GL.Double (view.Height);
+        --  GLU.Get( VIEWPORT, view'unrestricted_access );
+        GLU.Get (view);
+        inv (1) := 10.0 / GL.Double (view.Width);
+        inv (2) := 10.0 / GL.Double (view.Height);
         for d in Dxy'Range loop
-          Dxy(d) := (J(jt,d)-0.25) * inv(d);
+          Dxy (d) := (J (jt, d) - 0.25) * inv (d);
         end loop;
       end LoadDxDy;
 
     begin
       if phase = 1 then
-          Clear( COLOR_BUFFER_BIT or ACCUM_BUFFER_BIT );
-      elsif phase in 2..Anti_Alias_phases-1 then
-          Clear( COLOR_BUFFER_BIT );
-          LoadDxDy(phase-1);
-          MatrixMode(MODELVIEW);
+          Clear (COLOR_BUFFER_BIT or ACCUM_BUFFER_BIT);
+      elsif phase in 2 .. Anti_Alias_Phases - 1 then
+          Clear (COLOR_BUFFER_BIT);
+          LoadDxDy (phase - 1);
+          MatrixMode (MODELVIEW);
           PushMatrix;
           Translate (Dxy (1), Dxy (2), 0.0);
           Display;
-          MatrixMode(MODELVIEW);
+          MatrixMode (MODELVIEW);
           PopMatrix;
-          Accum (ACCUM, weight );
-      elsif phase = Anti_Alias_phases then
+          Accum (ACCUM, weight);
+      elsif phase = Anti_Alias_Phases then
           Accum (GL_RETURN, 1.0);
-          -- ^ Transfers accumulation buffer values to the color buffer or
-          --   buffers currently selected for writing.
+          --  ^ Transfers accumulation buffer values to the color buffer or
+          --    buffers currently selected for writing.
           Flush;
       else
           raise Constraint_Error;
@@ -161,7 +161,7 @@ package body GLOBE_3D.Software_Anti_Aliasing is
     end Jitter;
   begin
     if J = null then
-      Clear( COLOR_BUFFER_BIT );
+      Clear (COLOR_BUFFER_BIT);
       Display;
       Flush;
     else
@@ -169,19 +169,19 @@ package body GLOBE_3D.Software_Anti_Aliasing is
     end if;
   end Display_with_Anti_Aliasing;
 
-  procedure Set_quality(q: Quality) is
+  procedure Set_Quality (q : Quality) is
   begin
     case q is
-      when Q1  => J:= null;
-      when Q3  => J:= J3'Access;
-      when Q4  => J:= J4'Access;
-      when Q11 => J:= J11'Access;
-      when Q16 => J:= J16'Access;
-      when Q29 => J:= J29'Access;
-      when Q90 => J:= J90'Access;
+      when Q1  => J := null;
+      when Q3  => J := J3'Access;
+      when Q4  => J := J4'Access;
+      when Q11 => J := J11'Access;
+      when Q16 => J := J16'Access;
+      when Q29 => J := J29'Access;
+      when Q90 => J := J90'Access;
     end case;
-  end Set_quality;
+  end Set_Quality;
 
 begin
-  Set_quality(Q3);
+  Set_Quality (Q3);
 end GLOBE_3D.Software_Anti_Aliasing;

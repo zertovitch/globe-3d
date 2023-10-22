@@ -22,47 +22,44 @@
 --  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 --  THE SOFTWARE.
 
--- NB: this is the MIT License, as found 12-Sep-2007 on the site
--- http://www.opensource.org/licenses/mit-license.php
+--  NB: this is the MIT License, as found 12-Sep-2007 on the site
+--  http://www.opensource.org/licenses/mit-license.php
 
 -------------------------------------------------------------------------
--- Change log
+--  Change log
 --
--- 21-May-2008: GM: slide mode working, by adding dist_before > 0.0
--- 14-May-2008: GM: package created (re-used most of old Engine_3D)
+--  21-May-2008: GM: slide mode working, by adding dist_before > 0.0
+--  14-May-2008: GM: package created (re-used most of old Engine_3D)
 
-package GLOBE_3D.Collision_detection is
+package GLOBE_3D.Collision_Detection is
 
-  -- Reaction to an object - and the world connected to it
+  --  Reaction to an object - and the world connected to it
 
-  type Reaction_method is ( elastic, slide );
+  type Reaction_Method is (elastic, slide);
 
-  type Ball_type is record
+  type Ball_Type is record
     centre : Point_3D;
     radius : Real;
   end record;
 
-  -- Collision between a ball, intending to do a step (vector), against
-  -- an object o. If there is a collision, step is reduced in length and
-  -- may change direction.
-  -- Typically, the ball's centre is the camera position and step is the camera's
-  -- move between two images. But the ball can be the abstraction of any moving
-  -- object, actor,...
+  --  Collision between a ball, intending to do a step (vector), against
+  --  an object o. If there is a collision, step is reduced in length and
+  --  may change direction.
+  --  Typically, the ball's centre is the camera position and step is the camera's
+  --  move between two images. But the ball can be the abstraction of any moving
+  --  object, actor,...
 
-  procedure Reaction(
-    o           : Object_3D'Class;
-    ball        : Ball_type;
-    method      : Reaction_method;
-    step        : in out Vector_3D; -- Whole step (in: desired, out: effective)
-    reacted     : out Real          -- reaction in proportion to step; in [0,1]
-  );
+  procedure Reaction
+    (o           : Object_3D'Class;
+     ball        : Ball_Type;
+     method      : Reaction_Method;
+     step        : in out Vector_3D;  --  Whole step (in: desired, out: effective)
+     reacted     :    out Real);      --  reaction in proportion to step; in [0,1]
 
-  --
+  Unsupported : exception;  --  something not yet implemented
 
-  Unsupported: exception; -- something not yet implemented
+  Normal_length_is_not_one : exception;
+  --  only occur when body's check_normals = True,
+  --  and also when normals are wrong, of course...
 
-  Zero_normal, Not_one_normal: exception;
-  -- only occur when body's check_normals = True,
-  -- and also when normals are wrong, of course...
-
-end GLOBE_3D.Collision_detection;
+end GLOBE_3D.Collision_Detection;
