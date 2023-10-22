@@ -16,8 +16,8 @@ with GLOBE_3D,
      GLOBE_3D.Math,
      GLOBE_3D.Textures,
      GLOBE_3D.Software_Anti_Aliasing,
-     GLOBE_3D.Stars_sky,
-     GLOBE_3D.Collision_detection,
+     GLOBE_3D.Stars_Sky,
+     GLOBE_3D.Collision_Detection,
      GLOBE_3D.Aux;
 
 with GLU, GLUT.Devices, GLUT_2D;
@@ -100,12 +100,12 @@ procedure GLOBE_3D_Demo is
     G3D.Define (7, proto_light);
     proto_light.ambient := (0.0, 0.0, 0.6, 0.1);
     G3D.Define (8, proto_light);
-    G3D.Switch_lights (True);
-    G3D.Switch_light (4, False);
-    G3D.Switch_light (5, False);
-    G3D.Switch_light (6, False);
-    G3D.Switch_light (7, False);
-    G3D.Switch_light (8, False);
+    G3D.Switch_Lights (True);
+    G3D.Switch_Light (4, False);
+    G3D.Switch_Light (5, False);
+    G3D.Switch_Light (6, False);
+    G3D.Switch_Light (7, False);
+    G3D.Switch_Light (8, False);
   end Prepare_demo_lighting;
 
   procedure Clear_modes is
@@ -228,7 +228,7 @@ procedure GLOBE_3D_Demo is
 
   bestiaire, level_stuff : G3D.p_Object_3D_array := null;
   level_idx, bri_idx, beast_idx : Integer;
-  level_BSP : G3D.BSP.p_BSP_node := null;
+  level_BSP : G3D.BSP.p_BSP_Node := null;
 
   procedure Create_Objects (load : Boolean; doom3_custom : String) is
 
@@ -262,7 +262,7 @@ procedure GLOBE_3D_Demo is
           id := Element (cv);
           G3D.IO.Load (id, so);
           ls (i).sub_objects :=
-            new G3D.Object_3D_list'
+            new G3D.Object_3D_List'
               (objc => so,
                next => ls (i).sub_objects);
           G3D.Add (level_map, G3D.p_Visual (so));  --  add sub-object to dictionary
@@ -296,14 +296,14 @@ procedure GLOBE_3D_Demo is
     use GL.Materials, G3D, G3D.Textures;
 
     function Basic_Cube_Face
-      (P        : G3D.Index_array;
+      (P        : G3D.Index_Array;
        tex_name : String;
        colour   : GL.RGB_Color;
        repeat   : Positive;
        material : Material_type := neutral_material)
-    return Face_type
+    return Face_Type
     is
-      f : Face_type; -- takes defaults values
+      f : Face_Type;  --  takes defaults values
     begin
       f.P       := P;
       f.texture := Texture_ID (tex_name);
@@ -345,13 +345,13 @@ procedure GLOBE_3D_Demo is
         Basic_Cube_Face ((1, 4, 8, 5), "face4", (1.0, 1.0, 0.0), 4),
         Basic_Cube_Face ((2, 1, 5, 6), "face5", (0.0, 1.0, 1.0), 5),
         Basic_Cube_Face ((3, 4, 1, 2), "face6", (1.0, 0.0, 1.0), 6));
-    Set_name (cube.all, "Trust the Cube !");
+    Set_Name (cube.all, "Trust the Cube !");
     --  Basic cube, but with a specular map. A glossy 'S' should appear...
     cube_glossy := new G3D.Object_3D'(cube.all);  --  cloning
     for f in cube.face'Range loop
       cube_glossy.face (f).specular_map := Texture_ID ("face_specular");
     end loop;
-    Set_name (cube_glossy.all, "Shiny cube (check the 'S' !)");
+    Set_Name (cube_glossy.all, "Shiny cube (check the 'S' !)");
     --
     --  Basic cube, but with half-faces as triangles
     --  must look identical as the first one
@@ -366,14 +366,14 @@ procedure GLOBE_3D_Demo is
       cube_tri.face (f2 + 1).P (3) := 0;
       --  Now we have killed opposite edges, one on each triangle :-)
     end loop;
-    Set_name (cube_tri.all, "Triangular Cube !");
+    Set_Name (cube_tri.all, "Triangular Cube !");
 
-    cube_tri_quad := new G3D.Object_3D'(GLOBE_3D.Aux.Merge_triangles (cube_tri.all));
-    Set_name (cube_tri_quad.all, "Cube, triangles merged to squares");
+    cube_tri_quad := new G3D.Object_3D'(GLOBE_3D.Aux.Merge_Triangles (cube_tri.all));
+    Set_Name (cube_tri_quad.all, "Cube, triangles merged to squares");
 
     --  Also a cube with half-faces, but playing with colour/texture
     cube_bico := new G3D.Object_3D'(cube_tri.all);  --  cloning
-    Set_name (cube_bico.all, "Technicolor");
+    Set_Name (cube_bico.all, "Technicolor");
     for f in cube_bico.face'Range loop
       if f mod 2 = 0 then
         if cube_bico.face (f).skin = coloured_texture then
@@ -412,7 +412,7 @@ procedure GLOBE_3D_Demo is
        metal_surface => Texture_ID ("fdmetal1"),
        bumped_blue   => Texture_ID ("bleubosl"));
 
-    Pre_calculate (vhc_002.all);
+    Pre_Calculate (vhc_002.all);
 
     Icosahedron.Create
       (object => ico,
@@ -458,9 +458,9 @@ procedure GLOBE_3D_Demo is
        alum_002 => Texture_ID ("alum_002"),
        grumnoir => Texture_ID ("grumnoir"),
        tole_001 => Texture_ID ("tole_001"));
-    Set_name (dreadnought_ship.all, "Dreadnought");
+    Set_Name (dreadnought_ship.all, "Dreadnought");
     --  G3D.IO.Load("Dreadnought", dreadnought_ship);
-    Pre_calculate (dreadnought_ship.all);
+    Pre_Calculate (dreadnought_ship.all);
 
     Extruded_surface.Create
       (object     => extrude_test_1,
@@ -476,7 +476,7 @@ procedure GLOBE_3D_Demo is
        tiling_hv  => 1,
        tiling_vu  => 2,
        tiling_vv  => 2);
-    Set_name (extrude_test_1.all, "Space City");
+    Set_Name (extrude_test_1.all, "Space City");
 
     Extruded_surface.Create
       (object     => borg_star,
@@ -492,7 +492,7 @@ procedure GLOBE_3D_Demo is
        tiling_hv  => 15,
        tiling_vu  => 31,  --  should be ~ 2*pi* v-tiling
        tiling_vv  => 5);
-    Set_name (borg_star.all, "Borg Star");
+    Set_Name (borg_star.all, "Borg Star");
 
     Sierpinski.Create_Cube
       (object  => sierp,
@@ -513,32 +513,32 @@ procedure GLOBE_3D_Demo is
        centre   => (0.0, 0.0, -800.0),
        mercator => Texture_ID ("earth_map"),
        parts    => 47);
-    Set_name (globe.all, "The Earth !");
-    Pre_calculate (globe.all);
+    Set_Name (globe.all, "The Earth !");
+    Pre_Calculate (globe.all);
 
     SkotKnot.Create
       (object => knot,
        scale  => 1.0,
        centre => (0.0, 0.0, -40.0));
-    Pre_calculate (knot.all);
+    Pre_Calculate (knot.all);
 
     Lissajous.Create
       (object => liss,
        scale  => 1.0,
        centre => (0.0, 0.0, -25.0));
-    Pre_calculate (liss.all);
+    Pre_Calculate (liss.all);
 
     Knot_10_102.Create
       (object => knot_10_102_obj,
        scale  => 1.0,
        centre => (0.0, 0.0, -50.0));
-    Pre_calculate (knot_10_102_obj.all);
+    Pre_Calculate (knot_10_102_obj.all);
 
     Knot_link.Create
       (object => knot_link_obj,
        scale  => 1.0,
        centre => (0.0, 0.0, -50.0));
-    Pre_calculate (knot_link_obj.all);
+    Pre_Calculate (knot_link_obj.all);
 
     --
     --  Load a Doom 3 level from .g3d/.bsp files
@@ -546,7 +546,7 @@ procedure GLOBE_3D_Demo is
     if doom3_custom = "" then
       Load_Doom ("Delta4g1");
     else
-      G3D.Set_level_data_name (doom3_custom & ".zip");
+      G3D.Set_Level_Data_Name (doom3_custom & ".zip");
       G3D.Textures.Reset_textures;
       G3D.Textures.Register_textures_from_resources;
       Load_Doom (Ada.Directories.Simple_Name (doom3_custom));
@@ -565,11 +565,11 @@ procedure GLOBE_3D_Demo is
         bricks_map : constant Map_of_Visuals :=
           Map_of ((p_Visual (bri1), p_Visual (bri2)));
       begin
-        G3D.Rebuild_links (bri1.all, bricks_map, False, False, True);
-        G3D.Rebuild_links (bri2.all, bricks_map, False, False, True);
+        G3D.Rebuild_Links (bri1.all, bricks_map, False, False, True);
+        G3D.Rebuild_Links (bri2.all, bricks_map, False, False, True);
       end;
-      Set_name (bri1.all, "Space station brick ONE (loaded)");
-      Set_name (bri2.all, "Space station brick TWO (loaded)");
+      Set_Name (bri1.all, "Space station brick ONE (loaded)");
+      Set_Name (bri2.all, "Space station brick TWO (loaded)");
     else
       --  Create objects, don't load them (default).
       --
@@ -588,7 +588,7 @@ procedure GLOBE_3D_Demo is
                      Texture_ID ("face4"),
                      Texture_ID ("face5"),
                      Texture_ID ("face6")));
-      Set_name (bri1.all, "Space station brick ONE");
+      Set_Name (bri1.all, "Space station brick ONE");
 
       Brick.Create
         (object  => bri2,
@@ -598,7 +598,7 @@ procedure GLOBE_3D_Demo is
          opening => (5 | 6 => True, others => False),
          portal  => portal2,
          texture => (others => Texture_ID ("alum_002")));
-      Set_name (bri2.all, "Space station brick TWO");
+      Set_Name (bri2.all, "Space station brick TWO");
 
       --  Connecting portals:
       bri1.face (portal1 (5)).connecting := bri2;
@@ -611,8 +611,8 @@ procedure GLOBE_3D_Demo is
         --  NB:
         --    - portals may have been already linked (if created, not loaded);
         --    - textures need to be linked
-        G3D.Rebuild_links (level_stuff (i).all, level_map, False, False, True);
-        G3D.Pre_calculate (level_stuff (i).all);
+        G3D.Rebuild_Links (level_stuff (i).all, level_map, False, False, True);
+        G3D.Pre_Calculate (level_stuff (i).all);
       end loop;
     end if;
 
@@ -652,14 +652,14 @@ procedure GLOBE_3D_Demo is
     for i in bestiaire'Range loop
       if i = level_idx then
         for j in level_stuff'Range loop
-          G3D.IO.Save_file (level_stuff (j).all);
+          G3D.IO.Save_File (level_stuff (j).all);
         end loop;
       else
-        G3D.IO.Save_file (bestiaire (i).all);
+        G3D.IO.Save_File (bestiaire (i).all);
       end if;
     end loop;
-    G3D.IO.Save_file (bri2.all);
-    G3D.IO.Save_file ("Delta4g1", level_BSP);
+    G3D.IO.Save_File (bri2.all);
+    G3D.IO.Save_File ("Delta4g1", level_BSP);
   end Dump_Objects;
 
   detect_collisions : Boolean := True;
@@ -695,7 +695,8 @@ procedure GLOBE_3D_Demo is
       GLUT_2D.Text_output ((0.0, 1.0, 0.0), "y", GLUT_2D.Times_Roman_24);
       GLUT_2D.Text_output ((0.0, 0.0, 1.0), "z", GLUT_2D.Times_Roman_24);
 
-      Msg (10, "Press Space for next object/scene.    Object name: " & Get_name (o) &
+      Msg (10, "Press Space for next object/scene.    Object name: " &
+        Get_Name (o) &
         ". Points:" & Integer'Image (o.Max_points) &
         ". Faces:"  & Integer'Image (o.Max_faces) &
         ". GL Lists: " & List_Cases'Image (o.List_Status));
@@ -802,8 +803,8 @@ procedure GLOBE_3D_Demo is
     Set_Background_Color;
     case smoothing is
       when software =>
-        SAA.Set_quality (SAA.Q3);
-        for SAA_Phase in 1 .. SAA.Anti_Alias_phases loop
+        SAA.Set_Quality (SAA.Q3);
+        for SAA_Phase in 1 .. SAA.Anti_Alias_Phases loop
           SAA.Display_with_Anti_Aliasing (SAA_Phase);
         end loop;
       when hardware =>
@@ -840,7 +841,7 @@ procedure GLOBE_3D_Demo is
   object_rotation_speed : G3D.Vector_3D := (0.0, 0.0, 0.0);
 
   procedure My_Limiting (step : in out GLOBE_3D.Vector_3D) is
-    use G3D.Collision_detection;
+    use G3D.Collision_Detection;
     radius : constant := 4.0;
     reacted : G3D.Real;  --  unused further
   begin
@@ -1044,7 +1045,7 @@ procedure GLOBE_3D_Demo is
 
     for c in n1 .. n8 loop
       if gc (c) then
-        Reverse_light_switch (1 + Command'Pos (c) - Command'Pos (n1));
+        Reverse_Light_Switch (1 + Command'Pos (c) - Command'Pos (n1));
       end if;
     end loop;
 
@@ -1115,7 +1116,8 @@ procedure GLOBE_3D_Demo is
     InitWindowPosition (120, 120);
     if CreateWindow
       ("GLOBE_3D / Demo_1 / Any Debug = " &
-       Boolean'Image (G3D.Options.Is_debug_mode) & " / Press Space key for next scene")
+       G3D.Options.Is_Debug_Mode'Image &
+       " / Press Space key for next scene")
       = 0
     then
       raise GLUT_Problem;
@@ -1195,21 +1197,21 @@ procedure GLOBE_3D_Demo is
 
 begin
   Get_Arguments;
-  G3D.Set_global_data_name ("g3demo_global_resources.zip");
-  G3D.Set_level_data_name ("g3demo_level_resources.zip");
+  G3D.Set_Global_Data_Name ("g3demo_global_resources.zip");
+  G3D.Set_Level_Data_Name ("g3demo_level_resources.zip");
   --
   G3D.Textures.Register_textures_from_resources;
 
   Create_Objects (switch (load), To_String (custom));
   if switch (dump) then
-    Dump_Objects; -- even those that were loaded (entropy check)
+    Dump_Objects;  --  even those that were loaded (entropy check)
   end if;
 
-  Start_GLUTs;    -- Initialize the GLUT things
-  Start_GLs;      -- Initialize the (Open)GL things
+  Start_GLUTs;    --  Initialize the GLUT things
+  Start_GLs;      --  Initialize the (Open)GL things
   Reset_Eye;
 
-  G3D.Textures.Check_all_textures; -- Preload the textures
+  G3D.Textures.Check_all_textures;  --  Preload the textures
 
   --  So far, there is an issue with ObjectAda Win32, GLUT.MainLoop callback,
   --  freeglut, under Windows 7 x64. Display @ Main_Operations is fine.
