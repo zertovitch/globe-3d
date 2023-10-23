@@ -165,7 +165,7 @@ procedure Mini is
     GL.Enable (GL.Blend);
     GL.BlendFunc (sfactor => GL.SRC_ALPHA, dfactor => GL.ONE_MINUS_SRC_ALPHA);
     logo := G3D.Textures.Texture_ID ("g3d_logo");
-    G3D.Textures.Check_2D_texture (logo);
+    G3D.Textures.Check_2D_Texture (logo);
     GLUT_2D.Put_Image
       (G3D.Image_ID'Pos (logo) + 1,
        0,
@@ -311,7 +311,7 @@ procedure Mini is
 begin
   G3D.Set_Global_Data_Name ("g3demo_global_resources.zip");
   --
-  G3D.Textures.Register_textures_from_resources;
+  G3D.Textures.Register_Textures_From_Resources;
 
   Create_Objects;
 
@@ -319,11 +319,11 @@ begin
   Start_GLs;      -- Initialize the (Open)GL things
   Reset_eye;
 
-  G3D.Textures.Check_all_textures; -- Preload the textures
+  G3D.Textures.Check_All_Textures;  --  Preload the textures
 
   --  So far, there is an issue with ObjectAda Win32, GLUT.MainLoop callback,
   --  freeglut, under Windows 7 x64. Display @ Main_Operations is fine.
   --
-  GLUT.MainLoop;  -- Let's rock !
+  GLUT.MainLoop;  --  Let's rock !
 
 end Mini;

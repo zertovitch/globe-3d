@@ -39,7 +39,7 @@ with Vehic001, Vehic002,
      --  VRML_scene,
      --  gmax_scene,
      --  Doom3_Level,
-     Extruded_surface,
+     Extruded_Surface,
      Sierpinski
      ;
 
@@ -226,7 +226,7 @@ procedure GLOBE_3D_Demo is
   sierp,
   cube, cube_glossy, cube_tri, cube_tri_quad, cube_bico : G3D.p_Object_3D;
 
-  bestiaire, level_stuff : G3D.p_Object_3D_array := null;
+  bestiaire, level_stuff : G3D.p_Object_3D_Array := null;
   level_idx, bri_idx, beast_idx : Integer;
   level_BSP : G3D.BSP.p_BSP_Node := null;
 
@@ -236,7 +236,7 @@ procedure GLOBE_3D_Demo is
 
     procedure Load_Doom (name : String) is
       area_max : Natural := 0;
-      ls : G3D.Object_3D_array (1 .. 1_000);
+      ls : G3D.Object_3D_Array (1 .. 1_000);
       so : G3D.p_Object_3D;
       empty_level : exception;
       use G3D.Ident_Vectors;
@@ -288,7 +288,7 @@ procedure GLOBE_3D_Demo is
             raise empty_level with "Object name " & name & " not found";
         end;
       end if;
-      level_stuff := new G3D.Object_3D_array'(ls (1 .. area_max));
+      level_stuff := new G3D.Object_3D_Array'(ls (1 .. area_max));
     end Load_Doom;
 
     t : constant := 20.0;
@@ -462,12 +462,12 @@ procedure GLOBE_3D_Demo is
     --  G3D.IO.Load("Dreadnought", dreadnought_ship);
     Pre_Calculate (dreadnought_ship.all);
 
-    Extruded_surface.Create
+    Extruded_Surface.Create
       (object     => extrude_test_1,
        scale      => 400.0,
        centre     => (-160.0, -160.0, -300.0),
        grid       => 57,
-       surface    => Extruded_surface.square,
+       surface    => Extruded_Surface.square,
        max_u3     => 0.15,
        iterations => 100,
        hor_tex    => Texture_ID ("spacity1"),
@@ -478,12 +478,12 @@ procedure GLOBE_3D_Demo is
        tiling_vv  => 2);
     Set_Name (extrude_test_1.all, "Space City");
 
-    Extruded_surface.Create
+    Extruded_Surface.Create
       (object     => borg_star,
        scale      => 500.0,
        centre     => (0.0, 0.0, -1000.0),
        grid       => 65,
-       surface    => Extruded_surface.sphere,
+       surface    => Extruded_Surface.sphere,
        max_u3     => 0.03,
        iterations => 2000,
        hor_tex    => Texture_ID ("alum_001"),
@@ -547,8 +547,8 @@ procedure GLOBE_3D_Demo is
       Load_Doom ("Delta4g1");
     else
       G3D.Set_Level_Data_Name (doom3_custom & ".zip");
-      G3D.Textures.Reset_textures;
-      G3D.Textures.Register_textures_from_resources;
+      G3D.Textures.Reset_Textures;
+      G3D.Textures.Register_Textures_From_Resources;
       Load_Doom (Ada.Directories.Simple_Name (doom3_custom));
     end if;
 
@@ -617,7 +617,7 @@ procedure GLOBE_3D_Demo is
     end if;
 
     --  Whole 3D zoo:
-    bestiaire := new Object_3D_array'
+    bestiaire := new Object_3D_Array'
       (level_stuff (level_stuff'First),  --  Starting area in the DOOM 3 level is the first area
        cube, cube_glossy, cube_tri, cube_tri_quad, cube_bico,
        globe,
@@ -1200,7 +1200,7 @@ begin
   G3D.Set_Global_Data_Name ("g3demo_global_resources.zip");
   G3D.Set_Level_Data_Name ("g3demo_level_resources.zip");
   --
-  G3D.Textures.Register_textures_from_resources;
+  G3D.Textures.Register_Textures_From_Resources;
 
   Create_Objects (switch (load), To_String (custom));
   if switch (dump) then
@@ -1211,11 +1211,11 @@ begin
   Start_GLs;      --  Initialize the (Open)GL things
   Reset_Eye;
 
-  G3D.Textures.Check_all_textures;  --  Preload the textures
+  G3D.Textures.Check_All_Textures;  --  Preload the textures
 
   --  So far, there is an issue with ObjectAda Win32, GLUT.MainLoop callback,
   --  freeglut, under Windows 7 x64. Display @ Main_Operations is fine.
   --
-  GLUT.MainLoop;  -- Let's rock !
+  GLUT.MainLoop;  --  Let's rock !
 
 end GLOBE_3D_Demo;

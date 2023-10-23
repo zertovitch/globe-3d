@@ -143,7 +143,7 @@ package body GLOBE_3D is
   begin
     for f in o.face'Range loop
       if is_textured (o.face (f).skin)
-        and then not Textures.Valid_texture_ID (o.face (f).texture)
+        and then not Textures.Valid_Texture_ID (o.face (f).texture)
       then
         raise Textures.Undefined_texture_ID with
             Trim (o.ID, Right) &
@@ -181,7 +181,7 @@ package body GLOBE_3D is
           fi.P_compact (l) := fa.P (qe);
         end if;
       end loop;
-      if l in Edge_count then
+      if l in Edge_Count then
         fi.last_edge := l;
       else
         raise bad_edge_number with o.ID & " edge=" & l'Image;
@@ -483,7 +483,7 @@ package body GLOBE_3D is
         -----------------------------
 
         if is_textured (fa.skin) then
-          G3DT.Check_2D_texture (fa.texture, blending_hint);
+          G3DT.Check_2D_Texture (fa.texture, blending_hint);
           if blending_hint then
             fi.blending := True;
             --  13-Oct-2006: override the decision made at Pre_calculate.
@@ -558,7 +558,7 @@ package body GLOBE_3D is
       begin
         --  Specular map (the optional "glossy" or "shiny" image) is drawn here:
         if is_textured (fa.skin) and then fa.specular_map /= null_image then
-          G3DT.Check_2D_texture (fa.specular_map, blending_hint);
+          G3DT.Check_2D_Texture (fa.specular_map, blending_hint);
           if fa.specular_map /= Previous_specular_face.specular_map then
             GL.BindTexture (GL.Texture_2D, GL.Uint (Image_ID'Pos (fa.specular_map) + 1));
           end if;

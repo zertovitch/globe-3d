@@ -343,9 +343,9 @@ package GLOBE_3D is
   function Is_Textured_Specular (fa : Face_Type) return Boolean;
 
   type Face_Array is array (Natural range <>) of aliased Face_Type;
-  type p_Face_array is access Face_Array;
+  type p_Face_Array is access Face_Array;
 
-  subtype Edge_count is Positive range 3 .. 4;
+  subtype Edge_Count is Positive range 3 .. 4;
 
   --  Internal: faces properties that usually don't change during
   --  the object's life. Nothing for GLOBE_3D users.
@@ -361,8 +361,8 @@ package GLOBE_3D is
     next : p_Object_3D_List;
   end record;
 
-  type Object_3D_array is array (Positive range <>) of p_Object_3D;
-  type p_Object_3D_array is access Object_3D_array;
+  type Object_3D_Array is array (Positive range <>) of p_Object_3D;
+  type p_Object_3D_Array is access Object_3D_Array;
 
   --  Added "List_status" and "List_Id" to the Object_3D.
   --  by default the Display_One routine will now generate a GL command list
@@ -528,7 +528,7 @@ package GLOBE_3D is
     new Ada.Unchecked_Deallocation (Point_3D_Array, p_Point_3D_Array);
 
   procedure Dispose is
-    new Ada.Unchecked_Deallocation (Face_Array, p_Face_array);
+    new Ada.Unchecked_Deallocation (Face_Array, p_Face_Array);
 
   ----------------------------------------------------------------------
   -- Trash: provisory global variables for some development checkings --
@@ -557,7 +557,7 @@ private
      P_compact   : Idx_4_Array;
                      --  indices of the edges (anticlockwise),
                      --  in compact range : 1..3 for triangle
-     last_edge   : Edge_count;
+     last_edge   : Edge_Count;
      --  Mapping of texture edges as set by Calculate_face_internals.
      --  The range is compact, 1..3, for triangles, matching P_compact.
      UV_extrema  : Map_Idx_Pair_4_Array;

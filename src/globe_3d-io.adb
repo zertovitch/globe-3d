@@ -387,13 +387,13 @@ package body GLOBE_3D.IO is
       else
         --  Usual way: We can get the texture name associated to the
         --  GL ID number; name is stored by GLOBE_3D.Textures.
-        Write_String (s, Textures.Texture_name (face.texture, trim => False));
+        Write_String (s, Textures.Texture_Name (face.texture, trim_spaces => False));
       end if;
       --  Next, the specular map.
       if face.specular_map = null_image then
         Write_String (s, face_invar.specular_name);
       else
-        Write_String (s, Textures.Texture_name (face.specular_map, trim => False));
+        Write_String (s, Textures.Texture_Name (face.specular_map, trim_spaces => False));
       end if;
       U8'Write (s, Boolean'Pos (face.whole_texture));
       U8'Write (s, Positive'Pos (face.repeat_U));
