@@ -320,14 +320,14 @@ procedure GLOBE_3D_Demo is
       return f;
     end Basic_Cube_Face;
 
-    portal1, portal2 : Brick.Cubic_Face_index;
+    portal1, portal2 : Brick.Cubic_Face_Index;
 
-    Shiny : constant Material_type := (
-      ambient =>        (0.24725, 0.2245, 0.0645, 1.0),
-      diffuse =>        (0.34615, 0.3143, 0.0903, 1.0),
-      specular =>       (1.0, 1.0, 1.0, 1.0),
-      emission =>       (0.0, 0.0, 0.0, 0.0),
-      shininess =>      64.0);
+    Shiny : constant Material_type :=
+      (ambient =>        (0.24725, 0.2245, 0.0645, 1.0),
+       diffuse =>        (0.34615, 0.3143, 0.0903, 1.0),
+       specular =>       (1.0, 1.0, 1.0, 1.0),
+       emission =>       (0.0, 0.0, 0.0, 0.0),
+       shininess =>      64.0);
 
     use type GL.Double;
 

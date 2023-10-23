@@ -199,20 +199,15 @@ package body GLOBE_3D.Textures is
 
     procedure Register (zif : in out Zip.Zip_info; name : String) is
       --
-      pragma Warnings
-        (Off,
-         Reason => "declaration hides ""name"" at line 200");
-      --  TODO: Add explanations
-      procedure Action (name : String) is
-      pragma Warnings (On);
+      procedure Action (tex_name : String) is
         dummy : Image_ID;
-        ext : constant String := To_Upper (name (name'Last - 3 .. name'Last));
+        ext : constant String := To_Upper (tex_name (tex_name'Last - 3 .. tex_name'Last));
       begin
         if ext = ".BMP" or else ext = ".TGA"
           or else ext = ".JPG" or else ext = "JPEG"
           or else ext = ".GIF" or else ext = ".PNG"
         then
-          Add_Texture_Name (name (name'First .. name'Last - 4), dummy);
+          Add_Texture_Name (tex_name (tex_name'First .. tex_name'Last - 4), dummy);
         end if;
       end Action;
       --

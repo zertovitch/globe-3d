@@ -8,13 +8,12 @@ with GLOBE_3D;
 
 package Vehic002 is
 
-  procedure Create(
-    object: in out GLOBE_3D.p_Object_3D;
-    scale :        GLOBE_3D.Real;
-    centre:        GLOBE_3D.Point_3D;
-    metal_door,
-    metal_surface,
-    bumped_blue  : GLOBE_3D.Image_ID
-  );
+  procedure Create
+    (object : in out GLOBE_3D.p_Object_3D;
+     scale  :        GLOBE_3D.Real;
+     centre :        GLOBE_3D.Point_3D;
+     metal_door,
+     metal_surface,
+     bumped_blue :   GLOBE_3D.Image_ID);
 
 end Vehic002;
