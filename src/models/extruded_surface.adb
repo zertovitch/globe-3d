@@ -44,7 +44,7 @@ package body Extruded_Surface is
   last_point      : Natural;
   mesh            : p_Point_3D_Array :=
                       new Point_3D_Array (1 .. ((grid + 1)**2) * 3);
-  poly            : p_Face_array :=
+  poly            : p_Face_Array :=
                       new Face_Array (1 .. ((grid + 1)**2) * 6 * 2);
   --  Worst case: each cell has a S and W neighbour of
   --  different height; triangular tiling

@@ -15,9 +15,11 @@
 
 with GL.Math;
 
-with Ada.Numerics.Float_Random;         use Ada.Numerics.Float_Random;
+with Ada.Numerics.Float_Random;
 
 package body GLOBE_3D.Random_Extrusions is
+
+  use Ada.Numerics.Float_Random;
 
   seed : Generator;
 
@@ -180,10 +182,8 @@ package body GLOBE_3D.Random_Extrusions is
         xb := Real (e1 + 1) * sc_1;
         ya := Real (e2) * sc_2;
         yb := Real (e2 + 1) * sc_2;
-        ta.U := HT1.U + xa * (HT2.U - HT1.U) + ya * (xa * (HT3.U - HT2.U) + (1.0 - xa) * (HT4.U - HT1.U));
-        ta.V := HT1.V + xa * (HT2.V - HT1.V) + ya * (xa * (HT3.V - HT2.V) + (1.0 - xa) * (HT4.V - HT1.V));
-        tb.U := HT1.U + xb * (HT2.U - HT1.U) + yb * (xb * (HT3.U - HT2.U) + (1.0 - xb) * (HT4.U - HT1.U));
-        tb.V := HT1.V + xb * (HT2.V - HT1.V) + yb * (xb * (HT3.V - HT2.V) + (1.0 - xb) * (HT4.V - HT1.V));
+        ta := HT1 + xa * (HT2 - HT1) + ya * (xa * (HT3 - HT2) + (1.0 - xa) * (HT4 - HT1));
+        tb := HT1 + xb * (HT2 - HT1) + yb * (xb * (HT3 - HT2) + (1.0 - xb) * (HT4 - HT1));
         --  The horizontal face
         Do_Face
           ((xa, ya, e), (xb, ya, e), (xb, yb, e), (xa, yb, e),
@@ -193,7 +193,7 @@ package body GLOBE_3D.Random_Extrusions is
         --
         --  Now the funny part: the vertical faces!
         --
-        if iterations > 0 and  -- <- possible to generate no extrusion at all!
+        if iterations > 0 and  --  <-  It is possible to generate no extrusion at all!
            e1 > 0 and e2 > 0
         then
           --
@@ -205,21 +205,17 @@ package body GLOBE_3D.Random_Extrusions is
           if Almost_zero (e - en) then
             null; -- do nothing, there is no face to add
           else
-            if e > en then  --  neighbour has a lower elevation: face visible from south
-              ta.U := VT1.U + xa * (VT2.U - VT1.U) + en * (xa * (VT3.U - VT2.U) + (1.0 - xa) * (VT4.U - VT1.U));
-              ta.V := VT1.V + xa * (VT2.V - VT1.V) + en * (xa * (VT3.V - VT2.V) + (1.0 - xa) * (VT4.V - VT1.V));
-              tb.U := VT1.U + xb * (VT2.U - VT1.U) + e  * (xb * (VT3.U - VT2.U) + (1.0 - xb) * (VT4.U - VT1.U));
-              tb.V := VT1.V + xb * (VT2.V - VT1.V) + e  * (xb * (VT3.V - VT2.V) + (1.0 - xb) * (VT4.V - VT1.V));
+            if e > en then  --  Neighbour has a lower elevation: face visible from South
+              ta := VT1 + xa * (VT2 - VT1) + en * (xa * (VT3 - VT2) + (1.0 - xa) * (VT4 - VT1));
+              tb := VT1 + xb * (VT2 - VT1) + e  * (xb * (VT3 - VT2) + (1.0 - xb) * (VT4 - VT1));
               Do_Face
                 ((xa, ya, en), (xb, ya, en), (xb, ya, e), (xa, ya, e),
                  (ta, (tb.U, ta.V), tb, (ta.U, tb.V)),
                  V_ID,
                  e1, e2);
-            else            --  neighbour has a higher elevation: face visible from north
-              ta.U := VT2.U + xb * (VT1.U - VT2.U) + e  * (xb * (VT4.U - VT1.U) + (1.0 - xb) * (VT3.U - VT2.U));
-              ta.V := VT2.V + xb * (VT1.V - VT2.V) + e  * (xb * (VT4.V - VT1.V) + (1.0 - xb) * (VT3.V - VT2.V));
-              tb.U := VT2.U + xa * (VT1.U - VT2.U) + en * (xa * (VT4.U - VT1.U) + (1.0 - xa) * (VT3.U - VT2.U));
-              tb.V := VT2.V + xa * (VT1.V - VT2.V) + en * (xa * (VT4.V - VT1.V) + (1.0 - xa) * (VT3.V - VT2.V));
+            else            --  Neighbour has a higher elevation: face visible from North
+              ta := VT2 + xb * (VT1 - VT2) + e  * (xb * (VT4 - VT1) + (1.0 - xb) * (VT3 - VT2));
+              tb := VT2 + xa * (VT1 - VT2) + en * (xa * (VT4 - VT1) + (1.0 - xa) * (VT3 - VT2));
               Do_Face
                 ((xb, ya, e), (xa, ya, e), (xa, ya, en), (xb, ya, en),
                  (ta, (tb.U, ta.V), tb, (ta.U, tb.V)),
@@ -234,23 +230,19 @@ package body GLOBE_3D.Random_Extrusions is
           --
           en := elevation (e1 - 1, e2);
           if Almost_zero (e - en) then
-            null; -- do nothing, there is no face to add
+            null;  --  Do nothing, there is no face to add.
           else
-            if e > en then  --  neighbour has a lower elevation: face visible from west
-              ta.U := VT2.U + yb * (VT1.U - VT2.U) + en * (yb * (VT4.U - VT1.U) + (1.0 - yb) * (VT3.U - VT2.U));
-              ta.V := VT2.V + yb * (VT1.V - VT2.V) + en * (yb * (VT4.V - VT1.V) + (1.0 - yb) * (VT3.V - VT2.V));
-              tb.U := VT2.U + ya * (VT1.U - VT2.U) + e  * (ya * (VT4.U - VT1.U) + (1.0 - ya) * (VT3.U - VT2.U));
-              tb.V := VT2.V + ya * (VT1.V - VT2.V) + e  * (ya * (VT4.V - VT1.V) + (1.0 - ya) * (VT3.V - VT2.V));
+            if e > en then  --  Neighbour has a lower elevation: face visible from West.
+              ta := VT2 + yb * (VT1 - VT2) + en * (yb * (VT4 - VT1) + (1.0 - yb) * (VT3 - VT2));
+              tb := VT2 + ya * (VT1 - VT2) + e  * (ya * (VT4 - VT1) + (1.0 - ya) * (VT3 - VT2));
               Do_Face
                 ((xa, yb, en), (xa, ya, en), (xa, ya, e), (xa, yb, e),
                  (ta, (tb.U, ta.V), tb, (ta.U, tb.V)),
                  V_ID,
                  e1, e2);
-            else            --  neighbour has a higher elevation: face visible from east
-              ta.U := VT1.U + ya * (VT2.U - VT1.U) + e  * (ya * (VT3.U - VT2.U) + (1.0 - ya) * (VT4.U - VT1.U));
-              ta.V := VT1.V + ya * (VT2.V - VT1.V) + e  * (ya * (VT3.V - VT2.V) + (1.0 - ya) * (VT4.V - VT1.V));
-              tb.U := VT1.U + yb * (VT2.U - VT1.U) + en * (yb * (VT3.U - VT2.U) + (1.0 - yb) * (VT4.U - VT1.U));
-              tb.V := VT1.V + yb * (VT2.V - VT1.V) + en * (yb * (VT3.V - VT2.V) + (1.0 - yb) * (VT4.V - VT1.V));
+            else            --  Neighbour has a higher elevation: face visible from East.
+              ta := VT1 + ya * (VT2 - VT1) + e  * (ya * (VT3 - VT2) + (1.0 - ya) * (VT4 - VT1));
+              tb := VT1 + yb * (VT2 - VT1) + en * (yb * (VT3 - VT2) + (1.0 - yb) * (VT4 - VT1));
               Do_Face
                 ((xa, ya, e), (xa, yb, e), (xa, yb, en), (xa, ya, en),
                  (ta, (tb.U, ta.V), tb, (ta.U, tb.V)),
@@ -260,7 +252,7 @@ package body GLOBE_3D.Random_Extrusions is
           end if;
           --
           --  Eastern and northern neighbours: treated on next step
-          --  as western and southern cases.
+          --  as Western and Southern cases.
         end if;
       end loop;
     end loop;
