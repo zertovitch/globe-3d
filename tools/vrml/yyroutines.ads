@@ -1,11 +1,11 @@
-with VRML_tokens;
+with Vrml_Tokens;
 
 package yyroutines is
 
-  use VRML_tokens;
+  use Vrml_Tokens;
 
   function YYLex return Token;
 
-  procedure UnYYLex(tok : Token);
+  procedure UnYYLex (tok : Token);
 
 end yyroutines;

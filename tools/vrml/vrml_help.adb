@@ -1,10 +1,11 @@
 with Ada.Command_Line,
      Ada.Strings.Fixed,
+     Ada.Strings.Unbounded,
      Ada.Text_IO;
 
 package body VRML_Help is
 
-  use Ada.Command_Line, Ada.Strings, Ada.Strings.Fixed;
+  use Ada.Command_Line, Ada.Strings, Ada.Strings.Fixed, Ada.Strings.Unbounded;
 
   package RIO is new Ada.Text_IO.Float_IO (Real);
 
@@ -66,8 +67,17 @@ package body VRML_Help is
 
   procedure iPut (s : String; as_comment : Boolean);
 
+  buffer : Unbounded_String;
+
+  procedure Flush is
+  begin
+    Ada.Text_IO.Put (Trim (To_String (buffer), Right));
+    buffer := Null_Unbounded_String;
+  end Flush;
+
   procedure iNew_Line is
   begin
+    Flush;
     Ada.Text_IO.New_Line;
     if pretty or not table_area then
       iPut (big_space (1 .. indent * indent_block), as_comment => False);
@@ -87,12 +97,12 @@ package body VRML_Help is
             end if;
             pr := True;
           when others =>
-            Ada.Text_IO.Put (s (i));
+            buffer := buffer & s (i);
             pr := False;
         end case;
       end loop;
     else
-      Ada.Text_IO.Put (s);
+      buffer := buffer & s;
     end if;
   end iPut;
 

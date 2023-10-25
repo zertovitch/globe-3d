@@ -9,9 +9,9 @@ package body SkotKnot is
 --  VRML Info: ["Knot model created by KnotPlot
   --  URL: https://knotplot.com/vrml/vrml.html
   --  URL: http://www.cs.ubc.ca/nest/imager/contributions/scharein/KnotPlot.html
-  --       
+  --
   --  Author: Rob Scharein
-  --          Department of Computer Science 
+  --          Department of Computer Science
   --          2366 Main Mall - Room 201
   --          University of British Columbia
   --          Vancouver, B.C. CANADA  V6T 1Z4
@@ -20,14 +20,14 @@ package body SkotKnot is
   --  date:   Thu Aug 8 19:06:39 PDT 1996
   --  "]
   --  begin Separator # 2
-  
+
   matos_2 : constant Material_Type :=
       (ambient   => (0.4,   0.2,   0.0,   1.0),
        specular  => (0.9,   0.9,   0.0,   1.0),
        diffuse   => (0.9,   0.5,   0.0,   1.0),
        emission  => (0.0,   0.0,   0.0,   1.0),
        shininess => 25.6);
-      
+
     --  begin Separator # 3
     coord_3 : constant Point_3D_Array :=
       ((0.0,   0.0,   0.0), (0.406759,  -5.257874,   1.141623),  --   2
@@ -186,8 +186,8 @@ package body SkotKnot is
         (0.819365,  -3.532251,   0.704764), (0.752025,  -4.081991,   0.15413),  --   308
         (0.888224,  -4.848804,   0.212392), (0.0,   0.0,   0.0)  --   310
         );
-      
-    idx_3 : constant Idx_4_Array_Array := 
+
+    idx_3 : constant Idx_4_Array_Array :=
       ((2, 3, 10, 9), (3, 4, 11, 10), (4, 5, 12, 11),  --   3
         (5, 6, 13, 12), (6, 7, 14, 13), (7, 8, 15, 14),  --   6
         (8, 2, 9, 15), (9, 10, 17, 16), (10, 11, 18, 17),  --   9
@@ -297,14 +297,14 @@ package body SkotKnot is
     --  last index now: 310
     --  end Separator # 3
   --  begin Separator # 4
-  
+
   matos_4 : constant Material_Type :=
       (ambient   => (0.4,   0.2,   0.0,   1.0),
        specular  => (0.9,   0.9,   0.0,   1.0),
        diffuse   => (0.0,   0.5,   0.0,   1.0),
        emission  => (0.0,   0.0,   0.0,   1.0),
        shininess => 25.6);
-      
+
     --  begin Separator # 5
     coord_5 : constant Point_3D_Array :=
       ((0.0,   0.0,   0.0), (-11.496922,  -0.723811,  -1.838573),  --   2
@@ -722,8 +722,8 @@ package body SkotKnot is
         (-11.996368,  -1.748109,  -0.365906), (-12.473104,  -1.269271,  -0.757549),  --   826
         (-12.287482,  -0.660718,  -1.210488), (0.0,   0.0,   0.0)  --   828
         );
-      
-    idx_5 : constant Idx_4_Array_Array := 
+
+    idx_5 : constant Idx_4_Array_Array :=
       ((312, 313, 320, 319), (313, 314, 321, 320), (314, 315, 322, 321),  --   3
         (315, 316, 323, 322), (316, 317, 324, 323), (317, 318, 325, 324),  --   6
         (318, 312, 319, 325), (319, 320, 327, 326), (320, 321, 328, 327),  --   9
@@ -1004,14 +1004,14 @@ package body SkotKnot is
       --  last index now: 1138
       --  end Separator # 5
     --  begin Separator # 6
-    
+
     matos_6 : constant Material_Type :=
         (ambient   => (0.4,   0.2,   0.0,   1.0),
          specular  => (0.9,   0.9,   0.0,   1.0),
          diffuse   => (0.0,   0.0,   1.0,   1.0),
          emission  => (0.0,   0.0,   0.0,   1.0),
          shininess => 128.0);
-        
+
       --  begin Separator # 7
       coord_7 : constant Point_3D_Array :=
         ((0.0,   0.0,   0.0), (-6.849022,  -0.860054,  -0.490014),  --   2
@@ -1380,8 +1380,8 @@ package body SkotKnot is
           (-8.567648,  -0.635474,  -1.137128), (-7.944941,  -0.855055,  -1.554221),  --   728
           (-7.18908,  -0.727644,  -1.404596), (0.0,   0.0,   0.0)  --   730
           );
-        
-      idx_7 : constant Idx_4_Array_Array := 
+
+      idx_7 : constant Idx_4_Array_Array :=
         ((1140, 1141, 1148, 1147), (1141, 1142, 1149, 1148), (1142, 1143, 1150, 1149),  --   3
           (1143, 1144, 1151, 1150), (1144, 1145, 1152, 1151), (1145, 1146, 1153, 1152),  --   6
           (1146, 1140, 1147, 1153), (1147, 1148, 1155, 1154), (1148, 1149, 1156, 1155),  --   9

@@ -1,4 +1,4 @@
-with VRML_YYlex;
+with VRML_YYLex;
 
 package body yyroutines is
 
@@ -12,11 +12,11 @@ package body yyroutines is
       HaveLookahead := False;
       return Lookahead;
     else
-      return VRML_YYlex;
+      return VRML_YYLex;
     end if;
   end YYLex;
 
-  procedure UnYYLex(tok : Token) is
+  procedure UnYYLex (tok : Token) is
   begin
     if HaveLookahead then
       raise SecondUnYYLex;

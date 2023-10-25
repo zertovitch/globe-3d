@@ -1,4 +1,4 @@
-with VRML_tokens; use VRML_tokens;
-with yylex;
+with Vrml_Tokens; use Vrml_Tokens;
+with YYLex;
 
-function VRML_yylex return token renames yylex;
+function VRML_YYLex return Token renames YYLex;
