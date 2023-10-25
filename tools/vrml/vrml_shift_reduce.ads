@@ -1272,9 +1272,9 @@ package Vrml_Shift_Reduce is
 -- State  622
 ,(-1,-273)
 );
---  The offset vector
-SHIFT_REDUCE_OFFSET : array (0.. 622) of Integer :=
-( 0,
+  --  The offset vector
+  Shift_Reduce_Offset : array (0 .. 622) of Integer :=
+  ( 0,
  42, 43, 44, 85, 124, 126, 128, 130, 131, 132, 133, 134, 135, 136, 137, 138,
  139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154,
  155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 171,

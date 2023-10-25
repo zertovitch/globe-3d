@@ -517,9 +517,9 @@ procedure GLOBE_3D_Demo is
     Pre_Calculate (globe.all);
 
     SkotKnot.Create
-      (object => knot,
-       scale  => 1.0,
-       centre => (0.0, 0.0, -40.0));
+      (object  => knot,
+       scaling => 1.0,
+       centre  => (0.0, 0.0, -40.0));
     Pre_Calculate (knot.all);
 
     Lissajous.Create

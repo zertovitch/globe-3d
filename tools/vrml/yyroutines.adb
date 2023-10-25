@@ -1,7 +1,6 @@
-with VRML_YYlex, VRML_tokens;
+with VRML_YYlex;
 
 package body yyroutines is
-  use VRML_tokens;
 
   Lookahead : Token;
   HaveLookahead : Boolean := False;

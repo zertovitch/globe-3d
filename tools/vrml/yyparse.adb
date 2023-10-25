@@ -58,9 +58,9 @@ procedure YYParse is
        --  Affects error 'Stack size exceeded on state_stack'
        stack_size : constant Natural := yy_sizes.stack_size; -- was 300, then 8192
 
-       -- subtype rule         is natural;
-       subtype parse_state  is natural;
-       -- subtype nonterminal  is integer;
+       -- subtype rule         is Natural;
+       subtype parse_state  is Natural;
+       -- subtype nonterminal  is Integer;
 
        -- encryption constants
        default           : constant := -1;
@@ -69,88 +69,88 @@ procedure YYParse is
        error_code        : constant := -3000;
 
        -- stack data used by the parser
-       tos                : natural := 0;
-       value_stack        : array(0..stack_size) of yy_tokens.yystype;
+       tos                : Natural := 0;
+       value_stack        : array(0..stack_size) of yy_tokens.YYSType;
        state_stack        : array(0..stack_size) of parse_state;
 
        -- current input symbol and action the parser is on
-       action             : integer;
-       rule_id            : rule;
-       input_symbol       : yy_tokens.token:= Error;
+       action             : Integer;
+       rule_id            : Rule;
+       input_symbol       : yy_tokens.Token:= Error;
 
 
        -- error recovery flag
-       error_flag : natural := 0;
+       error_flag : Natural := 0;
           -- indicates  3 - (number of valid shifts after an error occurs)
 
-       look_ahead : boolean := true;
-       index      : integer;
+       look_ahead : Boolean := True;
+       index      : Integer;
 
        -- Is Debugging option on or off
-        DEBUG : constant boolean := FALSE;
+       debug : constant Boolean := FALSE;
 
     end yy;
 
 
     function goto_state
       (state : yy.parse_state;
-       sym   : nonterminal) return yy.parse_state;
+       sym   : Nonterminal) return yy.parse_state;
 
     function parse_action
       (state : yy.parse_state;
-       t     : yy_tokens.token) return integer;
+       t     : yy_tokens.Token) return Integer;
 
     pragma inline(goto_state, parse_action);
 
 
     function goto_state(state : yy.parse_state;
-                        sym   : nonterminal) return yy.parse_state is
-        index : integer;
+                        sym   : Nonterminal) return yy.parse_state is
+        index : Integer;
     begin
         index := goto_offset(state);
-        while  integer(goto_matrix(index).nonterm) /= sym loop
+        while Integer (Goto_Matrix(index).nonterm) /= sym loop
             index := index + 1;
         end loop;
-        return integer(goto_matrix(index).newstate);
+        return Integer (Goto_Matrix(index).newstate);
     end goto_state;
 
 
     function parse_action(state : yy.parse_state;
-                          t     : yy_tokens.token) return integer is
-        index      : integer;
-        tok_pos    : integer;
-        default    : constant integer := -1;
+                          t     : yy_tokens.token) return Integer is
+        index      : Integer;
+        tok_pos    : Integer;
+        default    : constant Integer := -1;
     begin
         tok_pos := yy_tokens.token'pos(t);
-        index   := shift_reduce_offset(state);
-        while integer(shift_reduce_matrix(index).t) /= tok_pos and then
-              integer(shift_reduce_matrix(index).t) /= default
+        index   := Shift_Reduce_Offset(state);
+        while Integer (Shift_Reduce_Matrix(index).t) /= tok_pos and then
+              Integer (Shift_Reduce_Matrix(index).t) /= default
         loop
             index := index + 1;
         end loop;
-        return integer(shift_reduce_matrix(index).act);
+        return Integer (shift_reduce_matrix(index).act);
     end parse_action;
 
 -- error recovery stuff
 
-    procedure handle_error is
-      temp_action : integer;
+    procedure Handle_Error is
+      temp_action : Integer;
     begin
 
-      if yy.error_flag = 3 then -- no shift yet, clobber input.
+      if yy.error_flag = 3 then  --  no shift yet, clobber input.
       if yy.debug then
-          text_io.put_line("  -- Ayacc.YYParse: Error Recovery Clobbers " &
-                   yy_tokens.token'image(yy.input_symbol));
+          Text_IO.Put_Line("  -- Ayacc.YYParse: Error Recovery Clobbers " &
+                   yy_tokens.token'Image(yy.input_symbol));
       end if;
-        if yy.input_symbol = yy_tokens.end_of_input then  -- don't discard,
+        if yy.input_symbol = yy_tokens.end_of_input then  --  don't discard,
         if yy.debug then
-            text_io.put_line("  -- Ayacc.YYParse: Can't discard END_OF_INPUT, quiting...");
+            Text_IO.Put_Line("  -- Ayacc.YYParse: Can't discard END_OF_INPUT, quitting...");
         end if;
-        raise yy_tokens.syntax_error;
+        raise yy_tokens.Syntax_Error;
         end if;
 
-            yy.look_ahead := true;   -- get next token
-        return;                  -- and try again...
+        yy.look_ahead := True;   --  get next token
+        return;                  --  and try again...
     end if;
 
     if yy.error_flag = 0 then -- brand new error
@@ -166,19 +166,19 @@ procedure YYParse is
     -- find state on stack where error is a valid shift --
 
     if yy.debug then
-        text_io.put_line("  -- Ayacc.YYParse: Looking for state with error as valid shift");
+        Text_IO.Put_Line("  -- Ayacc.YYParse: Looking for state with error as valid shift");
     end if;
 
     loop
         if yy.debug then
-          text_io.put_line("  -- Ayacc.YYParse: Examining State " &
-               yy.parse_state'image(yy.state_stack(yy.tos)));
+          Text_IO.Put_Line("  -- Ayacc.YYParse: Examining State " &
+               yy.parse_state'Image(yy.state_stack(yy.tos)));
         end if;
         temp_action := parse_action(yy.state_stack(yy.tos), error);
 
             if temp_action >= yy.first_shift_entry then
                 if yy.tos = yy.stack_size then
-                    text_io.put_line("  -- Ayacc.YYParse: Stack size exceeded on state_stack");
+                    Text_IO.Put_Line("  -- Ayacc.YYParse: Stack size exceeded on state_stack");
                     raise yy_Tokens.syntax_error;
                 end if;
                 yy.tos := yy.tos + 1;
@@ -196,32 +196,32 @@ procedure YYParse is
 
         if yy.tos = 0 then
           if yy.debug then
-            text_io.put_line("  -- Ayacc.YYParse: Error recovery popped entire stack, aborting...");
+            Text_IO.Put_Line("  -- Ayacc.YYParse: Error recovery popped entire stack, aborting...");
           end if;
           raise yy_tokens.syntax_error;
         end if;
     end loop;
 
     if yy.debug then
-        text_io.put_line("  -- Ayacc.YYParse: Shifted error token in state " &
-              yy.parse_state'image(yy.state_stack(yy.tos)));
+        Text_IO.Put_Line("  -- Ayacc.YYParse: Shifted error token in state " &
+              yy.parse_state'Image(yy.state_stack(yy.tos)));
     end if;
 
-    end handle_error;
+    end Handle_Error;
 
-   -- print debugging information for a shift operation
-   procedure shift_debug(state_id: yy.parse_state; lexeme: yy_tokens.token) is
+   --  Print debugging information for a shift operation
+   procedure Shift_Debug (state_id: yy.parse_state; lexeme: yy_tokens.token) is
    begin
-       text_io.put_line("  -- Ayacc.YYParse: Shift "& yy.parse_state'image(state_id)&" on input symbol "&
-               yy_tokens.token'image(lexeme) );
-   end;
+       Text_IO.Put_Line("  -- Ayacc.YYParse: Shift "& yy.parse_state'Image(state_id)&" on input symbol "&
+               yy_tokens.token'Image(lexeme) );
+   end Shift_Debug;
 
-   -- print debugging information for a reduce operation
-   procedure reduce_debug(rule_id: rule; state_id: yy.parse_state) is
+   --  Print debugging information for a reduce operation
+   procedure Reduce_Debug (rule_id: rule; state_id: yy.parse_state) is
    begin
-       text_io.put_line("  -- Ayacc.YYParse: Reduce by rule "&rule'image(rule_id)&" goto state "&
-               yy.parse_state'image(state_id));
-   end;
+       Text_IO.Put_Line("  -- Ayacc.YYParse: Reduce by rule "&rule'Image(rule_id)&" goto state "&
+               yy.parse_state'Image(state_id));
+   end Reduce_Debug;
 
    -- make the parser believe that 3 valid shifts have occured.
    -- used for error recovery.
@@ -234,7 +234,7 @@ procedure YYParse is
    procedure yyclearin is
    begin
        -- yy.input_symbol := yylex;
-       yy.look_ahead := true;
+       yy.look_ahead := True;
    end yyclearin;
 
 
@@ -245,12 +245,12 @@ begin
 
     loop
 
-        yy.index := shift_reduce_offset(yy.state_stack(yy.tos));
-        if integer(shift_reduce_matrix(yy.index).t) = yy.default then
-            yy.action := integer(shift_reduce_matrix(yy.index).act);
+        yy.index := Shift_Reduce_Offset(yy.state_stack(yy.tos));
+        if Integer (shift_reduce_matrix(yy.index).t) = yy.default then
+            yy.action := Integer (shift_reduce_matrix(yy.index).act);
         else
             if yy.look_ahead then
-                yy.look_ahead   := false;
+                yy.look_ahead   := False;
 
                 yy.input_symbol := yylex;
             end if;
@@ -262,32 +262,32 @@ begin
         if yy.action >= yy.first_shift_entry then  -- SHIFT
 
             if yy.debug then
-                shift_debug(yy.action, yy.input_symbol);
+              Shift_Debug (yy.action, yy.input_symbol);
             end if;
 
-            -- Enter new state
+            --  Enter new state
             if yy.tos = yy.stack_size then
-                text_io.put_line(" Stack size exceeded on state_stack");
+                Text_IO.Put_Line(" Stack size exceeded on state_stack");
                 raise yy_Tokens.syntax_error;
             end if;
             yy.tos := yy.tos + 1;
             yy.state_stack(yy.tos) := yy.action;
-              yy.value_stack(yy.tos) := yylval;
+              yy.value_stack(yy.tos) := YYLVal;
 
-        if yy.error_flag > 0 then  -- indicate a valid shift
-            yy.error_flag := yy.error_flag - 1;
+        if yy.error_flag > 0 then  --  Indicate a valid shift
+          yy.error_flag := yy.error_flag - 1;
         end if;
 
-            -- Advance lookahead
-            yy.look_ahead := true;
+            --  Advance lookahead
+            yy.look_ahead := True;
 
         elsif yy.action = yy.error_code then       -- ERROR
 
-            handle_error;
+            Handle_Error;
 
         elsif yy.action = yy.accept_code then
             if yy.debug then
-                text_io.put_line("  -- Ayacc.YYParse: Accepting Grammar...");
+                Text_IO.Put_Line("  -- Ayacc.YYParse: Accepting Grammar...");
             end if;
             exit;
 
@@ -310,8 +310,8 @@ VRML_Help.YY_ABORT;
 
 when 65 => -- #line 176
  Ada_Put_Line(
-         "coord_" & Trim(Natural'Image(sepa_count), Left) &
-         ": constant Point_3D_array:= "
+         "coord_" & Trim (sepa_count'Image, Left) &
+         " : constant Point_3D_Array :="
        );
        indent:= indent + 1;
      
@@ -321,72 +321,70 @@ when 66 => -- #line 183
        Ada_Put_Line(";"); 
 
 when 96 => -- #line 253
-  indent:= indent - 1;
+  indent := indent - 1;
                  Ada_New_Line;
-                 indent:= indent + 1;
-                 Ada_Put_Line(
-                   "idx_" & Trim(Natural'Image(sepa_count), Left) &
-                   ": constant Idx_4_array_array:= "
-                 );
-                 indent:= indent + 1;
-                 Reset_index_grouping;
+                 indent := indent + 1;
+                 Ada_Put_Line
+                   ("idx_" & Trim (sepa_count'Image, Left) &
+                    " : constant Idx_4_Array_Array := ");
+                 indent := indent + 1;
+                 Reset_Index_Grouping;
               
 
-when 97 => -- #line 264
-  indent:= indent - 1;
-                 idx_last_sepa:= idx_last_sepa + sepa_points(sepa_count);
-                 Ada_Put_Line(";");
+when 97 => -- #line 263
+  indent := indent - 1;
+                 idx_last_sepa := idx_last_sepa + sepa_points (sepa_count);
+                 Ada_Put_Line (";");
               
 
-when 109 => -- #line 295
+when 109 => -- #line 294
 VRML_Info(YYText);
 
-when 122 => -- #line 329
+when 122 => -- #line 328
 current_matos.ambient  := last_color; 
 
-when 123 => -- #line 331
+when 123 => -- #line 330
 current_matos.diffuse  := last_color; 
 
-when 124 => -- #line 333
+when 124 => -- #line 332
 current_matos.specular := last_color; 
 
-when 125 => -- #line 335
+when 125 => -- #line 334
 current_matos.emission := last_color; 
 
-when 126 => -- #line 337
+when 126 => -- #line 336
 current_matos.shininess:= yylval.floatval * 128.0; 
 
-when 127 => -- #line 339
+when 127 => -- #line 338
 current_matos.ambient(3) := 1.0 - yylval.floatval;
                current_matos.diffuse(3) := current_matos.ambient(3);
                current_matos.specular(3):= current_matos.ambient(3);
                current_matos.emission(3):= current_matos.ambient(3);
               
 
-when 128 => -- #line 347
+when 128 => -- #line 346
 
-               Sepa_matos_defined(sepa_count):= True;
-               current_matos:= default_material;
-               indent:= indent - 1;
+               Sepa_matos_defined (sepa_count) := True;
+               current_matos := default_material;
+               indent := indent - 1;
                Ada_New_Line;
-               indent:= indent + 1;
+               indent := indent + 2;
                Ada_Put_Line(
-                 "matos_" & Trim(Natural'Image(sepa_count), Left) &
-                 ": constant Material_type:= (" );
+                 "matos_" & Trim (sepa_count'Image, Left) &
+                 " : constant Material_Type :=" );
               
 
-when 129 => -- #line 358
- indent:= indent + 1;
-               Ada_Put_Line("ambient =>   " & RGBA(current_matos.ambient) & ',');
-               Ada_Put_Line("specular =>  " & RGBA(current_matos.specular) & ',');
-               Ada_Put_Line("diffuse =>   " & RGBA(current_matos.diffuse) & ',');
-               Ada_Put_Line("emission =>  " & RGBA(current_matos.emission) & ',');
-               Ada_Put_Line("shininess => " & Image(current_matos.shininess));
-               indent:= indent - 1;
-               Ada_Put_Line(");");
+when 129 => -- #line 357
+ Ada_Put_Line ("(ambient   => " & RGBA (current_matos.ambient)  & ',');
+               Ada_Put_Line (" specular  => " & RGBA (current_matos.specular) & ',');
+               Ada_Put_Line (" diffuse   => " & RGBA (current_matos.diffuse)  & ',');
+               Ada_Put_Line (" emission  => " & RGBA (current_matos.emission) & ',');
+               Ada_Put_Line (" shininess => " & Image (current_matos.shininess, force => True) & ");");
+               indent := indent - 1;
+               Ada_New_Line;
              
 
-when 142 => -- #line 401
+when 142 => -- #line 399
  indent:= indent - 1;
                Ada_New_Line;
                indent:= indent + 1;
@@ -397,31 +395,31 @@ when 142 => -- #line 401
                indent:= indent + 1;
              
 
-when 143 => -- #line 411
+when 143 => -- #line 409
  indent:= indent - 1;
                Ada_Put_Line(";"); 
 
-when 186 => -- #line 513
+when 186 => -- #line 511
  sepa_count:= sepa_count + 1;
                  Ada_comment("begin Separator #" & Natural'Image(sepa_count));
                  indent:= indent + 1;
                
 
-when 187 => -- #line 520
+when 187 => -- #line 518
  Ada_comment("last index now:" & Natural'Image(idx_last_sepa));
                  indent:= indent - 1;
                  Ada_comment("end Separator #" & Natural'Image(sepa_count));
                
 
-when 191 => -- #line 534
+when 191 => -- #line 532
  current_shape_hints.ordering:=
                 VRML_vertex_ordering'Val(yylval.intval);
               
 
-when 195 => -- #line 543
+when 195 => -- #line 541
  current_shape_hints:= default_shape_hints; 
 
-when 259 => -- #line 690
+when 259 => -- #line 688
 
             declare
               img: constant String:=
@@ -443,187 +441,194 @@ yyval.text(1..img'Length) := img;
             end;
             
 
-when 261 => -- #line 707
+when 261 => -- #line 705
 
 yyval := 
 yy.value_stack(yy.tos-1);
 
-when 263 => -- #line 714
+when 263 => -- #line 712
  last_color(0):= yylval.floatval; 
 
-when 264 => -- #line 716
+when 264 => -- #line 714
  last_color(1):= yylval.floatval; 
 
-when 265 => -- #line 718
+when 265 => -- #line 716
  last_color(2):= yylval.floatval;
                 last_color(3):= 1.0;
                 -- alpha is determined by the Transparency field;
                 -- alpha=1 <-> Transparency=0 (default)
               
 
-when 268 => -- #line 729
+when 268 => -- #line 727
 
 yyval := (
 yy.value_stack(yy.tos)); -- Float
             
 
-when 269 => -- #line 733
+when 269 => -- #line 731
  null; 
 
-when 271 => -- #line 737
+when 271 => -- #line 735
  null; 
 
-when 273 => -- #line 747
+when 273 => -- #line 745
  null; 
                 -- SFMatrix
               
 
-when 274 => -- #line 752
+when 274 => -- #line 750
  null; 
 
-when 276 => -- #line 758
+when 276 => -- #line 756
  null; 
 
-when 277 => -- #line 762
+when 277 => -- #line 760
  last_pt(0):= yylval.floatval; 
 
-when 278 => -- #line 764
+when 278 => -- #line 762
  last_pt(1):= yylval.floatval; 
 
-when 279 => -- #line 766
+when 279 => -- #line 764
  last_pt(2):= yylval.floatval; 
 
-when 284 => -- #line 778
+when 284 => -- #line 776
  null; 
 
-when 285 => -- #line 779
+when 285 => -- #line 777
  null; 
 
-when 286 => -- #line 782
+when 286 => -- #line 780
  null; 
 
-when 287 => -- #line 783
+when 287 => -- #line 781
  null; 
 
 when 288 => -- #line 786
-
-              Point_index(yylval.intval);
-              -- last index, should be end of last group
-              Ada_Comment(Integer'Image(sepa_polys(sepa_count)));
-              
+ Point_index (yylval.intval);
+               --  Last index, should be end of last group
+               Ada_Put ("  ");
+               Ada_Comment (Integer'Image (sepa_polys (sepa_count)));
+             
 
 when 289 => -- #line 792
  Point_index(yylval.intval);
                if flag_group then
-                 -- we just finished a group, not the last one
+                 --  We just finished a group, not the last one
                  if pretty then
-                   Ada_Put(", ");
-                   if sepa_polys(sepa_count) mod 4 = 0 then
-                     Ada_Comment(Integer'Image(sepa_polys(sepa_count)));
+                   Ada_Put (", ");
+                   if sepa_polys (sepa_count) mod 3 = 0 then
+                     Ada_Put (" ");
+                     Ada_Comment (Integer'Image (sepa_polys (sepa_count)));
                    end if;
                  else
-                   Ada_Put(",");
-                   if sepa_polys(sepa_count) mod 8 = 0 then
+                   Ada_Put (",");
+                   if sepa_polys (sepa_count) mod 8 = 0 then
                      Ada_New_Line;
                    end if;
                  end if;
                end if;
              
 
-when 290 => -- #line 808
+when 290 => -- #line 809
  null; 
 
-when 291 => -- #line 811
+when 291 => -- #line 812
  Ada_Put("(1 => "); 
 
-when 292 => -- #line 813
+when 292 => -- #line 814
  Point_index(yylval.intval);
                 Ada_Put(")"); 
 
-when 293 => -- #line 816
- Ada_Put("( "); 
+when 293 => -- #line 817
+ Ada_Put("("); 
 
-when 294 => -- #line 818
+when 294 => -- #line 819
  Ada_Put(")"); 
 
-when 295 => -- #line 819
+when 295 => -- #line 820
  null; 
 
-when 296 => -- #line 822
+when 296 => -- #line 823
  null; 
 
-when 297 => -- #line 823
+when 297 => -- #line 824
  null; 
 
-when 298 => -- #line 826
+when 298 => -- #line 827
  null; 
 
-when 299 => -- #line 827
+when 299 => -- #line 828
  null; 
 
-when 300 => -- #line 830
+when 300 => -- #line 831
  null; 
 
-when 301 => -- #line 831
+when 301 => -- #line 832
  null; 
 
-when 302 => -- #line 834
+when 302 => -- #line 835
  null; 
 
-when 303 => -- #line 835
+when 303 => -- #line 836
  null; 
 
-when 308 => -- #line 847
- Ada_Put_Line(Coords(last_pt)); 
+when 308 => -- #line 848
+ Ada_Put_Line (Coords (last_pt)); 
 
-when 309 => -- #line 849
- Ada_Put_Line(Coords(last_pt) & ","); 
-
-when 311 => -- #line 854
- Ada_Put("(1 => "); 
-
-when 312 => -- #line 856
- Ada_Put(")"); 
-
-when 313 => -- #line 859
- Ada_Put("( "); 
-
-when 314 => -- #line 861
- Ada_Put(")"); 
-
-when 316 => -- #line 866
- Ada_Put(Coords(last_pt) & "  ");
-                sepa_points(sepa_count):= sepa_points(sepa_count) + 1;
-                Ada_Comment(Integer'Image(sepa_points(sepa_count)));
+when 309 => -- #line 850
+ if pretty then
+                  Ada_Put_Line (Coords (last_pt) & ", ");
+                else
+                  Ada_Put_Line (Coords (last_pt) & ",");
+                end if;
               
 
-when 317 => -- #line 871
- sepa_points(sepa_count):= sepa_points(sepa_count) + 1;
+when 311 => -- #line 860
+ Ada_Put("(1 => "); 
+
+when 312 => -- #line 862
+ Ada_Put(")"); 
+
+when 313 => -- #line 865
+ Ada_Put("( "); 
+
+when 314 => -- #line 867
+ Ada_Put(")"); 
+
+when 316 => -- #line 873
+ Ada_Put (Coords (last_pt) & "  ");
+                sepa_points (sepa_count) := sepa_points (sepa_count) + 1;
+                Ada_Comment (Integer'Image (sepa_points (sepa_count)));
+              
+
+when 317 => -- #line 878
+ sepa_points (sepa_count) := sepa_points (sepa_count) + 1;
                 if pretty then
-                  Ada_Put(Coords(last_pt) & ", ");
-                  if sepa_points(sepa_count) mod 2 = 0 then
-                    Ada_Comment(Integer'Image(sepa_points(sepa_count)));
+                  Ada_Put (Coords (last_pt) & ", ");
+                  if sepa_points (sepa_count) mod 2 = 0 then
+                    Ada_Put (" ");
+                    Ada_Comment (Integer'Image (sepa_points (sepa_count)));
                   end if;
                 else
-                  Ada_Put(Coords(last_pt) & ",");
-                  if sepa_points(sepa_count) mod 5 = 0 then
+                  Ada_Put (Coords (last_pt) & ",");
+                  if sepa_points (sepa_count) mod 5 = 0 then
                     Ada_New_Line;
                   end if;
                 end if;
               
 
-when 319 => -- #line 888
- Ada_Put("(1 => "); 
+when 319 => -- #line 896
+ Ada_Put ("(1 => "); 
 
-when 320 => -- #line 890
- Ada_Put(")");
-                 sepa_points(sepa_count):= sepa_points(sepa_count) + 1;
+when 320 => -- #line 898
+ Ada_Put (")");
+                 sepa_points(sepa_count) := sepa_points (sepa_count) + 1;
                 
 
-when 321 => -- #line 895
- Ada_Put("( "); 
+when 321 => -- #line 903
+ Ada_Put("("); 
 
-when 322 => -- #line 897
+when 322 => -- #line 905
  Ada_Put(")"); 
 
                     when others => null;
@@ -631,20 +636,23 @@ when 322 => -- #line 897
 
 
             -- Pop RHS states and goto next state
+            if yy.rule_id < 0 then
+              raise Constraint_Error with "yy.rule_id = " & Integer'Image (yy.rule_id) & " < 0";
+            end if;
             yy.tos      := yy.tos - rule_length(yy.rule_id) + 1;
             if yy.tos > yy.stack_size then
-                text_io.put_line(" Stack size exceeded on state_stack");
-                raise yy_Tokens.syntax_error;
+                Text_IO.Put_Line (" Stack size exceeded on state_stack");
+                raise yy_Tokens.Syntax_Error;
             end if;
             yy.state_stack(yy.tos) := goto_state(yy.state_stack(yy.tos-1) ,
-                                 get_lhs_rule(yy.rule_id));
+                                 Get_LHS_Rule (yy.rule_id));
 
               yy.value_stack(yy.tos) := yyval;
 
             if yy.debug then
                 reduce_debug(yy.rule_id,
                     goto_state(yy.state_stack(yy.tos - 1),
-                               get_lhs_rule(yy.rule_id)));
+                               Get_LHS_Rule (yy.rule_id)));
             end if;
 
         end if;

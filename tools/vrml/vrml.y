@@ -174,8 +174,8 @@ ACoordinate3    :
      '{'
      FieldSpecs
      { Ada_Put_Line(
-         "coord_" & Trim(Natural'Image(sepa_count), Left) &
-         ": constant Point_3D_array:= "
+         "coord_" & Trim (sepa_count'Image, Left) &
+         " : constant Point_3D_Array :="
        );
        indent:= indent + 1;
      }
@@ -250,20 +250,19 @@ ifacesetfields	: ifacesetfield ifacesetfields
 
 ifacesetfield	:
               COORDINDEX
-              {  indent:= indent - 1;
+              {  indent := indent - 1;
                  Ada_New_Line;
-                 indent:= indent + 1;
-                 Ada_Put_Line(
-                   "idx_" & Trim(Natural'Image(sepa_count), Left) &
-                   ": constant Idx_4_array_array:= "
-                 );
-                 indent:= indent + 1;
-                 Reset_index_grouping;
+                 indent := indent + 1;
+                 Ada_Put_Line
+                   ("idx_" & Trim (sepa_count'Image, Left) &
+                    " : constant Idx_4_Array_Array := ");
+                 indent := indent + 1;
+                 Reset_Index_Grouping;
               }
               MFLong_1
-              {  indent:= indent - 1;
-                 idx_last_sepa:= idx_last_sepa + sepa_points(sepa_count);
-                 Ada_Put_Line(";");
+              {  indent := indent - 1;
+                 idx_last_sepa := idx_last_sepa + sepa_points (sepa_count);
+                 Ada_Put_Line (";");
               }
 		| MATERIALINDEX		MFLong
 		| NORMALINDEX		MFLong
@@ -345,24 +344,23 @@ materialfield
 
 AMaterial	: MATERIAL '{' FieldSpecs
               {
-               Sepa_matos_defined(sepa_count):= True;
-               current_matos:= default_material;
-               indent:= indent - 1;
+               Sepa_matos_defined (sepa_count) := True;
+               current_matos := default_material;
+               indent := indent - 1;
                Ada_New_Line;
-               indent:= indent + 1;
+               indent := indent + 2;
                Ada_Put_Line(
-                 "matos_" & Trim(Natural'Image(sepa_count), Left) &
-                 ": constant Material_type:= (" );
+                 "matos_" & Trim (sepa_count'Image, Left) &
+                 " : constant Material_Type :=" );
               }
               materialfields
-             { indent:= indent + 1;
-               Ada_Put_Line("ambient =>   " & RGBA(current_matos.ambient) & ',');
-               Ada_Put_Line("specular =>  " & RGBA(current_matos.specular) & ',');
-               Ada_Put_Line("diffuse =>   " & RGBA(current_matos.diffuse) & ',');
-               Ada_Put_Line("emission =>  " & RGBA(current_matos.emission) & ',');
-               Ada_Put_Line("shininess => " & Image(current_matos.shininess));
-               indent:= indent - 1;
-               Ada_Put_Line(");");
+             { Ada_Put_Line ("(ambient   => " & RGBA (current_matos.ambient)  & ',');
+               Ada_Put_Line (" specular  => " & RGBA (current_matos.specular) & ',');
+               Ada_Put_Line (" diffuse   => " & RGBA (current_matos.diffuse)  & ',');
+               Ada_Put_Line (" emission  => " & RGBA (current_matos.emission) & ',');
+               Ada_Put_Line (" shininess => " & Image (current_matos.shininess, force => True) & ");");
+               indent := indent - 1;
+               Ada_New_Line;
              }
               '}'
 		;
@@ -783,23 +781,26 @@ MFLong	: SFLong { null; }
 		| '[' longlist ']' { null; }
 		; 
 
-longlist_1	: SFLong {
-              Point_index(yylval.intval);
-              -- last index, should be end of last group
-              Ada_Comment(Integer'Image(sepa_polys(sepa_count)));
-              }
+longlist_1	:
+          SFLong
+             { Point_index (yylval.intval);
+               --  Last index, should be end of last group
+               Ada_Put ("  ");
+               Ada_Comment (Integer'Image (sepa_polys (sepa_count)));
+             }
 		| SFLong ','
              { Point_index(yylval.intval);
                if flag_group then
-                 -- we just finished a group, not the last one
+                 --  We just finished a group, not the last one
                  if pretty then
-                   Ada_Put(", ");
-                   if sepa_polys(sepa_count) mod 4 = 0 then
-                     Ada_Comment(Integer'Image(sepa_polys(sepa_count)));
+                   Ada_Put (", ");
+                   if sepa_polys (sepa_count) mod 3 = 0 then
+                     Ada_Put (" ");
+                     Ada_Comment (Integer'Image (sepa_polys (sepa_count)));
                    end if;
                  else
-                   Ada_Put(",");
-                   if sepa_polys(sepa_count) mod 8 = 0 then
+                   Ada_Put (",");
+                   if sepa_polys (sepa_count) mod 8 = 0 then
                      Ada_New_Line;
                    end if;
                  end if;
@@ -813,7 +814,7 @@ MFLong_1	: { Ada_Put("(1 => "); }
               { Point_index(yylval.intval);
                 Ada_Put(")"); }
             | '['
-              { Ada_Put("( "); }
+              { Ada_Put("("); }
               longlist_1
               { Ada_Put(")"); }
               ']' { null; }
@@ -844,9 +845,14 @@ MFVec2f		: SFVec2f
 		; 
 
 vec3flist	: SFVec3f     
-              { Ada_Put_Line(Coords(last_pt)); }
+              { Ada_Put_Line (Coords (last_pt)); }
 		| SFVec3f ','
-              { Ada_Put_Line(Coords(last_pt) & ","); }
+              { if pretty then
+                  Ada_Put_Line (Coords (last_pt) & ", ");
+                else
+                  Ada_Put_Line (Coords (last_pt) & ",");
+                end if;
+              }
               vec3flist
 		-- | ',' -- bug in certain VRML files, tolerated
 		;
@@ -862,21 +868,23 @@ MFVec3f	:  { Ada_Put("(1 => "); }
               ']'
 		; 
 
-vec3flist_coo	: SFVec3f     
-              { Ada_Put(Coords(last_pt) & "  ");
-                sepa_points(sepa_count):= sepa_points(sepa_count) + 1;
-                Ada_Comment(Integer'Image(sepa_points(sepa_count)));
+vec3flist_coo	:
+          SFVec3f     
+              { Ada_Put (Coords (last_pt) & "  ");
+                sepa_points (sepa_count) := sepa_points (sepa_count) + 1;
+                Ada_Comment (Integer'Image (sepa_points (sepa_count)));
               }
 		| SFVec3f ','
-              { sepa_points(sepa_count):= sepa_points(sepa_count) + 1;
+              { sepa_points (sepa_count) := sepa_points (sepa_count) + 1;
                 if pretty then
-                  Ada_Put(Coords(last_pt) & ", ");
-                  if sepa_points(sepa_count) mod 2 = 0 then
-                    Ada_Comment(Integer'Image(sepa_points(sepa_count)));
+                  Ada_Put (Coords (last_pt) & ", ");
+                  if sepa_points (sepa_count) mod 2 = 0 then
+                    Ada_Put (" ");
+                    Ada_Comment (Integer'Image (sepa_points (sepa_count)));
                   end if;
                 else
-                  Ada_Put(Coords(last_pt) & ",");
-                  if sepa_points(sepa_count) mod 5 = 0 then
+                  Ada_Put (Coords (last_pt) & ",");
+                  if sepa_points (sepa_count) mod 5 = 0 then
                     Ada_New_Line;
                   end if;
                 end if;
@@ -885,14 +893,14 @@ vec3flist_coo	: SFVec3f
 		-- | ',' -- bug in certain VRML files, tolerated
 		;
 
-MFVec3f_coo	:  { Ada_Put("(1 => "); }
+MFVec3f_coo	:  { Ada_Put ("(1 => "); }
                SFVec3f
-               { Ada_Put(")");
-                 sepa_points(sepa_count):= sepa_points(sepa_count) + 1;
+               { Ada_Put (")");
+                 sepa_points(sepa_count) := sepa_points (sepa_count) + 1;
                 }
 		| 
               '['
-               { Ada_Put("( "); }
+               { Ada_Put("("); }
                vec3flist_coo
                { Ada_Put(")"); }
               ']'
