@@ -225,9 +225,9 @@ package body GLUT.Windows is
       GL.Disable (GL.Lighting);
       GL.Disable (GL.Texture_2D);
 
-      GL.Color (red   => 0.7,
-                green => 0.7,
-                blue  => 0.6);
+      GL.Color (red_value   => 0.7,
+                green_value => 0.7,
+                blue_value  => 0.6);
 
       GLUT_2D.Text_output ((1.0, 0.0, 0.0),  "(x)",  GLUT_2D.Times_Roman_24);
       GLUT_2D.Text_output ((0.0, 1.0, 0.0),  "(y)",  GLUT_2D.Times_Roman_24);
@@ -326,8 +326,8 @@ package body GLUT.Windows is
       case Self.Smoothing is
 
       when software =>
-        SAA.Set_quality (SAA.Q3);
-        for SAA_Phase in 1 .. SAA.Anti_Alias_phases loop
+        SAA.Set_Quality (SAA.Q3);
+        for SAA_Phase in 1 .. SAA.Anti_Alias_Phases loop
           SAA.Display_with_Anti_Aliasing (SAA_Phase);
         end loop;
 

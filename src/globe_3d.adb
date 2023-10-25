@@ -40,7 +40,7 @@ package body GLOBE_3D is
    begin
       if Pn0 = 0 or Pn1 = 0 or Pn2 = 0 then return; end if;
       N_contrib := (o.point (Pn1) - o.point (Pn0)) * (o.point (Pn2) - o.point (Pn0));
-      if strict_geometry and then Almost_zero (Norm2 (N_contrib)) then
+      if strict_geometry and then Almost_Zero (Norm2 (N_contrib)) then
         raise Zero_normal with
            Params &
            " P0=" & Coords (o.point (Pn0)) &
@@ -118,7 +118,7 @@ package body GLOBE_3D is
         --  Detect same point coordinates (tolerated in an object,
         --  although inefficient, but harms as vertex of the same face!)
 
-        if Almost_zero (Norm2 (o.point (Pn1) - o.point (Pn2))) then
+        if Almost_Zero (Norm2 (o.point (Pn1) - o.point (Pn2))) then
           raise duplicated_vertex_location with o.ID & " in face" & f'Image;
         end if;
       end Check_Duplicate;
@@ -222,7 +222,7 @@ package body GLOBE_3D is
           Add_Normal_of_3p (o, fa.P (4), fa.P (1), fa.P (3), N);
       end case;
       length_N := Norm (N);
-      if Almost_zero (length_N) then
+      if Almost_Zero (length_N) then
         if strict_geometry then
           raise Zero_summed_normal;
         else
@@ -313,7 +313,7 @@ package body GLOBE_3D is
         end if;
       else
         length := Norm (o.edge_vector (p));
-        if not Almost_zero (length) then
+        if not Almost_Zero (length) then
           o.edge_vector (p) := (1.0 / length) * o.edge_vector (p);
         end if;
       end if;
@@ -327,12 +327,12 @@ package body GLOBE_3D is
     use GL.Math;
     V, V1, V2 : Vector_3D;
   begin
-    if Almost_zero (Norm2 (D)) then
+    if Almost_Zero (Norm2 (D)) then
       return;
     end if;
     --  Set V as an orthogonal to D, or zero
     V := (D (1), -D (0), 0.0);
-    if Almost_zero (Norm2 (V)) then --  bad luck, V is zero
+    if Almost_Zero (Norm2 (V)) then --  bad luck, V is zero
       --  2nd try:
       V := (0.0, -D (2), D (1));
     end if;
@@ -347,7 +347,7 @@ package body GLOBE_3D is
   end Display_Arrow;
 
   shiny_material :
-    constant GL.Materials.Material_type :=
+    constant GL.Materials.Material_Type :=
       (ambient =>        (0.1, 0.1, 0.1, 1.0),
        diffuse =>        (0.1, 0.1, 0.1, 1.0),
        specular =>       (0.8, 0.8, 0.8, 1.0),
@@ -467,15 +467,14 @@ package body GLOBE_3D is
           (First_Face
              or else Previous_face.skin = invisible
              or else not (GL.Math.Identical (fa.colour, Previous_face.colour) and then
-                          GL.Math.Almost_zero (fa.alpha - Previous_face.alpha))
+                          GL.Math.Almost_Zero (fa.alpha - Previous_face.alpha))
            )
         then
-          GL.Color (
-                red   => fa.colour.red,
-                green => fa.colour.green,
-                blue  => fa.colour.blue,
-                alpha => fa.alpha
-               );
+          GL.Color
+            (red_value   => fa.colour.red,
+             green_value => fa.colour.green,
+             blue_value  => fa.colour.blue,
+             alpha_value => fa.alpha);
         end if;
 
         -----------------------------
@@ -844,7 +843,7 @@ package body GLOBE_3D is
     use GL.Math;
   begin
     return
-      Almost_zero (a.U - b.U) and then Almost_zero (a.V - b.V);
+      Almost_Zero (a.U - b.U) and then Almost_Zero (a.V - b.V);
   end Identical;
 
   function Is_Textured_Specular (fa : Face_Type) return Boolean is

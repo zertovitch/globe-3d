@@ -284,7 +284,7 @@ package GLOBE_3D is
     (material_only | material_texture => True,
      others => False);
 
-  null_colour : constant GL.Material_Float_vector := (0.0, 0.0, 0.0, 0.0);
+  null_colour : constant GL.Material_Float_Vector := (0.0, 0.0, 0.0, 0.0);
 
   subtype Idx_3_Array is Index_Array (1 .. 3);
 
@@ -319,7 +319,7 @@ package GLOBE_3D is
      --  *** > colour part (data ignored when irrelevant):
      colour       : GL.RGB_Color;
      --  *** > material part (data ignored when irrelevant):
-     material     : GL.Materials.Material_type :=
+     material     : GL.Materials.Material_Type :=
                       GL.Materials.neutral_material;
      --  *** > texture-mapping part (data ignored when irrelevant):
      texture      : Image_ID := null_image;

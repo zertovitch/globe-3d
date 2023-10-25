@@ -112,12 +112,12 @@ package body GLOBE_3D.Portals is
     GL.PushMatrix;
     GL.LoadIdentity;
     GL.Ortho
-      (left     => 0.0,
-       right    => GL.Double (main.X2 - 1),
-       bottom   => 0.0,
-       top      => GL.Double (main.Y2 - 1),
-       near_val => -1.0,
-       far_val  =>  1.0);
+      (left_val   => 0.0,
+       right_val  => GL.Double (main.X2 - 1),
+       bottom_val => 0.0,
+       top_val    => GL.Double (main.Y2 - 1),
+       near_val   => -1.0,
+       far_val    =>  1.0);
 
     GL.MatrixMode (GL.MODELVIEW);
     GL.PushMatrix;

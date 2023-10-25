@@ -300,7 +300,7 @@ procedure GLOBE_3D_Demo is
        tex_name : String;
        colour   : GL.RGB_Color;
        repeat   : Positive;
-       material : Material_type := neutral_material)
+       material : Material_Type := neutral_material)
     return Face_Type
     is
       f : Face_Type;  --  takes defaults values
@@ -322,7 +322,7 @@ procedure GLOBE_3D_Demo is
 
     portal1, portal2 : Brick.Cubic_Face_Index;
 
-    Shiny : constant Material_type :=
+    Shiny : constant Material_Type :=
       (ambient =>        (0.24725, 0.2245, 0.0645, 1.0),
        diffuse =>        (0.34615, 0.3143, 0.0903, 1.0),
        specular =>       (1.0, 1.0, 1.0, 1.0),
@@ -686,9 +686,9 @@ procedure GLOBE_3D_Demo is
       GL.Disable (GL.Lighting);
       GL.Disable (GL.Texture_2D);
 
-      GL.Color (red   => 0.7,
-                green => 0.7,
-                blue  => 0.6);
+      GL.Color (red_value   => 0.7,
+                green_value => 0.7,
+                blue_value  => 0.6);
 
       GLUT_2D.Text_output ((0.0, 0.0, 0.0), "O", GLUT_2D.Times_Roman_24);
       GLUT_2D.Text_output ((1.0, 0.0, 0.0), "x", GLUT_2D.Times_Roman_24);
