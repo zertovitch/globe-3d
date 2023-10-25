@@ -1,7 +1,7 @@
 --  Code generator that produces `renames` clauses for GL operations
 --  with identical names, that do the same job, but with various types
 --  and number of arguments.
---  In Ada you can use excatly the same name (overloading), in C (the
+--  In Ada you can use exactly the same name (overloading), in C (the
 --  language of the GL library) you need to add a distinctive suffix.
 
 with Ada.Text_IO;
