@@ -27,13 +27,13 @@ package GL.Materials is
     ambient,
     diffuse,
     specular,
-    emission  : GL.Material_Float_vector;
+    emission  : GL.Material_Float_Vector;
     shininess : GL.Float;  --  Range is 0.0 .. 128.0
   end record;
 
   function Is_transparent (Self : in Material_Type) return Boolean;
 
-  function Identical (a, b : Material_Float_vector) return Boolean;
+  function Identical (a, b : Material_Float_Vector) return Boolean;
   function Identical (m1, m2 : Material_Type) return Boolean;
 
   procedure Set_Material (m : Material_Type);
@@ -55,7 +55,7 @@ package GL.Materials is
 
   --  A few colour-dominant materials:
 
-  Red : constant Material_Type :=
+  Red_Mat : constant Material_Type :=
     (ambient   => (0.0, 0.0, 0.0, 1.0),
      diffuse   => (1.0, 0.0, 0.0, 1.0),
      specular  => (0.0225, 0.0225, 0.0225, 1.0),
@@ -76,7 +76,7 @@ package GL.Materials is
      emission  => (0.0, 0.0, 0.0, 1.0),
      shininess => 12.8);
 
-  Green : constant Material_Type :=
+  Green_Mat : constant Material_Type :=
     (ambient   => (0.0, 0.0, 0.0, 1.0),
      diffuse   => (0.0, 1.0, 0.0, 1.0),
      specular  => (0.0225, 0.0225, 0.0225, 1.0),
@@ -90,7 +90,7 @@ package GL.Materials is
      emission  => (0.0, 0.0, 0.0, 1.0),
      shininess => 12.8);
 
-  Blue : constant Material_Type :=
+  Blue_Mat : constant Material_Type :=
     (ambient   => (0.0, 0.0, 0.0, 1.0),
      diffuse   => (0.0, 0.0, 1.0, 1.0),
      specular  => (0.0225, 0.0225, 0.0225, 1.0),
