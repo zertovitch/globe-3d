@@ -464,18 +464,18 @@ procedure GLOBE_3D_Demo is
 
     Extruded_Surface.Create
       (object     => extrude_test_1,
-       scale      => 400.0,
-       centre     => (-160.0, -160.0, -300.0),
-       grid       => 57,
+       scale      => 900.0,
+       centre     => (-450.0, -450.0, -600.0),
+       grid       => 120,
        surface    => Extruded_Surface.square,
        max_u3     => 0.15,
-       iterations => 100,
+       iterations => 1000,
        hor_tex    => Texture_ID ("spacity1"),
-       ver_tex    => Texture_ID ("spacity1"),
-       tiling_hu  => 1,
-       tiling_hv  => 1,
-       tiling_vu  => 2,
-       tiling_vv  => 2);
+       ver_tex    => Texture_ID ("spacity2"),
+       tiling_hu  => 2,
+       tiling_hv  => 2,
+       tiling_vu  => 12,
+       tiling_vv  => 12);
     Set_Name (extrude_test_1.all, "Space City");
 
     Extruded_Surface.Create
@@ -487,11 +487,11 @@ procedure GLOBE_3D_Demo is
        max_u3     => 0.03,
        iterations => 2000,
        hor_tex    => Texture_ID ("alum_001"),
-       ver_tex    => Texture_ID ("spacity1"),
-       tiling_hu  => 30,  --  ~ 2 * v-tiling
+       ver_tex    => Texture_ID ("spacity2"),
+       tiling_hu  => 30,      --  ~ 2 * v-tiling
        tiling_hv  => 15,
-       tiling_vu  => 31,  --  should be ~ 2*pi* v-tiling
-       tiling_vv  => 5);
+       tiling_vu  => 3 * 31,  --  should be ~ 2*pi* v-tiling
+       tiling_vv  => 3 * 5);
     Set_Name (borg_star.all, "Borg Star");
 
     Sierpinski.Create_Cube
