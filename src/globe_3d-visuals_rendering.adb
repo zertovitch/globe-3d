@@ -5,18 +5,19 @@
 
 with GLOBE_3D.Math;
 
-with GL.Errors, GL.Math, GL.Skins;
-with GL.Skinned_Geometry;
+with GL.Errors, GL.Math, GL.Skins,
+     GL.Skinned_Geometry;
 
-with System.Storage_Elements;
 with Ada.Containers.Generic_Array_Sort;
+with System.Storage_Elements;
 
-package body GLOBE_3D.Visuals_rendering is
+package body GLOBE_3D.Visuals_Rendering is
 
   package G3DM renames GLOBE_3D.Math;
 
    ----------------------------------------
-   -- tbd: has been moved (for the moment) external to 'render' for performance, but this makes package task unsafe !
+   --  tbd: has been moved (for the moment) external to 'render' for
+   --  performance, but this makes package task unsafe !
    --
    --
       type Visual_Geometry is
@@ -24,20 +25,23 @@ package body GLOBE_3D.Visuals_rendering is
             Visual   : p_Visual;
             Geometry : GL.Skinned_Geometry.Skinned_Geometry;
          end record;
-      pragma Convention (C, Visual_Geometry);  -- using convention pragma to disable default initialization (for performance)
+      pragma Convention (C, Visual_Geometry);
+      --  ^ using convention pragma to disable default initialization (for performance)
 
       type Visual_Geometries is array (Positive range <>) of Visual_Geometry;
-      pragma Convention (C, Visual_Geometries);  -- using convention pragma to disable default initialization (for performance)
+      pragma Convention (C, Visual_Geometries);
+      --  ^ using convention pragma to disable default initialization (for performance)
 
-   all_Geometries     : Visual_Geometries (1 .. 80_000);   pragma Convention (C, all_Geometries);  -- tbd: this is slow !
+   all_Geometries     : Visual_Geometries (1 .. 80_000);
+   pragma Convention (C, all_Geometries);  -- tbd: this is slow !
    --
    --------------------------------------
 
-   procedure Render (the_Visuals : in Visual_array;   the_Camera : in Camera'Class)
+   procedure Render (the_Visuals : in Visual_Array;   the_Camera : in Camera'Class)
    is
       use GL, G3DM;
 
-      all_Transparents  : GLOBE_3D.Visual_array (1 .. 10_000);
+      all_Transparents  : GLOBE_3D.Visual_Array (1 .. 10_000);
       transparent_Count : Natural                           := 0;
 
       geometry_Count    : Natural                       := 0;   -- for 'all_Geometries' array.
@@ -45,18 +49,21 @@ package body GLOBE_3D.Visuals_rendering is
       current_Skin      : GL.Skins.p_Skin;
 
    begin
-      -- prepare openGL to display visuals.
+      --  prepare openGL to display visuals.
       --
       Clear    (COLOR_BUFFER_BIT or DEPTH_BUFFER_BIT);
       Enable   (Depth_Test);
 
-      Enable   (Lighting);                               -- enable lighting for G3D.Display in 'separate Visuals' (obsolete).
+      Enable   (Lighting);  -- enable lighting for G3D.Display in 'separate Visuals' (obsolete).
       Enable   (Cull_Face);
       CullFace (Back);
 
       MatrixMode    (MODELVIEW);
       Set_GL_Matrix (the_Camera.world_rotation);
-      Translate     (-the_Camera.clipper.eye_position (0),  -the_Camera.clipper.eye_position (1),  -the_Camera.clipper.eye_position (2));
+      Translate
+        (-the_Camera.clipper.eye_position (0),
+         -the_Camera.clipper.eye_position (1),
+         -the_Camera.clipper.eye_position (2));
 
       PushMatrix;
 

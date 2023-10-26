@@ -24,8 +24,8 @@ package GLOBE_3D.Aux is
   --
   function Is_to_blend (m : GL.Double)                  return Boolean;
   function Is_to_blend (m : GL.Float)                   return Boolean;
-  function Is_to_blend (m : GL.Material_Float_vector)   return Boolean;
-  function Is_to_blend (m : GL.Materials.Material_type) return Boolean;
+  function Is_to_blend (m : GL.Material_Float_Vector)   return Boolean;
+  function Is_to_blend (m : GL.Materials.Material_Type) return Boolean;
 
   --  Misc.
 

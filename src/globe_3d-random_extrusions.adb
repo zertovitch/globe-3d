@@ -99,7 +99,7 @@ package body GLOBE_3D.Random_Extrusions is
         --  Look in the stack of registered points:
         for op in reverse 1 .. total_points_touching (cell1, cell2) loop
           pt_idx := point_touching (cell1, cell2)(op);
-          if Almost_zero (Norm2 (P (pt) - mesh (pt_idx))) then  --  exists already
+          if Almost_Zero (Norm2 (P (pt) - mesh (pt_idx))) then  --  exists already
             vtx (pt) := pt_idx;
             found := True;
           end if;
@@ -202,7 +202,7 @@ package body GLOBE_3D.Random_Extrusions is
           --                          |^|
           --
           en := elevation (e1, e2 - 1);
-          if Almost_zero (e - en) then
+          if Almost_Zero (e - en) then
             null; -- do nothing, there is no face to add
           else
             if e > en then  --  Neighbour has a lower elevation: face visible from South
@@ -229,7 +229,7 @@ package body GLOBE_3D.Random_Extrusions is
           --                          | |
           --
           en := elevation (e1 - 1, e2);
-          if Almost_zero (e - en) then
+          if Almost_Zero (e - en) then
             null;  --  Do nothing, there is no face to add.
           else
             if e > en then  --  Neighbour has a lower elevation: face visible from West.

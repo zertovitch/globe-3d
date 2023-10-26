@@ -5,7 +5,7 @@ with GLOBE_3D.Options,
      GLOBE_3D.Aux;
 
 with GL.Math,
-     GL.Simple_text;
+     GL.Simple_Text;
 
 with Ada.Characters.Handling;           use Ada.Characters.Handling;
 with Ada.Exceptions;                    use Ada.Exceptions;
@@ -405,10 +405,10 @@ package body GLOBE_3D is
         blending_hint : Boolean;
 
         procedure Display_Texture_Label (name : Ident; p : Point_3D) is
-          use GL.Simple_text;
+          use GL.Simple_Text;
         begin
           GL.Disable (GL.Texture_2D);
-          Text_output (p, name, (0.7, 0.7, 0.9, 1.0), 5.0, Sans_Serif);
+          Text_Output (p, name, (0.7, 0.7, 0.9, 1.0), 5.0, Sans_Serif);
           GL.Enable (GL.Texture_2D);
         end Display_Texture_Label;
 

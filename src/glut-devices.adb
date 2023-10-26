@@ -17,7 +17,8 @@ package body GLUT.Devices is
    use GLUT.Windows;
 
    --  Current_Window : - for accessing the current GLUT window
-   --                   - used by GLUT callbacks to determine the Window to which a callback event relates.
+   --                   - used by GLUT callbacks to determine the Window
+   --                       to which a callback event relates.
    --
 
    function Current_Window return Windows.Window_View
@@ -72,12 +73,12 @@ package body GLUT.Devices is
     Update_Modifier_Keys;
   end Key;
 
-  procedure Key_Up (k : GLUT.Key_type; x, y : Integer) is
+  procedure Key_Up_Call_Back (k : GLUT.Key_type; x, y : Integer) is
   pragma Unreferenced (x, y);
   begin
     Current_Keyboard.normal_set (To_Upper (Character'Val (k))) := False;  -- key k is unpressed
     Update_Modifier_Keys;
-  end Key_Up;
+  end Key_Up_Call_Back;
 
   procedure Special_Key (k : Integer; x, y : Integer) is
   pragma Unreferenced (x, y);
@@ -145,7 +146,7 @@ package body GLUT.Devices is
   begin
     IgnoreKeyRepeat (1);
     KeyboardFunc      (Key'Address);
-    KeyboardUpFunc    (Key_up'Address);
+    KeyboardUpFunc    (Key_Up_Call_Back'Address);
     SpecialFunc       (Special_Key'Address);
     SpecialUpFunc     (Special_Key_Up'Address);
     MouseFunc         (Mouse_Event'Address);

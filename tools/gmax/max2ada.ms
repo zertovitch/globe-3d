@@ -303,10 +303,10 @@
           format " %),\n" (ma.diffusemap.coordinates.V_Tiling)
 	)) Catch())
       if not has_texture then
-        (format "(material_only, null_image, (0.0,0.0), (1.0,1.0), -- no texture\n")
+        (format "(material_only, null_image, (0.0, 0.0), (1.0, 1.0),  --  no texture\n")
       indent (level+5)
       format "("
-      format " -- name = %, shader_type = %\n" ma.name ma.Shader_Type
+      format "  --  name = %, shader_type = %\n" ma.name ma.Shader_Type
       --  Shader_Type 
       --  0- Anisotropic 
       --  1- Blinn 
@@ -324,7 +324,7 @@
       if ma.Shader_Type == 1 then -- value 1 but displayed as metal in material editor...
         sl = sl * 0.25 -- the curve indicates: 400 = touches the max.
       format "specular  => (%, %, %, 1.0)," (sl*ma.specular.r/255.0) (sl*ma.specular.g/255.0) (sl*ma.specular.b/255.0)
-      if pretty then (format " -- level = %" sl)
+      if pretty then (format "  --  level = %" sl)
       format "\n"
       indent (level+6)
       sl = ma.selfIllumAmount * 0.01;
@@ -365,7 +365,7 @@
   function output_materials node number total_nodes = ( 
     try( -- some nodes have no mesh
     local m = snapshotAsMesh node 
-    format "  -- Materials of node #%/%: % (% faces, offset %, mat offset %)\n" number total_nodes node.name m.numFaces global_face_count global_mat_count
+    format "  --  Materials of node #%/%: % (% faces, offset %, mat offset %)\n" number total_nodes node.name m.numFaces global_face_count global_mat_count
     local max_face_id = 1
     for f =1 to m.numFaces do ( 
       local facemat = getFaceMatID m f
@@ -381,7 +381,7 @@
      -- - seem the correct way...
      (
       format ",\n"
-      format "  -- Fall-back material\n"
+      format "  --  Fall-back material\n"
       format "     %..% => " (node_mat_count + global_mat_count + 1) (max_face_id + global_mat_count)
       show_mat last_mat 0
      )
@@ -392,7 +392,7 @@
 
     global_mat_count     = global_mat_count     + max_face_id -- can be node.material.count
 
-    format "  -- End of materials for node #%/%: %\n" number total_nodes node.name 
+    format "  --  End of materials for node #%/%: %\n" number total_nodes node.name 
     ) catch ()
   ) 
   -- end output_materials
@@ -400,16 +400,16 @@
   function PrintObj = ( 
     outputHeader()
     local total_nodes = 0
-    -- * Summary with the nodes:
-    format "  -- List of nodes for % :\n" rootNode.name
+    --  * Summary with the nodes:
+    format "  --  List of nodes for % :\n" rootNode.name
     (
       for c in rootNode.children do
       ( total_nodes = total_nodes + 1
-        format "  -- node % : % \n" total_nodes c.name
+        format "  --  node % : % \n" total_nodes c.name
       )
     )
     format "\n" 
-    -- * Array with all vertices:
+    --  * Array with all vertices:
     format "  vertices: constant Point_3D_array:= (\n"
     (
       local n = 0
@@ -418,8 +418,8 @@
         output_vertices c n total_nodes
       )
     )
-    format "  ); -- End of all vertices\n"
-    -- * Array with all faces:
+    format "  );  --  End of all vertices\n"
+    --  * Array with all faces:
     format "  face_indices: constant Idx_4_array_array:= (\n"
     global_vertex_count = 0
     (
@@ -429,10 +429,10 @@
         output_faces c n total_nodes
       )
     )
-    format "  ); -- End of all face indices\n"
-    -- * Array with all material IDs:
-    format "  type Positive_Index_array is array(Positive range <>) of Natural;\n"
-    format "  face_material_id: constant Positive_Index_array:= (\n"
+    format "  );  --  End of all face indices\n"
+    --  * Array with all material IDs:
+    format "  type Positive_Index_Array is array (Positive range <>) of Natural;\n"
+    format "  face_material_id : constant Positive_Index_Array := (\n"
     global_face_count = 0
     (
       local n = 0
@@ -441,11 +441,11 @@
         output_material_ids c n total_nodes
       )
     )
-    format "  ); -- End of all material IDs\n"
+    format "  );  --  End of all material IDs\n"
     
-    -- * Array with all textures coordinates:
-    format "  type Texture_info_array is array(Positive range <>) of Map_idx_pair_4_array;\n"
-    format "  face_texture_info: constant Texture_info_array(face_indices'Range):= (\n"
+    --  * Array with all textures coordinates:
+    format "  type Texture_Info_Array is array (Positive range <>) of Map_Idx_Pair_4_Array;\n"
+    format "  face_texture_info : constant Texture_Info_Array (face_indices'Range) := (\n"
 
     global_vertex_count = 0
     global_face_count = 0
@@ -457,16 +457,16 @@
       )
     )
     if some_without_texture == 1 then
-      format "   others =>    ((0.0,0.0), (0.0,0.0), (0.0,0.0), (0.0,0.0))"
-    format "  ); -- End of all texture maps\n"
+      format "   others =>    ((0.0, 0.0), (0.0, 0.0), (0.0, 0.0), (0.0, 0.0))"
+    format "  );  --  End of all texture maps\n"
 
-    -- * Array with all materials:
+    --  * Array with all materials:
     format "  type Material_info is record\n"
-    format "    skin    : Skin_type;    -- here: material_only or material_texture\n"
-    format "    image   : Image_ID;\n"
-    format "    offset  : Map_idx_pair;\n"
-    format "    tiling  : Map_idx_pair;\n"
-    format "    material: GL.Materials.Material_type;\n"
+    format "    skin     : Skin_Type;    --  Here: material_only or material_texture\n"
+    format "    image    : Image_ID;\n"
+    format "    offset   : Map_Idx_Pair;\n"
+    format "    tiling   : Map_Idx_Pair;\n"
+    format "    material : GL.Materials.Material_type;\n"
     format "  end record;\n"
     format "  type Material_info_array is array(Positive range <>) of Material_info;\n"
     proc_decl()
@@ -483,37 +483,37 @@
       )
     )
     -- format "      others=> (material_only, null_image, (0.0,0.0), (0.0,0.0), neutral_material) -- some materials have IDs but seem lost...\n"
-    format "    ); -- End of all materials\n"
+    format "    );  --  End of all materials\n"
     
     format "\n"
-    format "    face_0 : Face_type; -- takes defaults values\n"
+    format "    face_0 : Face_Type;  --  Takes defaults values\n"
     format "    mat_id : Positive; \n"
     format "  begin\n"
-    format "    object:=\n"
-    format "      new Object_3D( Max_points => %, Max_faces => % );\n" global_vertex_count global_face_count
-    format "    Set_name(object.all, \"Scene exported from GMax\");\n"
-    format "    object.centre:= centre;\n"
-    format "    if Almost_zero(scale - 1.0) then\n"
-    format "      object.point:= vertices;\n"
+    format "    object :=\n"
+    format "      new Object_3D (Max_points => %, Max_faces => %);\n" global_vertex_count global_face_count
+    format "    Set_Name (object.all, \"Scene exported from GMax\");\n"
+    format "    object.centre := centre;\n"
+    format "    if Almost_Zero (scale - 1.0) then\n"
+    format "      object.point := vertices;\n"
     format "    else\n"
     format "      for p in vertices'Range loop\n"
-    format "        object.point( p ):= scale * vertices(p);\n"
+    format "        object.point (p) := scale * vertices (p);\n"
     format "      end loop;\n"
     format "    end if;\n"
-    format "    face_0.whole_texture:= False; -- always mapped from model, or no texture\n"
+    format "    face_0.whole_texture := False;  --  Always mapped from model, or no texture\n"
     format "    for f in face_indices'Range loop\n"
-    format "      face_0.P:= face_indices(f);\n"
-    format "      mat_id:= face_material_id(f);\n"
-    format "      face_0.skin:=     face_material_info(mat_id).skin;\n"
-    format "      face_0.texture:=  face_material_info(mat_id).image;\n"
-    format "      face_0.material:= face_material_info(mat_id).material;\n"
-    format "      if is_textured(face_0.skin) then\n"
+    format "      face_0.P := face_indices (f);\n"
+    format "      mat_id := face_material_id( f);\n"
+    format "      face_0.skin     := face_material_info (mat_id).skin;\n"
+    format "      face_0.texture  := face_material_info (mat_id).image;\n"
+    format "      face_0.material := face_material_info (mat_id).material;\n"
+    format "      if is_textured (face_0.skin) then\n"
     format "        for i in face_0.texture_edge_map'Range loop\n"
-    format "          face_0.texture_edge_map(i):=\n"
-    format "            (0.5+(face_texture_info(f)(i).u-0.5+face_material_info(mat_id).offset.U)*\n"
-    format "                 face_material_info(mat_id).tiling.U,\n"
-    format "             0.5+(face_texture_info(f)(i).v-0.5+face_material_info(mat_id).offset.V)*\n"
-    format "                 face_material_info(mat_id).tiling.V);\n"
+    format "          face_0.texture_edge_map (i):=\n"
+    format "            (0.5 + (face_texture_info (f)(i).u - 0.5 + face_material_info (mat_id).offset.U)*\n"
+    format "                   face_material_info (mat_id).tiling.U,\n"
+    format "             0.5 + (face_texture_info (f)(i).v - 0.5 + face_material_info (mat_id).offset.V)*\n"
+    format "                   face_material_info (mat_id).tiling.V);\n"
     format "        end loop;\n"
     format "      end if;\n"
     format "      object.face( f ):= face_0;\n"
@@ -528,7 +528,7 @@
     format "--\n"
     format "with GLOBE_3D.IO, GLOBE_3D.Textures; use GLOBE_3D, GLOBE_3D.IO, GLOBE_3D.Textures;\n"
     format "with %; -- The package containing the GMAX model's data\n" gmax_scene
-    format "procedure example is\n" 
+    format "procedure Example is\n" 
     format "  type Texture_enum is (\n" 
     bitmap_names = ""
     first_bitmap = true
@@ -546,12 +546,12 @@
     list_bitmaps true false
     format "  );\n" 
     format "  --\n" 
-    format "  Set_name(gmax.all, \"%\");\n" gmax_scene
-    format "  Save_file(gmax.all);\n"
-    format "  -- ^ Save the \"%.g3d\" object, might be more practical than the Ada source.\n" gmax_scene
+    format "  Set_Name (gmax.all, \"%\");\n" gmax_scene
+    format "  Save_File (gmax.all);\n"
+    format "  -- ^ Save the \"%.g3d\" object. It is likely to be more practical than the Ada source itself.\n" gmax_scene
     format "  --   For instance (to give an idea), if you include it into the \"%.zip\" file,\n" gmax_scene
     format "  --   you can also view the textured object with \"GLOBE_3D_Demo.exe -load=%\".\n" gmax_scene
-    format "end example;\n" 
+    format "end Example;\n" 
     format "\n" 
     flushStringStream 
   ) 

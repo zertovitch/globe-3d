@@ -19,11 +19,11 @@ package body GLOBE_3D.Aux is
     P2 := o.point (o.face_internal (face_num).P_compact (2));
     P3 := o.point (o.face_internal (face_num).P_compact (3));
     --
-    if    Almost_zero ((P2 - P1) * (P3 - P1)) then
+    if    Almost_Zero ((P2 - P1) * (P3 - P1)) then
       return 1;
-    elsif Almost_zero ((P1 - P2) * (P3 - P2)) then
+    elsif Almost_Zero ((P1 - P2) * (P3 - P2)) then
       return 2;
-    elsif Almost_zero ((P2 - P3) * (P1 - P3)) then
+    elsif Almost_Zero ((P2 - P3) * (P1 - P3)) then
       return 3;
     else
       return 0;
@@ -119,10 +119,10 @@ package body GLOBE_3D.Aux is
 
     function Match_Alpha (a1, a2 : GL.Double) return Boolean is
     begin
-      return GL.Math.Almost_zero (a1 - a2);
+      return GL.Math.Almost_Zero (a1 - a2);
     end Match_Alpha;
 
-    function Match_Material (M1, M2 : GL.Materials.Material_type) return Boolean
+    function Match_Material (M1, M2 : GL.Materials.Material_Type) return Boolean
       renames GL.Materials.Identical;
     match_count : Natural := 0;
   begin
@@ -408,20 +408,20 @@ package body GLOBE_3D.Aux is
 
   function Is_to_blend (m : GL.Double) return Boolean is
   begin
-    return not Almost_zero (m - 1.0);
+    return not Almost_Zero (m - 1.0);
   end Is_to_blend;
 
   function Is_to_blend (m : GL.Float) return Boolean is
   begin
-    return not Almost_zero (m - 1.0);
+    return not Almost_Zero (m - 1.0);
   end Is_to_blend;
 
-  function Is_to_blend (m : GL.Material_Float_vector) return Boolean is
+  function Is_to_blend (m : GL.Material_Float_Vector) return Boolean is
   begin
     return Is_to_blend (m (3));
   end Is_to_blend;
 
-  function Is_to_blend (m : GL.Materials.Material_type) return Boolean  is
+  function Is_to_blend (m : GL.Materials.Material_Type) return Boolean  is
   begin
     return
       Is_to_blend (m.ambient) or

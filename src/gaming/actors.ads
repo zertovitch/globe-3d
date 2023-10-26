@@ -61,7 +61,7 @@ package Actors is
      gx, gy         : GLOBE_3D.Real;
      unitary_change : GLOBE_3D.Real;
      deceleration   : GLOBE_3D.Real;
-     matrix         : in out GLOBE_3D.Matrix_33;
+     current_matrix : in out GLOBE_3D.Matrix_33;
      time_step      : GLOBE_3D.Real;
      rotation_speed : in out GLOBE_3D.Vector_3D);
 

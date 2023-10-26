@@ -56,7 +56,8 @@ package GLUT.Windows is
 
    function  Object_Count (Self : in Window) return Natural;
 
-   no_such_Object : exception;   -- raised when trying to 'rid' an object which has not been added to the Window.
+   no_such_Object : exception;
+   --  ^ Raised when trying to 'rid' an object which has not been added to the Window.
 
    --  Smoothing
    --

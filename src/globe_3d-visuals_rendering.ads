@@ -3,10 +3,10 @@
 --  Example: the version of gprbuild, GNAT GPL 2016 in Windows fails at linking stage
 --  but the deprecated gnatmake succeeds. Plus, all the mess with GLEE, GLEW, etc.
 
-package GLOBE_3D.Visuals_rendering is
+package GLOBE_3D.Visuals_Rendering is
 
-   -- clears the color buffer and renders each of the visuals.
+   --  clears the color buffer and renders each of the visuals.
 
-   procedure Render (the_Visuals : in Visual_array;   the_Camera : in Camera'Class);
+   procedure Render (the_Visuals : in Visual_Array; the_Camera : in Camera'Class);
 
-end GLOBE_3D.Visuals_rendering;
+end GLOBE_3D.Visuals_Rendering;

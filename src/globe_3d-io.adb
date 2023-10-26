@@ -4,7 +4,7 @@ with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
 with Ada.Unchecked_Conversion;
 
 with UnZip.Streams;
-with Float_portable_binary_transfer;
+with Float_Portable_Binary_Transfer;
 pragma Elaborate_All (Float_portable_binary_transfer);
 
 with GLOBE_3D.Textures;
@@ -176,7 +176,7 @@ package body GLOBE_3D.IO is
       Merge (Cvt (m), Cvt (e), n);
     end Read_Float;
 
-    procedure Read_Material (mfv : out GL.Material_Float_vector) is
+    procedure Read_Material (mfv : out GL.Material_Float_Vector) is
     begin
       for i in mfv'Range loop
         Read_Float (mfv (i));
@@ -317,7 +317,7 @@ package body GLOBE_3D.IO is
       Write_Intel (Cvt (e));
     end Write_Float;
 
-    procedure Write_Material (mfv : in GL.Material_Float_vector) is
+    procedure Write_Material (mfv : in GL.Material_Float_Vector) is
     begin
       for i in mfv'Range loop
         Write_Float (mfv (i));

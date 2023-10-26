@@ -1,5 +1,6 @@
 -------------------------------------------------------------------------
---  GL.Simple_text - Simple text output in pure GL (no use of GLUT).
+--  GL.Simple_Text - Simple vectorial text output in
+--  pure GL (no use of GLUT).
 --
 --  Copyright (c) Gautier de Montmollin 2016
 --  SWITZERLAND
@@ -22,19 +23,18 @@
 --  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 --  THE SOFTWARE.
 
--- NB: this is the MIT License, as found 12-Sep-2007 on the site
--- http://www.opensource.org/licenses/mit-license.php
+--  NB: this is the MIT License, as found 12-Sep-2007 on the site
+--  http://www.opensource.org/licenses/mit-license.php
 
-package GL.Simple_text is
+package GL.Simple_Text is
 
-  type Font_type is (Simple, Complex, Sans_Serif);
+  type Font_Type is (Simple, Complex, Sans_Serif);
 
-  procedure Text_output(
-    p             : GL.Double_Vector_3D;
-    s             : String;
-    color         : RGBA_Color;
-    letter_height : GL.Double:= 1.0;
-    font          : Font_type:= Simple
-  );
+  procedure Text_Output
+    (p             : GL.Double_Vector_3D;
+     s             : String;
+     line_color    : RGBA_Color;
+     letter_height : GL.Double := 1.0;
+     font          : Font_Type := Simple);
 
-end GL.Simple_text;
+end GL.Simple_Text;

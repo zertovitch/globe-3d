@@ -1,11 +1,12 @@
 --  VRML: [#VRML V1.0 ascii]
+
 with GLOBE_3D;
 
 package SkotKnot is
 
   procedure Create
-    (object  : in out GLOBE_3D.p_Object_3D;
-     scaling :        GLOBE_3D.Real;
-     centre  :        GLOBE_3D.Point_3D);
+    (object : in out GLOBE_3D.p_Object_3D;
+     scale  :        GLOBE_3D.Real;
+     centre :        GLOBE_3D.Point_3D);
 
 end SkotKnot;

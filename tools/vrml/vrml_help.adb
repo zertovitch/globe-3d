@@ -120,10 +120,10 @@ package body VRML_Help is
     Ada_New_Line;
     indent := 2;
     Ada_Put_Line ("procedure Create");
-    Ada_Put_Line ("(object  : in out GLOBE_3D.p_Object_3D;");
-    Ada_Put_Line (" scaling :        GLOBE_3D.Real;");
+    Ada_Put_Line ("(object : in out GLOBE_3D.p_Object_3D;");
+    Ada_Put_Line (" scale  :        GLOBE_3D.Real;");
     indent := 1;
-    Ada_Put      (" centre  :        GLOBE_3D.Point_3D)");
+    Ada_Put      (" centre :        GLOBE_3D.Point_3D)");
   end Ada_Create;
 
   function Pkg return String is
@@ -157,6 +157,8 @@ package body VRML_Help is
     indent := 2;
     Ada_Put_Line ("is");
     indent := 1;
+    Ada_Put_Line ("use GL, GL.Math;");
+    Ada_New_Line;
     Ada_Put_Line ("face_0 : Face_Type;  --  Takes defaults values");
     nb_points := 0;
     nb_polys := 0;
@@ -198,7 +200,7 @@ package body VRML_Help is
       Ada_Comment ("Creating separator #" & i'Image);
       if sepa_points (i) > 0 then
         indent := indent + 1;
-        Ada_Put_Line ("if Almost_Zero (scaling - 1.0) then");
+        Ada_Put_Line ("if Almost_Zero (scale - 1.0) then");
         indent := indent - 1;
         Ada_Put_Line (
           "object.point (" &
@@ -215,7 +217,7 @@ package body VRML_Help is
         indent := indent - 1;
         Ada_Put_Line
           ("object.point (" & Trim (nb_points'Image, Left) &
-           " + p) := scaling * coord_" & Trim (i'Image, Left) & " (p);");
+           " + p) := scale * coord_" & Trim (i'Image, Left) & " (p);");
         indent := indent - 1;
         Ada_Put_Line ("end loop;");
         Ada_Put_Line ("end if;");
@@ -285,6 +287,7 @@ package body VRML_Help is
         and then s (s'First .. s'First + 4) = "#VRML"
         and then not header_done
       then
+        Ada_New_Line;
         Ada_Put_Line ("with GLOBE_3D;");
         Ada_New_Line;
         Ada_Put_Line ("package " & Pkg & " is");
@@ -299,7 +302,8 @@ package body VRML_Help is
         Ada_Put_Line ("package body " & Pkg & " is");
         Ada_Put_Line ("  --  Pretty output: " & Boolean'Image (pretty));
         Ada_New_Line;
-        Ada_Put_Line ("  use GL, GL.Materials, GL.Math, GLOBE_3D;");
+        Ada_Put_Line ("  use GL.Materials, GLOBE_3D;");
+        Ada_Put_Line ("  use type GL.Double;");
         Ada_New_Line;
         header_done := True;
         table_area := True;

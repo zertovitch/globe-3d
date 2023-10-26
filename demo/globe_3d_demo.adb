@@ -518,7 +518,7 @@ procedure GLOBE_3D_Demo is
 
     SkotKnot.Create
       (object  => knot,
-       scaling => 1.0,
+       scale   => 1.0,
        centre  => (0.0, 0.0, -40.0));
     Pre_Calculate (knot.all);
 
@@ -676,7 +676,7 @@ procedure GLOBE_3D_Demo is
     procedure Show_Technical_Infos is
       procedure Msg (line : GL.Int; s : String) is
       begin
-        GLUT_2D.Text_output
+        GLUT_2D.Text_Output
           (0, line, main_size_x, main_size_y, s, GLUT_2D.Helvetica_10);
       end Msg;
       light_info : String (1 .. 8);
@@ -690,10 +690,10 @@ procedure GLOBE_3D_Demo is
                 green_value => 0.7,
                 blue_value  => 0.6);
 
-      GLUT_2D.Text_output ((0.0, 0.0, 0.0), "O", GLUT_2D.Times_Roman_24);
-      GLUT_2D.Text_output ((1.0, 0.0, 0.0), "x", GLUT_2D.Times_Roman_24);
-      GLUT_2D.Text_output ((0.0, 1.0, 0.0), "y", GLUT_2D.Times_Roman_24);
-      GLUT_2D.Text_output ((0.0, 0.0, 1.0), "z", GLUT_2D.Times_Roman_24);
+      GLUT_2D.Text_Output ((0.0, 0.0, 0.0), "O", GLUT_2D.Times_Roman_24);
+      GLUT_2D.Text_Output ((1.0, 0.0, 0.0), "x", GLUT_2D.Times_Roman_24);
+      GLUT_2D.Text_Output ((0.0, 1.0, 0.0), "y", GLUT_2D.Times_Roman_24);
+      GLUT_2D.Text_Output ((0.0, 0.0, 1.0), "z", GLUT_2D.Times_Roman_24);
 
       Msg (10, "Press Space for next object/scene.    Object name: " &
         Get_Name (o) &
@@ -970,7 +970,7 @@ procedure GLOBE_3D_Demo is
            gy => gy,
            unitary_change => seconds,
            deceleration   => attenu_r,
-           matrix         => bestiaire (beast_idx).rotation,
+           current_matrix         => bestiaire (beast_idx).rotation,
            time_step      => seconds,
            rotation_speed => object_rotation_speed);
       end if;

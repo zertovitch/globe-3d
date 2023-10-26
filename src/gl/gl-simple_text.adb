@@ -2,28 +2,30 @@
 
 with Interfaces;                        use Interfaces;
 
-package body GL.Simple_text is
+package body GL.Simple_Text is
 
-  type Vf_width is array(Character range <>) of Unsigned_8;
-  type Vf_index is array(Character range <>) of Unsigned_16;
-  type Vf_vertex is array(Natural range <>)  of Integer_8;
+  type Vf_Width is array (Character range <>) of Unsigned_8;
+  type Vf_Index is array (Character range <>) of Unsigned_16;
+  type Vf_Vertex is array (Natural range <>)  of Integer_8;
 
-  type Vector_font( first_char, last_char: Character;
-                    n_vertices: Natural;
-                    name_len: Positive) is
+  type Vector_Font (first_char, last_char : Character;
+                    n_vertices            : Natural;
+                    name_len              : Positive)
+  is
   record
-    name: String(1..name_len);
-    height, downline: Integer;
-    width: Vf_width(first_char..last_char);
-    index: Vf_index(first_char..last_char);
-    vertex_x, vertex_y: Vf_vertex(1..n_vertices);
+    name : String (1 .. name_len);
+    height, downline : Integer;
+    width : Vf_Width (first_char .. last_char);
+    index : Vf_Index (first_char .. last_char);
+    vertex_x, vertex_y : Vf_Vertex (1 .. n_vertices);
   end record;
 
   --  Font data reformatted by ICC Ada Source Code Formatter [v2.2.0 Mar 09, 2007]
 
-  simple_font     : constant Vector_font := (
-      first_char => Character'Val(32),
-      last_char  => Character'Val(254),
+  simple_font : constant Vector_Font :=
+
+     (first_char => Character'Val (32),
+      last_char  => Character'Val (254),
       n_vertices => 3589,
       name_len   => 6,
       name       => "Simple",
@@ -385,9 +387,11 @@ package body GL.Simple_text is
         21, 21, 20, 18, 15, 1, 1, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 2, 2, 0, 0, 2, 1, 2, 0, 2, 0, 0,
         18, 21, 21, 0, 10, 0, 21, 10, 17, 20, 21, 21, 20, 17, 10, 0, 19, 20, 21, 21, 20, 19, 18,
         15, 15, 0, 0, 11, 11, 0, 0, 11, 0, 11, 0, 11, 0, 11, 0, 11, 0, 11, 0, 11, 0, 0));
-  complex_font    : constant Vector_font := (
-      first_char => Character'Val(32),
-      last_char  => Character'Val(254),
+
+  complex_font : constant Vector_Font :=
+
+     (first_char => Character'Val (32),
+      last_char  => Character'Val (254),
       n_vertices => 5412,
       name_len   => 7,
       name       => "Complex",
@@ -919,9 +923,10 @@ package body GL.Simple_text is
         21, 21, 21, 11, 11, 21, 0, 19, 19, 18, 19, 20, 21, 21, 20, 18, 16, 15, 13, 12, 13, 13, 11,
         11, 13, 14, 13, 12, 12, 13, 16, 17, 18, 20, 21, 0, 0, 10, 10, 0, 0, 10, 0, 10, 0, 10, 0,
         10, 0, 10, 0, 10, 0, 10, 0, 10, 0, 0));
-  sans_serif_font : constant Vector_font := (
-      first_char => Character'Val(1),
-      last_char  => Character'Val(254),
+
+  sans_serif_font : constant Vector_Font :=
+     (first_char => Character'Val (1),
+      last_char  => Character'Val (254),
       n_vertices => 6121,
       name_len   => 10,
       name       => "Sans Serif",
@@ -1523,85 +1528,84 @@ package body GL.Simple_text is
         13, 14, 14, 13, 18, 20, 21, 21, 20, 19, 19, 20, 20, 18, 0, 0, 0, 0, 11, 11, 0, 0, 11, 0,
         11, 0, 11, 0, 11, 0, 11, 0, 11, 0, 11, 0, 0, 0, 0));
 
-  procedure Text_output(
-    p             : GL.Double_Vector_3D;
-    s             : String;
-    color         : RGBA_Color;
-    letter_height : GL.Double:= 1.0;
-    font          : Font_type:= Simple
-  )
+  procedure Text_Output
+    (p             : GL.Double_Vector_3D;
+     s             : String;
+     line_color    : RGBA_Color;
+     letter_height : GL.Double := 1.0;
+     font          : Font_Type := Simple)
   is
     subtype Real is GL.Double;
-    x, y, z: Real;
-    procedure Out_char_l1(c: Character) is
-      procedure Out_char_l2(f: Vector_font) is
-        i0,im: Integer;
-        xv,yv, xxr,yyr, mem_x, mem_y: Real;
-        deplacement: constant:= 33;
-        pen_down: Boolean:= False;
+    x, y, z : Real;
+    procedure Out_char_l1 (c : Character) is
+      procedure Out_char_l2 (f : Vector_Font) is
+        i0, im : Integer;
+        xv, yv, xxr, yyr, mem_x, mem_y : Real;
+        deplacement : constant := 33;
+        pen_down : Boolean := False;
         procedure Pen_up is
         begin
           if pen_down then
-            pen_down:= False;
+            pen_down := False;
             GL_End;
           end if;
         end Pen_up;
-        scale: constant Real:= letter_height / Real(f.height);
+        scaling : constant Real := letter_height / Real (f.height);
       begin
-        if c not in f.first_char..f.last_char then
+        if c not in f.first_char .. f.last_char then
           return;
         end if;
-        i0:= Natural(f.index(c));
+        i0 := Natural (f.index (c));
         if c < f.last_char then
-          im:= Natural(f.index(Character'Succ(c)))-1;
+          im := Natural (f.index (Character'Succ (c))) - 1;
         else
-          im:= f.n_vertices;
+          im := f.n_vertices;
         end if;
         --  Default values, shouldn't be used for a correct font.
-        mem_x:= x;
-        mem_y:= y;
+        mem_x := x;
+        mem_y := y;
         for i in i0 .. im loop
-          xv:= scale * Real(abs(f.vertex_x(i))-deplacement);
-          yv:= scale * Real(f.vertex_y(i));
-          xxr:= x + xv;
-          yyr:= y + yv;
-          if f.vertex_x(i) < 0 then
+          xv := scaling * Real (abs (f.vertex_x (i)) - deplacement);
+          yv := scaling * Real (f.vertex_y (i));
+          xxr := x + xv;
+          yyr := y + yv;
+          if f.vertex_x (i) < 0 then
             --  Line to
             if not pen_down then
-              GL_Begin(GL.LINES);
-              pen_down:= True;
+              GL_Begin (GL.LINES);
+              pen_down := True;
             end if;
-            Vertex(mem_x, mem_y, z);
-            Vertex(xxr, yyr, z);
+            Vertex (mem_x, mem_y, z);
+            Vertex (xxr, yyr, z);
           else
             --  Move to
             Pen_up;
           end if;
-          mem_x:= xxr;
-          mem_y:= yyr;
+          mem_x := xxr;
+          mem_y := yyr;
         end loop;
         Pen_up;
         --
-        x:= x + scale * Real(f.width(c));
+        x := x + scaling * Real (f.width (c));
       end Out_char_l2;
     begin
       case font is
         when Simple =>
-          Out_char_l2(simple_font);
+          Out_char_l2 (simple_font);
         when Complex =>
-          Out_char_l2(complex_font);
+          Out_char_l2 (complex_font);
         when Sans_Serif =>
-          Out_char_l2(sans_serif_font);
+          Out_char_l2 (sans_serif_font);
       end case;
     end Out_char_l1;
   begin
-    x:= p(0);
-    y:= p(1);
-    z:= p(2);
-    GL.Color(color);
+    x := p (0);
+    y := p (1);
+    z := p (2);
+    GL.Color (line_color);
     for i in s'Range loop
-      Out_char_l1(s(i));
+      Out_char_l1 (s (i));
     end loop;
-  end Text_output;
+  end Text_Output;
 
-end GL.Simple_text;
+end GL.Simple_Text;

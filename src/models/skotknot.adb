@@ -3,7 +3,8 @@ with GL.Materials, GL.Math;
 package body SkotKnot is
   --  Pretty output: TRUE
 
-  use GL, GL.Materials, GL.Math, GLOBE_3D;
+  use GL.Materials, GLOBE_3D;
+  use type GL.Double;
 
 --  begin Separator # 1
 --  VRML Info: ["Knot model created by KnotPlot
@@ -1636,11 +1637,13 @@ package body SkotKnot is
   --  end Separator # 7
 
   procedure Create
-    (object  : in out GLOBE_3D.p_Object_3D;
-     scaling :        GLOBE_3D.Real;
-     centre  :        GLOBE_3D.Point_3D)
+    (object : in out GLOBE_3D.p_Object_3D;
+     scale  :        GLOBE_3D.Real;
+     centre :        GLOBE_3D.Point_3D)
   is
-    face_0 : Face_Type;  --  Takes defaults values
+    use GL, GL.Math;
+
+  face_0 : Face_Type;  --  Takes defaults values
   begin
     object :=
       new Object_3D (Max_points => 1868, Max_faces => 1865);
@@ -1652,11 +1655,11 @@ package body SkotKnot is
     --  Creating separator # 2
     face_0.material := matos_2;
     --  Creating separator # 3
-    if Almost_Zero (scaling - 1.0) then
+    if Almost_Zero (scale - 1.0) then
       object.point (1 .. 310) := coord_3;
     else
       for p in 1 .. 310 loop
-        object.point (0 + p) := scaling * coord_3 (p);
+        object.point (0 + p) := scale * coord_3 (p);
       end loop;
     end if;
     for f in 1 .. 309 loop
@@ -1666,11 +1669,11 @@ package body SkotKnot is
     --  Creating separator # 4
     face_0.material := matos_4;
     --  Creating separator # 5
-    if Almost_Zero (scaling - 1.0) then
+    if Almost_Zero (scale - 1.0) then
       object.point (311 .. 1138) := coord_5;
     else
       for p in 1 .. 828 loop
-        object.point (310 + p) := scaling * coord_5 (p);
+        object.point (310 + p) := scale * coord_5 (p);
       end loop;
     end if;
     for f in 1 .. 827 loop
@@ -1680,11 +1683,11 @@ package body SkotKnot is
     --  Creating separator # 6
     face_0.material := matos_6;
     --  Creating separator # 7
-    if Almost_Zero (scaling - 1.0) then
+    if Almost_Zero (scale - 1.0) then
       object.point (1139 .. 1868) := coord_7;
     else
       for p in 1 .. 730 loop
-        object.point (1138 + p) := scaling * coord_7 (p);
+        object.point (1138 + p) := scale * coord_7 (p);
       end loop;
     end if;
     for f in 1 .. 729 loop

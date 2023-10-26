@@ -1,4 +1,4 @@
-with GL.Simple_text, GL.Math, GLU;
+with GL.Simple_Text, GL.Math, GLU;
 
 package body GLOBE_3D.Portals is
 
@@ -124,12 +124,12 @@ package body GLOBE_3D.Portals is
     GL.LoadIdentity;
 
     --  Portal label
-    GL.Simple_text.Text_output
+    GL.Simple_Text.Text_Output
       ((GL.Double (clip.X1),  GL.Double (clip.Y2) - text_size, 0.0),
        "Portal depth:" & portal_depth'Image,
        (0.7, 0.7, val, 0.9),
        text_size,
-       GL.Simple_text.Sans_Serif);
+       GL.Simple_Text.Sans_Serif);
 
     --  A green rectangle to signal the clipping area
     GL.Color (0.1, val, 0.1, 1.0);

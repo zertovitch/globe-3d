@@ -70,7 +70,7 @@ package body GLOBE_3D.Collision_Detection is
           edge_vector := Psp1 - Ps;
           npa := n * edge_vector;
           nnpa := Norm (npa);
-          if Almost_zero (nnpa) then -- degenerated edge
+          if Almost_Zero (nnpa) then -- degenerated edge
             return False;
           end if;
           npa := 1.0 / nnpa * npa;
@@ -85,7 +85,7 @@ package body GLOBE_3D.Collision_Detection is
       end Dans_prisme_epaissi;
 
     begin
-      if Almost_zero (lstep0) then
+      if Almost_Zero (lstep0) then
         return;
       end if;
 
@@ -95,7 +95,7 @@ package body GLOBE_3D.Collision_Detection is
         n := o.face_internal (face).normal;
         if check_normals then
           nn := Norm (n);
-          if Almost_zero (nn) then
+          if Almost_Zero (nn) then
             raise Zero_normal;
           elsif abs (nn - 1.0) > 1.0e-7 then
             raise Normal_length_is_not_one with " norm = " & nn'Image;
