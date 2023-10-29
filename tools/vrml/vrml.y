@@ -358,7 +358,7 @@ AMaterial	: MATERIAL '{' FieldSpecs
                Ada_Put_Line (" specular  => " & RGBA (current_matos.specular) & ',');
                Ada_Put_Line (" diffuse   => " & RGBA (current_matos.diffuse)  & ',');
                Ada_Put_Line (" emission  => " & RGBA (current_matos.emission) & ',');
-               Ada_Put_Line (" shininess => " & Image (current_matos.shininess, force => True) & ");");
+               Ada_Put_Line (" shininess => " & Image (current_matos.shininess) & ");");
                indent := indent - 1;
                Ada_New_Line;
              }

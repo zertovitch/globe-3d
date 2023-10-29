@@ -14,7 +14,7 @@ ren vrml.a yargla.a
 rem
 echo .
 echo 1.2) Running aflex.exe
-aflex.exe -i vrml.l
+aflex.exe -E vrml.l
 echo .
 rem
 echo 2) Glue everything together and let gnatchop find the right filenames

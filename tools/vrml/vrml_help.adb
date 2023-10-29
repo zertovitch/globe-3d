@@ -18,12 +18,13 @@ package body VRML_Help is
     end if;
   end Fac_Trim;
 
-  function Image (r : Real; force : Boolean := False) return String is
-    s : String (1 .. 11);
+  function Image (r : Real) return String is
+    disp_size : constant := 6;
+    s : String (1 .. disp_size + 5);
   begin
-    RIO.Put (s, r, 6, 0);
+    RIO.Put (s, r, disp_size, 0);
     declare
-      t : constant String := Fac_Trim (s, force);
+      t : constant String := Fac_Trim (s, True);
       l : Natural := t'Last;
       p : Natural;
     begin
@@ -38,23 +39,26 @@ package body VRML_Help is
     end;
   exception
     when Ada.Text_IO.Layout_Error =>
-      return Fac_Trim (Real'Image (r), force);
+      return Fac_Trim (Real'Image (r), True);
   end Image;
+
+  function Comma return String is
+    (if pretty then ", " else ",");
 
   function Coords (p : Point_3D) return String is
   begin
-    return '(' & Image (p (0), force => True) &
-           ',' & Image (p (1)) &
-           ',' & Image (p (2)) &
+    return '(' &   Image (p (0)) &
+           Comma & Image (p (1)) &
+           Comma & Image (p (2)) &
            ')';
   end Coords;
 
   function RGBA (p : Material_Float_Vector) return String is
   begin
-    return '(' & Image (p (0), force => True) &
-           ',' & Image (p (1)) &
-           ',' & Image (p (2)) &
-           ',' & Image (p (3)) &
+    return '(' &   Image (p (0)) &
+           Comma & Image (p (1)) &
+           Comma & Image (p (2)) &
+           Comma & Image (p (3)) &
            ')';
   end RGBA;
 

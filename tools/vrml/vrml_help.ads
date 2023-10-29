@@ -57,7 +57,7 @@ package VRML_Help is
 
   last_color : Material_Float_Vector;
 
-  function Image (r : Real; force : Boolean := False) return String;
+  function Image (r : Real) return String;
   function Coords (p : Point_3D) return String;
   function RGBA (p : Material_Float_Vector) return String;
 
