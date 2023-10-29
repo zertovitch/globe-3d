@@ -5,16 +5,9 @@ Separator {
 	string "Knot model created by KnotPlot
 
 URL: https://knotplot.com/vrml/vrml.html
-URL: http://www.cs.ubc.ca/nest/imager/contributions/scharein/KnotPlot.html
      
 Author: Rob Scharein
-        Department of Computer Science 
-        2366 Main Mall - Room 201
-        University of British Columbia
-        Vancouver, B.C. CANADA  V6T 1Z4
-
-        URL: http://www.cs.ubc.ca/spider/scharein
-        E-mail: scharein@cs.ubc.ca
+        https://knotplot.com/
 
 date:   Thu Aug 8 19:06:39 PDT 1996
 "

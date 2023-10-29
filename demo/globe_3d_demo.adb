@@ -32,7 +32,7 @@ with Vehic001, Vehic002,
      X29,
      Brick, Icosahedron,
      SkotKnot, Lissajous,
-     Knot_10_102, Knot_link,
+     Knot_10_102, Knot_Link,
      Planet,
      A319,
      Dreadnought,
@@ -534,7 +534,7 @@ procedure GLOBE_3D_Demo is
        centre => (0.0, 0.0, -50.0));
     Pre_Calculate (knot_10_102_obj.all);
 
-    Knot_link.Create
+    Knot_Link.Create
       (object => knot_link_obj,
        scale  => 1.0,
        centre => (0.0, 0.0, -50.0));
