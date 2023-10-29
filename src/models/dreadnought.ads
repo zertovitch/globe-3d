@@ -10,6 +10,7 @@
 --  Author: Xenodroid
 --  Title: Dreadnought
 --  Subject: Dreadnought class Heavy Cruiser: a space cruiser inspired by Sulaco from Aliens.
+--  Comments: Reworked a bit...
 
 --  File name: dreadnought_g3d.gmax
 --  File path: C:\Ada\g3d\tools\gmax\
@@ -25,6 +26,6 @@ package Dreadnought is
      alum_001,
      grumnoir,
      tole_001,
-     alum_002 : GLOBE_3D.Image_ID)
-;
+     alum_002 : GLOBE_3D.Image_ID);
+
 end Dreadnought;
