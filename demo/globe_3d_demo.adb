@@ -168,7 +168,7 @@ procedure GLOBE_3D_Demo is
   procedure Window_Resize (width, height : Integer) is
   begin
     if capturing_video then
-      GL.IO.Stop_capture;
+      GL.IO.Stop_Capture;
     end if;
     main_size_x := GL.Sizei (width);
     main_size_y := GL.Sizei (height);
@@ -181,7 +181,7 @@ procedure GLOBE_3D_Demo is
   procedure Say_bye_to_GLUT is
   begin
     if capturing_video then
-      GL.IO.Stop_capture;
+      GL.IO.Stop_Capture;
     end if;
     GLUT.LeaveMainLoop;
   end Say_bye_to_GLUT;
@@ -729,7 +729,7 @@ procedure GLOBE_3D_Demo is
           ". BSP path: " & To_String (info_b_str1));
       end if;
       Msg
-        (100, 
+        (100,
          "Collision detection (F10): " & detect_collisions'Image &
          ";   F11 = Video Capture;   F12 = Screenshot");
       if sec > 0.0 then
@@ -1072,13 +1072,13 @@ procedure GLOBE_3D_Demo is
 
     if gc (video) then  --  start / stop capture
       if capturing_video then
-        GL.IO.Stop_capture;
+        GL.IO.Stop_Capture;
       else
         video_count := video_count + 1;
         declare
           n : constant String := Integer'Image (1_0000 + video_count);
         begin
-          GL.IO.Start_capture
+          GL.IO.Start_Capture
             ("capture" & n (n'Last - 3 .. n'Last) & ".avi",
              video_declared_rate);
         end;
@@ -1090,7 +1090,7 @@ procedure GLOBE_3D_Demo is
     if capturing_video then
       if seconds_video > trigger_video then
         seconds_video := seconds_video - trigger_video;
-        GL.IO.Capture_frame;
+        GL.IO.Capture_Frame;
       end if;
       seconds_video := seconds_video + Long_Float (seconds);
     end if;

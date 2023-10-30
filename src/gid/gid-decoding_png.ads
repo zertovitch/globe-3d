@@ -1,15 +1,15 @@
 private package GID.Decoding_PNG is
 
-  type PNG_Chunk_tag is (
+  type PNG_Chunk_Tag is
     --
-    -- Critical chunks
+    --  Critical chunks
     --
-    IHDR, --    must be the first chunk; it contains the header.
+   (IHDR, --    must be the first chunk; it contains the header.
     PLTE, --    contains the palette; list of colors.
     IDAT, --    contains the image, which may be split among multiple IDAT chunks.
     IEND, --    marks the image end.
     --
-    -- Ancillary chunks
+    --  Ancillary chunks
     --
     bKGD, --    gives the default background color.
     cHRM, --    gives the chromaticity coordinates of the display primaries and white point.
@@ -26,8 +26,8 @@ private package GID.Decoding_PNG is
     tRNS, --    contains transparency information.
     zTXt, --    contains compressed text with the same limits as tEXt.
     --
-    -- Public extentions
-    -- PNG Extensions and Register of Public Chunks and Keywords
+    --  Public extentions
+    --  PNG Extensions and Register of Public Chunks and Keywords
     --
     oFFs, -- image offset from frame or page origin
     pCAL, -- physical calibration of pixel values
@@ -37,7 +37,7 @@ private package GID.Decoding_PNG is
     gIFx, -- GIF Application Extension
     fRAc, -- fractal image parameters
     --
-    -- Private chunks (not defined in the ISO standard)
+    --  Private chunks (not defined in the ISO standard)
     --
     vpAg, --    used in ImageMagick to store "virtual page" size
     spAL,
@@ -49,15 +49,15 @@ private package GID.Decoding_PNG is
     mkBS,
     mkBT,
     mkTS,
-    pcLb
-  );
+    pcLb,
+    iDOT);  --  Apple proprietary chunk
 
   type Chunk_head is record
-    length: U32;
-    kind  : PNG_Chunk_tag;
+    length : U32;
+    kind   : PNG_Chunk_Tag;
   end record;
 
-  procedure Read( image: in out Image_descriptor; ch: out Chunk_head);
+  procedure Read (image : in out Image_descriptor; ch : out Chunk_head);
 
   --------------------
   -- Image decoding --
@@ -65,13 +65,13 @@ private package GID.Decoding_PNG is
 
   generic
     type Primary_color_range is mod <>;
-    with procedure Set_X_Y (x, y: Natural);
+    with procedure Set_X_Y (x, y : Natural);
     with procedure Put_Pixel (
       red, green, blue : Primary_color_range;
       alpha            : Primary_color_range
     );
-    with procedure Feedback (percents: Natural);
+    with procedure Feedback (percents : Natural);
   --
-  procedure Load (image: in out Image_descriptor);
+  procedure Load (image : in out Image_descriptor);
 
 end GID.Decoding_PNG;

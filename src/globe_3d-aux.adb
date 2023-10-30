@@ -296,7 +296,7 @@ package body GLOBE_3D.Aux is
                 --      the P(1) was already = P_compact(1) and is preserved by the above ordering
                 --    - or the new edge has the (0,0): then we need to reorder...
                 if Identical (new_UV, (0.0, 0.0)) then
-                  for count in 1 .. 4 loop
+                  for edge_rotation_round in 1 .. 4 loop
                     --  Rotate the edge indices
                     index_aux := res.face (nf).P (1);
                     res.face (nf).P (1) := res.face (nf).P (2);

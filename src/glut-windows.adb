@@ -534,10 +534,10 @@ package body GLUT.Windows is
       --
       if Self.game_command (video) then
          if Self.is_capturing_Video then
-            GL.IO.Stop_capture;
+            GL.IO.Stop_Capture;
             Self.is_capturing_Video := False;
          else
-            GL.IO.Start_capture
+            GL.IO.Start_Capture
               (AVI_name   => To_String (Self.Name) & "." & Image (Ada.Calendar.Clock) & ".avi",
                frame_rate => 8); -- Integer (self.Frames_per_second));
             Self.is_capturing_Video := True;
@@ -545,7 +545,7 @@ package body GLUT.Windows is
       end if;
 
       if Self.is_capturing_Video then
-         GL.IO.Capture_frame;
+         GL.IO.Capture_Frame;
       end if;
 
       --  photo management

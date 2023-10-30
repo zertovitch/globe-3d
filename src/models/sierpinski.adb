@@ -121,7 +121,7 @@ package body Sierpinski is
           if idx = 0 then
             --  no more point in stack
             exit;
-          elsif Almost_zero (Norm2 (P (pt) - vertex (idx))) then
+          elsif Almost_Zero (Norm2 (P (pt) - vertex (idx))) then
             --  exists already
             vtx (pt) := idx;
             exit;
