@@ -22,7 +22,7 @@
 
 --  Legal licensing note:
 
---  Copyright (c) 2007 .. 2019 Gautier de Montmollin (Maintainer of the Ada version)
+--  Copyright (c) 2007 .. 2023 Gautier de Montmollin
 --  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -48,7 +48,7 @@
 
 ---------------------------------------------------------------------------------
 
-with Zip_Streams;
+with Zip.CRC_Crypto;
 
 package Zip.Compress is
 
@@ -93,6 +93,7 @@ package Zip.Compress is
      LZMA_for_PNG,
      LZMA_for_GIF,
      LZMA_for_WAV,
+     LZMA_for_AU,
      --  Multi-method:
      --    Preselection: select a method depending on hints, like the uncompressed size
      Preselection_1,  --  Not too slow; selects Deflate_3 or LZMA_2*
@@ -113,7 +114,7 @@ package Zip.Compress is
   --  start a new block and what sort of block to put next.
   subtype Taillaule_Deflation_Method is Compression_Method range Deflate_0 .. Deflation_Method'Last;
 
-  subtype LZMA_Method is Compression_Method range LZMA_0 .. LZMA_for_WAV;
+  subtype LZMA_Method is Compression_Method range LZMA_0 .. LZMA_for_AU;
 
   subtype Multi_Method is Compression_Method range Preselection_1 .. Preselection_2;
 
@@ -133,6 +134,7 @@ package Zip.Compress is
     Zip_in_Zip,
     GIF, PNG, PGM, PPM,
     WAV,
+    AU,          --  Audacity .au raw sound file
     MP3, MP4
   );
 
@@ -144,13 +146,13 @@ package Zip.Compress is
     input,
     output           : in out Zip_Streams.Root_Zipstream_Type'Class;
     input_size_known : Boolean;
-    input_size       : File_size_type; -- ignored if input_size_known = False
+    input_size       : Zip_64_Data_Size_Type; -- ignored if input_size_known = False
     method           : Compression_Method;
     feedback         : Feedback_proc;
     password         : String;
     content_hint     : Data_content_type;
     CRC              : out Interfaces.Unsigned_32;
-    output_size      : out File_size_type;
+    output_size      : out Zip_64_Data_Size_Type;
     zip_type         : out Interfaces.Unsigned_16
     --  ^ code corresponding to the compression method actually used
   );
@@ -159,7 +161,7 @@ package Zip.Compress is
 
 private
 
-  buffer_size : constant := 1024 * 1024;  --  1 MiB
+  feedback_steps : constant := 100;
 
   Method_to_Format : constant Method_to_Format_type :=
     (Store               => store,
@@ -172,5 +174,46 @@ private
      LZMA_Method         => lzma_meth,
      Multi_Method        => unknown
     );
+
+  -----------------------------------
+  --  I/O buffers for compression  --
+  -----------------------------------
+
+  type IO_Buffers_Type is record
+    InBuf  : p_Byte_Buffer := null;  --  I/O buffers
+    OutBuf : p_Byte_Buffer := null;
+    --
+    InBufIdx  : Positive;       --  Points to next char in buffer to be read
+    OutBufIdx : Positive := 1;  --  Points to next free space in output buffer
+    --
+    MaxInBufIdx : Natural;      --  Count of valid chars in input buffer
+    InputEoF    : Boolean;      --  End of file indicator
+  end record;
+
+  procedure Allocate_Buffers (
+    b                : in out IO_Buffers_Type;
+    input_size_known :        Boolean;
+    input_size       :        Zip_64_Data_Size_Type
+  );
+
+  procedure Deallocate_Buffers (b : in out IO_Buffers_Type);
+
+  procedure Read_Block (
+    b     : in out IO_Buffers_Type;
+    input : in out Zip_Streams.Root_Zipstream_Type'Class
+  );
+
+  procedure Write_Block (
+    b                : in out IO_Buffers_Type;
+    input_size_known :        Boolean;
+    input_size       :        Zip_64_Data_Size_Type;
+    output           : in out Zip_Streams.Root_Zipstream_Type'Class;
+    output_size      : in out Zip_64_Data_Size_Type;
+    crypto           : in out Zip.CRC_Crypto.Crypto_pack
+  );
+
+  --  Exception for the case where compression works but produces
+  --  a bigger file than the file to be compressed (data is too "random").
+  Compression_inefficient : exception;
 
 end Zip.Compress;

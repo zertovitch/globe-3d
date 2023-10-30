@@ -1,9 +1,6 @@
---  The "Deflate" method combines a LZ77 compression
---  method with some Huffman encoding gymnastics.
-
 --  Legal licensing note:
 
---  Copyright (c) 2009 .. 2019 Gautier de Montmollin
+--  Copyright (c) 2009 .. 2023 Gautier de Montmollin
 --  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,6 +25,8 @@
 --  http://www.opensource.org/licenses/mit-license.php
 
 -----------------
+--  The "Deflate" method combines a LZ77 compression
+--  method with some Huffman encoding gymnastics.
 --
 --  Magic numbers in this procedure are adjusted through experimentation and marked with: *Tuned*
 --
@@ -58,108 +57,61 @@
 --
 --  19-Feb-2011: All distance and length codes implemented.
 --  18-Feb-2011: First version working with Deflate fixed and restricted distance & length codes.
---  17-Feb-2011: Created.
+--  17-Feb-2011: Created (single-block, "fixed" Huffman encoding).
 
-with LZ77, Zip.CRC_Crypto;
-with Zip_Streams;
-
+with LZ77;
 with Length_limited_Huffman_code_lengths;
 
-with Ada.Integer_Text_IO;               use Ada.Integer_Text_IO;
-with Ada.Text_IO;                       use Ada.Text_IO;
-with Ada.Unchecked_Deallocation;
-
-with Interfaces;                        use Interfaces;
+with Ada.Text_IO,
+     Ada.Unchecked_Deallocation;
 
 procedure Zip.Compress.Deflate
- (input,
-  output           : in out Zip_Streams.Root_Zipstream_Type'Class;
-  input_size_known : Boolean;
-  input_size       : File_size_type;
-  feedback         : Feedback_proc;
-  method           : Deflation_Method;
-  CRC              : in out Interfaces.Unsigned_32;  --  only updated here
-  crypto           : in out Crypto_pack;
-  output_size      : out File_size_type;
-  compression_ok   : out Boolean  --  indicates compressed < uncompressed
-)
+  (input,
+   output           : in out Zip_Streams.Root_Zipstream_Type'Class;
+   input_size_known :        Boolean;
+   input_size       :        Zip_64_Data_Size_Type;  --  ignored if unknown
+   feedback         :        Feedback_proc;
+   method           :        Deflation_Method;
+   CRC              : in out Interfaces.Unsigned_32;  --  only updated here
+   crypto           : in out CRC_Crypto.Crypto_pack;
+   output_size      :    out Zip_64_Data_Size_Type;
+   compression_ok   :    out Boolean)  --  indicates compressed < uncompressed
 is
   --  Options for testing.
   --  All should be on False for normal use of this procedure.
 
-  bypass_LZ77         : constant Boolean := False;  --  Use LZ data encoded by another program
   deactivate_scanning : constant Boolean := False;  --  Impact analysis of the scanning method
   trace               : constant Boolean := False;  --  Log file with details
   trace_descriptors   : constant Boolean := False;  --  Additional logging of Huffman descriptors
 
   --  A log file is used when trace = True.
-  log         : File_Type;
+  log         : Ada.Text_IO.File_Type;
   log_name    : constant String := "Zip.Compress.Deflate.zcd";  --  A CSV with an unusual extension
   sep         : constant Character := ';';
+
+  use Ada.Text_IO;
+  use Interfaces;
 
   -------------------------------------
   -- Buffered I/O - byte granularity --
   -------------------------------------
 
-  --  Define data types needed to implement input and output file buffers
-
-  procedure Dispose_Buffer is
-    new Ada.Unchecked_Deallocation (Byte_Buffer, p_Byte_Buffer);
-
-  InBuf  : p_Byte_Buffer;  --  I/O buffers
-  OutBuf : p_Byte_Buffer;
-
-  InBufIdx  : Positive;       --  Points to next char in buffer to be read
-  OutBufIdx : Positive := 1;  --  Points to next free space in output buffer
-
-  MaxInBufIdx : Natural;  --  Count of valid chars in input buffer
-  InputEoF : Boolean;     --  End of file indicator
-
-  procedure Read_Block is
-  begin
-    Zip.Block_Read (
-      stream        => input,
-      buffer        => InBuf.all,
-      actually_read => MaxInBufIdx
-    );
-    InputEoF := MaxInBufIdx = 0;
-    InBufIdx := 1;
-  end Read_Block;
-
-  --  Exception for the case where compression works but produces
-  --  a bigger file than the file to be compressed (data is too "random").
-  Compression_inefficient : exception;
-
-  procedure Write_Block is
-    amount : constant Integer := OutBufIdx - 1;
-  begin
-    output_size := output_size + File_size_type (Integer'Max (0, amount));
-    if input_size_known and then output_size >= input_size then
-      --  The compression so far is obviously inefficient for that file.
-      --  Useless to go further.
-      --  Stop immediately before growing the file more than the
-      --  uncompressed size.
-      raise Compression_inefficient;
-    end if;
-    Encode (crypto, OutBuf (1 .. amount));
-    Zip.Block_Write (output, OutBuf (1 .. amount));
-    OutBufIdx := 1;
-  end Write_Block;
+  IO_buffers : IO_Buffers_Type;
 
   procedure Put_byte (B : Byte) is  --  Put a byte, at the byte granularity level
   pragma Inline (Put_byte);
   begin
-    OutBuf (OutBufIdx) := B;
-    OutBufIdx := OutBufIdx + 1;
-    if OutBufIdx > OutBuf'Last then
-      Write_Block;
+    IO_buffers.OutBuf (IO_buffers.OutBufIdx) := B;
+    IO_buffers.OutBufIdx := IO_buffers.OutBufIdx + 1;
+    if IO_buffers.OutBufIdx > IO_buffers.OutBuf'Last then
+      Write_Block (IO_buffers, input_size_known, input_size, output, output_size, crypto);
     end if;
   end Put_byte;
 
   procedure Flush_byte_buffer is
   begin
-    if OutBufIdx > 1 then
-      Write_Block;
+    if IO_buffers.OutBufIdx > 1 then
+      Write_Block (IO_buffers, input_size_known, input_size, output, output_size, crypto);
     end if;
   end Flush_byte_buffer;
 
@@ -293,7 +245,7 @@ is
     return new_d;
   end Build_descriptors;
 
-  type Count_type is range 0 .. File_size_type'Last / 2 - 1;
+  type Count_type is range 0 .. Zip_64_Data_Size_Type'Last / 2 - 1;
   type Stats_type is array (Natural range <>) of Count_type;
 
   --  The following is a translation of Zopfli's OptimizeHuffmanForRle (v. 11-May-2016).
@@ -409,26 +361,35 @@ is
         Alphabet_dis, Count_type, Stats_dis_type, Bit_length_array_dis, 15
       );
     stats_dis_copy : Stats_dis_type := stats_dis;
-    used           : Natural := 0;
+    --
+    procedure Patch_statistics_for_buggy_decoders is
+      --  Workaround for buggy Info-Zip decoder versions.
+      --  See "PatchDistanceCodesForBuggyDecoders" in Zopfli's deflate.c
+      --  NB: here, we patch the statistics and not the resulting bit lengths,
+      --      to be sure we avoid invalid Huffman code sets in the end.
+      --  The decoding bug concerns Zlib v.<= 1.2.1, UnZip v.<= 6.0, WinZip v.<=10.0.
+      used : Natural := 0;
+    begin
+      for i in stats_dis_copy'Range loop
+        if stats_dis_copy (i) /= 0 then
+          used := used + 1;
+        end if;
+      end loop;
+      case used is
+        when 0 =>  --  No distance code used at all (data must be almost random).
+          stats_dis_copy (0 .. 1) := (1, 1);
+        when 1 =>
+          if stats_dis_copy (0) = 0 then
+            stats_dis_copy (0) := 1;  --  Now, code 0 and some other code have non-zero counts.
+          else
+            stats_dis_copy (1) := 1;  --  Now, codes 0 and 1 have non-zero counts.
+          end if;
+        when others =>
+          null;  --  No workaround needed when 2 or more distance codes are defined.
+      end case;
+    end Patch_statistics_for_buggy_decoders;
   begin
-    --  See "PatchDistanceCodesForBuggyDecoders" in Zopfli's deflate.c
-    --  NB: here, we patch the occurrences and not the bit lengths, to avoid invalid codes.
-    --  The decoding bug concerns Zlib v.<= 1.2.1, UnZip v.<= 6.0, WinZip v.10.0.
-    for i in stats_dis_copy'Range loop
-      if stats_dis_copy (i) /= 0 then
-        used := used + 1;
-      end if;
-    end loop;
-    if used < 2 then
-      if used = 0 then  --  No distance code used at all (data must be almost random)
-        stats_dis_copy (0) := 1;
-        stats_dis_copy (1) := 1;
-      elsif stats_dis_copy (0) = 0 then
-        stats_dis_copy (0) := 1;  --  now code 0 and some other code have non-zero counts
-      else
-        stats_dis_copy (1) := 1;  --  now codes 0 and 1 have non-zero counts
-      end if;
-    end if;
+    Patch_statistics_for_buggy_decoders;
     LLHCL_lit_len (stats_lit_len, bl_for_lit_len);  --  Call the magic algorithm for setting
     LLHCL_dis (stats_dis_copy, bl_for_dis);         --    up Huffman lengths of both trees
     return Build_descriptors (bl_for_lit_len, bl_for_dis);
@@ -1374,8 +1335,8 @@ is
 
   --  This is the main, big, fat, circular buffer containing LZ codes,
   --  each LZ code being a literal or a DL code.
-  --  Heap allocation is needed because default stack is too small on some targets.
-  lz_buffer : p_Full_range_LZ_buffer_type;
+  --  Heap allocation is needed only because default stack is too small on some targets.
+  lz_buffer : p_Full_range_LZ_buffer_type := null;
   lz_buffer_index : LZ_buffer_index_type := 0;
   past_lz_data : Boolean := False;
   --  When True: some LZ_buffer_size data before lz_buffer_index (modulo!) are real, past data
@@ -1558,25 +1519,26 @@ is
 
   procedure Encode is
 
-    X_Percent : Natural;
-    Bytes_in   : Natural;   --  Count of input file bytes processed
+    feedback_milestone,
+    Bytes_in   : Zip_Streams.ZS_Size_Type := 0;   --  Count of input file bytes processed
     user_aborting : Boolean;
     PctDone : Natural;
 
     function Read_byte return Byte is
       b : Byte;
+      use Zip_Streams;
     begin
-      b := InBuf (InBufIdx);
-      InBufIdx := InBufIdx + 1;
+      b := IO_buffers.InBuf (IO_buffers.InBufIdx);
+      IO_buffers.InBufIdx := IO_buffers.InBufIdx + 1;
       Zip.CRC_Crypto.Update (CRC, (1 => b));
       Bytes_in := Bytes_in + 1;
       if feedback /= null then
         if Bytes_in = 1 then
           feedback (0, False, user_aborting);
         end if;
-        if X_Percent > 0 and then
-           ((Bytes_in - 1) mod X_Percent = 0
-            or Bytes_in = Integer (input_size))
+        if feedback_milestone > 0 and then
+           ((Bytes_in - 1) mod feedback_milestone = 0
+            or Bytes_in = ZS_Size_Type (input_size))
         then
           if input_size_known then
             PctDone := Integer ((100.0 * Float (Bytes_in)) / Float (input_size));
@@ -1594,10 +1556,10 @@ is
 
     function More_bytes return Boolean is
     begin
-      if InBufIdx > MaxInBufIdx then
-        Read_Block;
+      if IO_buffers.InBufIdx > IO_buffers.MaxInBufIdx then
+        Read_Block (IO_buffers, input);
       end if;
-      return not InputEoF;
+      return not IO_buffers.InputEoF;
     end More_bytes;
 
     --  LZ77 parameters
@@ -1658,6 +1620,16 @@ is
       Put_or_delay_literal_byte (b);
     end LZ77_emits_literal_byte;
 
+    procedure Dummy_Estimate_DL_Codes (
+      matches          : in out LZ77.Matches_Array;
+      old_match_index  : in     Natural;
+      prefixes         : in     LZ77.Byte_Array;
+      best_score_index :    out Positive;
+      best_score_set   :    out LZ77.Prefetch_Index_Type;
+      match_trace      :    out LZ77.DLP_Array
+    )
+    is null;
+
     LZ77_choice : constant array (Deflation_Method) of LZ77.Method_Type :=
       (Deflate_Fixed  => LZ77.IZ_4,
        Deflate_0      => LZ77.No_LZ77,
@@ -1672,53 +1644,18 @@ is
           Look_Ahead         => Look_Ahead_LZ77,
           Threshold          => 2,  --  From a string match length > 2, a DL code is sent
           Method             => LZ77_choice (method),
-          Read_byte          => Read_byte,
-          More_bytes         => More_bytes,
-          Write_literal      => LZ77_emits_literal_byte,
-          Write_DL_code      => LZ77_emits_DL_code
+          Read_Byte          => Read_byte,
+          More_Bytes         => More_bytes,
+          Write_Literal      => LZ77_emits_literal_byte,
+          Write_DL_Code      => LZ77_emits_DL_code,
+          Estimate_DL_Codes  => Dummy_Estimate_DL_Codes
         );
 
-    --  The following is for research purposes: compare different LZ77 variants and see
-    --  how well they combine with the rest of our Deflate algorithm above.
-
-    procedure Read_LZ77_codes is
-      LZ77_dump : File_Type;
-      tag : String (1 .. 3);
-      wrong_LZ77_tag : exception;
-      a, b : Integer;
-      dummy : Byte;
-    begin
-      --  Pretend we compress given file (compute CRC, consume entire stream).
-      while More_bytes loop
-        dummy := Read_byte;
-      end loop;
-      --  Now deflate using dumped LZ77 data.
-      Open (LZ77_dump, In_File, "dump.lz77");  --  File from UnZip.Decompress, some_trace mode
-      while not End_Of_File (LZ77_dump) loop
-        Get (LZ77_dump, tag);
-        if tag = "Lit" then
-          Get (LZ77_dump, a);
-          LZ77_emits_literal_byte (Byte (a));
-        elsif tag = "DLE" then
-          Get (LZ77_dump, a);
-          Get (LZ77_dump, b);
-          LZ77_emits_DL_code (a, b);
-        else
-          raise wrong_LZ77_tag;
-        end if;
-        Skip_Line (LZ77_dump);
-      end loop;
-      Close (LZ77_dump);
-    end Read_LZ77_codes;
-
   begin  --  Encode
-    Read_Block;
+    Read_Block (IO_buffers, input);
     R := Text_buffer_index (String_buffer_size - Look_Ahead_LZ77);
-    Bytes_in := 0;
     if input_size_known then
-      X_Percent := Integer (input_size / 40);
-    else
-      X_Percent := 0;
+      feedback_milestone := Zip_Streams.ZS_Size_Type (input_size / feedback_steps);
     end if;
     case method is
       when Deflate_Fixed =>  --  "Fixed" (predefined) compression structure
@@ -1728,14 +1665,10 @@ is
       when Taillaule_Deflation_Method =>
         null;  --  No start data sent, all is delayed
     end case;
-    if bypass_LZ77 then
-      Read_LZ77_codes;  --  Apply our scanning algo on a LZ77 stream made by a third-party tool.
-    else
-      ----------------------------------------------------------------
-      --  The whole compression is happening in the following line: --
-      ----------------------------------------------------------------
-      My_LZ77;
-    end if;
+    ----------------------------------------------------------------
+    --  The whole compression is happening in the following line: --
+    ----------------------------------------------------------------
+    My_LZ77;
     --  Done. Send the code signaling the end of compressed data block:
     case method is
       when Deflate_Fixed =>
@@ -1761,6 +1694,12 @@ is
     end case;
   end Encode;
 
+  procedure Deallocation is
+  begin
+    Dispose (lz_buffer);
+    Deallocate_Buffers (IO_buffers);
+  end Deallocation;
+
 begin
   if trace then
     begin
@@ -1771,19 +1710,12 @@ begin
     end;
     Put (log, "New stream" & sep & sep & sep & sep & sep & sep & sep & sep);
     if input_size_known then
-      Put (log, sep & File_size_type'Image (input_size) &
+      Put (log, sep & Zip_64_Data_Size_Type'Image (input_size) &
                sep & sep & sep & sep & sep & sep & "bytes input");
     end if;
     New_Line (log);
   end if;
-  --  Allocate input and output buffers ...
-  if input_size_known then
-    InBuf := new Byte_Buffer
-      (1 .. Integer'Min (Integer'Max (8, Integer (input_size)), buffer_size));
-  else
-    InBuf := new Byte_Buffer (1 .. buffer_size);
-  end if;
-  OutBuf := new Byte_Buffer (1 .. buffer_size);
+  Allocate_Buffers (IO_buffers, input_size_known, input_size);
   output_size := 0;
   lz_buffer := new Full_range_LZ_buffer_type;
   begin
@@ -1795,10 +1727,12 @@ begin
     when Compression_inefficient =>  --  Escaped from Encode
       compression_ok := False;
   end;
-  Dispose (lz_buffer);
-  Dispose_Buffer (InBuf);
-  Dispose_Buffer (OutBuf);
   if trace then
     Close (log);
   end if;
+  Deallocation;
+exception
+  when others =>
+    Deallocation;
+    raise;
 end Zip.Compress.Deflate;

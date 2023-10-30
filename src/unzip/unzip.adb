@@ -1,6 +1,6 @@
 --  Legal licensing note:
 
---  Copyright (c) 1999 .. 2019 Gautier de Montmollin
+--  Copyright (c) 1999 .. 2023 Gautier de Montmollin
 --  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,38 +28,37 @@ with Zip.Headers, UnZip.Decompress;
 with Zip_Streams;
 
 with Ada.IO_Exceptions;
-with Interfaces;                        use Interfaces;
+with Interfaces;
 
 package body UnZip is
 
-  use Ada.Strings.Unbounded;
+  use Ada.Strings.Unbounded, Interfaces;
 
   boolean_to_encoding : constant array (Boolean) of Zip.Zip_name_encoding :=
     (False => Zip.IBM_437, True => Zip.UTF_8);
 
-  fallback_compressed_size : constant File_size_type := File_size_type'Last;
+  fallback_compressed_size : constant := 16#FFFF_FFFF#;
 
   --------------------------------------------------
   -- *The* internal 1-file unzipping procedure.   --
   -- Input must be _open_ and won't be _closed_ ! --
   --------------------------------------------------
 
-  procedure UnZipFile (
-    zip_file                 : in out Zip_Streams.Root_Zipstream_Type'Class;
-    out_name                 : String;
-    out_name_encoding        : Zip.Zip_name_encoding;
-    name_from_header         : Boolean;
-    header_index             : in out Zip_Streams.ZS_Index_Type;
-    hint_comp_size           : File_size_type; -- Added 2007 for .ODS files
-    hint_crc_32              : Unsigned_32;    -- Added 2012 for decryption
-    feedback                 : Zip.Feedback_proc;
-    help_the_file_exists     : Resolve_conflict_proc;
-    tell_data                : Tell_data_proc;
-    get_pwd                  : Get_password_proc;
-    options                  : Option_set;
-    password                 : in out Unbounded_String;
-    file_system_routines     : FS_routines_type
-  )
+  procedure UnZipFile
+    (zip_file                 : in out Zip_Streams.Root_Zipstream_Type'Class;
+     out_name                 : String;
+     out_name_encoding        : Zip.Zip_name_encoding;
+     name_from_header         : Boolean;
+     header_index             : in out Zip_Streams.ZS_Index_Type;
+     hint_comp_size           : Zip.Zip_64_Data_Size_Type; -- Added 2007 for .ODS files
+     hint_crc_32              : Unsigned_32;    -- Added 2012 for decryption
+     feedback                 : Zip.Feedback_proc;
+     help_the_file_exists     : Resolve_conflict_proc;
+     tell_data                : Tell_data_proc;
+     get_pwd                  : Get_password_proc;
+     options                  : Option_set;
+     password                 : in out Unbounded_String;
+     file_system_routines     : FS_routines_type)
   is
     work_index : Zip_Streams.ZS_Index_Type := header_index;
     local_header : Zip.Headers.Local_File_Header;
@@ -67,13 +66,13 @@ package body UnZip is
     method : PKZip_method;
 
     skip_this_file : Boolean := False;
-    bin_text_mode : constant array (Boolean) of Write_mode :=
+    bin_text_mode : constant array (Boolean) of Write_Mode_Type :=
       (write_to_binary_file, write_to_text_file);
-    mode : constant array (Boolean) of Write_mode :=
+    mode : constant array (Boolean) of Write_Mode_Type :=
       (bin_text_mode (options (extract_as_text)), just_test);
-    actual_mode : Write_mode := mode (options (test_only));
+    actual_mode : Write_Mode_Type := mode (options (test_only));
 
-    true_packed_size : File_size_type;  --  encryption adds 12 to packed size
+    true_packed_size : Zip.Zip_64_Data_Size_Type;  --  encryption adds 12 to packed size
 
     the_output_name : Unbounded_String;
 
@@ -84,7 +83,7 @@ package body UnZip is
     begin
       if options (junk_directories) then
         for i in n'Range loop
-          if n (i) = '/' or n (i) = '\' then
+          if n (i) in '/' | '\' then
             idx := i;
           end if;
         end loop;
@@ -100,7 +99,7 @@ package body UnZip is
       first_in_name : Integer;
     begin
       for i in composed_name'Range loop
-        if composed_name (i) = '/' or composed_name (i) = '\' then
+        if composed_name (i) in '/' | '\' then
           idx := i;
         end if;
       end loop;
@@ -122,7 +121,7 @@ package body UnZip is
         begin
           --  Set the file separator recognized by the O.S.
           for i in path'Range loop
-            if path (i) = '\' or path (i) = '/' then
+            if path (i) in '/' | '\' then
               path (i) := Directory_Separator;
             end if;
           end loop;
@@ -222,7 +221,7 @@ package body UnZip is
 
     procedure Inform_User (
       name : String;
-      comp, uncomp : File_size_type
+      comp, uncomp : Zip.Zip_64_Data_Size_Type
     )
     is
     begin
@@ -233,7 +232,9 @@ package body UnZip is
 
     the_name     : String (1 .. 65_535);  --  Seems overkill, but Zip entry names can be that long!
     the_name_len : Natural;
-    use Zip, Zip_Streams;
+    use Zip_Streams;
+    use type Zip.PKZip_method;
+    use type Zip.Feedback_proc;
 
     actual_feedback : Zip.Feedback_proc;
 
@@ -253,7 +254,7 @@ package body UnZip is
     end;
 
     method := Zip.Method_from_code (local_header.zip_type);
-    if method = unknown then
+    if method = Zip.unknown then
       raise UnZip.Unsupported_method with
          "Format (method) #" & Unsigned_16'Image (local_header.zip_type) &
          " is unknown";
@@ -262,12 +263,32 @@ package body UnZip is
     --  calculate offset of data
 
     work_index :=
-       work_index +
-       ZS_Size_Type (
-              local_header.filename_length    +
-              local_header.extra_field_length +
-              Zip.Headers.local_header_length
-       );
+      work_index +
+      ZS_Size_Type (
+             local_header.filename_length    +
+             local_header.extra_field_length +
+             Zip.Headers.local_header_length
+      );
+
+    --
+    --  Zip64 extension.
+    --
+    if local_header.extra_field_length >= 4 then
+      declare
+        mem                    : constant Zip_Streams.ZS_Index_Type := Index (zip_file);
+        local_header_extension : Zip.Headers.Local_File_Header_Extension;
+        dummy_offset           : Unsigned_64 := 0;  --  Initialized for avoiding random value = 16#FFFF_FFFF#
+      begin
+        Set_Index (zip_file, mem + Zip_Streams.ZS_Index_Type (local_header.filename_length));
+        Zip.Headers.Read_and_check (zip_file, local_header_extension);
+        Set_Index (zip_file, mem);
+        Zip.Headers.Interpret
+          (local_header_extension,
+           local_header.dd.uncompressed_size,
+           local_header.dd.compressed_size,
+           dummy_offset);
+      end;
+    end if;
 
     data_descriptor_after_data := (local_header.bit_flag and 8) /= 0;
 
@@ -290,7 +311,7 @@ package body UnZip is
         local_header.dd.compressed_size := hint_comp_size;
       end if;
       local_header.dd.crc_32            := hint_crc_32;
-      local_header.dd.uncompressed_size := File_size_type'Last;
+      local_header.dd.uncompressed_size := fallback_compressed_size;
       actual_feedback := null;  --  no feedback possible: unknown sizes
     else
       --  Sizes and CRC are stored before the data, inside the local header
@@ -300,7 +321,7 @@ package body UnZip is
     encrypted := (local_header.bit_flag and Zip.Headers.Encryption_Flag_Bit) /= 0;
 
     --  13-Dec-2002
-    true_packed_size := File_size_type (local_header.dd.compressed_size);
+    true_packed_size := local_header.dd.compressed_size;
     if encrypted then
       true_packed_size := true_packed_size - 12;
     end if;
@@ -314,13 +335,10 @@ package body UnZip is
         Inform_User (
           the_name (1 .. the_name_len),
           true_packed_size,
-          File_size_type (local_header.dd.uncompressed_size)
+          local_header.dd.uncompressed_size
         );
       end if;
-      if the_name_len = 0 or else
-        (the_name (the_name_len) = '/' or
-         the_name (the_name_len) = '\')
-      then
+      if the_name_len = 0 or else the_name (the_name_len) in '/' | '\' then
         --  This is a directory name (12-feb-2000)
         skip_this_file := True;
       elsif actual_mode in Write_to_file then
@@ -340,13 +358,10 @@ package body UnZip is
         Inform_User (
           out_name,
           true_packed_size,
-          File_size_type (local_header.dd.uncompressed_size)
+          local_header.dd.uncompressed_size
         );
       end if;
-      if out_name'Length = 0 or else
-        (out_name (out_name'Last) = '/' or
-         out_name (out_name'Last) = '\')
-      then
+      if out_name'Length = 0 or else out_name (out_name'Last) in '/' | '\' then
         --  This is a directory name, so do not write anything (30-Jan-2012).
         skip_this_file := True;
       elsif actual_mode in Write_to_file then
@@ -380,7 +395,7 @@ package body UnZip is
       UnZip.Decompress.Decompress_data (
         zip_file                   => zip_file,
         format                     => method,
-        mode                       => actual_mode,
+        write_mode                 => actual_mode,
         output_file_name           => To_String (the_output_name),
         output_memory_access       => dummy_memory,
         output_stream_access       => dummy_stream,
@@ -399,7 +414,7 @@ package body UnZip is
           if file_system_routines.Set_Time_Stamp /= null then
             file_system_routines.Set_Time_Stamp (
               To_String (the_output_name),
-              Convert (local_header.file_timedate)
+              Zip.Convert (local_header.file_timedate)
             );
           elsif file_system_routines.Set_ZTime_Stamp /= null then
             file_system_routines.Set_ZTime_Stamp (
@@ -534,11 +549,12 @@ package body UnZip is
                      file_system_routines : FS_routines_type := null_routines
                 )
    is
-    use Zip, Zip_Streams;
+    use Zip_Streams;
+    use type Zip.Feedback_proc;
     zip_file      : File_Zipstream;
     header_index  : ZS_Index_Type;
-    comp_size     : File_size_type;
-    uncomp_size   : File_size_type;
+    comp_size     : Zip.Zip_64_Data_Size_Type;
+    uncomp_size   : Zip.Zip_64_Data_Size_Type;
     crc_32        : Unsigned_32;
     work_password : Unbounded_String := To_Unbounded_String (password);
   begin
@@ -559,7 +575,7 @@ package body UnZip is
     UnZipFile (
       zip_file             => zip_file,
       out_name             => what,
-      out_name_encoding    => IBM_437, -- assumption...
+      out_name_encoding    => Zip.IBM_437, -- assumption...
       name_from_header     => False,
       header_index         => header_index,
       hint_comp_size       => comp_size,
@@ -592,11 +608,12 @@ package body UnZip is
                      file_system_routines : FS_routines_type := null_routines
                 )
   is
-    use Zip, Zip_Streams;
+    use Zip_Streams;
+    use type Zip.Feedback_proc;
     zip_file      : aliased File_Zipstream;
     header_index  : Zip_Streams.ZS_Index_Type;
-    comp_size     : File_size_type;
-    uncomp_size   : File_size_type;
+    comp_size     : Zip.Zip_64_Data_Size_Type;
+    uncomp_size   : Zip.Zip_64_Data_Size_Type;
     crc_32        : Unsigned_32;
     work_password : Unbounded_String := To_Unbounded_String (password);
   begin
@@ -617,7 +634,7 @@ package body UnZip is
     UnZipFile (
       zip_file             => zip_file,
       out_name             => rename,
-      out_name_encoding    => IBM_437,  --  assumption...
+      out_name_encoding    => Zip.IBM_437,  --  assumption...
       name_from_header     => False,
       header_index         => header_index,
       hint_comp_size       => comp_size,
@@ -648,7 +665,8 @@ package body UnZip is
                      file_system_routines : FS_routines_type := null_routines
                 )
   is
-    use Zip, Zip_Streams;
+    use Zip_Streams;
+    use type Zip.Feedback_proc;
     zip_file      : File_Zipstream;
     header_index  : Zip_Streams.ZS_Index_Type;
     work_password : Unbounded_String := To_Unbounded_String (password);
@@ -664,7 +682,7 @@ package body UnZip is
       UnZipFile (
         zip_file             => zip_file,
         out_name             => "",
-        out_name_encoding    => IBM_437, -- ignored
+        out_name_encoding    => Zip.IBM_437, -- ignored
         name_from_header     => True,
         header_index         => header_index,
         hint_comp_size       => fallback_compressed_size,
@@ -737,11 +755,12 @@ package body UnZip is
                 ) is
 
     header_index  : Zip_Streams.ZS_Index_Type;
-    comp_size     : File_size_type;
-    uncomp_size   : File_size_type;
+    comp_size     : Zip.Zip_64_Data_Size_Type;
+    uncomp_size   : Zip.Zip_64_Data_Size_Type;
     crc_32        : Unsigned_32;
     work_password : Unbounded_String := To_Unbounded_String (password);
-    use Zip, Zip_Streams;
+    use Zip_Streams;
+    use type Zip.Feedback_proc;
     zip_file      : aliased File_Zipstream;
     input_stream  : Zipstream_Class_Access;
     use_a_file    : constant Boolean := Zip.Zip_stream (from) = null;
@@ -814,11 +833,12 @@ package body UnZip is
                 ) is
 
     header_index  : Zip_Streams.ZS_Index_Type;
-    comp_size     : File_size_type;
-    uncomp_size   : File_size_type;
+    comp_size     : Zip.Zip_64_Data_Size_Type;
+    uncomp_size   : Zip.Zip_64_Data_Size_Type;
     crc_32        : Unsigned_32;
     work_password : Unbounded_String := To_Unbounded_String (password);
-    use Zip, Zip_Streams;
+    use Zip_Streams;
+    use type Zip.Feedback_proc;
     zip_file      : aliased File_Zipstream;
     input_stream  : Zipstream_Class_Access;
     use_a_file    : constant Boolean := Zip.Zip_stream (from) = null;

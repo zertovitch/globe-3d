@@ -1,6 +1,10 @@
+--  UnZip.Decompress
+--------------------
+--  Internal to the UnZip package. See root package (UnZip) for details & credits.
+
 --  Legal licensing note:
 
---  Copyright (c) 2007 .. 2019 Gautier de Montmollin
+--  Copyright (c) 2007 .. 2023 Gautier de Montmollin
 --  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,22 +34,21 @@ with Ada.Exceptions, Ada.Streams.Stream_IO, Ada.Text_IO, Interfaces;
 
 package body UnZip.Decompress is
 
-  procedure Decompress_data (
-    zip_file                   : in out Zip_Streams.Root_Zipstream_Type'Class;
-    format                     : PKZip_method;
-    mode                       : Write_mode;
-    output_file_name           : String; -- relevant only if mode = write_to_file
-    output_memory_access       : out p_Stream_Element_Array; -- \ = write_to_memory
-    output_stream_access       : p_Stream;                   -- \ = write_to_stream
-    feedback                   : Zip.Feedback_proc;
-    explode_literal_tree       : Boolean;
-    explode_slide_8KB_LZMA_EOS : Boolean;
-    data_descriptor_after_data : Boolean;
-    is_encrypted               : Boolean;
-    password                   : in out Ada.Strings.Unbounded.Unbounded_String;
-    get_new_password           : Get_password_proc;
-    hint                       : in out Zip.Headers.Local_File_Header
-  )
+  procedure Decompress_data
+    (zip_file                   : in out Zip_Streams.Root_Zipstream_Type'Class;
+     format                     : Zip.PKZip_method;
+     write_mode                 : Write_Mode_Type;
+     output_file_name           : String; -- relevant only if mode = write_to_file
+     output_memory_access       : out p_Stream_Element_Array; -- \ = write_to_memory
+     output_stream_access       : p_Stream;                   -- \ = write_to_stream
+     feedback                   : Zip.Feedback_proc;
+     explode_literal_tree       : Boolean;
+     explode_slide_8KB_LZMA_EOS : Boolean;
+     data_descriptor_after_data : Boolean;
+     is_encrypted               : Boolean;
+     password                   : in out Ada.Strings.Unbounded.Unbounded_String;
+     get_new_password           : Get_password_proc;
+     hint                       : in out Zip.Headers.Local_File_Header)
   is
     --  Disable AdaControl rule for detecting global variables, they have become local here.
     --## RULE OFF Directly_Accessed_Globals
@@ -70,7 +73,7 @@ package body UnZip.Decompress is
       compsize,            --  compressed size of file
       reachedsize,         --  number of bytes read from zipfile
       uncompsize,          --  uncompressed size of file
-      effective_writes : UnZip.File_size_type;
+      effective_writes : Zip.Zip_64_Data_Size_Type;
       --  ^ count of effective bytes written or tested, for feedback only
       percents_done    : Natural;
       crc32val : Unsigned_32;  -- crc calculated from data
@@ -146,7 +149,7 @@ package body UnZip.Decompress is
       procedure LZMA_Decode;  --  Jun-2014
     end UnZ_Meth;
 
-    procedure Process_feedback (new_bytes : File_size_type) is
+    procedure Process_feedback (new_bytes : Zip.Zip_64_Data_Size_Type) is
     pragma Inline (Process_feedback);
       new_percents_done : Natural;
       user_aborting : Boolean;
@@ -230,7 +233,7 @@ package body UnZip.Decompress is
             Process_compressed_end_reached;
           end if;
           UnZ_Glob.reachedsize :=
-            UnZ_Glob.reachedsize + UnZip.File_size_type (UnZ_Glob.readpos);
+            UnZ_Glob.reachedsize + Zip.Zip_64_Data_Size_Type (UnZ_Glob.readpos);
           UnZ_Glob.readpos := UnZ_Glob.readpos - 1;  --  Reason: index of inbuf starts at 0
         end if;
         UnZ_Glob.inpos := 0;
@@ -328,7 +331,7 @@ package body UnZip.Decompress is
           Ada.Text_IO.Put ("[Flush...");
         end if;
         begin
-          case mode is
+          case write_mode is
             when write_to_binary_file =>
               Block_Write (Ada.Streams.Stream_IO.Stream (out_bin_file).all, UnZ_Glob.slide (0 .. x - 1));
             when write_to_text_file =>
@@ -351,7 +354,7 @@ package body UnZip.Decompress is
             raise UnZip.Write_Error;
         end;
         Zip.CRC_Crypto.Update (UnZ_Glob.crc32val, UnZ_Glob.slide (0 .. x - 1));
-        Process_feedback (File_size_type (x));
+        Process_feedback (Zip_64_Data_Size_Type (x));
         if full_trace then
           Ada.Text_IO.Put_Line ("finished]");
         end if;
@@ -480,10 +483,10 @@ package body UnZip.Decompress is
         end loop;
       end Copy_or_zero;
 
-      procedure Delete_output is -- an error has occured (bad compressed data)
+      procedure Delete_output is  --  an error has occured (bad compressed data)
       begin
-        if no_trace then -- if there is a trace, we are debugging
-          case mode is   --  and want to keep the malformed file
+        if no_trace then  --  if there is a trace, we are debugging
+          case write_mode is   --  and want to keep the malformed file
             when write_to_binary_file =>
               Ada.Streams.Stream_IO.Delete (UnZ_IO.out_bin_file);
             when write_to_text_file =>
@@ -528,18 +531,14 @@ package body UnZip.Decompress is
 
       --  Original in Pascal written by Christian Ghisler.
 
-      Max_Code  : constant := 8192;
-      Max_Stack : constant := 8192;
       Initial_Code_Size : constant := 9;
       Maximum_Code_Size : constant := 13;
-      First_Entry       : constant := 257;
+      Max_Code          : constant := 2 ** Maximum_Code_Size;
+      Max_Stack         : constant := 2 ** Maximum_Code_Size;
 
       --  Rest of slide=write buffer =766 bytes
 
       Write_Max : constant := wsize - 3 * (Max_Code - 256) - Max_Stack - 2;
-
-      Previous_Code : array (First_Entry .. Max_Code) of Integer;
-      Actual_Code   : array (First_Entry .. Max_Code) of Zip.Byte;
 
       Next_Free : Integer;      --  Next free code in trie
       Write_Ptr : Integer;      --  Pointer to output buffer
@@ -553,7 +552,7 @@ package body UnZip.Decompress is
           Ada.Text_IO.Put ("[Unshrink_Flush]");
         end if;
         begin
-          case mode is
+          case write_mode is
             when write_to_binary_file =>
               Block_Write (Stream (UnZ_IO.out_bin_file).all, Writebuf (0 .. Write_Ptr - 1));
             when write_to_text_file =>
@@ -574,10 +573,10 @@ package body UnZip.Decompress is
             raise UnZip.Write_Error;
         end;
         Zip.CRC_Crypto.Update (UnZ_Glob.crc32val, Writebuf (0 .. Write_Ptr - 1));
-        Process_feedback (File_size_type (Write_Ptr));
+        Process_feedback (Zip_64_Data_Size_Type (Write_Ptr));
       end Unshrink_Flush;
 
-      procedure Write_Byte (B : Zip.Byte) is
+      procedure UD_Write_Byte (B : Zip.Byte) is
       begin
         Writebuf (Write_Ptr) := B;
         Write_Ptr := Write_Ptr + 1;
@@ -585,63 +584,102 @@ package body UnZip.Decompress is
           Unshrink_Flush;
           Write_Ptr := 0;
         end if;
-      end Write_Byte;
-
-      procedure Clear_Leaf_Nodes is
-        Pc           : Integer;  -- previous code
-        Act_Max_Code : Integer;  -- max code to be searched for leaf nodes
-
-      begin
-        Act_Max_Code := Next_Free - 1;
-        for I in First_Entry .. Act_Max_Code loop
-          Previous_Code (I) :=
-            Integer (Unsigned_32 (Previous_Code (I)) or 16#8000#);
-        end loop;
-
-        for I in First_Entry .. Act_Max_Code loop
-          Pc := Previous_Code (I) mod 16#8000#;
-          if  Pc > 256 then
-            Previous_Code (Pc) := Previous_Code (Pc) mod 16#8000#;
-          end if;
-        end loop;
-
-        --  Build new free list
-        Pc := -1;
-        Next_Free := -1;
-        for I in First_Entry .. Act_Max_Code loop
-          --  Either free before or marked now
-          if (Unsigned_32 (Previous_Code (I)) and 16#C000#)  /= 0 then
-            --  Link last item to this item
-            if Pc = -1 then
-              Next_Free := I;
-            else
-              Previous_Code (Pc) := -I;
-            end if;
-            Pc := I;
-          end if;
-        end loop;
-
-        if Pc /= -1 then
-          Previous_Code (Pc) := -Act_Max_Code - 1;
-        end if;
-
-      end Clear_Leaf_Nodes;
+      end UD_Write_Byte;
 
       procedure Unshrink is
-        Incode       : Integer;  --  Code read in
-        Last_Incode  : Integer;
-        Last_Outcode : Zip.Byte;
-        Code_Size    : Integer := Initial_Code_Size;  --  Actual code size (9..13)
-        Stack        : Zip.Byte_Buffer (0 .. Max_Stack);  --  Stack for output
-        Stack_Ptr    : Integer := Max_Stack;
-        New_Code     : Integer;  --  Save new normal code read
+        S : Zip.Zip_64_Data_Size_Type := UnZ_Glob.uncompsize;
 
-        Code_for_Special   : constant := 256;
-        Code_Increase_size : constant := 1;
-        Code_Clear_table   : constant := 2;
+        Last_Incode     : Integer;
+        Last_Outcode    : Zip.Byte;
+        Code_Size       : Integer := Initial_Code_Size;  --  Actual code size [9 .. 13]
+        Actual_Max_Code : Integer;  --  Max code to be searched for leaf nodes
+        First_Entry     : constant := 257;
+        Previous_Code   : array (First_Entry .. Max_Code) of Integer;
+        Stored_Literal  : array (First_Entry .. Max_Code) of Zip.Byte;
 
-        S : UnZip.File_size_type := UnZ_Glob.uncompsize;
-        --  Fix Jan-2009: replaces a remaining bits counter as Unsigned_*32*...
+        procedure Clear_Leaf_Nodes is
+          Is_Leaf : array (First_Entry .. Max_Code) of Boolean := (others => True);
+          Pc : Integer;  --  Previous code
+        begin
+          if full_trace then
+            Ada.Text_IO.Put ("[Clear leaf nodes @ pos" &
+              Zip.Zip_64_Data_Size_Type'Image (UnZ_Glob.uncompsize - S) &
+              "; old Next_Free =" & Integer'Image (Next_Free));
+          end if;
+          for I in First_Entry .. Actual_Max_Code loop
+            Pc := Previous_Code (I);
+            if  Pc > 256 then
+              --  Pc is in a tree as well
+              Is_Leaf (Pc) := False;
+            end if;
+          end loop;
+
+          --  Build new free list
+          Pc := -1;
+          Next_Free := -1;
+          for I in First_Entry .. Actual_Max_Code loop
+            --  Either free before, or marked now as leaf
+            if Previous_Code (I) < 0 or Is_Leaf (I) then
+              --  Link last item to this item
+              if Pc = -1 then
+                Next_Free := I;
+              else
+                --  Next free node from Pc is I.
+                Previous_Code (Pc) := -I;
+              end if;
+              Pc := I;
+            end if;
+          end loop;
+
+          if Pc /= -1 then
+            --  Last (old or new) free node points to the first "never used".
+            Previous_Code (Pc) := -(Actual_Max_Code + 1);
+          end if;
+          if Next_Free = -1 then
+            --  Unlikely but possible case:
+            --     - no previously free or leaf node found, or
+            --     - table clearing is ordered when the table is still empty.
+            Next_Free := Actual_Max_Code + 1;
+          end if;
+
+          if full_trace then
+            Ada.Text_IO.Put ("; new Next_Free =" & Integer'Image (Next_Free) & ']');
+          end if;
+        end Clear_Leaf_Nodes;
+
+        procedure Attempt_Table_Increase is
+          Candidate : constant Integer := Next_Free;
+        begin
+          if Candidate > Max_Code then
+            --  This case is supported by PKZip's LZW variant.
+            --  Table clearing is done only on a special command.
+            if some_trace then
+              Ada.Text_IO.Put ("[Table is full]");
+            end if;
+          else
+            if Candidate not in Previous_Code'Range then
+              raise Zip.Archive_corrupted with "Wrong LZW (Shrink) index";
+            end if;
+            Next_Free := -Previous_Code (Candidate);
+            Actual_Max_Code := Integer'Max (Actual_Max_Code, Next_Free - 1);
+
+            --  Next node in free list
+            Previous_Code (Candidate)  := Last_Incode;
+            Stored_Literal (Candidate) := Last_Outcode;
+          end if;
+        end Attempt_Table_Increase;
+
+        Incode    : Integer;  --  Code read in
+        New_Code  : Integer;  --  Save new normal code read
+        Stack     : Zip.Byte_Buffer (0 .. Max_Stack);  --  Stack for output
+        Stack_Ptr : Integer := Max_Stack;
+
+        --  PKZip's Shrink is a variant of the LZW algorithm in that the
+        --  compressor controls the code increase and the table clearing.
+        --  See appnote.txt, section 5.1.
+        Special_Code : constant := 256;
+        Code_for_increasing_code_size : constant := 1;
+        Code_for_clearing_table       : constant := 2;
 
         procedure Read_Code is
           pragma Inline (Read_Code);
@@ -650,105 +688,116 @@ package body UnZip.Decompress is
         end Read_Code;
 
       begin
-        Previous_Code := (others => 0);
-        Actual_Code   := (others => 0);
-        Stack         := (others => 0);
-        Writebuf      := (others => 0);
+        --  Initialize free codes list
+        for I in Previous_Code'Range loop
+          Previous_Code (I) := -(I + 1);
+        end loop;
+        --
+        Stored_Literal := (others => 0);
+        Stack          := (others => 0);
+        Writebuf       := (others => 0);
 
-        if UnZ_Glob.compsize = File_size_type'Last then
+        if UnZ_Glob.compsize = Zip.Zip_64_Data_Size_Type'Last then
           --  Compressed Size was not in header!
           raise UnZip.Not_supported;
         elsif UnZ_Glob.uncompsize = 0 then
           return;  --  compression of a 0-file with Shrink.pas
         end if;
 
-        --  initialize free codes list
-
-        for I in Previous_Code'Range loop
-          Previous_Code (I) := -(I + 1);
-        end loop;
-
         Next_Free := First_Entry;
+        Actual_Max_Code := First_Entry - 1;
         Write_Ptr := 0;
 
         Read_Code;
-        Last_Incode  := Incode;
+        Last_Incode := Incode;
         if Incode not in 0 .. 255 then
-          raise Zip.Archive_corrupted with "Wrong LZW (Shrink) 1st byte";
+          raise Zip.Archive_corrupted with "Wrong LZW (Shrink) 1st byte; must be a literal";
         end if;
         Last_Outcode := Zip.Byte (Incode);
-        Write_Byte (Last_Outcode);
+        UD_Write_Byte (Last_Outcode);
         S := S - 1;
 
+        Main_Unshrink_Loop :
         while S > 0 and then not Zip_EOF loop
           Read_Code;
-          if Incode = Code_for_Special then
+          if Incode = Special_Code then  --  Code = 256
             Read_Code;
             case Incode is
-              when Code_Increase_size =>
+              when Code_for_increasing_code_size =>
                 Code_Size := Code_Size + 1;
                 if some_trace then
                   Ada.Text_IO.Put (
-                    "[LZW code size ->" & Integer'Image (Code_Size) & ']'
+                    "[Increment LZW code size to" & Integer'Image (Code_Size) &
+                    " bits @ pos" & Zip.Zip_64_Data_Size_Type'Image (UnZ_Glob.uncompsize - S) & ']'
                   );
                 end if;
                 if Code_Size > Maximum_Code_Size then
                   raise Zip.Archive_corrupted with "Wrong LZW (Shrink) code size";
                 end if;
-              when Code_Clear_table =>
+              when Code_for_clearing_table =>
                 Clear_Leaf_Nodes;
               when others =>
                 raise Zip.Archive_corrupted with
                   "Wrong LZW (Shrink) special code" & Integer'Image (Incode);
             end case;
-
-          else -- Normal code
+          else  --  Normal code (either a literal (< 256), or a tree node (> 256))
             New_Code := Incode;
-            if Incode < 256 then          -- Simple char
+            if Incode < 256 then          --  Literal (simple character)
               Last_Outcode :=  Zip.Byte (Incode);
-              Write_Byte (Last_Outcode);
+              UD_Write_Byte (Last_Outcode);
               S := S - 1;
-            else
+            else  --  Tree node (code > 256)
               if Previous_Code (Incode) < 0 then
+                --  First node is orphan (parent is a free node).
+                if full_trace then
+                  Ada.Text_IO.Put ("[ Node from stream is orphan ]");
+                end if;
                 Stack (Stack_Ptr) := Last_Outcode;
                 Stack_Ptr := Stack_Ptr - 1;
                 Incode := Last_Incode;
               end if;
               while Incode > 256 loop
-                --  Test added 11-Dec-2007 for situations happening on corrupt files:
-                if Stack_Ptr < Stack'First or
-                   Incode > Actual_Code'Last
-                then
-                  raise Zip.Archive_corrupted with "LZW (Shrink): Stack_Ptr or Incode out of range";
+                if Stack_Ptr < Stack'First then
+                  raise Zip.Archive_corrupted with "LZW (Shrink): String stack exhausted";
                 end if;
-                Stack (Stack_Ptr) := Actual_Code (Incode);
+                if Incode > Max_Code then
+                  raise Zip.Archive_corrupted with "LZW (Shrink): Incode out of range";
+                end if;
+                if Previous_Code (Incode) < 0 then
+                  --  Linked node is orphan (parent is a free node).
+                  --  This rare case appears on some data, compressed only by PKZIP.
+                  --  The last PKZIP version known to us that is able to compress
+                  --  with the Shrink algorithm is PKZIP v.1.10, 1990-03-15.
+                  if some_trace then
+                    Ada.Text_IO.Put ("[ Linked node is orphan ]");
+                  end if;
+                  Stack (Stack_Ptr) := Last_Outcode;
+                  Incode := Last_Incode;
+                else
+                  Stack (Stack_Ptr) := Stored_Literal (Incode);
+                  Incode := Previous_Code (Incode);
+                end if;
                 Stack_Ptr := Stack_Ptr - 1;
-                Incode := Previous_Code (Incode);
               end loop;
-
-              Last_Outcode := Zip.Byte (Incode mod 256);
-              Write_Byte (Last_Outcode);
-
+              --  NB: Incode cannot be negative (orphan case treated above).
+              --      It is <= 256 because of the while loop.
+              --      It is /= 256 because it is set to a Last_Incode value (directly or
+              --        through Previous_Code) which is either in [0 .. 255] or > 256.
+              --      So Incode is in [0 .. 255].
+              Last_Outcode := Zip.Byte (Incode);
+              UD_Write_Byte (Last_Outcode);
+              --  Now we output the string in forward order.
               for I in Stack_Ptr + 1 .. Max_Stack  loop
-                Write_Byte (Stack (I));
+                UD_Write_Byte (Stack (I));
               end loop;
-              S := S - UnZip.File_size_type (Max_Stack - Stack_Ptr + 1);
-
+              S := S - Zip.Zip_64_Data_Size_Type (Max_Stack - Stack_Ptr + 1);
               Stack_Ptr := Max_Stack;
             end if;
-            Incode := Next_Free;
-            if Incode <= Max_Code then
-              if Incode not in Previous_Code'Range then
-                raise Zip.Archive_corrupted with "Wrong LZW (Shrink) index";
-              end if;
-              Next_Free := -Previous_Code (Incode);
-              --  Next node in free list
-              Previous_Code (Incode) := Last_Incode;
-              Actual_Code   (Incode) := Last_Outcode;
-            end if;
+            Attempt_Table_Increase;
             Last_Incode := New_Code;
           end if;
-        end loop;
+        end loop Main_Unshrink_Loop;
+
         if some_trace then
           Ada.Text_IO.Put ("[ Unshrink main loop finished ]");
         end if;
@@ -812,7 +861,7 @@ package body UnZip.Decompress is
         char_read,
         last_char : Integer := 0;
         --  ^ some := 0 are useless, just to calm down ObjectAda 7.2.2
-        S : UnZip.File_size_type := UnZ_Glob.uncompsize;
+        S : Zip.Zip_64_Data_Size_Type := UnZ_Glob.uncompsize;
         --  number of bytes left to decompress
         unflushed : Boolean := True;
         maximum_AND_mask : constant Unsigned_32 := Shift_Left (1, 8 - factor) - 1;
@@ -882,7 +931,7 @@ package body UnZip.Decompress is
 
             when distance =>
               length := length + 3;
-              S := S - UnZip.File_size_type (length);
+              S := S - Zip.Zip_64_Data_Size_Type (length);
 
               UnZ_IO.Copy_or_zero (
                 distance   => char_read + 1 + Integer (Shift_Right (V, 8 - factor) * 2**8),
@@ -954,7 +1003,7 @@ package body UnZip.Decompress is
         Bb, Bl, Bd : Integer
       )
       is
-        S       : Unsigned_32;
+        S       : Zip.Zip_64_Data_Size_Type;
         E, N, D : Integer;
 
         W : Integer := 0;
@@ -1040,7 +1089,7 @@ package body UnZip.Decompress is
             if E /= 0 then
               N := N + UnZ_IO.Bit_buffer.Read_and_dump (8);
             end if;
-            S := S - Unsigned_32 (N);
+            S := S - Zip.Zip_64_Data_Size_Type (N);
 
             UnZ_IO.Copy_or_zero (
               distance   => D,
@@ -1068,7 +1117,7 @@ package body UnZip.Decompress is
           Bl, Bd : Integer
       )
       is
-        S       : Unsigned_32;
+        S       : Zip.Zip_64_Data_Size_Type;
         E, N, D : Integer;
         W : Integer := 0;
         Ct : p_HufT_table; -- current table
@@ -1134,7 +1183,7 @@ package body UnZip.Decompress is
             if  E /= 0 then
               N := N + UnZ_IO.Bit_buffer.Read_and_dump (8);
             end if;
-            S := S - Unsigned_32 (N);
+            S := S - Zip.Zip_64_Data_Size_Type (N);
 
             UnZ_IO.Copy_or_zero (
               distance   => D,
@@ -1357,8 +1406,8 @@ package body UnZip.Decompress is
       --------[ Method: Copy stored ]--------
 
       procedure Copy_stored is
-        size : constant UnZip.File_size_type := UnZ_Glob.compsize;
-        read_in, absorbed : UnZip.File_size_type;
+        size : constant Zip.Zip_64_Data_Size_Type := UnZ_Glob.compsize;
+        read_in, absorbed : Zip.Zip_64_Data_Size_Type;
       begin
         absorbed := 0;
         if Get_mode (local_crypto_pack) = encrypted then
@@ -1829,27 +1878,27 @@ package body UnZip.Decompress is
 
       procedure Bunzip2 is
         type BZ_Buffer is array (Natural range <>) of Interfaces.Unsigned_8;
-        procedure Read (b : out BZ_Buffer) is
-        pragma Inline (Read);
+        procedure UD_Read (b : out BZ_Buffer) is
+        pragma Inline (UD_Read);
         begin
           for i in b'Range loop
             b (i) := UnZ_IO.Read_byte_decrypted;
           end loop;
-        end Read;
-        procedure Write (b : in BZ_Buffer) is
-        pragma Inline (Write);
+        end UD_Read;
+        procedure UD_Write (b : in BZ_Buffer) is
+        pragma Inline (UD_Write);
         begin
           for i in b'Range loop
             UnZ_Glob.slide (UnZ_Glob.slide_index) := b (i);
             UnZ_Glob.slide_index := UnZ_Glob.slide_index + 1;
             UnZ_IO.Flush_if_full (UnZ_Glob.slide_index);
           end loop;
-        end Write;
+        end UD_Write;
         package My_BZip2 is new BZip2.Decoding
            (Buffer    => BZ_Buffer,
             check_CRC => False,  --  CRC check is already done by UnZ_IO
-            Read      => Read,
-            Write     => Write
+            Read      => UD_Read,
+            Write     => UD_Write
           );
       begin
         My_BZip2.Decompress;
@@ -1934,7 +1983,7 @@ package body UnZip.Decompress is
     end if;
     output_memory_access := null;
     --  ^ this is an 'out' parameter, we have to set it anyway
-    case mode is
+    case write_mode is
       when write_to_binary_file =>
          Ada.Streams.Stream_IO.Create (UnZ_IO.out_bin_file, Ada.Streams.Stream_IO.Out_File, output_file_name,
                                          Form => To_String (Zip_Streams.Form_For_IO_Open_and_Create));
@@ -1951,10 +2000,7 @@ package body UnZip.Decompress is
         null;
     end case;
 
-    UnZ_Glob.compsize  := hint.dd.compressed_size;
-    if UnZ_Glob.compsize > File_size_type'Last - 2 then  --  This means: unknown size
-      UnZ_Glob.compsize := File_size_type'Last - 2;      --  Avoid wraparound in read_buffer
-    end if;                                              --  From TT's version, 2008
+    UnZ_Glob.compsize   := hint.dd.compressed_size;
     UnZ_Glob.uncompsize := hint.dd.uncompressed_size;
     UnZ_IO.Init_Buffers;
     if is_encrypted then
@@ -2000,7 +2046,8 @@ package body UnZip.Decompress is
         when Zip.lzma_meth  => UnZ_Meth.LZMA_Decode;
         when others =>
           raise Unsupported_method with
-             "Format/method " & PKZip_method'Image (format) & " not supported for decompression";
+            "Format/method " & Image (format) &
+            " not supported for decompression";
       end case;
     exception
       when others =>
@@ -2012,14 +2059,16 @@ package body UnZip.Decompress is
 
     if data_descriptor_after_data then  --  Sizes and CRC at the end
       declare
-        memo_uncomp_size : constant Unsigned_32 := hint.dd.uncompressed_size;
+        memo_uncomp_size : constant Zip.Zip_64_Data_Size_Type := hint.dd.uncompressed_size;
       begin
         Process_descriptor (hint.dd);  --  CRC is for checking; sizes are for informing user
-        if memo_uncomp_size < Unsigned_32'Last and then --
+        if memo_uncomp_size < Zip_64_Data_Size_Type (Zip_32_Data_Size_Type'Last) and then --
            memo_uncomp_size /= hint.dd.uncompressed_size
         then
           UnZ_IO.Delete_output;
-          raise Uncompressed_size_Error;
+          raise Uncompressed_Size_Error
+            with "Uncompressed size mismatch: in catalogue:" & memo_uncomp_size'Image &
+                 "; in post-data data descriptor:" & hint.dd.uncompressed_size'Image;
         end if;
       end;
     end if;
@@ -2031,7 +2080,7 @@ package body UnZip.Decompress is
         "; CRC computed now: " & Hexadecimal (UnZ_Glob.crc32val);
     end if;
 
-    case mode is
+    case write_mode is
       when write_to_binary_file =>
         Ada.Streams.Stream_IO.Close (UnZ_IO.out_bin_file);
       when write_to_text_file =>
@@ -2045,7 +2094,7 @@ package body UnZip.Decompress is
 
   exception
     when others =>  --  close the file in case of an error, if not yet closed
-      case mode is  --  or deleted
+      case write_mode is  --  or deleted
         when write_to_binary_file =>
           if Ada.Streams.Stream_IO.Is_Open (UnZ_IO.out_bin_file) then
             Ada.Streams.Stream_IO.Close (UnZ_IO.out_bin_file);

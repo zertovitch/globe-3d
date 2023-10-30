@@ -1,6 +1,6 @@
 --  Legal licensing note:
 
---  Copyright (c) 1999 .. 2019 Gautier de Montmollin
+--  Copyright (c) 1999 .. 2023 Gautier de Montmollin
 --  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,11 +26,12 @@
 
 with Zip.Headers;
 
-with Ada.Characters.Handling;
-with Ada.Unchecked_Deallocation;
-with Ada.IO_Exceptions;
-with Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;
+with Ada.Characters.Handling,
+     Ada.Exceptions,
+     Ada.Unchecked_Deallocation,
+     Ada.IO_Exceptions,
+     Ada.Strings.Fixed,
+     Ada.Strings.Unbounded;
 
 package body Zip is
 
@@ -183,7 +184,7 @@ package body Zip is
       file_name        : String;
       file_index       : Zip_Streams.ZS_Index_Type;
       comp_size,
-      uncomp_size      : File_size_type;
+      uncomp_size      : Zip_64_Data_Size_Type;
       crc_32           : Unsigned_32;
       date_time        : Time;
       method           : PKZip_method;
@@ -267,18 +268,25 @@ package body Zip is
       Zip.Headers.Read_and_check (from, header);
       declare
         this_name : String (1 .. Natural (header.short_info.filename_length));
-        use Zip_Streams;
+        mem : Zip_Streams.ZS_Index_Type;
+        head_extra : Headers.Local_File_Header_Extension;
       begin
         String'Read (from'Access, this_name);
+        mem := from.Index;
+        if header.short_info.extra_field_length >= 4 then
+          Headers.Read_and_check (from, head_extra);
+          Headers.Interpret
+            (head_extra,
+             header.short_info.dd.uncompressed_size,
+             header.short_info.dd.compressed_size,
+             header.local_header_offset);
+        end if;
         --  Skip extra field and entry comment.
-        Set_Index (
-          from,
-          Index (from) +
-          ZS_Size_Type (
-            header.short_info.extra_field_length +
-            header.comment_length
-          )
-        );
+        from.Set_Index
+          (mem +
+           Zip_Streams.ZS_Size_Type
+             (header.short_info.extra_field_length +
+              header.comment_length));
         --  Now the whole i_th central directory entry is behind
         Insert (dico_name   => Normalize (this_name, case_sensitive),
                 file_name   => Normalize (this_name, True),
@@ -317,8 +325,9 @@ package body Zip is
     info.zip_file_comment   := main_comment;
     info.zip_archive_format := Zip_32;
   exception
-    when Zip.Headers.bad_end =>
-      raise Zip.Archive_corrupted with "Bad (or no) end-of-central-directory";
+    when E : Zip.Headers.bad_end =>
+      raise Zip.Archive_corrupted
+        with "Bad (or no) end-of-central-directory " & Ada.Exceptions.Exception_Message (E);
     when Zip.Headers.bad_central_header =>
       raise Zip.Archive_corrupted with "Bad central directory entry header";
   end Load;
@@ -334,12 +343,11 @@ package body Zip is
     duplicate_names : in  Duplicate_name_policy := error_on_duplicate
   )
   is
-    use Zip_Streams;
-    MyStream   : aliased File_Zipstream;
+    my_stream : aliased Zip_Streams.File_Zipstream;
   begin
-    Set_Name (MyStream, from);
+    my_stream.Set_Name (from);
     begin
-      Open (MyStream, In_File);
+      my_stream.Open (Zip_Streams.In_File);
     exception
       when others =>
         raise Archive_open_error with "Archive: [" & from & ']';
@@ -347,18 +355,18 @@ package body Zip is
     --  Call the stream version of Load(...)
     Load (
       info,
-      MyStream,
+      my_stream,
       case_sensitive,
       duplicate_names
     );
-    Close (MyStream);
+    my_stream.Close;
     Dispose (info.zip_file_name);
     info.zip_file_name := new String'(from);
     info.zip_input_stream := null; -- forget about the stream!
   exception
     when others =>
-      if Is_Open (MyStream) then
-        Close (MyStream);
+      if my_stream.Is_Open then
+        my_stream.Close;
       end if;
       raise;
   end Load;
@@ -544,14 +552,13 @@ package body Zip is
   is
     the_end    : Zip.Headers.End_of_Central_Dir;
     header     : Zip.Headers.Central_File_Header;
-    min_offset : File_size_type;
-    use Zip_Streams;
+    min_offset : Zip_64_Data_Size_Type;
+    mem        : Zip_Streams.ZS_Index_Type;
+    head_extra : Headers.Local_File_Header_Extension;
   begin
     Zip.Headers.Load (file, the_end);
-    Set_Index (
-      file,
-      ZS_Index_Type (1 + the_end.central_dir_offset) + the_end.offset_shifting
-    );
+    file.Set_Index
+      (Zip_Streams.ZS_Index_Type (1 + the_end.central_dir_offset) + the_end.offset_shifting);
 
     min_offset := the_end.central_dir_offset; -- will be lowered if the archive is not empty.
 
@@ -560,15 +567,22 @@ package body Zip is
     end if;
 
     for i in 1 .. the_end.total_entries loop
-      Zip.Headers.Read_and_check (file, header);
-      Set_Index (file,
-        Index (file) +
-        ZS_Size_Type
-              (header.short_info.filename_length +
-               header.short_info.extra_field_length +
-               header.comment_length
-              )
-      );
+      Headers.Read_and_check (file, header);
+      file.Set_Index (file.Index + Zip_Streams.ZS_Size_Type (header.short_info.filename_length));
+      mem := file.Index;
+      if header.short_info.extra_field_length >= 4 then
+        Headers.Read_and_check (file, head_extra);
+        Headers.Interpret
+          (head_extra,
+           header.short_info.dd.uncompressed_size,
+           header.short_info.dd.compressed_size,
+           header.local_header_offset);
+      end if;
+      file.Set_Index
+        (mem +
+         Zip_Streams.ZS_Size_Type
+           (header.short_info.extra_field_length +
+            header.comment_length));
       --  Now the whole i_th central directory entry is behind
 
       if header.local_header_offset < min_offset then
@@ -579,8 +593,12 @@ package body Zip is
     file_index := Zip_Streams.ZS_Index_Type (1 + min_offset) + the_end.offset_shifting;
 
   exception
-    when Zip.Headers.bad_end | Ada.IO_Exceptions.End_Error =>
-      raise Zip.Archive_corrupted with "Bad (or no) end-of-central-directory";
+    when E : Zip.Headers.bad_end =>
+      raise Zip.Archive_corrupted
+        with "Bad (or no) end-of-central-directory " & Ada.Exceptions.Exception_Message (E);
+    when Ada.IO_Exceptions.End_Error =>
+      raise Zip.Archive_corrupted
+        with "Bad (or no) end-of-central-directory (end of stream reached)";
     when Zip.Headers.bad_central_header =>
       raise Zip.Archive_corrupted with "Bad central directory entry header";
   end Find_first_offset;
@@ -593,38 +611,47 @@ package body Zip is
     name           : in     String;
     case_sensitive : in     Boolean;
     file_index     :    out Zip_Streams.ZS_Index_Type;
-    comp_size      :    out File_size_type;
-    uncomp_size    :    out File_size_type;
+    comp_size      :    out Zip_64_Data_Size_Type;
+    uncomp_size    :    out Zip_64_Data_Size_Type;
     crc_32         :    out Interfaces.Unsigned_32
   )
   is
     the_end : Zip.Headers.End_of_Central_Dir;
     header  : Zip.Headers.Central_File_Header;
-    use Zip_Streams;
+    mem : Zip_Streams.ZS_Index_Type;
+    head_extra : Headers.Local_File_Header_Extension;
   begin
     Zip.Headers.Load (file, the_end);
-    Set_Index (file, ZS_Index_Type (1 + the_end.central_dir_offset) + the_end.offset_shifting);
+    file.Set_Index
+      (Zip_Streams.ZS_Index_Type (1 + the_end.central_dir_offset) + the_end.offset_shifting);
     for i in 1 .. the_end.total_entries loop
       Zip.Headers.Read_and_check (file, header);
       declare
         this_name : String (1 .. Natural (header.short_info.filename_length));
       begin
         String'Read (file'Access, this_name);
-        Set_Index (file,
-          Index (file) +
-          ZS_Size_Type (
-                  header.short_info.extra_field_length +
-                  header.comment_length
-          )
-        );
+        mem := file.Index;
+        if header.short_info.extra_field_length >= 4 then
+          Headers.Read_and_check (file, head_extra);
+          Headers.Interpret
+            (head_extra,
+             header.short_info.dd.uncompressed_size,
+             header.short_info.dd.compressed_size,
+             header.local_header_offset);
+          end if;
+        file.Set_Index
+          (mem +
+            Zip_Streams.ZS_Size_Type
+              (header.short_info.extra_field_length +
+               header.comment_length));
         --  Now the whole i_th central directory entry is behind
         if Normalize (this_name, case_sensitive) =
            Normalize (name, case_sensitive)
         then
           --  Name found in central directory !
           file_index  := Zip_Streams.ZS_Index_Type (1 + header.local_header_offset) + the_end.offset_shifting;
-          comp_size   := File_size_type (header.short_info.dd.compressed_size);
-          uncomp_size := File_size_type (header.short_info.dd.uncompressed_size);
+          comp_size   := Zip_64_Data_Size_Type (header.short_info.dd.compressed_size);
+          uncomp_size := Zip_64_Data_Size_Type (header.short_info.dd.uncompressed_size);
           crc_32      := header.short_info.dd.crc_32;
           return;
         end if;
@@ -645,8 +672,8 @@ package body Zip is
     name           : in     String;
     name_encoding  :    out Zip_name_encoding;
     file_index     :    out Zip_Streams.ZS_Index_Type;
-    comp_size      :    out File_size_type;
-    uncomp_size    :    out File_size_type;
+    comp_size      :    out Zip_64_Data_Size_Type;
+    uncomp_size    :    out Zip_64_Data_Size_Type;
     crc_32         :    out Interfaces.Unsigned_32
   )
   is
@@ -678,8 +705,8 @@ package body Zip is
     name           : in     String;
     name_encoding  :    out Zip_name_encoding;
     file_index     :    out Zip_Streams.ZS_Index_Type;
-    comp_size      :    out File_size_type;
-    uncomp_size    :    out File_size_type;
+    comp_size      :    out Zip_64_Data_Size_Type;
+    uncomp_size    :    out Zip_64_Data_Size_Type;
     crc_32         :    out Interfaces.Unsigned_32
   )
   is
@@ -687,7 +714,7 @@ package body Zip is
       idx : Integer := n'First - 1;
     begin
       for i in n'Range loop
-        if n (i) = '/' or n (i) = '\' then
+        if n (i) in '/' | '\' then
           idx := i;
         end if;
       end loop;
@@ -702,8 +729,8 @@ package body Zip is
     procedure Check_entry (
       entry_name          : String; -- 'name' is compressed entry's name
       entry_index         : Zip_Streams.ZS_Index_Type;
-      entry_comp_size     : File_size_type;
-      entry_uncomp_size   : File_size_type;
+      entry_comp_size     : Zip_64_Data_Size_Type;
+      entry_uncomp_size   : Zip_64_Data_Size_Type;
       entry_crc_32        : Interfaces.Unsigned_32;
       date_time           : Time;
       method              : PKZip_method;
@@ -814,8 +841,8 @@ package body Zip is
   procedure Get_sizes (
     info           : in     Zip_info;
     name           : in     String;
-    comp_size      :    out File_size_type;
-    uncomp_size    :    out File_size_type
+    comp_size      :    out Zip_64_Data_Size_Type;
+    uncomp_size    :    out Zip_64_Data_Size_Type
   )
   is
     dummy_file_index : Zip_Streams.ZS_Index_Type;
@@ -878,21 +905,21 @@ package body Zip is
     actually_read :    out Natural
   )
   is
-    use Ada.Streams, Zip_Streams;
+    use Ada.Streams;
     SE_Buffer   : Stream_Element_Array (1 .. buffer'Length);
     for SE_Buffer'Address use buffer'Address;
     pragma Import (Ada, SE_Buffer);
     Last_Read   : Stream_Element_Offset;
   begin
     if workaround_possible then
-      Read (stream, SE_Buffer, Last_Read);
+      stream.Read (SE_Buffer, Last_Read);
       actually_read := Natural (Last_Read);
     else
-      if End_Of_Stream (stream) then
+      if stream.End_Of_Stream then
         actually_read := 0;
       else
         actually_read :=
-          Integer'Min (buffer'Length, Integer (Size (stream) - Index (stream) + 1));
+          Integer'Min (buffer'Length, Integer (stream.Size - stream.Index + 1));
         Byte_Buffer'Read (
           stream'Access,
           buffer (buffer'First .. buffer'First + actually_read - 1)
@@ -935,20 +962,25 @@ package body Zip is
   function Image (m : PKZip_method) return String is
   begin
     case m is
-      when store     => return "Store";
-      when shrink    => return "Shrink";
-      when reduce_1  => return "Reduce 1";
-      when reduce_2  => return "Reduce 2";
-      when reduce_3  => return "Reduce 3";
-      when reduce_4  => return "Reduce 4";
-      when implode   => return "Implode";
-      when tokenize  => return "Tokenize";
-      when deflate   => return "Deflate";
-      when deflate_e => return "Deflate64";
-      when bzip2     => return "BZip2";
-      when lzma_meth => return "LZMA";
-      when ppmd      => return "PPMd";
-      when unknown   => return "(unknown)";
+      when store       => return "Store";
+      when shrink      => return "Shrink";
+      when reduce_1    => return "Reduce 1";
+      when reduce_2    => return "Reduce 2";
+      when reduce_3    => return "Reduce 3";
+      when reduce_4    => return "Reduce 4";
+      when implode     => return "Implode";
+      when tokenize    => return "Tokenize";
+      when deflate     => return "Deflate";
+      when deflate_e   => return "Deflate64";
+      when bzip2       => return "BZip2";
+      when lzma_meth   => return "LZMA";
+      when zstandard   => return "Zstandard";
+      when mp3_recomp  => return "MP3 recompression";
+      when xz_recomp   => return "XZ recompression";
+      when jpeg_recomp => return "JPEG recompression";
+      when wavpack     => return "WAVE recompression";
+      when ppmd        => return "PPMd";
+      when unknown     => return "(unknown)";
     end case;
   end Image;
 
@@ -970,6 +1002,11 @@ package body Zip is
       when deflate_e_code  => return deflate_e;
       when bzip2_code      => return bzip2;
       when lzma_code       => return lzma_meth;
+      when zstandard_code  => return zstandard;
+      when mp3_code        => return mp3_recomp;
+      when xz_code         => return xz_recomp;
+      when jpeg_code       => return jpeg_recomp;
+      when wavpack_code    => return wavpack;
       when ppmd_code       => return ppmd;
       when others          => return unknown;
     end case;
@@ -1036,14 +1073,14 @@ package body Zip is
   --  This does the same as Ada 2005's Ada.Directories.Exists
   --  Just there as helper for Ada 95 only systems
   --
-  function Exists (name : String) return Boolean is
+  function Exists (file_name : String) return Boolean is
     use Ada.Text_IO, Ada.Strings.Fixed;
     f : File_Type;
   begin
-    if Index (name, "*") > 0 then
+    if Index (file_name, "*") > 0 then
       return False;
     end if;
-    Open (f, In_File, name, Form => Ada.Strings.Unbounded.To_String (Zip_Streams.Form_For_IO_Open_and_Create));
+    Open (f, In_File, file_name, Form => Ada.Strings.Unbounded.To_String (Zip_Streams.Form_For_IO_Open_and_Create));
     Close (f);
     return True;
   exception

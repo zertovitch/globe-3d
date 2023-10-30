@@ -16,7 +16,7 @@
 
 --  Legal licensing note:
 
---  Copyright (c) 1999 .. 2020 Gautier de Montmollin
+--  Copyright (c) 1999 .. 2023 Gautier de Montmollin
 --  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -90,7 +90,7 @@ package Zip is
   Duplicate_name : exception;
 
   Zip_file_open_error : exception renames Archive_open_error;  --  Archive is not always a file!
-  pragma Obsolescent (Zip_file_open_error, "Better use: Archive_open_error");
+  pragma Obsolescent (Zip_file_open_error, "Better use the name: Archive_open_error");
 
   --  Zip_file_Error: exception renames Archive_corrupted;   --   Now really obsolete.
   --  pragma Obsolescent(Zip_file_Error);                    --   Now really obsolete.
@@ -111,7 +111,8 @@ package Zip is
   Forgot_to_load_zip_info : exception;
 
   --  Data sizes in archive
-  subtype File_size_type is Interfaces.Unsigned_32;
+  subtype Zip_32_Data_Size_Type is Interfaces.Unsigned_32;
+  subtype Zip_64_Data_Size_Type is Interfaces.Unsigned_64;
 
   ---------
 
@@ -134,6 +135,11 @@ package Zip is
      deflate_e, --     D  -  "Enhanced deflate" or "Deflate64"
      bzip2,     --     D
      lzma_meth, --  C, D
+     zstandard,
+     mp3_recomp,
+     xz_recomp,
+     jpeg_recomp,
+     wavpack,
      ppmd,
      unknown
     );
@@ -189,8 +195,8 @@ package Zip is
     with procedure Action (
       name             : String;  --  'name' is compressed entry's name
       file_index       : Zip_Streams.ZS_Index_Type;
-      comp_size        : File_size_type;
-      uncomp_size      : File_size_type;
+      comp_size        : Zip_64_Data_Size_Type;
+      uncomp_size      : Zip_64_Data_Size_Type;
       crc_32           : Interfaces.Unsigned_32;
       date_time        : Time;
       method           : PKZip_method;
@@ -230,8 +236,8 @@ package Zip is
     name           : in     String;
     case_sensitive : in     Boolean;
     file_index     :    out Zip_Streams.ZS_Index_Type;
-    comp_size      :    out File_size_type;
-    uncomp_size    :    out File_size_type;
+    comp_size      :    out Zip_64_Data_Size_Type;
+    uncomp_size    :    out Zip_64_Data_Size_Type;
     crc_32         :    out Interfaces.Unsigned_32
   );
 
@@ -242,8 +248,8 @@ package Zip is
     name           : in     String;
     name_encoding  :    out Zip_name_encoding;
     file_index     :    out Zip_Streams.ZS_Index_Type;
-    comp_size      :    out File_size_type;
-    uncomp_size    :    out File_size_type;
+    comp_size      :    out Zip_64_Data_Size_Type;
+    uncomp_size    :    out Zip_64_Data_Size_Type;
     crc_32         :    out Interfaces.Unsigned_32
   );
 
@@ -259,14 +265,14 @@ package Zip is
     name           : in     String;
     name_encoding  :    out Zip.Zip_name_encoding;
     file_index     :    out Zip_Streams.ZS_Index_Type;
-    comp_size      :    out File_size_type;
-    uncomp_size    :    out File_size_type;
+    comp_size      :    out Zip_64_Data_Size_Type;
+    uncomp_size    :    out Zip_64_Data_Size_Type;
     crc_32         :    out Interfaces.Unsigned_32
   );
 
   Entry_name_not_found : exception;
   File_name_not_found : exception renames Entry_name_not_found;
-  pragma Obsolescent (File_name_not_found, "Better use: Entry_name_not_found");
+  pragma Obsolescent (File_name_not_found, "Better use the name: Entry_name_not_found");
 
   function Exists (info : Zip_info; name : String) return Boolean;
 
@@ -288,8 +294,8 @@ package Zip is
   procedure Get_sizes (
     info           : in     Zip_info;
     name           : in     String;
-    comp_size      :    out File_size_type;
-    uncomp_size    :    out File_size_type
+    comp_size      :    out Zip_64_Data_Size_Type;
+    uncomp_size    :    out Zip_64_Data_Size_Type
   );
 
   --  User-defined procedure for feedback occuring during
@@ -371,7 +377,7 @@ package Zip is
   --  This does the same as Ada 2005's Ada.Directories.Exists
   --  Just there as helper for Ada 95 only systems
   --
-  function Exists (name : String) return Boolean;
+  function Exists (file_name : String) return Boolean;
 
   --  Write a string containing line endings (possibly from another system)
   --  into a text file, with the "correct", native line endings.
@@ -395,10 +401,12 @@ package Zip is
   --  Information about this package - e.g., for an "about" box  --
   -----------------------------------------------------------------
 
-  version   : constant String := "56";
-  reference : constant String := "17-Jan-2020";
-  web       : constant String := "http://unzip-ada.sf.net/";
-  --  Hopefully the latest version is at that URL...  --^
+  version   : constant String := "58";
+  reference : constant String := "07-Apr-2023";
+  --  Hopefully the latest version is at one of those URLs:
+  web       : constant String := "https://unzip-ada.sourceforge.io/";
+  web2      : constant String := "https://sourceforge.net/projects/unzip-ada/";
+  web3      : constant String := "https://github.com/zertovitch/zip-ada";
 
   ---------------------
   --  Private items  --
@@ -414,13 +422,22 @@ private
   --  than 11 moves: 2**10=1024 (balanced case), without any read
   --  in the archive.
   --
-  --  *Note* 19-Oct-2018: rev. 670 to 683 used a Hashed Map and a
-  --  Vector (Ada.Containers). The loading of the dictionary was
-  --  much faster (2x), but there were performance bottlenecks elsewhere,
-  --  not solved by profiling. On an archive with 18000 small entries of
-  --  around 1 KiB each, comp_zip ran 100x slower!
-  --  Neither the restricted use of Unbounded_String, nor the replacement
-  --  of the Vector by an array helped solving the performance issue.
+  --  Notes on search dictionary
+  ------------------------------
+  --  19-Oct-2018: rev. 670 to 683 used a Vector and a Hashed Map
+  --      from Ada.Containers. The loading of the dictionary was
+  --      much faster (2x), but there were performance bottlenecks elsewhere,
+  --      not solved by profiling. On an archive with 18000 small entries of
+  --      around 1 KiB each, comp_zip ran 100x slower!
+  --      Neither the restricted use of Unbounded_String, nor the replacement
+  --      of the Vector by an array helped solving the performance issue.
+  --  2022: second attempt with Vectors & Indefinite_Hashed_Maps (both a vector
+  --      and a map are needed because a Zip archive may contain entries with
+  --      duplicate keys; otherwise a map would be sufficient).
+  --         - Test_Zip_Info_Timing: load time on many_65535.zip:
+  --              0.75 seconds (binary tree) ->  0.44 seconds (vector & map)
+  --         - But... comp_zip many_4096.zip many_4096.zip -q2:
+  --              5.5  seconds (binary tree) -> 13.2  seconds (vector & map) !
 
   type Dir_node;
   type p_Dir_node is access Dir_node;
@@ -430,26 +447,26 @@ private
     dico_name        : String (1 .. name_len);  --  UPPER if case-insensitive search
     file_name        : String (1 .. name_len);
     file_index       : Zip_Streams.ZS_Index_Type;
-    comp_size        : File_size_type;
-    uncomp_size      : File_size_type;
+    comp_size        : Zip_64_Data_Size_Type;
+    uncomp_size      : Zip_64_Data_Size_Type;
     crc_32           : Interfaces.Unsigned_32;
     date_time        : Time;
     method           : PKZip_method;
     name_encoding    : Zip_name_encoding;
-    read_only        : Boolean; -- TBD: attributes of most supported systems
+    read_only        : Boolean;  --  TBD: attributes of most supported systems
     encrypted_2_x    : Boolean;
     user_code        : Integer;
   end record;
 
-  type Zip_archive_format_type is (Zip_32, Zip_64);  --  Supported so far: Zip_32.
+  type Zip_archive_format_type is (Zip_32, Zip_64);
 
   type p_String is access String;
 
   type Zip_info is new Ada.Finalization.Controlled with record
     loaded             : Boolean := False;
     case_sensitive     : Boolean;
-    zip_file_name      : p_String;                           -- a file name...
-    zip_input_stream   : Zip_Streams.Zipstream_Class_Access; -- ...or an input stream
+    zip_file_name      : p_String;                            --  a file name...
+    zip_input_stream   : Zip_Streams.Zipstream_Class_Access;  --  ...or an input stream
     --  ^ when not null, we use this, and not zip_file_name
     dir_binary_tree    : p_Dir_node;
     total_entries      : Natural;
@@ -470,9 +487,8 @@ private
   min_bits_16 : constant := Integer'Max (16, System.Word_Size);
 
   --  We define an Integer type which is at least 32 bits, but n bits
-  --  on a native n (> 32) bits architecture (no performance hit on 64+
-  --  bits architectures).
-  --  Integer_M16 not needed: Integer already guarantees 16 bits
+  --  on a native n (> 32) bits architecture.
+  --  Integer_M16 is not needed: Integer already guarantees 16 bits
   --
   type Integer_M32 is range -2**(min_bits_32 - 1) .. 2**(min_bits_32 - 1) - 1;
   subtype Natural_M32  is Integer_M32 range 0 .. Integer_M32'Last;
@@ -485,16 +501,21 @@ private
   --  See PKWARE's Appnote, "4.4.5 compression method"
   --
   package Compression_format_code is
-    store_code     : constant :=  0;
-    shrink_code    : constant :=  1;
-    reduce_code    : constant :=  2;
-    implode_code   : constant :=  6;
-    tokenize_code  : constant :=  7;
-    deflate_code   : constant :=  8;
-    deflate_e_code : constant :=  9;
-    bzip2_code     : constant := 12;
-    lzma_code      : constant := 14;
-    ppmd_code      : constant := 98;
+    store_code        : constant :=  0;
+    shrink_code       : constant :=  1;
+    reduce_code       : constant :=  2;
+    implode_code      : constant :=  6;
+    tokenize_code     : constant :=  7;
+    deflate_code      : constant :=  8;
+    deflate_e_code    : constant :=  9;
+    bzip2_code        : constant := 12;
+    lzma_code         : constant := 14;
+    zstandard_code    : constant := 93;
+    mp3_code          : constant := 94;
+    xz_code           : constant := 95;
+    jpeg_code         : constant := 96;
+    wavpack_code      : constant := 97;
+    ppmd_code         : constant := 98;
   end Compression_format_code;
 
 end Zip;

@@ -1,6 +1,6 @@
 --  Legal licensing note:
 
---  Copyright (c) 2009 .. 2019 Gautier de Montmollin
+--  Copyright (c) 2009 .. 2023 Gautier de Montmollin
 --  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,6 +24,7 @@
 --  NB: this is the MIT License, as found on the site
 --  http://www.opensource.org/licenses/mit-license.php
 --
+-----------------
 --  "Reduce" method - probabilistic reduction with a Markov chain.
 --  See package specification for details.
 --
@@ -32,26 +33,24 @@
 --
 --  7-Feb-2009: GdM: added a cache for LZ77 output to make 2nd phase faster
 
-with Interfaces; use Interfaces;
-with LZ77, Zip.CRC_Crypto;
-with Zip_Streams;
+with LZ77;
 
 with Ada.Text_IO;
-with Ada.Unchecked_Deallocation;
 
 procedure Zip.Compress.Reduce
- (input,
-  output           : in out Zip_Streams.Root_Zipstream_Type'Class;
-  input_size_known : Boolean;
-  input_size       : File_size_type;  --  ignored if unknown
-  feedback         : Feedback_proc;
-  method           : Reduction_Method;
-  CRC              : in out Interfaces.Unsigned_32;  --  only updated here
-  crypto           : in out Crypto_pack;
-  output_size      : out File_size_type;
-  compression_ok   : out Boolean  --  indicates when compressed <= uncompressed
-)
+  (input,
+   output           : in out Zip_Streams.Root_Zipstream_Type'Class;
+   input_size_known :        Boolean;
+   input_size       :        Zip_64_Data_Size_Type;  --  ignored if unknown
+   feedback         :        Feedback_proc;
+   method           :        Reduction_Method;
+   CRC              : in out Interfaces.Unsigned_32;  --  only updated here
+   crypto           : in out CRC_Crypto.Crypto_pack;
+   output_size      :    out Zip_64_Data_Size_Type;
+   compression_ok   :    out Boolean)  --  indicates when compressed <= uncompressed
 is
+  use Interfaces;
+
   reduction_factor : constant Positive :=
     1 + Compression_Method'Pos (method) - Compression_Method'Pos (Reduce_1);
   use Zip_Streams;
@@ -87,57 +86,14 @@ is
   -- Buffered I/O --
   ------------------
 
-  --  Define data types needed to implement input and output file buffers
-
-  procedure Dispose is
-    new Ada.Unchecked_Deallocation (Byte_Buffer, p_Byte_Buffer);
-
-  InBuf  : p_Byte_Buffer;  --  I/O buffers
-  OutBuf : p_Byte_Buffer;
-
-  InBufIdx  : Positive;  --  Points to next char in buffer to be read
-  OutBufIdx : Positive;  --  Points to next free space in output buffer
-
-  MaxInBufIdx : Natural;  --  Count of valid chars in input buffer
-  InputEoF : Boolean;     --  End of file indicator
-
-  procedure Read_Block is
-  begin
-    Zip.Block_Read (
-      stream        => input,
-      buffer        => InBuf.all,
-      actually_read => MaxInBufIdx
-    );
-    InputEoF := MaxInBufIdx = 0;
-    InBufIdx := 1;
-  end Read_Block;
-
-  --  Exception for the case where compression works but produces
-  --  a bigger file than the file to be compressed (data is too "random").
-  Compression_inefficient : exception;
-
-  procedure Write_Block is
-    amount : constant Integer := OutBufIdx - 1;
-  begin
-    output_size := output_size + File_size_type (Integer'Max (0, amount));
-    if input_size_known and then output_size >= input_size then
-      --  The compression so far is obviously unefficient for that file.
-      --  Useless to go further.
-      --  Stop immediately before growing the file more than the
-      --  uncompressed size.
-      raise Compression_inefficient;
-    end if;
-    Encode (crypto, OutBuf (1 .. amount));
-    Zip.Block_Write (output, OutBuf (1 .. amount));
-    OutBufIdx := 1;
-  end Write_Block;
+  IO_buffers : IO_Buffers_Type;
 
   procedure Put_byte (B : Byte) is
   begin
-    OutBuf (OutBufIdx) := B;
-    OutBufIdx := OutBufIdx + 1;
-    if OutBufIdx > OutBuf'Last then
-      Write_Block;
+    IO_buffers.OutBuf (IO_buffers.OutBufIdx) := B;
+    IO_buffers.OutBufIdx := IO_buffers.OutBufIdx + 1;
+    if IO_buffers.OutBufIdx > IO_buffers.OutBuf'Last then
+      Write_Block (IO_buffers, input_size_known, input_size, output, output_size, crypto);
     end if;
   end Put_byte;
 
@@ -155,8 +111,8 @@ is
     if Bits_used /= 0 then
       Put_byte (Save_byte);
     end if;
-    if OutBufIdx > 1 then
-      Write_Block;
+    if IO_buffers.OutBufIdx > 1 then
+      Write_Block (IO_buffers, input_size_known, input_size, output, output_size, crypto);
     end if;
   end Flush_output;
 
@@ -411,7 +367,7 @@ is
   end record;
 
   LZ_cache : LZ_cache_type;
-  lz77_pos, lz77_size : File_size_type := 0;
+  lz77_pos, lz77_size : Zip_64_Data_Size_Type := 0;
 
   --  Possible ranges for LZ distance and length encoding
   --  in the Zip-Reduce format:
@@ -437,8 +393,8 @@ is
   procedure Encode_with_Reduce is
     using_LZ77 : Boolean;
     Derail_LZ77 : exception;
-    X_Percent : Natural;
-    Bytes_in   : Natural;   --  Count of input file bytes processed
+    feedback_milestone,
+    Bytes_in   : Zip_Streams.ZS_Size_Type := 0;   --  Count of input file bytes processed
     user_aborting : Boolean;
     real_pct : constant array (Phase_type) of Integer := (0, 50);
     PctDone : Natural;
@@ -446,8 +402,8 @@ is
     function Read_byte return Byte is
       b : Byte;
     begin
-      b := InBuf (InBufIdx);
-      InBufIdx := InBufIdx + 1;
+      b := IO_buffers.InBuf (IO_buffers.InBufIdx);
+      IO_buffers.InBufIdx := IO_buffers.InBufIdx + 1;
       if phase = compute_stats then
         Zip.CRC_Crypto.Update (CRC, (1 => b));
       end if;
@@ -456,9 +412,9 @@ is
         if Bytes_in = 1 then
           feedback (real_pct (phase), False, user_aborting);
         end if;
-        if X_Percent > 0 and then
-           ((Bytes_in - 1) mod X_Percent = 0
-            or Bytes_in = Integer (input_size))
+        if feedback_milestone > 0 and then
+           ((Bytes_in - 1) mod feedback_milestone = 0
+            or Bytes_in = ZS_Size_Type (input_size))
         then
           if input_size_known then
             PctDone := real_pct (phase) + Integer ((50.0 * Float (Bytes_in)) / Float (input_size));
@@ -476,10 +432,10 @@ is
 
     function More_bytes return Boolean is
     begin
-      if InBufIdx > MaxInBufIdx then
-        Read_Block;
+      if IO_buffers.InBufIdx > IO_buffers.MaxInBufIdx then
+        Read_Block (IO_buffers, input);
       end if;
-      return not InputEoF;
+      return not IO_buffers.InputEoF;
     end More_bytes;
 
     upper_shift : constant Integer := 2**(8 - reduction_factor);
@@ -490,12 +446,12 @@ is
     Look_redfac        : constant array (1 .. 4) of Integer := (31, 63, 255, 191);
     --  See za_work.xls, sheet Reduce, for the cooking of these numbers...
     Look_Ahead         : constant Integer := Look_redfac (reduction_factor);
-    String_buffer_size : constant := 2**12; -- 2**n optimizes "mod" to "and"
+    String_buffer_size : constant := 2**12;  --  2**n optimizes "mod" to "and"
     Threshold          : constant := 3;
 
-    --  if the DLE coding doesn't fit the format constraints, we
+    --  If the DLE coding doesn't fit the format constraints, we
     --  need to decode it as a simple sequence of literals
-    --  before the probabilistic reduction
+    --  before the probabilistic reduction.
 
     type Text_Buffer is array (0 .. String_buffer_size + Look_Ahead - 1) of Byte;
     Text_Buf : Text_Buffer;
@@ -519,7 +475,7 @@ is
           LZ_cache.cnt := Natural'Min (LZ_cache_size, LZ_cache.cnt + 1);
         when compress_for_real =>  --  Probabilistic reduction
           if Slen (last_b) = 0 then
-            --  follower set is empty for this character
+            --  Follower set is empty for this character.
             Put_code (b, 8);
           else
             follo := has_follower (last_b, curr_b);
@@ -536,7 +492,7 @@ is
       last_b := curr_b;
       if phase = compress_for_real and then
          using_LZ77 and then
-         (lz77_size - lz77_pos) < File_size_type (LZ_cache.cnt)
+         (lz77_size - lz77_pos) < Zip_64_Data_Size_Type (LZ_cache.cnt)
         --  We have entered the zone covered by the cache, so no need
         --  to continue the LZ77 compression effort: the results are
         --  already stored.
@@ -596,6 +552,16 @@ is
       end if;
     end Write_DL_code;
 
+    procedure Dummy_Estimate_DL_Codes (
+      matches          : in out LZ77.Matches_Array;
+      old_match_index  : in     Natural;
+      prefixes         : in     LZ77.Byte_Array;
+      best_score_index :    out Positive;
+      best_score_set   :    out LZ77.Prefetch_Index_Type;
+      match_trace      :    out LZ77.DLP_Array
+    )
+    is null;
+
     procedure My_LZ77 is
       new LZ77.Encode
                (String_buffer_size => String_buffer_size,
@@ -604,10 +570,11 @@ is
                 Method             => LZ77.LZHuf,
                 --  NB: Method IZ_9 needs exactly the same set of LZ77 parameters as in
                 --      Deflate. Then the compression is worse, though much faster.
-                Read_byte          => Read_byte,
-                More_bytes         => More_bytes,
-                Write_literal      => Write_normal_byte,
-                Write_DL_code      => Write_DL_code);
+                Read_Byte          => Read_byte,
+                More_Bytes         => More_bytes,
+                Write_Literal      => Write_normal_byte,
+                Write_DL_Code      => Write_DL_code,
+                Estimate_DL_Codes  => Dummy_Estimate_DL_Codes);
 
     procedure Finish_Cache is
       i : LZ_buffer_range := LZ_buffer_range (lz77_pos mod LZ_cache_size);
@@ -619,13 +586,10 @@ is
     end Finish_Cache;
 
   begin  --  Encode_with_Reduce
-    Read_Block;
+    Read_Block (IO_buffers, input);
     R := String_buffer_size - Look_Ahead;
-    Bytes_in := 0;
     if input_size_known then
-      X_Percent := Integer (input_size / 40);
-    else
-      X_Percent := 0;
+      feedback_milestone := ZS_Size_Type (input_size / feedback_steps);
     end if;
     using_LZ77 := True;
     My_LZ77;
@@ -644,15 +608,7 @@ is
   mem : ZS_Index_Type;
 
 begin
-  --  Allocate input and output buffers.
-  if input_size_known then
-    InBuf := new Byte_Buffer
-      (1 .. Integer'Min (Integer'Max (8, Integer (input_size)), buffer_size));
-  else
-    InBuf := new Byte_Buffer (1 .. buffer_size);
-  end if;
-  OutBuf := new Byte_Buffer (1 .. buffer_size);
-  OutBufIdx := 1;
+  Allocate_Buffers (IO_buffers, input_size_known, input_size);
   output_size := 0;
   mem := Index (input);
   --  Pass 1: statistics to calibrate the probabilistic expansion
@@ -673,6 +629,9 @@ begin
     when Compression_inefficient =>
       compression_ok := False;
   end;
-  Dispose (InBuf);
-  Dispose (OutBuf);
+  Deallocate_Buffers (IO_buffers);
+exception
+  when others =>
+    Deallocate_Buffers (IO_buffers);
+    raise;
 end Zip.Compress.Reduce;

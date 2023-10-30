@@ -1,6 +1,6 @@
 --  Legal licensing note:
 
---  Copyright (c) 2007 .. 2019 Gautier de Montmollin (Maintainer of the Ada version)
+--  Copyright (c) 2007 .. 2022 Gautier de Montmollin
 --  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,19 +24,42 @@
 --  NB: this is the MIT License, as found on the site
 --  http://www.opensource.org/licenses/mit-license.php
 
-with Zip.CRC_Crypto,
+with Zip.Create,
      Zip.Compress.Shrink,
      Zip.Compress.Reduce,
      Zip.Compress.Deflate,
      Zip.Compress.LZMA_E;
 
-with Ada.Characters.Handling;           use Ada.Characters.Handling;
-with Ada.Numerics.Discrete_Random;
-with Ada.Strings.Fixed;                 use Ada.Strings.Fixed;
+with Ada.Characters.Handling,
+     Ada.Numerics.Discrete_Random,
+     Ada.Strings.Fixed,
+     Ada.Unchecked_Deallocation;
 
 package body Zip.Compress is
 
   use Zip_Streams, Zip.CRC_Crypto;
+
+  --  The following procedure's purpose is to detect size overflows
+  --  for Zip data. Even when the input size is known, we can have
+  --  the situation where data is random and the compressed output size
+  --  overflows.
+
+  procedure Increment (
+    out_size : in out Zip_64_Data_Size_Type;
+    by       : in     Natural
+  )
+  is
+    temp_by : constant ZS_Size_Type := ZS_Size_Type (by);
+    use type Zip_64_Data_Size_Type, ZS_Size_Type;
+  begin
+    if temp_by > Create.max_size then
+      raise Create.Zip_Capacity_Exceeded with
+        "Compressed data too large: size is 2 EiB (Exbibytes) or more.";
+    end if;
+    out_size := out_size + Zip_64_Data_Size_Type (by);
+  end Increment;
+
+  default_byte_IO_buffer_size : constant := 1024 * 1024;  --  1 MiB
 
   -------------------
   -- Compress_data --
@@ -46,18 +69,17 @@ package body Zip.Compress is
    (input,
     output           : in out Zip_Streams.Root_Zipstream_Type'Class;
     input_size_known : Boolean;
-    input_size       : File_size_type;
+    input_size       : Zip_64_Data_Size_Type;
     method           : Compression_Method;
     feedback         : Feedback_proc;
     password         : String;
     content_hint     : Data_content_type;
     CRC              : out Interfaces.Unsigned_32;
-    output_size      : out File_size_type;
+    output_size      : out Zip_64_Data_Size_Type;
     zip_type         : out Interfaces.Unsigned_16
    )
   is
     use Interfaces;
-    counted : File_size_type;
     user_aborting : Boolean;
     idx_in :  constant ZS_Index_Type := Index (input);
     idx_out : constant ZS_Index_Type := Index (output);
@@ -74,18 +96,18 @@ package body Zip.Compress is
     --  Store data as is, or, if do_write = False, just compute CRC (this is for encryption).
     --
     procedure Store_data (do_write : Boolean) is
-      Buffer      : Byte_Buffer (1 .. buffer_size);
+      Buffer      : Byte_Buffer (1 .. default_byte_IO_buffer_size);
       Last_Read   : Natural;
+      counted     : Zip_64_Data_Size_Type := 0;
     begin
       zip_type := Compression_format_code.store_code;
-      counted := 0;
       while not End_Of_Stream (input) loop
-        if input_size_known and counted >= input_size then
+        if input_size_known and then counted >= input_size then
           exit;
         end if;
         --  Copy data
         Block_Read (input, Buffer, Last_Read);
-        counted := counted + File_size_type (Last_Read);
+        Increment (counted, Last_Read);
         Update (CRC, Buffer (1 .. Last_Read));
         if do_write then
           Encode (encrypt_pack, Buffer (1 .. Last_Read));
@@ -94,7 +116,7 @@ package body Zip.Compress is
         --  Feedback
         if feedback /= null and then
           (first_feedback or (counted mod (2**16) = 0) or
-          (input_size_known and counted = input_size))
+          (input_size_known and then counted = input_size))
         then
           if input_size_known then
             feedback (
@@ -216,7 +238,7 @@ package body Zip.Compress is
     end Compress_data_single_method;
 
     fast_presel : constant Boolean :=
-      method = Preselection_1 or (input_size_known and input_size < 22_805);
+      method = Preselection_1 or (input_size_known and then input_size < 22_805);
 
     data_type_to_LZMA_method : constant array (Data_content_type) of LZMA_Method :=
       (JPEG    => LZMA_for_JPEG,
@@ -228,6 +250,7 @@ package body Zip.Compress is
        PPM     => LZMA_for_PPM,
        PNG     => LZMA_for_PNG,
        WAV     => LZMA_for_WAV,
+       AU      => LZMA_for_AU,
        others  => LZMA_1  --  Fake, should be unused as such.
       );
 
@@ -240,7 +263,7 @@ package body Zip.Compress is
       when Preselection_Method =>
         case content_hint is
           when Neutral =>  --  No clue about what kind of data
-            if input_size_known and input_size < 9_000 then
+            if input_size_known and then input_size < 9_000 then
               Compress_data_single_method (Deflate_3);  --  Deflate
             elsif fast_presel then
               --  See: Optimum, LZ77 sheet in za_work.xls
@@ -249,20 +272,20 @@ package body Zip.Compress is
             else
               Compress_data_single_method (LZMA_3);                 --  LZMA with BT4 match finder
             end if;
-          when ARW_RW2 | ORF_CR2 | MP3 | MP4 | JPEG | PGM | PPM | PNG | WAV =>
-            if input_size_known and input_size < 2_250 then
+          when ARW_RW2 | ORF_CR2 | MP3 | MP4 | JPEG | PGM | PPM | PNG | WAV | AU =>
+            if input_size_known and then input_size < 2_250 then
               Compress_data_single_method (Deflate_3);  --  Deflate
             else
               Compress_data_single_method (data_type_to_LZMA_method (content_hint));
             end if;
           when GIF =>
-            if input_size_known and input_size < 350 then
+            if input_size_known and then input_size < 350 then
               Compress_data_single_method (Deflate_1);
             else
               Compress_data_single_method (LZMA_for_GIF);
             end if;
           when Zip_in_Zip =>
-            if input_size_known and input_size < 1_000 then
+            if input_size_known and then input_size < 1_000 then
               Compress_data_single_method (Deflate_3);  --  Deflate
             elsif fast_presel then
               Compress_data_single_method (LZMA_2_for_Zip_in_Zip);
@@ -270,7 +293,7 @@ package body Zip.Compress is
               Compress_data_single_method (LZMA_3_for_Zip_in_Zip);
             end if;
           when Source_code =>
-            if input_size_known and input_size < 8_000 then
+            if input_size_known and then input_size < 8_000 then
               Compress_data_single_method (Deflate_3);  --  Deflate
             elsif fast_presel then
               Compress_data_single_method (LZMA_2_for_Source);
@@ -282,6 +305,7 @@ package body Zip.Compress is
   end Compress_data;
 
   function Guess_type_from_name (name : String) return Data_content_type is
+    use Ada.Characters.Handling, Ada.Strings.Fixed;
     up : constant String := To_Upper (name);
     ext_1 : constant String := Tail (up, 2);
     ext_2 : constant String := Tail (up, 3);
@@ -291,44 +315,44 @@ package body Zip.Compress is
     if ext_3 = ".JPG" or else ext_4 = ".JPEG" then
       return JPEG;
     end if;
-    if ext_3 = ".ADA" or else ext_3 = ".ADS" or else ext_3 = ".ADB"
-      or else ext_1 = ".C" or else ext_1 = ".H"
-      or else ext_3 = ".CPP" or else ext_3 = ".HPP"
-      or else ext_3 = ".DEF" or else ext_3 = ".ASM"
+    if ext_3 in ".ADA" | ".ADS" | ".ADB"
+      or else ext_1 in ".C" | ".H"
+      or else ext_3 in ".CPP" | ".HPP" | ".DEF" | ".ASM"
       or else ext_4 = ".JAVA" or else ext_2 = ".CS"
-      or else ext_3 = ".PAS" or else ext_3 = ".INC" or else ext_2 = ".PP" or else ext_3 = ".LPR"
+      or else ext_3 in ".PAS" | ".INC" | ".LPR" or else ext_2 = ".PP"
       or else ext_3 = ".MAK" or else ext_2 = ".IN"
-      or else ext_2 = ".SH" or else ext_3 = ".BAT" or else ext_3 = ".CMD"
-      or else ext_3 = ".XML" or else ext_3 = ".XSL" or else ext_4 = ".SGML"
+      or else ext_2 = ".SH" or else ext_3 in ".BAT" | ".CMD"
+      or else ext_3 in ".XML" | ".XSL"
+      or else ext_4 = ".SGML"
+      or else ext_3 = ".AUP"  --  Audacity project (XML)
       or else ext_3 = ".HTM" or else ext_4 = ".HTML"
       or else ext_2 = ".JS" or else ext_3 = ".LSP"
-      or else ext_3 = ".CSV" or else ext_3 = ".SQL"
+      or else ext_3 in ".CSV" | ".SQL"
     then
       return Source_code;
     end if;
     --  Zip archives happen to be zipped...
     if ext_4 = ".EPUB"  --  EPUB: e-book reader format
-      or else ext_3 = ".JAR" or else ext_3 = ".ZIP"
-      or else ext_3 = ".ODB" or else ext_3 = ".ODS" or else ext_3 = ".ODT"
-      or else ext_3 = ".OTR" or else ext_3 = ".OTS" or else ext_3 = ".OTT"
-      or else ext_3 = ".CRX" or else ext_3 = ".NTH"
-      or else ext_4 = ".DOCX" or else ext_4 = ".PPTX" or else ext_4 = ".XLSX"
+      or else ext_3 in ".ZIP" | ".JAR" |
+                       ".ODB" | ".ODS" | ".ODT" | ".OTR" | ".OTS" | ".OTT" |
+                       ".CRX" | ".NTH"
+      or else ext_4 in ".DOCX" | ".PPTX" | ".XLSX" | ".XLSB" | ".XLSM"
     then
       return Zip_in_Zip;
     end if;
     --  Some raw camera picture data
-    if ext_3 = ".ORF"          --  Raw Olympus
-      or else ext_3 = ".CR2"   --  Raw Canon
-      or else ext_3 = ".RAF"   --  Raw Fujifilm
-      or else ext_3 = ".SRW"   --  Raw Samsung
+    if ext_3 in ".ORF" |  --  Raw Olympus
+                ".CR2" |  --  Raw Canon
+                ".RAF" |  --  Raw Fujifilm
+                ".SRW"    --  Raw Samsung
     then
       return ORF_CR2;
     end if;
-    if ext_3 = ".ARW"          --  Raw Sony
-      or else ext_3 = ".RW2"   --  Raw Panasonic
-      or else ext_3 = ".NEF"   --  Raw Nikon
-      or else ext_3 = ".DNG"   --  Raw Leica, Pentax
-      or else ext_3 = ".X3F"   --  Raw Sigma
+    if ext_3 in ".ARW" |  --  Raw Sony
+                ".RW2" |  --  Raw Panasonic
+                ".NEF" |  --  Raw Nikon
+                ".DNG" |  --  Raw Leica, Pentax
+                ".X3F"    --  Raw Sigma
     then
       return ARW_RW2;
     end if;
@@ -341,7 +365,7 @@ package body Zip.Compress is
     if ext_3 = ".MP3" then
       return MP3;
     end if;
-    if ext_3 = ".MTS" or else ext_3 = ".MP4" or else ext_3 = ".M4A" or else ext_3 = ".M4P" then
+    if ext_3 in ".MTS" | ".MP4" | ".M4A" | ".M4P" then
       return MP4;
     end if;
     if ext_3 = ".PNG" then
@@ -350,10 +374,84 @@ package body Zip.Compress is
     if ext_3 = ".GIF" then
       return GIF;
     end if;
-    if ext_3 = ".WAV" or else ext_3 = ".UAX" then
+    if ext_3 in ".WAV" | ".UAX" then
       return WAV;
+    end if;
+    if ext_2 = ".AU" then  --  Audacity raw data
+      return AU;
     end if;
     return Neutral;
   end Guess_type_from_name;
+
+  -----------------------------------
+  --  I/O buffers for compression  --
+  -----------------------------------
+
+  procedure Allocate_Buffers (
+    b                : in out IO_Buffers_Type;
+    input_size_known :        Boolean;
+    input_size       :        Zip_64_Data_Size_Type
+  )
+  is
+    calibration : Zip_64_Data_Size_Type := default_byte_IO_buffer_size;
+  begin
+    if input_size_known then
+      calibration :=
+        Zip_64_Data_Size_Type'Min (
+          default_byte_IO_buffer_size,
+          Zip_64_Data_Size_Type'Max (8, input_size)
+        );
+    end if;
+    b.InBuf  := new Byte_Buffer (1 .. Integer (calibration));
+    b.OutBuf := new Byte_Buffer (1 .. default_byte_IO_buffer_size);
+  end Allocate_Buffers;
+
+  procedure Deallocate_Buffers (b : in out IO_Buffers_Type) is
+    procedure Dispose_Buffer is
+      new Ada.Unchecked_Deallocation (Byte_Buffer, p_Byte_Buffer);
+  begin
+    Dispose_Buffer (b.InBuf);
+    Dispose_Buffer (b.OutBuf);
+  end Deallocate_Buffers;
+
+  procedure Read_Block (
+    b     : in out IO_Buffers_Type;
+    input : in out Zip_Streams.Root_Zipstream_Type'Class
+  )
+  is
+  begin
+    Zip.Block_Read (
+      stream        => input,
+      buffer        => b.InBuf.all,
+      actually_read => b.MaxInBufIdx
+    );
+    b.InputEoF := b.MaxInBufIdx = 0;
+    b.InBufIdx := 1;
+  end Read_Block;
+
+  procedure Write_Block (
+    b                : in out IO_Buffers_Type;
+    input_size_known :        Boolean;
+    input_size       :        Zip_64_Data_Size_Type;
+    output           : in out Zip_Streams.Root_Zipstream_Type'Class;
+    output_size      : in out Zip_64_Data_Size_Type;
+    crypto           : in out Zip.CRC_Crypto.Crypto_pack
+  )
+  is
+    amount : constant Integer := b.OutBufIdx - 1;
+    use type Zip_64_Data_Size_Type;
+  begin
+    Increment (output_size, Integer'Max (0, amount));
+    if input_size_known and then output_size >= input_size then
+      --  The compression so far is obviously inefficient for that file.
+      --  Useless to go further.
+      --  Stop immediately before growing the file more than the
+      --  uncompressed size.
+      raise Compression_inefficient;
+    end if;
+    Encode (crypto, b.OutBuf (1 .. amount));
+    Zip.Block_Write (output, b.OutBuf (1 .. amount));
+    b.OutBufIdx := 1;
+  end Write_Block;
 
 end Zip.Compress;

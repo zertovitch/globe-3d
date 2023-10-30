@@ -11,9 +11,9 @@
 --  imploded, reduced, shrunk and stored streams from a Zip archive stream.
 --
 --  Pure Ada 2005+ code, 100% portable: OS-, CPU- and compiler- independent.
+--  Location on the web: see the Zip.web constant.
 
 --  Ada translation and substantial rewriting by Gautier de Montmollin
---    On the web: see the Zip.web constant.
 --  based on Pascal version 2.10 by Abimbola A Olowofoyeku,
 --    http://www.foyeh.org/
 --  itself based on Pascal version by Christian Ghisler,
@@ -24,7 +24,7 @@
 
 --  Legal licensing note:
 
---  Copyright (c) 1999 .. 2019 Gautier de Montmollin
+--  Copyright (c) 1999 .. 2023 Gautier de Montmollin
 --  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -167,6 +167,7 @@ package UnZip is
                    );
 
   subtype PKZip_method is Zip.PKZip_method;
+  pragma Obsolescent (PKZip_method, "Better use the type: Zip.PKZip_method");
 
   ----------------------------------------------
   -- Extraction procedures for user interface --
@@ -193,15 +194,12 @@ package UnZip is
   type Get_password_proc is access
     procedure (password : out Ada.Strings.Unbounded.Unbounded_String);
 
-  --  Data sizes in archive
-  subtype File_size_type is Zip.File_size_type;
-
   --  Inform user about some archive data
 
   type Tell_data_proc is access
     procedure (name               : String;
-               compressed_bytes   : File_size_type;
-               uncompressed_bytes : File_size_type;
+               compressed_bytes   : Zip.Zip_64_Data_Size_Type;
+               uncompressed_bytes : Zip.Zip_64_Data_Size_Type;
                method             : PKZip_method);
 
   --  Extract all files from an archive (from)
@@ -290,7 +288,7 @@ package UnZip is
   --  Errors
 
   CRC_Error,
-  Uncompressed_size_Error,
+  Uncompressed_Size_Error,
   Write_Error,
   Read_Error,
   Wrong_password,
@@ -303,7 +301,7 @@ package UnZip is
 
 private
 
-  type Write_mode is
+  type Write_Mode_Type is
     (write_to_binary_file,
      write_to_text_file,
      write_to_memory,
@@ -311,7 +309,7 @@ private
      just_test
     );
 
-  subtype Write_to_file is Write_mode
+  subtype Write_to_file is Write_Mode_Type
     range write_to_binary_file .. write_to_text_file;
 
   type p_Stream is access all Ada.Streams.Root_Stream_Type'Class;

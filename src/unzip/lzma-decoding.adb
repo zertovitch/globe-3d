@@ -11,7 +11,7 @@
 
 --  Legal licensing note:
 
---  Copyright (c) 2014 .. 2019 Gautier de Montmollin (Maintainer of the Ada version)
+--  Copyright (c) 2014 .. 2021 Gautier de Montmollin (maintainer of the Ada version)
 --  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -35,7 +35,8 @@
 --  NB: this is the MIT License, as found on the site
 --  http://www.opensource.org/licenses/mit-license.php
 
-with Ada.Unchecked_Deallocation;
+with Ada.Text_IO,
+     Ada.Unchecked_Deallocation;
 
 package body LZMA.Decoding is
 
@@ -156,6 +157,9 @@ package body LZMA.Decoding is
       return out_win.pos = 0 and then not out_win.is_full;
     end Is_Empty;
 
+    LZ77_Dump : Ada.Text_IO.File_Type;
+    some_trace : constant Boolean := False;
+
     procedure Put_Byte (b : Byte) is
     pragma Inline (Put_Byte);
     begin
@@ -167,6 +171,13 @@ package body LZMA.Decoding is
         out_win.is_full := True;
       end if;
       Write_Byte (b);
+      if some_trace then
+        Ada.Text_IO.Put (LZ77_Dump, "Lit" & Byte'Image (b));
+        if b in 32 .. 126 then
+          Ada.Text_IO.Put (LZ77_Dump, " '" & Character'Val (b) & ''');
+        end if;
+        Ada.Text_IO.New_Line (LZ77_Dump);
+      end if;
     end Put_Byte;
 
     function Get_Byte (dist : UInt32) return Byte is
@@ -203,7 +214,7 @@ package body LZMA.Decoding is
       if state < 7 then
         loop
           Decode_Bit (probs.lit (probs_idx + Integer (symbol)), bit_nomatch);
-          symbol := (symbol + symbol) or bit_nomatch;
+          symbol := (2 * symbol) or bit_nomatch;
           exit when symbol >= 16#100#;
         end loop;
       else
@@ -223,13 +234,13 @@ package body LZMA.Decoding is
             match_bit  := match_byte and 16#100#;
             prob_idx_match := Integer (16#100# + match_bit);
             Decode_Bit (probs.lit (probs_idx + prob_idx_match + Integer (symbol)), bit_a);
-            symbol := (symbol + symbol) or bit_a;
+            symbol := (2 * symbol) or bit_a;
             exit when symbol >= 16#100#;
             if match_bit /= Shift_Left (UInt32 (bit_a), 8) then
               --  No bit match, then give up byte match
               loop
                 Decode_Bit (probs.lit (probs_idx + Integer (symbol)), bit_b);
-                symbol := (symbol + symbol) or bit_b;
+                symbol := (2 * symbol) or bit_b;
                 exit when symbol >= 16#100#;
               end loop;
               exit;
@@ -267,7 +278,7 @@ package body LZMA.Decoding is
         m := 1;
         for count in reverse 1 .. num_bits loop
           Decode_Bit (prob (Integer (m) + prob'First), a_bit);
-          m := m + m + a_bit;
+          m := 2 * m + a_bit;
         end loop;
         m := m - 2**num_bits;
       end Bit_Tree_Decode;
@@ -325,12 +336,15 @@ package body LZMA.Decoding is
           end loop;
         end Modulo_case;
       begin
-        out_win.is_full := will_fill or else out_win.is_full;
+        out_win.is_full := out_win.is_full or will_fill;
         out_win.total_pos := out_win.total_pos + len;
         if dist <= out_win.pos and not will_fill then
           Easy_case;
         else
           Modulo_case;
+        end if;
+        if some_trace then
+          Ada.Text_IO.Put_Line (LZ77_Dump, "DLE" & UInt32'Image (dist) & Unsigned'Image (len));
         end if;
       end Copy_Match;
       --
@@ -364,7 +378,7 @@ package body LZMA.Decoding is
         begin
           for i in 0 .. num_bits - 1 loop
             Decode_Bit (prob (Integer (m) + prob'First), a_bit);
-            m := m + m + a_bit;
+            m := 2 * m + a_bit;
             dist := dist or Shift_Left (UInt32 (a_bit), i);
           end loop;
         end Bit_Tree_Reverse_Decode;
@@ -526,6 +540,36 @@ package body LZMA.Decoding is
     size_defined_and_marker_not_mandatory : constant Boolean :=
       is_unpack_size_defined and not o.markerIsMandatory;
 
+    procedure Full_Decoding is
+    begin
+      Create (out_win, o.dictionary_size);
+      Init (range_dec);
+      loop
+        if o.unpackSize = 0
+          and then Is_Finished_OK
+          and then size_defined_and_marker_not_mandatory
+        then
+          res := LZMA_finished_without_marker;
+          return;
+        end if;
+        pos_state := Pos_state_range (UInt32 (out_win.total_pos) and pos_bits_mask);
+        Decode_Bit (probs.switch.match (state, pos_state), bit_choice);
+        --  LZ decoding happens here: either we have a new literal
+        --  in 1 byte, or we copy a slice of past data.
+        if bit_choice = Literal_choice then
+          Process_Literal;
+        else
+          case Process_Distance_and_Length is
+            when Normal =>
+              null;
+            when End_Of_Stream =>
+              res := LZMA_finished_with_marker;
+              return;
+          end case;
+        end if;
+      end loop;
+    end Full_Decoding;
+
     procedure Finalize is
       procedure Dispose is new Ada.Unchecked_Deallocation (Byte_buffer, p_Byte_buffer);
     begin
@@ -534,34 +578,14 @@ package body LZMA.Decoding is
     end Finalize;
 
   begin
-    Create (out_win, o.dictionary_size);
-    Init (range_dec);
-    loop
-      if o.unpackSize = 0
-        and then Is_Finished_OK
-        and then size_defined_and_marker_not_mandatory
-      then
-        res := LZMA_finished_without_marker;
-        Finalize;
-        return;
-      end if;
-      pos_state := Pos_state_range (UInt32 (out_win.total_pos) and pos_bits_mask);
-      Decode_Bit (probs.switch.match (state, pos_state), bit_choice);
-      --  LZ decoding happens here: either we have a new literal
-      --  in 1 byte, or we copy a slice of past data.
-      if bit_choice = Literal_choice then
-        Process_Literal;
-      else
-        case Process_Distance_and_Length is
-          when Normal =>
-            null;
-          when End_Of_Stream =>
-            res := LZMA_finished_with_marker;
-            Finalize;
-            return;
-        end case;
-      end if;
-    end loop;
+    if some_trace then
+      Ada.Text_IO.Create (LZ77_Dump, Ada.Text_IO.Out_File, "dump.lz77");
+    end if;
+    Full_Decoding;
+    Finalize;
+    if some_trace then
+      Ada.Text_IO.Close (LZ77_Dump);
+    end if;
   end Decode_Contents;
 
   procedure Decode_Header (o : out LZMA_Decoder_Info; hints : LZMA_Hints) is

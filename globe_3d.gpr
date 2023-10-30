@@ -38,7 +38,7 @@ project Globe_3D is
    Style_Checks_1 := 
      ("-gnatyaknpr",   --  Style: check all casings: a:attribute, k:keywords, n:package Standard identifiers, p:pragma, r:identifier references
       "-gnatyO",       --  Style: check overriding indicators
-      "-gnatyM100",    --  Style: check line length <= 100 characters
+      "-gnatyM120",    --  Style: check line length <= 100 characters
       "-gnatyx");      --  Style: check x:no extra parens
 
    Style_Checks_2 := 

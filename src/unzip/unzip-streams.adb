@@ -1,6 +1,6 @@
 --  Legal licensing note:
 
---  Copyright (c) 1999 .. 2019 Gautier de Montmollin
+--  Copyright (c) 1999 .. 2023 Gautier de Montmollin
 --  SWITZERLAND
 
 --  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,9 +26,10 @@
 
 with Zip.Headers, UnZip.Decompress;
 
-with Ada.Strings.Unbounded;
-with Ada.Unchecked_Deallocation;
-with Interfaces;                        use Interfaces;
+with Ada.Strings.Unbounded,
+     Ada.Unchecked_Deallocation;
+
+with Interfaces;
 
 package body UnZip.Streams is
 
@@ -43,6 +44,8 @@ package body UnZip.Streams is
      Ada.Unchecked_Deallocation (UnZip_Stream_Type,
                                  Zipped_File_Type);
 
+   use Interfaces;
+
   --------------------------------------------------
   -- *The* internal 1-file unzipping procedure.   --
   -- Input must be _open_ and won't be _closed_ ! --
@@ -55,18 +58,18 @@ package body UnZip.Streams is
     out_stream_ptr  :        p_Stream;
     --  if not null, extract to out_stream_ptr, not to memory
     password        : in out Ada.Strings.Unbounded.Unbounded_String;
-    hint_comp_size  : in     File_size_type; -- Added 2007 for .ODS files
+    hint_comp_size  : in     Zip.Zip_64_Data_Size_Type; -- Added 2007 for .ODS files
     hint_crc_32     : in     Unsigned_32;    -- Added 2012 for decryption
-    cat_uncomp_size : in     File_size_type
+    cat_uncomp_size : in     Zip.Zip_64_Data_Size_Type
   )
   is
     work_index : Zip_Streams.ZS_Index_Type := header_index;
     local_header : Zip.Headers.Local_File_Header;
     data_descriptor_after_data : Boolean;
     encrypted : Boolean;
-    method : PKZip_method;
-    use Zip;
-    mode : Write_mode;
+    method : Zip.PKZip_method;
+    use type Zip.PKZip_method;
+    mode : Write_Mode_Type;
   begin
     begin
       Zip_Streams.Set_Index (zip_stream, header_index);
@@ -78,8 +81,8 @@ package body UnZip.Streams is
         raise Zip.Archive_corrupted;
     end;
 
-    method := Method_from_code (local_header.zip_type);
-    if method = unknown then
+    method := Zip.Method_from_code (local_header.zip_type);
+    if method = Zip.unknown then
       raise Unsupported_method;
     end if;
 
@@ -93,6 +96,26 @@ package body UnZip.Streams is
               Zip.Headers.local_header_length
       );
 
+    --
+    --  Zip64 extension.
+    --
+    if local_header.extra_field_length >= 4 then
+      declare
+        mem                    : constant Zip_Streams.ZS_Index_Type := Zip_Streams.Index (zip_stream);
+        local_header_extension : Zip.Headers.Local_File_Header_Extension;
+        dummy_offset           : Unsigned_64 := 0;  --  Initialized for avoiding random value = 16#FFFF_FFFF#
+      begin
+        Zip_Streams.Set_Index (zip_stream, mem + Zip_Streams.ZS_Index_Type (local_header.filename_length));
+        Zip.Headers.Read_and_check (zip_stream, local_header_extension);
+        Zip_Streams.Set_Index (zip_stream, mem);
+        Zip.Headers.Interpret
+          (local_header_extension,
+           local_header.dd.uncompressed_size,
+           local_header.dd.compressed_size,
+           dummy_offset);
+      end;
+    end if;
+
     data_descriptor_after_data := (local_header.bit_flag and 8) /= 0;
 
     if data_descriptor_after_data then
@@ -103,7 +126,9 @@ package body UnZip.Streams is
     else
       --  Sizes and crc are before the data
       if cat_uncomp_size /= local_header.dd.uncompressed_size then
-        raise Uncompressed_size_Error;
+        raise Uncompressed_Size_Error
+          with "Uncompressed size mismatch: in catalogue:" & cat_uncomp_size'Image &
+               "; in local header:" & local_header.dd.uncompressed_size'Image;
       end if;
     end if;
 
@@ -126,7 +151,7 @@ package body UnZip.Streams is
     UnZip.Decompress.Decompress_data (
       zip_file                   => zip_stream,
       format                     => method,
-      mode                       => mode,
+      write_mode                 => mode,
       output_file_name           => "",
       output_memory_access       => mem_ptr,
       output_stream_access       => out_stream_ptr,
@@ -168,8 +193,8 @@ package body UnZip.Streams is
                       )
   is
     header_index : Zip_Streams.ZS_Index_Type;
-    comp_size    : File_size_type;
-    uncomp_size  : File_size_type;
+    comp_size    : Zip.Zip_64_Data_Size_Type;
+    uncomp_size  : Zip.Zip_64_Data_Size_Type;
     crc_32 : Interfaces.Unsigned_32;
     work_password : Ada.Strings.Unbounded.Unbounded_String :=
       Ada.Strings.Unbounded.To_Unbounded_String (password);
@@ -383,8 +408,8 @@ package body UnZip.Streams is
   end Stream;
 
   function Size (File : in Zipped_File_Type) return Count is
-    comp_size   : File_size_type;
-    uncomp_size : File_size_type;
+    comp_size   : Zip.Zip_64_Data_Size_Type;
+    uncomp_size : Zip.Zip_64_Data_Size_Type;
   begin
     Zip.Get_sizes (File.archive_info, File.file_name.all, comp_size, uncomp_size);
     return Count (uncomp_size);

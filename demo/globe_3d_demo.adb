@@ -471,7 +471,7 @@ procedure GLOBE_3D_Demo is
        max_u3     => 0.15,
        iterations => 1000,
        hor_tex    => Texture_ID ("spacity1"),
-       ver_tex    => Texture_ID ("spacity2"),
+       ver_tex    => Texture_ID ("alum_002"),
        tiling_hu  => 2,
        tiling_hv  => 2,
        tiling_vu  => 12,
@@ -487,7 +487,7 @@ procedure GLOBE_3D_Demo is
        max_u3     => 0.03,
        iterations => 2000,
        hor_tex    => Texture_ID ("alum_001"),
-       ver_tex    => Texture_ID ("spacity2"),
+       ver_tex    => Texture_ID ("alum_002"),
        tiling_hu  => 30,      --  ~ 2 * v-tiling
        tiling_hv  => 15,
        tiling_vu  => 3 * 31,  --  should be ~ 2*pi* v-tiling
@@ -728,8 +728,10 @@ procedure GLOBE_3D_Demo is
           ". Area found: " & Boolean'Image (info_b_bool1) &
           ". BSP path: " & To_String (info_b_str1));
       end if;
-      Msg (100, "Collision detection (F10): " & Boolean'Image (detect_collisions));
-
+      Msg
+        (100, 
+         "Collision detection (F10): " & detect_collisions'Image &
+         ";   F11 = Video Capture;   F12 = Screenshot");
       if sec > 0.0 then
         Msg (140, "FPS: " & Integer'Image (Integer (1.0 / sec)));
       end if;
