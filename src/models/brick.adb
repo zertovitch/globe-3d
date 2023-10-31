@@ -56,7 +56,7 @@ package body Brick is
         for pt in P'Range loop
           vtx (pt) := 0;
           for op in 1 .. po loop
-            if Almost_zero (Norm2 (P (pt) - vertex (op))) then  --  exists already
+            if Almost_Zero (Norm2 (P (pt) - vertex (op))) then  --  exists already
               vtx (pt) := op;
             end if;
           end loop;

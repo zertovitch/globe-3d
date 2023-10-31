@@ -468,7 +468,7 @@ procedure GLOBE_3D_Demo is
        centre     => (-450.0, -450.0, -600.0),
        grid       => 120,
        surface    => Extruded_Surface.square,
-       max_u3     => 0.15,
+       max_u3     => 0.10,
        iterations => 1000,
        hor_tex    => Texture_ID ("spacity1"),
        ver_tex    => Texture_ID ("alum_002"),
@@ -482,12 +482,12 @@ procedure GLOBE_3D_Demo is
       (object     => borg_star,
        scale      => 500.0,
        centre     => (0.0, 0.0, -1000.0),
-       grid       => 65,
+       grid       => 130,
        surface    => Extruded_Surface.sphere,
-       max_u3     => 0.03,
-       iterations => 2000,
-       hor_tex    => Texture_ID ("alum_001"),
-       ver_tex    => Texture_ID ("alum_002"),
+       max_u3     => 0.05,
+       iterations => 4000,
+       hor_tex    => Texture_ID ("alum_002"),
+       ver_tex    => Texture_ID ("alum_001"),
        tiling_hu  => 30,      --  ~ 2 * v-tiling
        tiling_hv  => 15,
        tiling_vu  => 3 * 31,  --  should be ~ 2*pi* v-tiling
@@ -619,11 +619,10 @@ procedure GLOBE_3D_Demo is
     --  Whole 3D zoo:
     bestiaire := new Object_3D_Array'
       (level_stuff (level_stuff'First),  --  Starting area in the DOOM 3 level is the first area
-       cube, cube_glossy, cube_tri, cube_tri_quad, cube_bico,
-       globe,
-       sierp,
        extrude_test_1,
        borg_star,
+       globe,
+       sierp,
        dreadnought_ship,
        a319_plane,
        x29_plane,
@@ -631,6 +630,7 @@ procedure GLOBE_3D_Demo is
        ico, icos,
        knot, liss,
        knot_10_102_obj, knot_link_obj,
+       cube, cube_glossy, cube_tri, cube_tri_quad, cube_bico,
        bri1);
 
     --  Indices in the 3D zoo area where object accesses may change depending where the camera is:

@@ -163,7 +163,7 @@ project Globe_3D is
 
    case G3D_OS is
       when "win64"  => for Source_Dirs use ("bindings", "bindings/win32", "src/**");
-      when others   => for Source_Dirs use ("bindings", "bindings/" & external ("G3D_OS_Kind", "win32"), "src/**");
+      when others   => for Source_Dirs use ("bindings", "bindings/" & external ("G3D_OS", "win32"), "src/**");
    end case;
 
    package Ide is

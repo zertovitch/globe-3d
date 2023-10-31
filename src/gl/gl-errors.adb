@@ -35,27 +35,27 @@ package body GL.Errors is
    procedure Log (Prefix : in String := "")
    is
       use Ada.Text_IO;
-      current_Error : constant String:= Current;
+      Current_Error_String : constant String := Current;
    begin
-      if current_Error = "" then
+      if Current_Error_String = "" then
          return;
       end if;
 
       if Prefix = "" then
-         Put_Line ("openGL error: '" & current_Error & "'");
+         Put_Line ("openGL error: '" & Current_Error_String & "'");
       else
-         Put_Line (Prefix & ": '" & current_Error & "'");
+         Put_Line (Prefix & ": '" & Current_Error_String & "'");
       end if;
 
-      raise openGL_Error with current_Error;
+      raise OpenGL_Error with Current_Error_String;
    end Log;
 
    procedure Log (Prefix : in String := "";   error_Occurred : out Boolean)
    is
       use Ada.Text_IO;
-      current_Error : constant String:= Current;
+      Current_Error_String : constant String := Current;
    begin
-      if current_Error = "" then
+      if Current_Error_String = "" then
          error_Occurred := False;
          return;
       end if;
@@ -63,9 +63,9 @@ package body GL.Errors is
       error_Occurred := True;
 
       if Prefix = "" then
-         Put_Line ("openGL error: '" & current_Error & "'");
+         Put_Line ("openGL error: '" & Current_Error_String & "'");
       else
-         Put_Line (Prefix & ": '" & current_Error & "'");
+         Put_Line (Prefix & ": '" & Current_Error_String & "'");
       end if;
    end Log;
 
