@@ -32,7 +32,6 @@ project Globe_3D is
 
    Common_Compiler_Options :=
      ("-gnatwa",
-      "-gnatX",
       "-fno-strict-aliasing");
 
    Style_Checks_1 := 

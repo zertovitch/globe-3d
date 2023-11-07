@@ -56,21 +56,21 @@ procedure Mini is
     ClearColor (fact * 0.2275, fact * 0.0745, fact * 0.4431, 0.0);  --  Dark violet
   end Set_Background_Color;
 
-  procedure Reset_for_3D (width, height : Integer) is
+  procedure Reset_for_3D (wp_width, wp_height : Integer) is
     use GL, G3D, G3D.REF;
     aspect, half_fov_max_rads, fovy : Real;
   begin
-    Viewport (0, 0, Sizei (width), Sizei (height));
+    Viewport (0, 0, Sizei (wp_width), Sizei (wp_height));
     MatrixMode (PROJECTION);
     LoadIdentity;
-    aspect := GL.Double (width) / GL.Double (height);
+    aspect := GL.Double (wp_width) / GL.Double (wp_height);
     fovy := ego.FoVy;
     half_fov_max_rads := 0.5 * fovy * deg2rad;
     if aspect > 1.0 then -- x side angle broader than y side angle
       half_fov_max_rads := Arctan (aspect * Tan (half_fov_max_rads));
     end if;
     ego.clipper.max_dot_product := Sin (half_fov_max_rads);
-    ego.clipper.main_clipping := (0, 0, width - 1, height - 1);
+    ego.clipper.main_clipping := (0, 0, wp_width - 1, wp_height - 1);
     GLU.Perspective
       (fovy   => fovy,
        --  field of view angle (deg) in the y direction
