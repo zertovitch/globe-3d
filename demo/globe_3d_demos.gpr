@@ -22,7 +22,7 @@ project GLOBE_3D_Demos is
 
    for Main use (
      "globe_3d_demo.adb",
-     "mini.adb",
+     "mini_3d.adb",
      "get_gl_info.adb"
    );
    for Source_Dirs use (".", "../tools");

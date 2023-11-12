@@ -4,17 +4,18 @@
 --        GLOBE_3D Web site:   http://globe3d.sf.net/
 --         GLOBE_3D Mirror:    https://github.com/zertovitch/globe-3d
 --
---  Build me with "gnatmake -P globe_3d", "gprbuild -P globe_3d",
+--  Build me with "gnatmake -P globe_3d_project_tree", "gprbuild -P globe_3d_project_tree",
 --  or open me with GNAT Studio.
 --
---  This variant is a single project, which handles all sources, including
---  libraries (zip-ada, gid) which are also available as standalone projects
---  and made visible withthe Source_Dir_List variable below.
+--  This variant is a hierarchical project, which refers to other projects.
 --
---  See "globe_3d_project_tree.gpr" for the other variant of
+--  See "globe_3d.gpr" for the other variant (single, "flat", project file) for
 --  the GLOBE_3D project.
 
-project GLOBE_3D is
+with "GID";
+with "ZipAda";
+
+project GLOBE_3D_Project_Tree is
 
    type G3D_OS_Kind is
       ("win32", "win64", "linux", "macosx");
@@ -162,10 +163,7 @@ project GLOBE_3D is
       "src/gaming",
       "src/gl",
       "src/models",
-      "src/objects",
-      --  Here are external projects's sources:
-      "src/gid",
-      "src/unzip");
+      "src/objects");
 
    case G3D_OS is
       when "win64"  => for Source_Dirs use Source_Dir_List & ("bindings/win32");
@@ -212,4 +210,4 @@ project GLOBE_3D is
       end case;
    end Linker;
 
-end GLOBE_3D;
+end GLOBE_3D_Project_Tree;

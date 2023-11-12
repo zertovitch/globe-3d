@@ -70,9 +70,9 @@ The Copyright statement appears in GLOBE_3D.ads.
     <li>Prepare the link between the computer and GL.
       For instance, GLUT does it in a totally portable way,
 	    but you have other, direct gateways between various GUI systems (Windows, GTk, X Window,...) and GL.
-      (see Start_GLUTs in the <tt>Mini.adb</tt> demo)
+      (see Start_GLUTs in the <tt>mini_3d.adb</tt> demo)
 	<li>Prepare the perspective, lighting, display modes of GL
-        (see Start_GLs in the <tt>Mini.adb</tt> demo)
+        (see Start_GLs in the <tt>mini_3d.adb</tt> demo)
 	<li>Display forms. For the 3D, it boils down to displaying a mesh of triangles (eventually rectangles).
 	    For displaying a single triangle, GL makes it extremely easy:
 		<ol>
@@ -257,7 +257,7 @@ As a preliminary note, here is what is needed to run the <b>demo</b>, GLOBE_3D_D
  <b><font face="Arial, Tahoma">How to <b>build</b> the project on various platforms and compilers:
  </font></b></a>
  <p>
-  The <tt>GLOBE_3D_Demo.adb</tt> or the much simpler <tt>Mini.adb</tt> demo, in directory <tt>./demo</tt>,
+  The <tt>GLOBE_3D_Demo.adb</tt> or the much simpler <tt>mini_3d.adb</tt> demo, in directory <tt>./demo</tt>,
   can serve as a prototype for your applications using GLOBE_3D.
   That directory also contains various scripts (or so) for various systems.
   <ul>
@@ -312,7 +312,7 @@ Execution:<br>
 - export DYLD_LIBRARY_PATH=../obj/libmac/lib<br>
 - ./globe_3d_demo<br>
 or<br>
-- ./mini<br>
+- ./mini_3d<br>
     </ul>
    <li> <b>Other systems</b>:<br>
     Should be fine, just need GL, GLU, (Free)GLUT (the latter is only needed by the demos).

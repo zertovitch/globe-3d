@@ -10,7 +10,7 @@ with GLOBE_3D,
      GLOBE_3D.Math,
      GLOBE_3D.Textures;
 
-procedure Mini is
+procedure Mini_3D is
 
   package G3D  renames GLOBE_3D;
 
@@ -326,4 +326,4 @@ begin
   --
   GLUT.MainLoop;  --  Let's rock !
 
-end Mini;
+end Mini_3D;

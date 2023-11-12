@@ -1,0 +1,38 @@
+--  This is a GNAT, GCC or GNAT Studio project file
+--  for the GLOBE_3D demos.
+--
+--        GLOBE_3D Web site:   http://globe3d.sf.net/
+--         GLOBE_3D Mirror:    https://github.com/zertovitch/globe-3d
+--
+--
+--  Build me with "gnatmake -P globe_3d_demos", "gprbuild -P globe_3d_demos",
+--  or open me with GNAT Studio
+--  
+--  Target specification:
+--  
+--  For Windows 64-bits (default) : gprbuild -P globe_3d_demos.gpr -XG3D_OS=win64
+--  For Windows 32-bits           : gprbuild -P globe_3d_demos.gpr -XG3D_OS=win32
+--  For Linux                     : gprbuild -P globe_3d_demos.gpr -XG3D_OS=linux
+--  For Mac OS X (untested)       : gprbuild -P globe_3d_demos.gpr -XG3D_OS=macosx
+--
+
+with "../globe_3d_project_tree";
+
+project GLOBE_3D_Demos_Project_Tree is
+
+   for Main use (
+     "globe_3d_demo.adb",
+     "mini_3d.adb",
+     "get_gl_info.adb"
+   );
+   for Source_Dirs use (".", "../tools");
+   for Object_Dir use "../obj/gnat_" & external ("G3D_GNAT_Obj_Suffix", "debug");
+   for Exec_Dir use ".";
+
+   package Ide      renames GLOBE_3D_Project_Tree.Ide;
+   package Builder  renames GLOBE_3D_Project_Tree.Builder;
+   package Compiler renames GLOBE_3D_Project_Tree.Compiler;
+   package Binder   renames GLOBE_3D_Project_Tree.Binder;
+   package Linker   renames GLOBE_3D_Project_Tree.Linker;
+
+end GLOBE_3D_Demos_Project_Tree;

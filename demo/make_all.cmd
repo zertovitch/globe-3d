@@ -1,4 +1,4 @@
-gprbuild -PGLOBE_3D_Demos.gpr GLOBE_3D_Demo.adb Mini.adb -XG3D_OS=win64 -XBuild_Mode=fast
+gprbuild -PGLOBE_3D_Demos.gpr GLOBE_3D_Demo.adb Mini_3D.adb -XG3D_OS=win64 -XBuild_Mode=fast
 
 rem  Also build other demos and tools - from make_all.sh by John Howard, Echosoft.LLC@gmail.com
 
