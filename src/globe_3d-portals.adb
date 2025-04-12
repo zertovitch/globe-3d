@@ -50,10 +50,10 @@ package body GLOBE_3D.Portals is
   end Projection;
 
   procedure Find_Bounding_Box
-    (o       :     Object_3D'Class;
-     face    :     Positive;
-     b       : out Rectangle;
-     success : out Boolean)
+    (o       : in     Object_3D'Class;
+     face    : in     Positive;
+     b       :    out Rectangle;
+     success :    out Boolean)
   is
     x, y : Integer;
     proj_success : Boolean;
@@ -84,12 +84,13 @@ package body GLOBE_3D.Portals is
 
   procedure Draw_Boundary (main, clip : Rectangle; portal_depth : Natural := 0) is
     use GL, REF;
-    z : constant := 0.0;
+
     procedure Line (x1, y1, x2, y2 : Integer) is
     begin
-      Vertex (GL.Double (x1), GL.Double (y1), z);
-      Vertex (GL.Double (x2), GL.Double (y2), z);
+      Vertex (GL.Double (x1), GL.Double (y1), 0.0);
+      Vertex (GL.Double (x2), GL.Double (y2), 0.0);
     end Line;
+
     procedure Frame_Rect (x1, y1, x2, y2 : Integer) is
     begin
       Line (x1, y1, x2, y1);
@@ -97,9 +98,11 @@ package body GLOBE_3D.Portals is
       Line (x2, y2, x1, y2);
       Line (x1, y2, x1, y1);
     end Frame_Rect;
+
     rect : Rectangle;
     val : constant Real := 0.3 + 0.7 * Exp (-GL.Double (portal_depth));
     text_size : constant := 12.5;
+
   begin
     GL.Disable (GL.Lighting);
     GL.Disable (GL.Texture_2D);
@@ -123,7 +126,7 @@ package body GLOBE_3D.Portals is
     GL.PushMatrix;
     GL.LoadIdentity;
 
-    --  Portal label
+    --  Portal label:
     GL.Simple_Text.Text_Output
       ((GL.Double (clip.X1),  GL.Double (clip.Y2) - text_size, 0.0),
        "Portal depth:" & portal_depth'Image,
@@ -131,12 +134,12 @@ package body GLOBE_3D.Portals is
        text_size,
        GL.Simple_Text.Sans_Serif);
 
-    --  A green rectangle to signal the clipping area
+    --  A green rectangle (2D) to signal the clipping area:
     GL.Color (0.1, val, 0.1, 1.0);
     GL_Begin (GL.LINES);
     Frame_Rect (rect.X1, rect.Y1, rect.X2, rect.Y2);
     GL_End;
-    --  A red cross across the area
+    --  A red cross (2D) across the area:
     GL.Color (val, 0.1, 0.1, 1.0);
     GL_Begin (GL.LINES);
     Line (clip.X1, clip.Y1, clip.X2, clip.Y2);
@@ -151,5 +154,35 @@ package body GLOBE_3D.Portals is
     --  GL.Enable( GL.DEPTH_TEST );
 
   end Draw_Boundary;
+
+  procedure Show_Edges
+    (o            : Object_3D'Class;
+     face         : Positive;
+     portal_depth : Natural := 0)
+  is
+    use GL, GL.Math, REF;
+    val : constant Real := 0.3 + 0.7 * Exp (-GL.Double (portal_depth));
+
+    procedure Face_Vertex (v : Positive) is
+    begin
+      Vertex (o.point (o.face_internal (face).P_compact (v)) + o.centre);
+    end Face_Vertex;
+
+  begin
+    GL.Disable (GL.Lighting);
+    GL.Disable (GL.Texture_2D);
+    GL.Disable (GL.Depth_Test);
+
+    --  Signal the portal as a blue polygon (3D):
+    GL.Color (0.1, 0.1, val, 1.0);
+    GL_Begin (GL.LINES);
+    for sf in 1 .. o.face_internal (face).last_edge loop
+       Face_Vertex (sf);
+    end loop;
+    Face_Vertex (1);  --  Complete the polygon.
+    GL_End;
+    GL.Enable (GL.Lighting);
+    GL.Enable (GL.Depth_Test);
+  end Show_Edges;
 
 end GLOBE_3D.Portals;

@@ -704,7 +704,7 @@ package body GLOBE_3D is
         success, non_empty_intersection : Boolean;
       begin
         dot_product := o.face_internal (f).normal * clip.view_direction;
-        --  Culling #1: check if portal is in field of view's "dead angle"
+        --  Culling #1: check if portal is within the field of view (avoid "dead angle")
         --  ==========
         if dot_product < clip.max_dot_product then
           plane_to_eye :=
@@ -719,8 +719,10 @@ package body GLOBE_3D is
           if dot_product > 0.0 then
             Find_Bounding_Box (o, f, bounding_of_face, success);
             if success then
-              Intersect (clip_area, bounding_of_face,
-                         intersection_clip_and_face, non_empty_intersection);
+              Intersect
+                (clip_area, bounding_of_face,
+                 intersection_clip_and_face,
+                 non_empty_intersection);
             else
               --  No reliable bounding box.
               --  In doubt, draw with the current clipping.
@@ -735,6 +737,9 @@ package body GLOBE_3D is
                 (o            => o.face (f).connecting.all,
                  clip_area    => intersection_clip_and_face,
                  portal_depth => portal_depth + 1);
+              if show_portals then
+                Show_Edges (o, f, portal_depth);
+              end if;
             end if;
           end if;
         end if;
