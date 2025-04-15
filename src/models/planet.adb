@@ -1,5 +1,4 @@
 with GL.Math;
-with Ada.Numerics;                      use Ada.Numerics;
 
 package body Planet is
 

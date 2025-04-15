@@ -3,8 +3,6 @@ with GL;
 with GLOBE_3D.Random_Extrusions,
      GL.Math;
 
-with Ada.Numerics;                      use Ada.Numerics;
-
 package body Extruded_Surface is
 
   procedure Create

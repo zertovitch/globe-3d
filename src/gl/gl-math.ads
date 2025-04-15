@@ -17,6 +17,8 @@ package GL.Math is
   package REF is new Ada.Numerics.Generic_Elementary_Functions (Double);
   package RIO is new Ada.Text_IO.Float_IO                      (Double);
 
+  Pi : constant := Ada.Numerics.Pi;
+
   -------------
   -- Vectors --
   -------------
