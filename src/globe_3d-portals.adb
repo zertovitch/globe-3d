@@ -157,10 +157,11 @@ package body GLOBE_3D.Portals is
 
   --  Temporary location for a future Simple Shapes
   --
-  function Cylinder
-    (bottom_center : Point_3D;  --  Center of bottom disc
-     top_center    : Point_3D;  --  Center of top disc
-     radius        : Real;
+  function Truncated_Cone
+    (disk_center_1 : Point_3D;  --  Center of "bottom" disc
+     disk_center_2 : Point_3D;  --  Center of "top" disc
+     radius_1      : Real;
+     radius_2      : Real;
      slices        : Positive;
      stacks        : Positive;
      colour        : GL.RGB_Color)
@@ -169,13 +170,14 @@ package body GLOBE_3D.Portals is
     use GL, GL.Math, REF;
     res : Object_3D (Max_points => (1 + stacks) * slices, Max_faces => stacks * slices);
     null_object : Object_3D (0, 0);
-    main_axis   : constant Vector_3D := top_center - bottom_center;
+    main_axis   : constant Vector_3D := disk_center_2 - disk_center_1;
     main_length : constant Real := Norm (main_axis);
     xyz, uvw, efg : Vector_3D;  --  3 orthogonal unit vectors; xyz is parallel to main axis.
-    x, y, z, len_xy, inv_len_xy : Real;
+    x, y, z, len_xy, inv_len_xy, h, radius : Real;
     a0, b0, a, b, slice_angle, c, s : Real;
     stack_center : Point_3D;
     face : Face_Type;
+    next : Positive;
   begin
     if Almost_Zero (main_length) then
       return null_object;
@@ -195,7 +197,7 @@ package body GLOBE_3D.Portals is
       efg := (inv_len_xy * x * z, inv_len_xy * y * z, -len_xy);
     end if;
 
-    a := radius;
+    a := 1.0;
     b := 0.0;
     slice_angle := 2.0 * Pi / Real (slices);
     c := Cos (slice_angle);
@@ -203,56 +205,99 @@ package body GLOBE_3D.Portals is
     for slice in 1 .. slices loop
       a0 := a;
       b0 := b;
-      --  We rotate the 2D (a, b) point.
+      --  We rotate the 2D (a, b) point for the circle approximation.
       a := c * a0 - s * b0;
       b := s * a0 + c * b0;
       for stack in 0 .. stacks loop
-        stack_center := bottom_center + Real (stack) / Real (stacks) * main_axis;
+        h := Real (stack) / Real (stacks);
+        stack_center := disk_center_1 + h * main_axis;
+        radius := (1.0 - h) * radius_1 + h * radius_2;
         res.point (stack * slices + slice) :=
-           stack_center + a0 * uvw + b0 * efg;
+           stack_center + radius * (a0 * uvw + b0 * efg);
       end loop;
+      next := (if slice = slices then 1 else slice + 1);
       for stack in 0 .. stacks - 1 loop
         face.P :=
-          (stack * slices       + slice,      --  Face n begins with point n.
-           stack * slices       + slice + 1,  --  Next point in the same disk.
-           (stack + 1) * slices + slice + 1,  --  Point on the disk "above" the previous point.
-           (stack + 1) * slices + slice);     --  Point "above" the first point.
-        face.skin   := texture_only;
+          (stack * slices       + slice,   --  Face n begins with point n.
+           stack * slices       + next,    --  Next point in the same disk.
+           (stack + 1) * slices + next,    --  Point on the disk "above" the previous point.
+           (stack + 1) * slices + slice);  --  Point "above" the first point.
+        face.skin   := colour_only;
         face.colour := colour;
         res.face (stack * slices + slice) := face;
       end loop;
     end loop;
     return res;
+  end Truncated_Cone;
+
+  function Cylinder
+    (disk_center_1 : Point_3D;  --  Center of "bottom" disc
+     disk_center_2 : Point_3D;  --  Center of "top" disc
+     radius        : Real;
+     slices        : Positive;
+     stacks        : Positive;
+     colour        : GL.RGB_Color)
+     return Object_3D
+  is
+  begin
+    return Truncated_Cone (disk_center_1, disk_center_2, radius, radius, slices, stacks, colour);
   end Cylinder;
 
   procedure Show_Edges
     (o            : Object_3D'Class;
      face         : Positive;
+     clip         : Clipping_Data;
      portal_depth : Natural := 0)
   is
     use GL, GL.Math, REF;
-    val : constant Real := 0.3 + 0.7 * Exp (-GL.Double (portal_depth));
+    depth_val : constant Real := 0.2 + 0.8 * Exp (-GL.Double (portal_depth));
+    deep_blue : constant GL.RGB_Color := (0.05, 0.05, depth_val);
 
-    procedure Face_Vertex (v : Positive) is
+    type Display_Mode is (wires, cylinders);
+    mode : constant Display_Mode := cylinders;
+    last : constant Integer := o.face_internal (face).last_edge;
+
+    function Face_Vertex (v : Positive) return Point_3D is
+    (o.point (o.face_internal (face).P_compact (v)) + o.centre);
+
+    procedure Line_To_Face_Vertex (v : Positive) is
     begin
-      Vertex (o.point (o.face_internal (face).P_compact (v)) + o.centre);
-    end Face_Vertex;
+      GL.Vertex (Face_Vertex (v));
+    end Line_To_Face_Vertex;
+
+    p1, p2 : Point_3D;
 
   begin
-    GL.Disable (GL.Lighting);
-    GL.Disable (GL.Texture_2D);
-    GL.Disable (GL.Depth_Test);
-
-    --  Signal the portal as a blue polygon (3D):
-    GL.Color (0.1, 0.1, val, 1.0);
-    GL_Begin (GL.LINES);
-    for sf in 1 .. o.face_internal (face).last_edge loop
-      Face_Vertex (sf);
-    end loop;
-    Face_Vertex (1);  --  Complete the polygon.
-    GL_End;
-    GL.Enable (GL.Lighting);
-    GL.Enable (GL.Depth_Test);
+    case mode is
+      when wires =>
+        GL.Disable (GL.Depth_Test);
+        --  Signal the portal as a blue polygon (3D):
+        GL.Color (deep_blue);
+        GL_Begin (GL.LINES);
+        for sf in 1 .. last loop
+          Line_To_Face_Vertex (sf);
+        end loop;
+        Line_To_Face_Vertex (1);  --  Complete the polygon.
+        GL_End;
+        GL.Enable (GL.Depth_Test);
+      when cylinders =>
+        for sf in 1 .. last loop
+          p1 := Face_Vertex ((if sf = 1 then last else sf - 1));
+          p2 := Face_Vertex (sf);
+          declare
+            cyl : Object_3D :=
+              Cylinder
+                (disk_center_1 => p1,
+                 disk_center_2 => p2,
+                 radius        => Norm (p2 - p1) * 0.06,
+                 slices        => 20,
+                 stacks        => 8,
+                 colour        => deep_blue);
+          begin
+            cyl.Display (clip);
+          end;
+        end loop;
+    end case;
   end Show_Edges;
 
 end GLOBE_3D.Portals;

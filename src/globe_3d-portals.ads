@@ -29,6 +29,7 @@ package GLOBE_3D.Portals is
   procedure Show_Edges
     (o            : Object_3D'Class;
      face         : Positive;
+     clip         : Clipping_Data;
      portal_depth : Natural := 0);
 
 end GLOBE_3D.Portals;

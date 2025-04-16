@@ -738,7 +738,7 @@ package body GLOBE_3D is
                  clip_area    => intersection_clip_and_face,
                  portal_depth => portal_depth + 1);
               if show_portals then
-                Show_Edges (o, f, portal_depth);
+                Show_Edges (o, f, clip, portal_depth);
               end if;
             end if;
           end if;
