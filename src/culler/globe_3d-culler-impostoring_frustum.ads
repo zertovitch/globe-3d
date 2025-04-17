@@ -13,7 +13,6 @@ with GLOBE_3D.Impostor;
 with GL.Textures;
 
 with Ada.Containers.Hashed_Maps;
-with Ada.Unchecked_Conversion;
 
 package GLOBE_3D.Culler.Impostoring_frustum is
 
@@ -21,9 +20,9 @@ package GLOBE_3D.Culler.Impostoring_frustum is
    type p_Culler is access all Culler'Class;
 
    overriding
-   procedure add (Self : in out Culler;   the_Visual : in GLOBE_3D.p_Visual);
+   procedure add (Self : in out Culler;   the_Visual : in Skinned_Visuals.p_Skinned_Visual);
    overriding
-   procedure rid (Self : in out Culler;   the_Visual : in GLOBE_3D.p_Visual);
+   procedure rid (Self : in out Culler;   the_Visual : in Skinned_Visuals.p_Skinned_Visual);
 
    overriding
    function  object_Count (Self : in     Culler) return Natural;
@@ -47,7 +46,7 @@ private
 
    type sprite_Set is tagged
       record
-         Visual   : GLOBE_3D.p_Visual;
+         Visual   : Skinned_Visuals.p_Skinned_Visual;
          Impostor : GLOBE_3D.Impostor.p_Impostor;
       end record;
 
@@ -57,10 +56,13 @@ private
    procedure destroy (Self : in out sprite_Set);
    procedure free    (Self : in     sprite_Set_view);
 
-   function Hash (Self : in p_Visual) return Ada.Containers.Hash_Type;
-   package physics_object_sprite_set_Maps is new ada.containers.hashed_Maps (p_Visual, sprite_Set_view,
-                                                                             hash            => Hash,
-                                                                             equivalent_keys => "=");
+   function Hash (Self : in Skinned_Visuals.p_Skinned_Visual) return Ada.Containers.Hash_Type;
+
+   package physics_object_sprite_set_Maps is new ada.containers.hashed_Maps
+     (Skinned_Visuals.p_Skinned_Visual,
+      sprite_Set_view,
+      hash            => Hash,
+      equivalent_keys => Skinned_Visuals."=");
    use physics_object_sprite_set_Maps;
 
    package impostor_load_Balancer is

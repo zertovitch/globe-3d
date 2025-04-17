@@ -1,6 +1,5 @@
 with
-     GL.Primitive,
-     Ada.Unchecked_Conversion;
+     GL.Primitive;
 use
      GL.Primitive;
 
@@ -44,7 +43,7 @@ package body GLOBE_3D.tri_Mesh.vertex_array is
 
    overriding
    procedure Display (o      : in out tri_Mesh;
-                      clip   : in     Clipping_data)
+                      clip   : in     Clipping_Data)
    is
    begin
       null;

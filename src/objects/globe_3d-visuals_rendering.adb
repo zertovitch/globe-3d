@@ -5,7 +5,7 @@
 
 with GLOBE_3D.Math;
 
-with GL.Errors, GL.Math, GL.Skins,
+with GL.Errors, GL.Geometry, GL.Math, GL.Skins,
      GL.Skinned_Geometry;
 
 with Ada.Containers.Generic_Array_Sort;
@@ -37,11 +37,11 @@ package body GLOBE_3D.Visuals_Rendering is
    --
    --------------------------------------
 
-   procedure Render (the_Visuals : in Visual_Array;   the_Camera : in Camera'Class)
+   procedure Render (the_Visuals : in Skinned_Visuals.Skinned_Visual_Array;   the_Camera : in Camera'Class)
    is
       use GL, G3DM;
 
-      all_Transparents  : GLOBE_3D.Visual_Array (1 .. 10_000);
+      all_Transparents  : Skinned_Visuals.Skinned_Visual_Array (1 .. 10_000);
       transparent_Count : Natural                           := 0;
 
       geometry_Count    : Natural                       := 0;   -- for 'all_Geometries' array.
@@ -67,14 +67,14 @@ package body GLOBE_3D.Visuals_Rendering is
 
       PushMatrix;
 
-      -- separate Visuals
+      --  separate Visuals
       --
       for Each in the_Visuals'Range loop
          declare
-            the_Visual        : Visual'Class                           renames the_Visuals (Each).all;
+            the_Visual        : Skinned_Visuals.Skinned_Visual'Class   renames the_Visuals (Each).all;
             visual_geometries : GL.Skinned_Geometry.Skinned_Geometries renames the_Visual.Skinned_Geometries;
          begin
-            if Is_Transparent (the_Visual) then
+            if the_Visual.Is_Transparent then
                transparent_Count                    := transparent_Count + 1;
                all_Transparents (transparent_Count) := the_Visual'Access;
             else
@@ -84,14 +84,14 @@ package body GLOBE_3D.Visuals_Rendering is
                   all_Geometries (geometry_Count).Geometry := visual_geometries (Each);
                end loop;
 
-               Display (the_Visuals (Each).all,  the_Camera.clipper);
+               the_Visuals (Each).Display (the_Camera.clipper);
             end if;
          end;
       end loop;
 
       GL.Errors.Log;
 
-      -- display all opaque geometries, sorted by gl geometry primitive kind and skin.
+      --  display all opaque geometries, sorted by gl geometry primitive kind and skin.
       --
       declare
          function "<" (L, R : in Visual_Geometry) return Boolean
@@ -100,7 +100,7 @@ package body GLOBE_3D.Visuals_Rendering is
          begin
             if primitive_Id (L.Geometry.Geometry.all)  =  primitive_Id (R.Geometry.Geometry.all) then   -- tbd: find better naming scheme to avoid '.Geometry.Geometry.'
                return To_Integer (L.Geometry.Skin.all'Address)  <  To_Integer (R.Geometry.Skin.all'Address); -- tbd: check this is safe/portable
-               -- GdM: aaargh! remove that !!
+               --  GdM: aaargh! remove that !!
             elsif primitive_Id (L.Geometry.Geometry.all)  <  primitive_Id (R.Geometry.Geometry.all) then
                return True;
 
@@ -158,19 +158,21 @@ package body GLOBE_3D.Visuals_Rendering is
 
       GL.Errors.Log;
 
-      -- display all transparent visuals, sorted from far to near.
+      --  display all transparent visuals, sorted from far to near.
       --
       declare
-         function "<" (L, R : in GLOBE_3D.p_Visual) return Boolean -- tbd : ugh move expensive calcs outside
+         function "<" (L, R : in Skinned_Visuals.p_Skinned_Visual) return Boolean -- tbd : ugh move expensive calcs outside
          is
          begin
             return L.centre_camera_space (2) < R.centre_camera_space (2);  -- nb: in camera space, negative Z is forward, so use '<'.
          end "<";
 
-         --procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
-         procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
-                                                                  GLOBE_3D.p_Visual,
-                                                                  GLOBE_3D.Visual_array);
+         use Skinned_Visuals;
+
+         procedure sort is new Ada.Containers.Generic_Array_Sort
+           (Positive,
+            Skinned_Visuals.p_Skinned_Visual,
+            Skinned_Visual_Array);
          use GL.Math;
       begin
          for Each in 1 .. transparent_Count loop  -- pre-calculate each visuals Centre in camera space.
@@ -191,9 +193,9 @@ package body GLOBE_3D.Visuals_Rendering is
 
          for Each in 1 .. transparent_Count loop
             declare
-               the_Visual        : Visual'Class                           renames all_Transparents (Each).all;
+               the_Visual        : Skinned_Visuals.Skinned_Visual'Class   renames all_Transparents (Each).all;
                visual_geometries : GL.Skinned_Geometry.Skinned_Geometries renames the_Visual.Skinned_Geometries;
-                 -- tbd: apply ogl state sorting here ?
+                 --  tbd: apply ogl state sorting here ?
             begin
                Display (the_Visual,  the_Camera.clipper);
                GL.Errors.Log;
@@ -238,4 +240,4 @@ package body GLOBE_3D.Visuals_Rendering is
       GL.Errors.Log;      -- tbd: for debug only
    end Render;
 
-end GLOBE_3D.Visuals_rendering;
+end GLOBE_3D.Visuals_Rendering;

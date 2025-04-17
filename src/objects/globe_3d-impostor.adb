@@ -1,6 +1,6 @@
 with
      GLOBE_3D.Math,
-     GLOBE_3D.Visuals_rendering,
+     GLOBE_3D.Visuals_Rendering,
      GL.Math,
      GL.Errors,
      Ada.Text_IO;
@@ -30,20 +30,20 @@ package body GLOBE_3D.Impostor is
       deallocate (o);
    end free;
 
-   function get_Target (o : in Impostor) return p_Visual
+   function get_Target (o : in Impostor) return Skinned_Visuals.p_Skinned_Visual
    is
    begin
       return o.Target;
    end get_Target;
 
-   procedure set_Target (o : in out Impostor;   Target : in p_Visual)
+   procedure set_Target (o : in out Impostor;   Target : in Skinned_Visuals.p_Skinned_Visual)
    is
       use GL,  GL.Skins, GL.Geometry;
    begin
       o.Target     := Target;
       o.is_Terrain := Target.is_Terrain;
 
-      Target.Pre_calculate;
+      Target.Pre_Calculate;
 
       -- Set o.skinned_Geometry.geometry.vertices & indices.
       --
@@ -111,13 +111,13 @@ package body GLOBE_3D.Impostor is
       end if;
 
       if         Camera_has_moved
-        and then abs (Angle (the_Camera.clipper.eye_position, o.prior_target_Position, o.prior_camera_Position)) > to_Radians (Degrees => 15.0)
+        and then abs (Angle (the_Camera.clipper.eye_position, o.prior_target_Position, o.prior_camera_Position)) > To_Radians (Degrees => 15.0)
       then
          return True;
       end if;
 
       if         Target_has_moved
-        and then abs (Angle (o.Target.centre, o.prior_camera_Position, o.prior_target_Position)) > to_Radians (Degrees => 15.0)
+        and then abs (Angle (o.Target.centre, o.prior_camera_Position, o.prior_target_Position)) > To_Radians (Degrees => 15.0)
       then
          return True;
       end if;
@@ -209,7 +209,7 @@ package body GLOBE_3D.Impostor is
       o.prior_camera_Position := the_Camera.clipper.eye_position;
 
       GL.ClearColor (0.0, 0.0, 0.0,  0.0);
-      GLOBE_3D.Visuals_rendering.Render ((1 => o.Target),  the_Camera.all); -- Render the target for subsequent copy to impostor texture.
+      GLOBE_3D.Visuals_Rendering.Render ((1 => o.Target),  the_Camera.all); -- Render the target for subsequent copy to impostor texture.
 
       declare -- Set texture coordinates for the veneer.
          use GL.Skins;
@@ -320,7 +320,7 @@ package body GLOBE_3D.Impostor is
    end face_Count;
 
    overriding
-   procedure Display (o : in out Impostor;   clip : in     Clipping_data)
+   procedure Display (o : in out Impostor;   clip : in     Clipping_Data)
    is
    begin
       null;   -- Actual display is done by the renderer (ie glut.Windows), which requests all skinned Geometry's

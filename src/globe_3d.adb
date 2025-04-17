@@ -67,24 +67,6 @@ package body GLOBE_3D is
      deallocate (o);
   end Free;
 
-  function Width  (o : in Visual'class) return Real
-  is
-  begin
-     return Bounds (o).Box.X_Extent.Max - Bounds (o).Box.X_Extent.Min;
-  end Width;
-
-  function Height  (o : in Visual'class) return Real
-  is
-  begin
-     return Bounds (o).Box.Y_Extent.Max - Bounds (o).Box.Y_Extent.Min;
-  end Height;
-
-  function Depth  (o : in Visual'class) return Real
-  is
-  begin
-     return Bounds (o).Box.Z_Extent.Max - Bounds (o).Box.Z_Extent.Min;
-  end Depth;
-
   --  'Object_3D'
   --
 
@@ -263,30 +245,12 @@ package body GLOBE_3D is
     end loop;
 
     declare
-      use GLOBE_3D.REF;
       max_Norm2 : Real := 0.0;
     begin
-      o.bounds.Box.X_Extent.Min := Real'Last;   o.bounds.Box.X_Extent.Max := Real'First;
-      o.bounds.Box.Y_Extent.Min := Real'Last;   o.bounds.Box.Y_Extent.Max := Real'First;
-      o.bounds.Box.Z_Extent.Min := Real'Last;   o.bounds.Box.Z_Extent.Max := Real'First;
-
       for p in o.point'Range loop
         o.edge_vector (p) := (0.0, 0.0, 0.0);
         max_Norm2         := Real'Max (Norm2 (o.point (p)),  max_Norm2);
-
-        o.bounds.Box.X_Extent.Min := Real'Min (o.bounds.Box.X_Extent.Min,  o.point (p)(0));
-        o.bounds.Box.X_Extent.Max := Real'Max (o.bounds.Box.X_Extent.Max,  o.point (p)(0));
-        --
-        o.bounds.Box.Y_Extent.Min := Real'Min (o.bounds.Box.Y_Extent.Min,  o.point (p)(1));
-        o.bounds.Box.Y_Extent.Max := Real'Max (o.bounds.Box.Y_Extent.Max,  o.point (p)(1));
-        --
-        o.bounds.Box.Z_Extent.Min := Real'Min (o.bounds.Box.Z_Extent.Min,  o.point (p)(2));
-        o.bounds.Box.Z_Extent.Max := Real'Max (o.bounds.Box.Z_Extent.Max,  o.point (p)(2));
-        --  tbd: set extents and bounding sphere radius in
-        --      common procedure for 'object_base' class.
       end loop;
-
-      o.bounds.sphere_Radius := Sqrt (max_Norm2);
     end;
 
     --  Calculate edge vectors.
@@ -888,19 +852,6 @@ package body GLOBE_3D is
   begin
     return o.Max_faces;
   end Face_Count;
-
-  overriding function Bounds (o : in Object_3D) return GL.Geometry.Bounds_record is
-  begin
-    return o.bounds;
-  end Bounds;
-
-  overriding function Skinned_Geometries (o : in Object_3D)
-    return GL.Skinned_Geometry.Skinned_Geometries
-  is
-  pragma Unreferenced (o);
-  begin
-     return GL.Skinned_Geometry.null_skinned_geometries;
-  end Skinned_Geometries;
 
   --  Lighting support.
   --

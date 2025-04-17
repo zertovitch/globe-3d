@@ -9,6 +9,8 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
+with GLOBE_3D.Skinned_Visuals;
+
 with
      GL.Primitive,
      GL.Geometry.VA,
@@ -20,14 +22,14 @@ package GLOBE_3D.Impostor is
 
    -- A Globe_3D Object which contains a 2d image of another Globe_3d 'Visual'.
 
-   type Impostor         is abstract new Visual with private;
+   type Impostor         is abstract new Skinned_Visuals.Skinned_Visual with private;
    type p_Impostor       is access all Impostor'Class;
    type p_Impostor_array is array (Positive range <>) of p_Impostor;
 
-   procedure set_Target (o : in out Impostor;   Target : in p_Visual);
-   function  get_Target (o : in     Impostor)        return p_Visual;
+   procedure set_Target (o : in out Impostor;   Target : in Skinned_Visuals.p_Skinned_Visual);
+   function  get_Target (o : in     Impostor)        return Skinned_Visuals.p_Skinned_Visual;
 
-   function update_Required (o : access Impostor;   the_Camera  : in GLOBE_3D.p_Camera) return Boolean   is abstract;
+   function update_Required (o : access Impostor;   the_Camera  : in p_Camera) return Boolean   is abstract;
    --
    -- nb: Caches current pixel_Region as a side-effect.
 
@@ -85,7 +87,7 @@ package GLOBE_3D.Impostor is
    -- Renders the impostor to a cleared framebuffer and copies the image to the impostors texture.
 
    overriding
-   procedure Display (o : in out Impostor;   clip : in     Clipping_data);
+   procedure Display (o : in out Impostor;   clip : in     Clipping_Data);
 
    -- Destruction
    --
@@ -120,9 +122,9 @@ private
 
    type Counter is mod 2**32;
 
-   type Impostor is abstract new Visual with
+   type Impostor is abstract new Skinned_Visuals.Skinned_Visual with
       record
-         Target                           : p_Visual;
+         Target                           : Skinned_Visuals.p_Skinned_Visual;
          skinned_Geometry                 : GL.Skinned_Geometry.Skinned_Geometry
                                           := (Geometry => new GL.Geometry.VA.primal_Geometry'
                                                                 (Bounds    => GL.Geometry.null_Bounds,

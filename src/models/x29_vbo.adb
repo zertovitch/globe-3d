@@ -1233,7 +1233,7 @@ package body X29_vbo is
 
       object.Bounds := total_Bounds;
       object.centre := centre; -- e3d: 7.5*scale
-      GLOBE_3D.Set_name (object.all, "X29 prototype");
+      GLOBE_3D.Set_Name (object.all, "X29 prototype");
    end Create;
 
 end X29_vbo;

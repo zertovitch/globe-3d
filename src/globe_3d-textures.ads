@@ -9,13 +9,13 @@ package GLOBE_3D.Textures is
   --  To complete this, and facilitate things, GLOBE_3D adds the
   --  following associations:
   --
-  --   a number (Image_ID) ->
-  --      a record (Texture_info) with an image name
-  --      and whether the image was already stored into GL
-  --      (images can be loaded on first use, or preloaded)
-  --      and other infos
+  --  *  a number (Image_ID) ->
+  --        a record (Texture_info) with an image name
+  --        and whether the image was already stored into GL
+  --        (images can be loaded on first use, or preloaded)
+  --        and other infos
   --
-  --   an image name -> a number (Image_ID)
+  --  *  an image name -> a number (Image_ID)
   --
   --  Names are case insensitive!
 

@@ -9,9 +9,7 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with
-     GLOBE_3D.tri_Mesh,
-     GL.Skinned_Geometry,
+with GL.Skinned_Geometry,
      GL.Geometry.VBO;
 
 package GLOBE_3D.tri_Mesh.VBO is
@@ -41,7 +39,7 @@ package GLOBE_3D.tri_Mesh.VBO is
    procedure Pre_calculate  (o : in out tri_Mesh);
 
    overriding
-   procedure Display        (o : in out tri_Mesh;   clip : in     Clipping_data);
+   procedure Display        (o : in out tri_Mesh;   clip : in     Clipping_Data);
 
    overriding
    procedure set_Alpha      (o : in out tri_Mesh;   Alpha : in GL.Double);

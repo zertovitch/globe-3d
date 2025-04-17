@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GLOBE_3D - GL-based, real-time, 3D engine
 --
---  Copyright (c) Gautier de Montmollin 2001 .. 2023
+--  Copyright (c) Gautier de Montmollin 2001 .. 2025
 --  SWITZERLAND
 --  Copyright (c) Rod Kay 2006 .. 2008
 --  AUSTRALIA
@@ -48,21 +48,16 @@
 --  Uwe R. Zimmer, July 2011
 --
 
-with GL,
-     GL.Geometry,
-     GL.Skinned_Geometry,
-     GL.Frustums,
-     GL.Materials;
+with GL.Materials;
 
 with Zip;
 
-with Ada.Text_IO;
-with Ada.Numerics.Generic_Elementary_Functions;
-with Ada.Strings.Unbounded;
-with Ada.Unchecked_Deallocation;
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Vectors;
+with Ada.Numerics.Generic_Elementary_Functions;
 with Ada.Strings.Unbounded.Hash;
+with Ada.Text_IO;
+with Ada.Unchecked_Deallocation;
 
 package GLOBE_3D is
 
@@ -180,26 +175,23 @@ package GLOBE_3D is
 
          projection_matrix   : Matrix_44;
 
-         frustum_planes      : GL.Frustums.plane_Array;
       end record;
 
    type p_Camera is access all Camera'Class;
 
-   --  'Visual' class hierarchy
-   --
+   -----------------------------------------
+   --  'Visual' abstract class hierarchy  --
+   -----------------------------------------
 
    type Visual is abstract tagged
       record
-         ID                     : Ident := "-Nameless-                                        ";
-         --                                 12345678901234567890123456789012345678901234567890
-
-         centre                 : Point_3D  := (0.0, 0.0, 0.0);
+         ID                  : Ident := "-Nameless-                                        ";
+         --                              12345678901234567890123456789012345678901234567890
+         centre              : Point_3D  := (0.0, 0.0, 0.0);
          --  ^ vertex coords are relative to the centre.
-         centre_camera_space    : Point_3D;
+         centre_camera_space : Point_3D;
          --  ^ the visuals 'centre' in camera space.
-         rotation               : Matrix_33 := Id_33;
-
-         is_Terrain             : Boolean   := False;
+         rotation            : Matrix_33 := Id_33;
       end record;
 
    type p_Visual is access all Visual'Class;
@@ -218,23 +210,15 @@ package GLOBE_3D is
    --  returns 'True' if any part of the 'visual' is potentially transparent.
 
    function Face_Count (o : in Visual) return Natural                   is abstract;
-   function Bounds     (o : in Visual) return GL.Geometry.Bounds_record is abstract;
-
-   function Skinned_Geometries (o : in Visual) return GL.Skinned_Geometry.Skinned_Geometries
-     is abstract;
 
    procedure Display (o          : in out Visual;
-                      clip       : in     Clipping_Data
-   ) is abstract;
+                      clip       : in     Clipping_Data)
+   is abstract;
 
    procedure Set_Name (o : in out Visual'class; new_name : String);
    --  Give a new name (no need of space-filling) to the object
 
    function Get_Name (o : in Visual'class) return String;
-
-   function Width  (o : in Visual'class) return Real;
-   function Height (o : in Visual'class) return Real;
-   function Depth  (o : in Visual'class) return Real;
 
    null_Visuals : constant Visual_Array (1 .. 0) := (others => null);
 
@@ -251,8 +235,9 @@ package GLOBE_3D is
    --  One can also get a map of an array of visuals in one go:
    function Map_of (va : Visual_Array) return Map_of_Visuals;
 
-   --  Original G3D Object class
-   --
+   --------------------------------------
+   --  Original GLOBE_3D Object class  --
+   --------------------------------------
 
   type Object_3D;
   type p_Object_3D is access all Object_3D;
@@ -261,14 +246,13 @@ package GLOBE_3D is
   -- Define a face --
   -------------------
 
-  type Skin_Type is (
-    texture_only,
-    colour_only,
-    coloured_texture,
-    material_only,
-    material_texture,
-    invisible
-  );
+  type Skin_Type is
+    (texture_only,
+     colour_only,
+     coloured_texture,
+     material_only,
+     material_texture,
+     invisible);
 
   type Set_of_Skin is array (Skin_Type) of Boolean;
 
@@ -374,18 +358,17 @@ package GLOBE_3D is
   --  Uwe R. Zimmer, July 2011
   --
   --  Typical performances
-  --  Machine: HP Phoenix h9-1161ez of 2012, unchanged
   --    Single-textured demo's 1st scene (1); double texture (with specular) (2)
   --    No_List           :    102 FPS (1);  99 FPS (2)
   --    No_List_Optimized :    144 FPS (1); 135 FPS (2)
   --    Generate_List     :    156 FPS (1); 156 FPS (2)
   --
-  type List_Cases  is (
-    No_List,             --  Old way: all colors, texture IDs, coordinates are sent at each frame
-    No_List_Optimized,   --  Old way, but removing redundant commands across faces (for tests only)
-    Generate_List,       --  Generate a list of GL optimized commands upon first call to Display_one
-    Is_List              --  Call the previously generated list
-  );
+  type List_Cases is
+    (No_List,             --  Old way: all colors, texture IDs, coordinates are sent at each frame
+     No_List_Optimized,   --  Old way, but removing redundant commands across faces (for tests only)
+     Generate_List,       --  Generate a list of GL optimized commands upon first call to Display_one
+     Is_List);            --  Call the previously generated list
+
   subtype List_Ids is Positive;
 
   -------------------------------------
@@ -404,7 +387,6 @@ package GLOBE_3D is
     --  Private, computed by Pre_Calculate:
     pre_calculated : Boolean := False;
     edge_vector    : Vector_3D_Array (1 .. Max_points);  --  Normals for lighting
-    bounds         : GL.Geometry.Bounds_record;
     transparent    : Boolean := False;
     --  Private, resolved by Rebuild_links:
     sub_obj_ids    : Ident_Vectors.Vector;  --  Sub-object names to be resolved with Rebuild_links.
@@ -414,9 +396,6 @@ package GLOBE_3D is
   overriding procedure Set_Alpha      (o : in out Object_3D;   Alpha : in GL.Double);
   overriding function  Is_Transparent (o : in Object_3D) return Boolean;
   overriding function  Face_Count     (o : in Object_3D) return Natural;
-  overriding function  Bounds         (o : in Object_3D) return GL.Geometry.Bounds_record;
-  overriding function  Skinned_Geometries (o : in Object_3D)
-    return GL.Skinned_Geometry.Skinned_Geometries;
 
   --  Check object for invalid or duplicate vertices
   procedure Check_Object (o : Object_3D);
@@ -467,7 +446,7 @@ package GLOBE_3D is
 
   procedure Display_One (o : in out Object_3D);
   --  Display only this object and not connected objects
-  --  "out" for o because object might be pre_calculated if not yet
+  --  We need the "out" mode for o because object will be pre_calculated if not yet.
 
   --  Abstract windowing management
   --

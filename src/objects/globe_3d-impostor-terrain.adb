@@ -11,7 +11,7 @@ package body GLOBE_3D.Impostor.Terrain is
    end pre_Calculate;
 
    overriding
-   procedure set_Target (o : in out Impostor;   Target : in p_Visual)
+   procedure set_Target (o : in out Impostor;   Target : in Skinned_Visuals.p_Skinned_Visual)
    is
    begin
       set_Target (GLOBE_3D.Impostor.Impostor (o),  Target);
@@ -30,7 +30,7 @@ package body GLOBE_3D.Impostor.Terrain is
    end free;
 
    overriding
-   function update_Required (o : access Impostor;   the_Camera : in GLOBE_3D.p_Camera) return Boolean
+   function update_Required (o : access Impostor;   the_Camera : in p_Camera) return Boolean
    is
    begin
       o.current_pixel_Region := o.get_pixel_Region (the_Camera);

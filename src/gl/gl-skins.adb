@@ -115,7 +115,7 @@ package body GL.Skins is
    is
    pragma Unreferenced (Self);
       the_Veneer : constant p_Veneer := new Veneer_opaque_lit_mono_color' (max_Normals => vertex_Count (for_Geometry),
-                                                                           normals     => vertex_Normals (for_Geometry));
+                                                                           Normals     => vertex_Normals (for_Geometry));
    begin
       return the_Veneer;
    end new_Veneer;

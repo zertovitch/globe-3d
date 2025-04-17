@@ -9,13 +9,16 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
+with GLOBE_3D.Skinned_Visuals;
+with GL.Frustums;
+
 package GLOBE_3D.Culler is
 
    type Culler   is abstract tagged limited private;
    type p_Culler is access all Culler'Class;
 
-   procedure add (Self : in out Culler;   the_Visual : in GLOBE_3D.p_Visual) is abstract;
-   procedure rid (Self : in out Culler;   the_Visual : in GLOBE_3D.p_Visual) is abstract;
+   procedure add (Self : in out Culler;   the_Visual : in Skinned_Visuals.p_Skinned_Visual) is abstract;
+   procedure rid (Self : in out Culler;   the_Visual : in Skinned_Visuals.p_Skinned_Visual) is abstract;
 
    function  object_Count (Self : in Culler) return Natural is abstract;
 
@@ -30,7 +33,8 @@ private
 
    type Culler is abstract tagged limited
       record
-         Viewer : GLOBE_3D.p_Window;
+         Viewer         : p_Window;
+         frustum_planes : GL.Frustums.plane_Array;
       end record;
 
 end GLOBE_3D.Culler;

@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------
 --  GL.Errors - GL error support
 --
---  Copyright (c) Rod Kay 20016
+--  Copyright (c) Rod Kay 2016
 --  AUSTRALIA
 --  Permission granted to use this software, without any warranty,
 --  for any purpose, provided this copyright note remains attached

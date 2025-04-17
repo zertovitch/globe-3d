@@ -9,9 +9,7 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
-with
-     GLOBE_3D.tri_Mesh,
-     GL.Primitive,
+with GL.Primitive,
      GL.Geometry.VA,
      GL.Skinned_Geometry;
 
@@ -40,7 +38,7 @@ package GLOBE_3D.tri_Mesh.vertex_array is
    procedure Pre_calculate  (o : in out tri_Mesh);
 
    overriding
-   procedure Display        (o : in out tri_Mesh;  clip  : in     Clipping_data);
+   procedure Display        (o : in out tri_Mesh;  clip  : in     Clipping_Data);
 
    overriding
    procedure set_Alpha      (o : in out tri_Mesh;   Alpha : in GL.Double);

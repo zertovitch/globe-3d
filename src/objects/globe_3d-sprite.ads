@@ -9,6 +9,8 @@
 --  and unmodified if sources are distributed further.
 -------------------------------------------------------------------------
 
+with GLOBE_3D.Skinned_Visuals;
+
 with
      GL.Geometry,
      GL.Skins,
@@ -18,7 +20,7 @@ package GLOBE_3D.Sprite is
 
    -- A 'Visual' which is composed of several 'gl.skinned_Geometry' items.
 
-   type Sprite (max_Geometries : Positive) is new Visual with
+   type Sprite (max_Geometries : Positive) is new Skinned_Visuals.Skinned_Visual with
       record
          skinned_Geometries     : GL.Skinned_Geometry.Skinned_Geometries (1 .. max_Geometries);
          skinned_geometry_Count : Natural := 0;
@@ -50,7 +52,7 @@ package GLOBE_3D.Sprite is
    procedure Pre_calculate  (o : in out Sprite);
 
    overriding
-   procedure Display        (o : in out Sprite;   clip : in Clipping_data);
+   procedure Display        (o : in out Sprite;   clip : in Clipping_Data);
 
    overriding
    function face_Count      (o : in Sprite) return Natural;

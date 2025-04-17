@@ -58,7 +58,7 @@ package body GLOBE_3D.Sprite is
 
    overriding
    procedure Display (o    : in out Sprite;
-                      clip : in     Clipping_data)
+                      clip : in     Clipping_Data)
    is
    begin
       null;   -- Actual display is done by the renderer (ie glut.Windows), which requests all skinned Geometry's

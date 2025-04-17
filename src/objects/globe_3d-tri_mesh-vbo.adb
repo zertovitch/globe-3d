@@ -1,8 +1,7 @@
 with
      GL.Buffer.Vertex,
      GL.Buffer.Indices,
-     GL.Extended,
-     Ada.Unchecked_Conversion;
+     GL.Extended;
 use
      GL.Extended;
 
@@ -46,7 +45,7 @@ package body GLOBE_3D.tri_Mesh.VBO is
 
    overriding
    procedure Display (o      : in out tri_Mesh;
-                      clip   : in     Clipping_data)
+                      clip   : in     Clipping_Data)
    is
    begin
       null;

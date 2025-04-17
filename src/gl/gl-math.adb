@@ -116,14 +116,12 @@ package body GL.Math is
 
    function To_Degrees (Radians : Double) return Double
    is
-      use Ada.Numerics;
    begin
       return Radians * 180.0 / Pi;
    end To_Degrees;
 
    function To_Radians (Degrees : Double) return Double
    is
-      use Ada.Numerics;
    begin
       return Degrees * Pi / 180.0;
    end To_Radians;

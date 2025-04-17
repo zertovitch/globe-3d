@@ -4,7 +4,7 @@
 --  Copyright (c) Gautier de Montmollin / Rod Kay 2006 .. 2021
 ------------------------------------------------------------------------------
 
-with GL, GL.IO, GL.Frustums, GLU,  GLUT;
+with GL, GL.IO, GLU;
 
 with GLOBE_3D.Math,
      GLOBE_3D.Software_Anti_Aliasing,
@@ -524,11 +524,6 @@ package body GLUT.Windows is
         (-Self.Camera.clipper.eye_position (0),
          -Self.Camera.clipper.eye_position (1),
          -Self.Camera.clipper.eye_position (2));
-
-      Self.Camera.frustum_planes := GL.Frustums.current_Planes;
-      --  tbd: getting frustum planes from camera, might be quicker,
-      --      but 'set_frustum_Planes' seems buggy :/.
-      --  set_frustum_Planes (Self.Camera);
 
       --  video management
       --

@@ -1,14 +1,16 @@
 with GL, GL.IO, UnZip.Streams;
 
-with Ada.Characters.Handling;           use Ada.Characters.Handling;
-with Ada.Exceptions;                    use Ada.Exceptions;
-with Ada.Strings.Fixed;                 use Ada.Strings, Ada.Strings.Fixed;
+with Ada.Characters.Handling;
+with Ada.Exceptions;
+with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 with Ada.Containers.Hashed_Maps;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Unbounded.Hash;
 
 package body GLOBE_3D.Textures is
+
+  use Ada.Strings, Ada.Strings.Fixed;
 
   --------------------------------------------------------------------
   --  1) Fast access though the number (Image_ID -> Texture_info):  --
@@ -60,22 +62,21 @@ package body GLOBE_3D.Textures is
       use UnZip.Streams;
       ftex : Zipped_File_Type;
       procedure Try_image_type (tex_name_ext : String) is
+        use Ada.Exceptions;
       begin
         Open (ftex, zif, tex_name_ext);
-        GL.IO.Load (
-          Ada.Streams.Stream_IO.Stream_Access (Stream (ftex)),
-          Image_ID'Pos (id) + 1, blending_hint
-        );
+        GL.IO.Load
+          (Ada.Streams.Stream_IO.Stream_Access (Stream (ftex)),
+           Image_ID'Pos (id) + 1, blending_hint);
         Close (ftex);
         found := True;
       exception
         when Zip.Entry_name_not_found =>
           null;  --  Nothing bad, item just not found.
         when e : others =>
-          Raise_Exception (
-            Exception_Identity (e),
-            Exception_Message (e) & " on texture: " & tex_name_ext
-          );
+          Raise_Exception
+            (Exception_Identity (e),
+             Exception_Message (e) & " on texture: " & tex_name_ext);
       end Try_image_type;
     begin -- Try_archive
       Load_if_needed (zif, name);
@@ -158,6 +159,7 @@ package body GLOBE_3D.Textures is
   end Reset_Textures;
 
   procedure Add_Texture_Name (name : String; id : out Image_ID) is
+    use Ada.Characters.Handling;
     new_tab : p_Texture_info_array;
     up_name : constant String := To_Upper (name);
     --  Convention: UPPER_CASE for identifiers
@@ -196,6 +198,7 @@ package body GLOBE_3D.Textures is
   end Add_Texture_Name;
 
   procedure Register_Textures_From_Resources is
+    use Ada.Characters.Handling;
 
     procedure Register (zif : in out Zip.Zip_info; name : String) is
       --
@@ -250,9 +253,9 @@ package body GLOBE_3D.Textures is
   end Texture_Name;
 
   function Texture_ID (name : String) return Image_ID is
+    use Ada.Characters.Handling, Texture_Name_Mapping;
     trimmed : constant String := Trim (name, Both);
     up_name : constant String := To_Upper (trimmed);
-    use Texture_Name_Mapping;
     c : constant Cursor := texture_2d_infos.map.Find (U (up_name));
   begin
     if c = No_Element then

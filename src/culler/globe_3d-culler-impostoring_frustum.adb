@@ -2,6 +2,9 @@
 with GLOBE_3D.Impostor.Simple;
 with GLOBE_3D.Impostor.Terrain;
 with GLOBE_3D.Math;               use GLOBE_3D.Math;
+with GLOBE_3D.Skinned_Visuals;
+
+with GL.Frustums;
 with GL.Math;
 
 with Ada.Containers.Generic_Array_Sort;
@@ -12,7 +15,7 @@ with Interfaces;
 package body GLOBE_3D.Culler.Impostoring_frustum is
 
    overriding
-   procedure add (Self : in out Culler;   the_Visual : in GLOBE_3D.p_Visual)
+   procedure add (Self : in out Culler;   the_Visual : in Skinned_Visuals.p_Skinned_Visual)
    is
       new_sprite_Set : constant sprite_Set_view := new sprite_Set;
    begin
@@ -33,7 +36,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
    end add;
 
    overriding
-   procedure rid (Self : in out Culler;   the_Visual : in GLOBE_3D.p_Visual)
+   procedure rid (Self : in out Culler;   the_Visual : in Skinned_Visuals.p_Skinned_Visual)
    is
    begin
       free (Self.object_sprite_set_Map.Element (the_Visual));
@@ -92,16 +95,16 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
 
       type visible_Object is
          record
-            Visual         : p_Visual;
+            Visual         : Skinned_Visuals.p_Skinned_Visual;
             sprite_Set     : sprite_Set_view;
             apparent_Size  : Real;
          end record;
 
       visible_Objects : array (1 .. Natural (Length (all_Objects))) of visible_Object;
       Last            : Natural                                        := 0;
-      the_Object      : p_Visual;
+      the_Object      : Skinned_Visuals.p_Skinned_Visual;
 
-      Frustum : constant GL.Frustums.plane_Array := Self.Viewer.Camera.frustum_planes;
+      Frustum : constant GL.Frustums.plane_Array := Self.frustum_planes;
    begin
 
       -- apply 'frustum' and 'apparent size' culling
@@ -149,7 +152,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       -- find whether visual or imposter is used, for each object.
       --
       declare
-         the_Sprites                : Visual_array (1 .. Last);
+         the_Sprites                : Visual_Array (1 .. Last);
          transposed_camera_Attitude : constant Matrix_33               := Transpose (Self.Viewer.Camera.world_rotation);
          new_Last                   : Natural                 := 0;
 
@@ -166,8 +169,8 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
             begin
                if the_Object.apparent_Size < Self.impostor_size_Min then   -- use impostor
                   declare
-                     impostor_Target   : p_Visual            renames the_Object.sprite_Set.Visual;
-                     the_Impostor      : Impostor.p_Impostor renames the_Object.sprite_Set.Impostor;
+                     impostor_Target   : Skinned_Visuals.p_Skinned_Visual renames the_Object.sprite_Set.Visual;
+                     the_Impostor      : Impostor.p_Impostor              renames the_Object.sprite_Set.Impostor;
                   begin
                      declare
                         Impostor_update_required : constant Boolean := the_Impostor.update_Required (Self.Viewer.Camera'Access);
@@ -214,7 +217,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
 
                else   -- don't use impostor
                   new_Last               := new_Last + 1;
-                  the_Sprites (new_Last) := the_Object.Visual;
+                  the_Sprites (new_Last) := p_Visual (the_Object.Visual);
                end if;
             end;
          end loop;
@@ -250,6 +253,8 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
 
          Self.Viewer.Freshen (Time_Step => By,
                               Extras    => the_Sprites (1 .. new_Last));
+
+         Self.frustum_planes := GL.Frustums.current_Planes;
       end;
 
       Self.frame_Count := Self.frame_Count + 1;
@@ -294,12 +299,12 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       return Ada.Containers.Hash_Type (k mod 2**32);
    end hash_64_32_shift;
 
-   function Hash (Self : in p_Visual) return Ada.Containers.Hash_Type
+   function Hash (Self : in Skinned_Visuals.p_Skinned_Visual) return Ada.Containers.Hash_Type
    is
       type Access_Pair is
          record
             one,
-            two: p_Visual;
+            two: Skinned_Visuals.p_Skinned_Visual;
          end record;
 
       key_64_or_128 : constant Access_Pair := (Self, Self);

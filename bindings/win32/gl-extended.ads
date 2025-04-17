@@ -1,16 +1,14 @@
--- This package contains extensions to GL as well as items
--- that are in the GL standard but are not (yet) in the GL libraries
--- on all platforms. For instance, standard Opengl32.dll on Windows up
--- to XP support up to GL 1.1; Vista, up to GL 1.4; and even versions
--- provided by graphics card makers lack 1.5 support (as in 2007).
+--  This package contains extensions to GL as well as items
+--  that are in the GL standard but are not (yet) in the GL libraries
+--  on all platforms. For instance, standard Opengl32.dll on Windows up
+--  to XP support up to GL 1.1; Vista, up to GL 1.4; and even versions
+--  provided by graphics card makers lack 1.5 support (as in 2007).
 
--- *** Windows version -> uses GLEE (just link with glee.o) ***
-
-with GL;
+--  *** Windows version -> uses GLEE (just link with glee.o) ***
 
 package GL.Extended is
 
-  -- Vertex buffer objects ("VBO"'s, GL 1.5 extension)
+  --  Vertex buffer objects ("VBO"'s, GL 1.5 extension)
   --
 
   procedure GenBuffers (n       : in GL.Sizei;
