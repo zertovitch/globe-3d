@@ -45,14 +45,14 @@ package body GLOBE_3D.Impostor is
 
       Target.Pre_Calculate;
 
-      -- Set o.skinned_Geometry.geometry.vertices & indices.
+      --  Set o.skinned_Geometry.geometry.vertices & indices.
       --
       declare
         Width : constant GL.Double := Target.Bounds.sphere_Radius * 1.00;
       begin
          o.Quads.Vertices (1) := (-Width, -Width, 0.0);
-         o.Quads.Vertices (2) := ( Width, -Width, 0.0);
-         o.Quads.Vertices (3) := ( Width,  Width, 0.0);
+         o.Quads.Vertices (2) :=  (Width, -Width, 0.0);
+         o.Quads.Vertices (3) :=  (Width,  Width, 0.0);
          o.Quads.Vertices (4) := (-Width,  Width, 0.0);
       end;
 
@@ -61,14 +61,14 @@ package body GLOBE_3D.Impostor is
       o.Quads.all.set_vertex_Id (1, 3,  3);
       o.Quads.all.set_vertex_Id (1, 4,  4);
 
-      -- Create the veneer, if necessary.
+      --  Create the veneer, if necessary.
       --
       if o.skinned_Geometry.Veneer = null then
          o.skinned_Geometry.Veneer := o.skinned_Geometry.Skin.new_Veneer (o.skinned_Geometry.Geometry.all);
       end if;
    end set_Target;
 
-   -- Update Trigger Configuration
+   --  Update Trigger Configuration
    --
 
    procedure set_freshen_count_update_trigger_Mod (o : in out Impostor;   To : in Positive)
@@ -168,12 +168,12 @@ package body GLOBE_3D.Impostor is
       viewport_Height          : constant Integer      := the_Camera.clipper.main_clipping.Y2 - the_Camera.clipper.main_clipping.Y1 + 1;
 
       Width                    : constant Real         := 2.0  *  Real (viewport_Width) * (target_Centre_norm_0to1 (0) - target_Lower_Left_norm_0to1 (0));
-      Width_pixels             : constant GL.Sizei     := GL.Sizei (  Integer (Real (viewport_Width) * target_Lower_Left_norm_0to1 (0) + Width)
+      Width_pixels             : constant GL.Sizei     := GL.Sizei   (Integer (Real (viewport_Width) * target_Lower_Left_norm_0to1 (0) + Width)
                                                                     - Integer (Real (viewport_Width) * target_Lower_Left_norm_0to1 (0))
                                                                     + 1);
 
       Height                   : constant Real         := 2.0  *  Real (viewport_Height) * (target_Centre_norm_0to1 (1) - target_Lower_Left_norm_0to1 (1));
-      Height_pixels            : constant GL.Sizei     := GL.Sizei (  Integer (Real (viewport_Height) * target_Lower_Left_norm_0to1 (1) + Height)
+      Height_pixels            : constant GL.Sizei     := GL.Sizei   (Integer (Real (viewport_Height) * target_Lower_Left_norm_0to1 (1) + Height)
                                                                     - Integer (Real (viewport_Height) * target_Lower_Left_norm_0to1 (1))
                                                                     + 1);
    begin
@@ -269,7 +269,7 @@ package body GLOBE_3D.Impostor is
 
    procedure freshen (o : in out Impostor'Class;   the_Camera   : in     GLOBE_3D.p_Camera;
                                                    texture_Pool : in     GL.Textures.p_Pool;
-                                                   is_Valid     :    out Boolean            )
+                                                   is_Valid     :    out Boolean)
    is
       update_Required : constant Boolean := o.update_Required (the_Camera);    -- nb: Caches current update info.
    begin
@@ -323,8 +323,8 @@ package body GLOBE_3D.Impostor is
    procedure Display (o : in out Impostor;   clip : in     Clipping_Data)
    is
    begin
-      null;   -- Actual display is done by the renderer (ie glut.Windows), which requests all skinned Geometry's
-              -- and then applies 'gl state' sorting for performance, before drawing.
+      null;   --  Actual display is done by the renderer (ie glut.Windows), which requests all skinned Geometry's
+              --  and then applies 'gl state' sorting for performance, before drawing.
    end Display;
 
    overriding
@@ -365,11 +365,11 @@ package body GLOBE_3D.Impostor is
       return p_Quads (p_primal_Geometry (o.skinned_Geometry.Geometry).Primitive);
    end Quads;
 
-   -- note: Only old, unused code folows (may be useful) ...
+   --  note: Only old, unused code folows (may be useful) ...
    --
 
-   -- todo: Enable_rotation is no good for impostors, since they must be aligned with the viewport.
-   --       It might be useful for general billboards however !
+   --  todo: Enable_rotation is no good for impostors, since they must be aligned with the viewport.
+   --        It might be useful for general billboards however !
    --
    procedure enable_Rotation (o : in Impostor;   camera_Site : in Vector_3D)
    is
@@ -406,6 +406,6 @@ package body GLOBE_3D.Impostor is
    end enable_Rotation;
    pragma Unreferenced (enable_Rotation);
    --
-   -- Based on lighthouse3d billboard example.
+   --  Based on lighthouse3d billboard example.
 
 end GLOBE_3D.Impostor;

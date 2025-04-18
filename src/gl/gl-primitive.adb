@@ -52,14 +52,14 @@ package body GL.Primitive is
    is
    begin
       if Self.Vertices = null then
-         Self.Vertices      := new Geometry.Vertex_array' (To.all);
+         Self.Vertices      := new Geometry.Vertex_array'(To.all);
          Self.owns_Vertices := True;
 
       elsif Self.Vertices'Length = To'Length then
          Self.Vertices.all := To.all;
       else
          free (Self.Vertices);
-         Self.Vertices      := new Geometry.Vertex_array' (To.all);
+         Self.Vertices      := new Geometry.Vertex_array'(To.all);
          Self.owns_Vertices := True;
       end if;
    end set_Vertices;
@@ -68,17 +68,17 @@ package body GL.Primitive is
    is
    begin
       if Self.Indices = null then
-         Self.Indices := new vertex_Id_array' (To.all);
+         Self.Indices := new vertex_Id_array'(To.all);
 
       elsif Self.Indices'Length = To'Length then
          Self.Indices.all := To.all;
       else
          free (Self.Indices);
-         Self.Indices := new vertex_Id_array' (To.all);
+         Self.Indices := new vertex_Id_array'(To.all);
       end if;
    end set_Indices;
 
-   -- 'Points'
+   --  'Points'
 
    function create_Points (point_Count : in vertex_Id;   Vertices : p_Vertex_array := null) return Points
    is
@@ -102,7 +102,7 @@ package body GL.Primitive is
       return GL.POINTS;
    end primitive_Id;
 
-   -- 'Lines'
+   --  'Lines'
    --
 
    function create_Lines (line_Count : in Natural;   Vertices : p_Vertex_array := null) return Lines
@@ -144,7 +144,7 @@ package body GL.Primitive is
       Self.Indices (positive_uInt (2 * (Line - 1)  +  Vertex)) := To - 1;
    end set_vertex_Id;
 
-   -- 'line Strip'
+   --  'line Strip'
    --
 
    function create_line_Strip (line_Count : in Natural;   Vertices : p_Vertex_array := null) return line_Strip
@@ -186,10 +186,10 @@ package body GL.Primitive is
       Self.Indices (positive_uInt (Line - 1  +  Vertex)) := To - 1;
    end set_vertex_Id;
 
-   -- 'line Loop'
+   --  'line Loop'
    --
 
-   function create_line_Loop (line_Count : in Natural;   Vertices: p_Vertex_array := null) return line_Loop
+   function create_line_Loop (line_Count : in Natural;   Vertices : p_Vertex_array := null) return line_Loop
    is
       indices_Count : constant positive_uInt :=  positive_uInt (line_Count) + 1;
    begin
@@ -227,7 +227,7 @@ package body GL.Primitive is
       Self.Indices (positive_uInt (Line - 1  +  Vertex)) := To - 1;
    end set_vertex_Id;
 
-   -- 'Triangles'
+   --  'Triangles'
    --
 
    function create_Triangles (triangle_Count : in Natural;   Vertices : p_Vertex_array) return Triangles
@@ -267,7 +267,7 @@ package body GL.Primitive is
       Self.Indices (positive_uInt (3 * (Triangle - 1)  +  Vertex)) := To - 1;
    end set_vertex_Id;
 
-   -- 'triangle Strip'
+   --  'triangle Strip'
    --
 
    function create_triangle_Strip (triangle_Count : in Natural;   vertices : p_Vertex_array) return triangle_Strip'Class
@@ -281,7 +281,7 @@ package body GL.Primitive is
       return the_Strip;
    end create_triangle_Strip;
 
-   function new_triangle_Strip (triangle_Count : in Natural;   vertices: p_Vertex_array) return p_triangle_Strip
+   function new_triangle_Strip (triangle_Count : in Natural;   vertices : p_Vertex_array) return p_triangle_Strip
    is
    begin
       return new triangle_Strip'Class'(create_triangle_Strip (triangle_Count, vertices));
@@ -310,10 +310,10 @@ package body GL.Primitive is
       Self.Indices (positive_uInt (Triangle + Vertex - 1)) := To - 1;
    end set_vertex_Id;
 
-   -- 'triangle Fan'
+   --  'triangle Fan'
    --
 
-   function create_triangle_Fan (triangle_Count : in Natural;   vertices: p_Vertex_array) return triangle_Fan
+   function create_triangle_Fan (triangle_Count : in Natural;   vertices : p_Vertex_array) return triangle_Fan
    is
    begin
       return (Vertices      => vertices,
@@ -352,26 +352,26 @@ package body GL.Primitive is
       end if;
    end set_vertex_Id;
 
-   -- 'Quads'
+   --  'Quads'
    --
 
-   function create_Quads (quad_Count : in Natural;   Vertices: p_Vertex_array := null) return Quads
+   function create_Quads (quad_Count : in Natural;   Vertices : p_Vertex_array := null) return Quads
    is
       indices_Count : constant positive_uInt := 4 * positive_uInt (quad_Count);
    begin
       if Vertices = null then
          return (Vertices      => new Geometry.Vertex_array (1 .. vertex_Id (4 * quad_Count)),
                  owns_Vertices => True,
-                 Indices       => new vertex_Id_array ( 1 .. indices_Count));
+                 Indices       => new vertex_Id_array (1 .. indices_Count));
       else
          return (Vertices      => Vertices,
                  owns_Vertices => False,
-                 Indices       => new vertex_Id_array ( 1 .. indices_Count));
+                 Indices       => new vertex_Id_array (1 .. indices_Count));
       end if;
 
    end create_Quads;
 
-   function new_Quads (quad_Count : in Natural;   Vertices: p_Vertex_array := null) return p_Quads
+   function new_Quads (quad_Count : in Natural;   Vertices : p_Vertex_array := null) return p_Quads
    is
    begin
       return new Quads'(create_Quads (quad_Count, Vertices));
@@ -400,10 +400,10 @@ package body GL.Primitive is
       Self.Indices (positive_uInt (4 * (Quad - 1)  +  Vertex)) := To - 1;
    end set_vertex_Id;
 
-   -- 'quad Strip'
+   --  'quad Strip'
    --
 
-   function create_quad_Strip (quad_Count : in Natural;   Vertices: p_Vertex_array) return quad_Strip
+   function create_quad_Strip (quad_Count : in Natural;   Vertices : p_Vertex_array) return quad_Strip
    is
    begin
       return (Vertices      => Vertices,
@@ -434,9 +434,9 @@ package body GL.Primitive is
       Self.Indices (positive_uInt (2 * (Quad - 1) + Vertex)) := To - 1;
    end set_vertex_Id;
 
-   -- 'Polygon'
+   --  'Polygon'
 
-   function create_Polygon (vertex_Count : in Natural;   Vertices: p_Vertex_array) return Polygon
+   function create_Polygon (vertex_Count : in Natural;   Vertices : p_Vertex_array) return Polygon
    is
    begin
       return (Vertices      => Vertices,

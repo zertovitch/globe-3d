@@ -1,16 +1,19 @@
 --  This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
 --  for the GLOBE_3D project.
 --
---        GLOBE_3D Web site:   http://globe3d.sf.net/
---         GLOBE_3D Mirror:    https://github.com/zertovitch/globe-3d
+--      Home page:       https://globe3d.sourceforge.io/
+--      Project page 1:  https://github.com/zertovitch/globe-3d
+--      Project page 2:  https://sourceforge.net/projects/globe3d/
+--      Alire crate:     https://alire.ada.dev/crates/globe_3d
 --
 --  Build me with "gnatmake -P globe_3d_project_tree", "gprbuild -P globe_3d_project_tree",
 --  or open me with GNAT Studio.
 --
 --  This variant is a hierarchical project, which refers to other projects.
+--  It is used by the Alire crate for GLOBE_3D.
 --
 --  See "globe_3d.gpr" for the other variant (single, "flat", project file) for
---  the GLOBE_3D project.
+--  the GLOBE_3D project, with all sources in subdirectories (standalone project).
 
 with "GID";
 with "ZipAda";
@@ -29,10 +32,17 @@ project GLOBE_3D_Project_Tree is
 
    G3D_Build_Mode : G3D_Build_Mode_Type := external ("G3D_Build_Mode", "debug");
 
+   type G3D_Extra_Warnings_Type is
+      ("level_0",
+       "level_1");
+
+   G3D_Extra_Warnings : G3D_Extra_Warnings_Type := external ("G3D_Extra_Warnings", "level_0");
+
    type G3D_Styles_Checks_Type is
       ("off",
        "level_1",
-       "level_2");
+       "level_2",
+       "level_3");
 
    G3D_Styles_Checks : G3D_Styles_Checks_Type := external ("G3D_Styles_Checks", "off");
 
@@ -42,24 +52,33 @@ project GLOBE_3D_Project_Tree is
      ("-gnatwa",
       "-fno-strict-aliasing");
 
-   Style_Checks_1 := 
-     ("-gnatyaknpr",   --  Style: check all casings: a:attribute, k:keywords, n:package Standard identifiers, p:pragma, r:identifier references
-      "-gnatyO",       --  Style: check overriding indicators
-      "-gnatyM120",    --  Style: check line length <= 100 characters
-      "-gnatyx");      --  Style: check x:no extra parens
+   Extra_Warnings_1 :=
+     ("-gnatwh");      --  Warnings switches (h:turn on warnings for hiding declarations)
 
-   Style_Checks_2 := 
-     ("-gnatybfhiu",   --  Style: check b:no blanks at end of lines, f:no ff/vtabs, h: no htabs, i:if-then layout, u:no unnecessary blank lines
-      "-gnatye",       --  Style: check e:end/exit labels present
-      "-gnatytc",      --  Style: check t:token separation rules, c:comment format (two spaces)
-      "-gnatwh");      --  Warnings switches (h:turn on warnings for hiding declarations)
-
-   case G3D_Styles_Checks is
-      when "off"   => null;
-      when "level_1" => Common_Compiler_Options := Common_Compiler_Options & Style_Checks_1;
-      when "level_2" => Common_Compiler_Options := Common_Compiler_Options & Style_Checks_1 & Style_Checks_2;
+   case G3D_Extra_Warnings is
+      when "level_0" => null;
+      when "level_1" => Common_Compiler_Options := Common_Compiler_Options & Extra_Warnings_1;
    end case;
 
+   Style_Checks_1 :=
+     ("-gnatyaknpr",   --  Style: check all casings: a:attribute, k:keywords, n:package Standard identifiers, p:pragma, r:identifier references
+      "-gnatyO",       --  Style: check overriding indicators
+      "-gnatyx");      --  Style: check x:no extra parens
+
+   Style_Checks_2 :=
+     ("-gnatybfhiu",   --  Style: check b:no blanks at end of lines, f:no ff/vtabs, h: no htabs, i:if-then layout, u:no unnecessary blank lines
+      "-gnatye",       --  Style: check e:end/exit labels present
+      "-gnatytc");     --  Style: check t:token separation rules, c:comment format (two spaces)
+
+   Style_Checks_3 :=
+     ("-gnatyM120");   --  Style: check line length <= 100 characters
+
+   case G3D_Styles_Checks is
+      when "off"     => null;
+      when "level_1" => Common_Compiler_Options := Common_Compiler_Options & Style_Checks_1;
+      when "level_2" => Common_Compiler_Options := Common_Compiler_Options & Style_Checks_1 & Style_Checks_2;
+      when "level_3" => Common_Compiler_Options := Common_Compiler_Options & Style_Checks_1 & Style_Checks_2 & Style_Checks_3;
+   end case;
 
    Debug_Options :=
      Common_Compiler_Options &
@@ -164,6 +183,10 @@ project GLOBE_3D_Project_Tree is
       "src/gl",
       "src/models",
       "src/objects");
+
+
+
+
 
    case G3D_OS is
       when "win64"  => for Source_Dirs use Source_Dir_List & ("bindings/win32");

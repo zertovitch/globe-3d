@@ -31,19 +31,19 @@ package GL.Buffer.General is
                                           To       : in Element_Array);
    function  get (Self : access Object) return Element_Array;
 
-   -- Buffer Memory Map
+   --  Buffer Memory Map
    --
 
    type memory_Map is abstract tagged private;
 
    procedure release (Self : in    memory_Map);
    --
-   -- 'release' must be called to release the buffers data back to the GL server.
+   --  'release' must be called to release the buffers data back to the GL server.
    --
-   -- May raise Corrupt_Buffer if the Buffer has become corrupt since the data
-   -- was initially mapped. This can occur for system-specific reasons that affect the availability of graphics memory,
-   -- such as screen mode changes. In such situations, the data store contents are undefined, and an application
-   -- reinitialize the data store.
+   --  May raise Corrupt_Buffer if the Buffer has become corrupt since the data
+   --  was initially mapped. This can occur for system-specific reasons that affect the availability of graphics memory,
+   --  such as screen mode changes. In such situations, the data store contents are undefined, and an application
+   --  reinitialize the data store.
 
    Corrupt_Buffer : exception;
 

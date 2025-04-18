@@ -16,7 +16,7 @@ use Ada.Text_IO;
 
 package body GL.Textures is
 
-   -- Names
+   --  Names
 
    function new_texture_Name return texture_Name
    is
@@ -33,7 +33,7 @@ package body GL.Textures is
       GL.DeleteTextures (1, the_Name'Unchecked_Access);
    end free;
 
-   -- Coordinates
+   --  Coordinates
    --
 
    function to_texture_Coordinates_xz (the_Points  : in GL.Geometry.Vertex_array;
@@ -74,7 +74,7 @@ package body GL.Textures is
       return the_Coords;
    end to_texture_Coordinates_xz;
 
-   -- xz_Generator
+   --  xz_Generator
 
    overriding
    function to_Coordinates (Self : in xz_Generator;   the_Vertices : in GL.Geometry.Vertex_array) return GL.Textures.p_Coordinate_2D_array
@@ -90,7 +90,7 @@ package body GL.Textures is
       return to_texture_Coordinates_xz (the_Vertices, Self.Transform_S, Self.Transform_T);
    end to_Coordinates;
 
-   -- texture objects
+   --  texture objects
 
    function new_Texture (image_Filename : in String) return Object
    is
@@ -99,7 +99,7 @@ package body GL.Textures is
       the_Texture.Name := new_texture_Name;
       GL.IO.Load (image_Filename,  Integer (the_Texture.Name),  blending_hint => the_Texture.is_Transparent);
 
-      -- tbd: if not found, look in 'global' and 'level' zip files also, ala gautiers 'globe_3d.textures'.
+      --  tbd: if not found, look in 'global' and 'level' zip files also, ala gautiers 'globe_3d.textures'.
       return the_Texture;
    end new_Texture;
 
@@ -140,12 +140,12 @@ package body GL.Textures is
       GL.BindTexture (GL.Texture_2D, Self.Name);
    end enable;
 
-   -- Pool
+   --  Pool
    --
 
    null_Image : array (1 .. 10_000_000) of aliased GL.Ubyte := (others => 0);
 
-   -- tbd: add texture properties as 'in' parameters to habdle different types of textures.
+   --  tbd: add texture properties as 'in' parameters to habdle different types of textures.
    --
    function new_Texture (From : access Pool;   min_Width  : in Positive;
                                                min_Height : in Positive) return Object
@@ -162,7 +162,7 @@ package body GL.Textures is
          From.unused_Textures_for_size (Size_width, Size_height) := unused_texture_List;
       end if;
 
-      -- Search for existing, but unused, object.
+      --  Search for existing, but unused, object.
       --
       if unused_texture_List.Last > 0 then -- An existing unused texture has been found.
          the_Texture              := unused_texture_List.Textures (unused_texture_List.Last);
@@ -173,10 +173,10 @@ package body GL.Textures is
          GL.TexImage2D  (GL.TEXTURE_2D,  0,  GL.RGBA,
                          power_of_2_Ceiling (min_Width), power_of_2_Ceiling (min_Height),
                          0,
-                         --gl.RGBA, gl.GL_UNSIGNED_BYTE, null);    -- nb: actual image is not initialised.
+                         --  gl.RGBA, gl.GL_UNSIGNED_BYTE, null);    -- nb: actual image is not initialised.
                          GL.RGBA, GL.GL_UNSIGNED_BYTE, null_Image (null_Image'First)'Access);    -- NB: Actual image is not initialised.
       else
-         -- No existing, unused texture found, so create a new one.
+         --  No existing, unused texture found, so create a new one.
          --
          the_Texture.Width  := Size_width;
          the_Texture.Height := Size_height;
@@ -186,26 +186,26 @@ package body GL.Textures is
          the_Texture.Name := new_texture_Name;
          enable (the_Texture);
 
-         PixelStore ( UNPACK_ALIGNMENT, 1 );                        -- tbd: these properties are tailored for impostors
-         --TexParameter ( TEXTURE_2D, TEXTURE_WRAP_S, REPEAT );       --      make them user settable !
-         --TexParameter ( TEXTURE_2D, TEXTURE_WRAP_T, REPEAT );
-          -- TexParameter ( TEXTURE_2D, TEXTURE_WRAP_S, CLAMP );       --      make them user settable !
-          -- TexParameter ( TEXTURE_2D, TEXTURE_WRAP_T, CLAMP );
-         TexParameter ( Texture_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE );       --      make them user settable !
-         TexParameter ( Texture_2D, TEXTURE_WRAP_T, CLAMP_TO_EDGE );
+         PixelStore (UNPACK_ALIGNMENT, 1);                           --  tbd: these properties are tailored for impostors
+         --  TexParameter ( TEXTURE_2D, TEXTURE_WRAP_S, REPEAT );       --      make them user settable !
+         --  TexParameter ( TEXTURE_2D, TEXTURE_WRAP_T, REPEAT );
+         --  TexParameter ( TEXTURE_2D, TEXTURE_WRAP_S, CLAMP );        --      make them user settable !
+         --  TexParameter ( TEXTURE_2D, TEXTURE_WRAP_T, CLAMP );
+         TexParameter (Texture_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE);       --      make them user settable !
+         TexParameter (Texture_2D, TEXTURE_WRAP_T, CLAMP_TO_EDGE);
 
-         --TexParameter (TEXTURE_2D, TEXTURE_MAG_FILTER, NEAREST);
-         --TexParameter (TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
-         TexParameter ( Texture_2D, TEXTURE_MAG_FILTER, LINEAR);
-         TexParameter ( Texture_2D, TEXTURE_MIN_FILTER, LINEAR);
+         --  TexParameter (TEXTURE_2D, TEXTURE_MAG_FILTER, NEAREST);
+         --  TexParameter (TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
+         TexParameter (Texture_2D, TEXTURE_MAG_FILTER, LINEAR);
+         TexParameter (Texture_2D, TEXTURE_MIN_FILTER, LINEAR);
 
-         TexEnv ( TEXTURE_ENV, TEXTURE_ENV_MODE, MODULATE );
-         --TexEnv ( TEXTURE_ENV, TEXTURE_ENV_MODE, DECAL );
+         TexEnv (TEXTURE_ENV, TEXTURE_ENV_MODE, MODULATE);
+         --  TexEnv ( TEXTURE_ENV, TEXTURE_ENV_MODE, DECAL );
 
          GL.TexImage2D (GL.TEXTURE_2D,  0,  GL.RGBA,
                         power_of_2_Ceiling (min_Width), power_of_2_Ceiling (min_Height),
                         0,
-                        --gl.RGBA, gl.GL_UNSIGNED_BYTE, null);    -- nb: actual image is not initialised.
+                        --  gl.RGBA, gl.GL_UNSIGNED_BYTE, null);    -- nb: actual image is not initialised.
                         GL.RGBA, GL.GL_UNSIGNED_BYTE, null_Image (null_Image'First)'Access);    -- NB: Actual image is not initialised.
 
          GL.Errors.Log;

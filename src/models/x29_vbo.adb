@@ -23,10 +23,10 @@ package body X29_vbo is
                   Remains);        -- when others   => material:= Polished_Bronze;   -- 0 metal fonce
 
       --  nb_points: constant:= 590;
-      nb_faces:  constant:= 955;
+      nb_faces :  constant := 955;
 
-      --object_points: constant array( 1..nb_points ) of gl.geometry.Vertex :=
-      object_points: aliased GL.Geometry.Vertex_array :=
+      --  object_points: constant array( 1..nb_points ) of gl.geometry.Vertex :=
+      object_points : aliased GL.Geometry.Vertex_array :=
         ((7.05889, 2.89081, 0.0),
          (4.34717, 0.725027, 0.059694),
          (7.07989, 2.88901, 0.0),
@@ -618,10 +618,10 @@ package body X29_vbo is
          (-3.67043, -0.212079, 0.777522),   -- ind. 589
          (4.28747, 0.730427, 0.0));         -- ind. 0
 
-      object_faces: constant array( 1..nb_faces, 1..4) of Natural :=
+      object_faces : constant array (1 .. nb_faces, 1 .. 4) of Natural :=
         ((
-         3, 590, 2,0), ( 3, 4, 590,0), (
-           3, 590, 1,0), ( 6, 3, 2,0), (
+         3, 590, 2, 0), ( 3, 4, 590,0), (
+           3, 590, 1, 0), ( 6, 3, 2,0), (
            6, 2, 5,0), ( 7, 8, 4,0), (
            7, 4, 3,0), ( 10, 6, 5,0), (
            10, 5, 9,0), ( 11, 12, 8,0), (
@@ -1228,7 +1228,7 @@ package body X29_vbo is
 
       for Each in Piece loop
          object.add (the_Geometries (Each)'Access,  the_Skins (Each)'Access);
-         --object.add (the_Geometries (Each)'access,  gl.Skins.lit_green_Skin);
+         --  object.add (the_Geometries (Each)'access,  gl.Skins.lit_green_Skin);
       end loop;
 
       object.Bounds := total_Bounds;

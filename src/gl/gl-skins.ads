@@ -24,7 +24,7 @@ package GL.Skins is
 
    procedure enable (Self : in out Veneer)   is abstract;
 
-   -- 'Skin': base of skin subclasses.
+   --  'Skin': base of skin subclasses.
 
    type Skin is abstract tagged
       record
@@ -44,7 +44,7 @@ package GL.Skins is
 
    null_Skins : constant Skins (1 .. 0) := (others => null);
 
-   -- Skin: opaque unlit mono_color
+   --  Skin: opaque unlit mono_color
    --
 
    type Skin_opaque_unlit_mono_color is new Skin with
@@ -59,7 +59,7 @@ package GL.Skins is
    overriding
    function  is_Transparent (Self : in     Skin_opaque_unlit_mono_color) return Boolean;
 
-   -- Skin: opaque lit mono_color
+   --  Skin: opaque lit mono_color
    --
 
    type Veneer_opaque_lit_mono_color (max_Normals : GL.Geometry.vertex_Id) is new Veneer with
@@ -72,7 +72,7 @@ package GL.Skins is
 
    type Skin_opaque_lit_mono_color is new Skin with
       record
-         Material : GL.Materials.Material_type := Materials.neutral_material;
+         Material : GL.Materials.Material_Type := Materials.neutral_material;
       end record;
 
    overriding
@@ -83,7 +83,7 @@ package GL.Skins is
    overriding
    function  is_Transparent (Self : in     Skin_opaque_lit_mono_color) return Boolean;
 
-   -- Skin: transparent unlit textured (used by 'impostor's)  -- tbd: get rid of 'transparent' since might not be !
+   --  Skin: transparent unlit textured (used by 'impostor's)  -- tbd: get rid of 'transparent' since might not be !
    --
 
    type Veneer_transparent_unlit_textured (num_Coordinates : GL.Geometry.vertex_Id) is new Veneer with
@@ -114,10 +114,10 @@ package GL.Skins is
    overriding
    function  is_Transparent (Self : in     Skin_transparent_unlit_textured) return Boolean;
 
-   -- ... other common skin specialisations ...
-   -- ...
+   --  ... other common skin specialisations ...
+   --  ...
 
-   -- standard skins
+   --  standard skins
    --
 
    green_Skin     : p_Skin := new GL.Skins.Skin_opaque_unlit_mono_color'(Color => (red   => 1.0,
@@ -126,11 +126,11 @@ package GL.Skins is
 
    lit_green_Skin : p_Skin := new GL.Skins.Skin_opaque_lit_mono_color;  -- tbd: set to a green colour (defaults to neutral grey atm :)
 
-   -- ... other standard skins
+   --  ... other standard skins
 
    --  Misc.
 
    type VBO_setup is access procedure;
-   Disable_VBO_callback: VBO_setup:= null;
+   Disable_VBO_callback : VBO_setup := null;
 
 end GL.Skins;

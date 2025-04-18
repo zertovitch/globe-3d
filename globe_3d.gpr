@@ -1,18 +1,22 @@
 --  This is a GNAT, GCC or GNAT Programming Studio (GPS) project file
 --  for the GLOBE_3D project.
 --
---        GLOBE_3D Web site:   http://globe3d.sf.net/
---         GLOBE_3D Mirror:    https://github.com/zertovitch/globe-3d
+--      Home page:       https://globe3d.sourceforge.io/
+--      Project page 1:  https://github.com/zertovitch/globe-3d
+--      Project page 2:  https://sourceforge.net/projects/globe3d/
+--      Alire crate:     https://alire.ada.dev/crates/globe_3d
 --
 --  Build me with "gnatmake -P globe_3d", "gprbuild -P globe_3d",
 --  or open me with GNAT Studio.
 --
 --  This variant is a single project, which handles all sources, including
 --  libraries (zip-ada, gid) which are also available as standalone projects
---  and made visible withthe Source_Dir_List variable below.
+--  but are available here as copies in subdirectories made visible
+--  by the Source_Dir_List variable below.
 --
 --  See "globe_3d_project_tree.gpr" for the other variant of
---  the GLOBE_3D project.
+--  the GLOBE_3D project which refers to other .gpr files.
+
 
 project GLOBE_3D is
 
@@ -37,7 +41,8 @@ project GLOBE_3D is
    type G3D_Styles_Checks_Type is
       ("off",
        "level_1",
-       "level_2");
+       "level_2",
+       "level_3");
 
    G3D_Styles_Checks : G3D_Styles_Checks_Type := external ("G3D_Styles_Checks", "off");
 
@@ -58,7 +63,6 @@ project GLOBE_3D is
    Style_Checks_1 :=
      ("-gnatyaknpr",   --  Style: check all casings: a:attribute, k:keywords, n:package Standard identifiers, p:pragma, r:identifier references
       "-gnatyO",       --  Style: check overriding indicators
-      "-gnatyM120",    --  Style: check line length <= 100 characters
       "-gnatyx");      --  Style: check x:no extra parens
 
    Style_Checks_2 :=
@@ -66,10 +70,14 @@ project GLOBE_3D is
       "-gnatye",       --  Style: check e:end/exit labels present
       "-gnatytc");     --  Style: check t:token separation rules, c:comment format (two spaces)
 
+   Style_Checks_3 :=
+     ("-gnatyM120");   --  Style: check line length <= 100 characters
+
    case G3D_Styles_Checks is
       when "off"     => null;
       when "level_1" => Common_Compiler_Options := Common_Compiler_Options & Style_Checks_1;
       when "level_2" => Common_Compiler_Options := Common_Compiler_Options & Style_Checks_1 & Style_Checks_2;
+      when "level_3" => Common_Compiler_Options := Common_Compiler_Options & Style_Checks_1 & Style_Checks_2 & Style_Checks_3;
    end case;
 
    Debug_Options :=
@@ -175,7 +183,8 @@ project GLOBE_3D is
       "src/gl",
       "src/models",
       "src/objects",
-      --  Here are external projects's sources:
+      --  Here are external projects's sources, copied here for convenience -
+      --  standalone project variant; see GLOBE_3D_Project_Tree for the other variant:
       "src/gid",
       "src/unzip");
 

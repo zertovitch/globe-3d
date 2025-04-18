@@ -108,7 +108,7 @@ package GL.Extended is
                                 data   : in intPointer);
 
   ------------------------------------------------------------------------------
-  -- vertex buffer object imports (GL 1.5)
+  --  vertex buffer object imports (GL 1.5)
   --
   pragma Import (Stdcall, GenBuffers,         "_Lazy_glGenBuffers");
   pragma Import (Stdcall, DeleteBuffers,      "_Lazy_glDeleteBuffers");

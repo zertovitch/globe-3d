@@ -9,8 +9,9 @@
 with GID;
 
 with Ada.Calendar;
-with Ada.Exceptions;                    use Ada.Exceptions;
+with Ada.Exceptions;
 with Ada.Unchecked_Conversion;
+
 with System;
 
 package body GL.IO is
@@ -267,6 +268,7 @@ package body GL.IO is
   function Load (file_name : in  String) return Image is
     f : File_Type;
     the_Image : Image;
+    use Ada.Exceptions;
   begin
     begin
       Open (f, In_File, file_name);
@@ -289,6 +291,7 @@ package body GL.IO is
      blending_hint : out Boolean)   --  Might have blending / transparency / alpha ?
   is
     f : File_Type;
+    use Ada.Exceptions;
   begin
     begin
       Open (f, In_File, file_name);

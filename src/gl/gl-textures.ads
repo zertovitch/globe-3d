@@ -14,7 +14,7 @@ with GL.Geometry,
 
 package GL.Textures is
 
-   -- Core Types
+   --  Core Types
    --
 
    subtype texture_Name is GL.Uint;     -- An openGL texture 'name', which is a natural integer.
@@ -25,7 +25,7 @@ package GL.Textures is
        Scale  : Double;
      end record;
 
-   -- Texture Coordinates
+   --  Texture Coordinates
    --
 
    type Coordinate_1D is
@@ -85,7 +85,7 @@ package GL.Textures is
 
    function to_Size (From : in Positive) return Size;
 
-   -- Object - an openGL texture 'object'.
+   --  Object - an openGL texture 'object'.
    --
 
    type Object  is private;
@@ -107,7 +107,7 @@ package GL.Textures is
 
    function  is_Transparent (Self : in     Object) return Boolean;
 
-   -- Pool - a pool for rapid allocation/deallocation of texture objects.
+   --  Pool - a pool for rapid allocation/deallocation of texture objects.
    --
 
    type Pool is private;
@@ -116,18 +116,18 @@ package GL.Textures is
    function new_Texture (From : access Pool;   min_Width  : in Positive;
                                                min_Height : in Positive) return Object;
    --
-   -- Returns a texture object, whose width and height are powers of two, sufficient to contain the requested minimums.
-   -- tbd: add texture properties to construction parameters !
+   --  Returns a texture object, whose width and height are powers of two, sufficient to contain the requested minimums.
+   --  tbd: add texture properties to construction parameters !
 
    procedure free (Self : in out Pool;   the_Texture : in Object);
    --
-   -- Free's a texture, for future use.
+   --  Free's a texture, for future use.
 
    procedure vacuum (Self : in out Pool);
    --
-   -- Releases any allocated, but unused, texture objects.
+   --  Releases any allocated, but unused, texture objects.
 
-   -- Support
+   --  Support
    --
 
    function power_of_2_Ceiling (From : in Positive) return GL.Sizei;
@@ -143,9 +143,9 @@ private
          Pool           : Textures.p_Pool;
       end record;
 
-   -- Pool
+   --  Pool
    --
-   -- Re-uses existing textures when possible for performance.
+   --  Re-uses existing textures when possible for performance.
 
    type pool_texture_List is
       record

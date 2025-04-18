@@ -10,7 +10,7 @@
 
 package body GL.Buffer is
 
-   -- VBO 'Name' Support
+   --  VBO 'Name' Support
    --
 
    function new_vbo_Name return vbo_Name
@@ -28,7 +28,7 @@ package body GL.Buffer is
    end free;
    pragma Unreferenced (free);
 
-   -- Object
+   --  Object
    --
 
    procedure verify_Name (Self : in out Object'Class)
@@ -54,7 +54,7 @@ package body GL.Buffer is
       DeleteBuffers (1, Self.Name'Unchecked_Access);
    end destroy;
 
-   -- Array Object
+   --  Array Object
    --
 
    overriding
@@ -65,7 +65,7 @@ package body GL.Buffer is
       return ARRAY_BUFFER;
    end vbo_Target;
 
-   -- Element Array Object
+   --  Element Array Object
    --
 
    overriding

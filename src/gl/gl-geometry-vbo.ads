@@ -15,11 +15,11 @@ with
 
 package GL.Geometry.VBO
 --
--- Provides a Geometry subclass which uses VBO based primitives.
+--  Provides a Geometry subclass which uses VBO based primitives.
 --
 is
 
-   -- Vertex Buffer Object Geometry
+   --  Vertex Buffer Object Geometry
    --
 
    type vbo_Geometry is new Geometry with

@@ -8,7 +8,7 @@ use
 package body GLOBE_3D.tri_Mesh.VBO is
 
    overriding
-   procedure destroy (o: in out tri_Mesh)
+   procedure destroy (o : in out tri_Mesh)
    is
       use GL.Skinned_Geometry;
    begin
@@ -37,7 +37,7 @@ package body GLOBE_3D.tri_Mesh.VBO is
    end is_Transparent;
 
    overriding
-   procedure Pre_calculate (o: in out tri_Mesh)
+   procedure Pre_calculate (o : in out tri_Mesh)
    is
    begin
       null;  -- todo

@@ -17,7 +17,7 @@ package body GL.Buffer.General is
    function to_gl_Pointer      is new Ada.Unchecked_Conversion (Element_Pointers.Pointer, GL.pointer);
    function to_element_Pointer is new Ada.Unchecked_Conversion (GL.pointer,               Element_Pointers.Pointer);
 
-   -- Vertex Buffer Object
+   --  Vertex Buffer Object
    --
 
    function to_Buffer (From : access Element_Array;   Usage : VBO_Usage) return Object
@@ -58,7 +58,7 @@ package body GL.Buffer.General is
       return the_Vertices;
    end get;
 
-   -- Memory Maps
+   --  Memory Maps
    --
 
    procedure release (Self : in    memory_Map)
@@ -105,7 +105,7 @@ package body GL.Buffer.General is
       set (Self, Position, To => the_Vertex'Unchecked_Access);
    end set;
 
-   -- read-only
+   --  read-only
 
    function  Map (Self : access Object) return read_only_Map'Class
    is
@@ -140,7 +140,7 @@ package body GL.Buffer.General is
       return get (memory_Map (Self),  Position,  Count);
    end get;
 
-   -- write-only
+   --  write-only
 
    function Map (Self : access Object) return write_only_Map'Class
    is
@@ -176,7 +176,7 @@ package body GL.Buffer.General is
       set (memory_Map (Self),  Position,  To);
    end set;
 
-   -- read-write
+   --  read-write
 
    function Map (Self : access Object) return read_write_Map'Class
    is

@@ -107,7 +107,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       Frustum : constant GL.Frustums.plane_Array := Self.frustum_planes;
    begin
 
-      -- apply 'frustum' and 'apparent size' culling
+      --  apply 'frustum' and 'apparent size' culling
       --
       while Has_Element (Cursor) loop
 
@@ -132,8 +132,8 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
 
          begin
             if         apparent_Size > Self.vanish_point_size_Min
-              and then (        not Self.frustum_culling_Enabled
-                        or else (         is_visible_for_plane (Left)
+              and then (not Self.frustum_culling_Enabled
+                        or else          (is_visible_for_plane (Left)
                                  and then is_visible_for_plane (Right)
                                  and then is_visible_for_plane (High)
                                  and then is_visible_for_plane (Low)))
@@ -149,7 +149,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
          Next (Cursor);
       end loop;
 
-      -- find whether visual or imposter is used, for each object.
+      --  find whether visual or imposter is used, for each object.
       --
       declare
          the_Sprites                : Visual_Array (1 .. Last);
@@ -222,7 +222,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
             end;
          end loop;
 
-         -- do the load balanced impostor updates
+         --  do the load balanced impostor updates
          --
 
          for Each in Self.impostor_load_Slots'Range loop
@@ -237,7 +237,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
                          < R.target_camera_Distance - Real (L.frame_Count_since_last_update); -- targets a chance of update (tbd: need some sort of user-settable scale param to allow for very large scales (space/etc)).
                end "<";
 
-               --procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
+               --  procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
                procedure sort is new Ada.Containers.Generic_Array_Sort (Positive,
                                                                         Impostor.p_Impostor,
                                                                         Impostor.p_Impostor_array);
@@ -246,7 +246,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
 
                for Each in 1 .. num_Updates loop
                   the_Slot.Impostors (Each).update (Self.Viewer.Camera'Access, Self.texture_Pool'Unchecked_Access);
-                  -- tbd: would 'flush' improve performance here ?
+                  --  tbd: would 'flush' improve performance here ?
                end loop;
             end;
          end loop;
@@ -260,7 +260,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       Self.frame_Count := Self.frame_Count + 1;
    end evolve;
 
-   -- sprite_Set
+   --  sprite_Set
    --
 
    procedure destroy (Self : in out sprite_Set)
@@ -279,10 +279,10 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       deallocate (Pad);
    end free;
 
-   -- Support
+   --  Support
    --
 
-   -- Based on algorithm at https://gist.github.com/badboy/6267743
+   --  Based on algorithm at https://gist.github.com/badboy/6267743
    --
    function hash_64_32_shift (key : in Interfaces.Unsigned_64) return Ada.Containers.Hash_Type
    is
@@ -304,7 +304,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       type Access_Pair is
          record
             one,
-            two: Skinned_Visuals.p_Skinned_Visual;
+            two : Skinned_Visuals.p_Skinned_Visual;
          end record;
 
       key_64_or_128 : constant Access_Pair := (Self, Self);

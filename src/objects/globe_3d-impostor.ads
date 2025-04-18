@@ -20,7 +20,7 @@ with
 
 package GLOBE_3D.Impostor is
 
-   -- A Globe_3D Object which contains a 2d image of another Globe_3d 'Visual'.
+   --  A Globe_3D Object which contains a 2d image of another Globe_3d 'Visual'.
 
    type Impostor         is abstract new Skinned_Visuals.Skinned_Visual with private;
    type p_Impostor       is access all Impostor'Class;
@@ -31,15 +31,15 @@ package GLOBE_3D.Impostor is
 
    function update_Required (o : access Impostor;   the_Camera  : in p_Camera) return Boolean   is abstract;
    --
-   -- nb: Caches current pixel_Region as a side-effect.
+   --  nb: Caches current pixel_Region as a side-effect.
 
    function is_Valid (o : in Impostor'Class) return Boolean;
    --
-   -- True when rendered target has width and height greater than 0.
+   --  True when rendered target has width and height greater than 0.
 
    function never_Updated (o : in Impostor'Class) return Boolean;
    --
-   -- True when 'update' has never been called for the impostor.
+   --  True when 'update' has never been called for the impostor.
 
    function frame_Count_since_last_update (o : in Impostor'Class) return Natural;
 
@@ -47,26 +47,26 @@ package GLOBE_3D.Impostor is
                                                    texture_Pool : in     GL.Textures.p_Pool;
                                                    is_Valid     :    out Boolean);
    --
-   -- Takes a new snapshot of the target Visual.
+   --  Takes a new snapshot of the target Visual.
 
    function target_camera_Distance (o : in Impostor'Class) return Real;
    --
-   -- Returns the distance from the camera to the target, when 'update_required' was last called.
+   --  Returns the distance from the camera to the target, when 'update_required' was last called.
 
-   -- Update Trigger Configuration
+   --  Update Trigger Configuration
    --
 
    procedure set_freshen_count_update_trigger_Mod (o : in out Impostor;   To : in Positive);
    function  get_freshen_count_update_trigger_Mod (o : in     Impostor)    return Positive;
    --
-   -- Periodic freshen trigger.
+   --  Periodic freshen trigger.
 
    procedure set_size_update_trigger_Delta        (o : in out Impostor;   To : in Positive);
    function  get_size_update_trigger_Delta        (o : in     Impostor)    return Positive;
    --
-   -- Update due to change in size of targets pixel rectangle.
+   --  Update due to change in size of targets pixel rectangle.
 
-   -- Base Impostor Class
+   --  Base Impostor Class
    --
 
    overriding
@@ -84,12 +84,12 @@ package GLOBE_3D.Impostor is
    procedure update (o : in out Impostor;   the_Camera                    : in     p_Camera;
                                             texture_Pool                  : in     GL.Textures.p_Pool);
    --
-   -- Renders the impostor to a cleared framebuffer and copies the image to the impostors texture.
+   --  Renders the impostor to a cleared framebuffer and copies the image to the impostors texture.
 
    overriding
    procedure Display (o : in out Impostor;   clip : in     Clipping_Data);
 
-   -- Destruction
+   --  Destruction
    --
    overriding
    procedure destroy (o : in out Impostor);
@@ -99,11 +99,11 @@ private
 
    function Skin (o : access Impostor) return GL.Skins.p_Skin_transparent_unlit_textured;
    --
-   -- Convenience function to allow brief access to dynamically typed 'skinned_Geometry.Skin' component.
+   --  Convenience function to allow brief access to dynamically typed 'skinned_Geometry.Skin' component.
 
    function Quads (o : in Impostor) return GL.Primitive.p_Quads;
    --
-   -- Convenience function to allow brief access to the 'skinned_Geometry.Geometry' component.
+   --  Convenience function to allow brief access to the 'skinned_Geometry.Geometry' component.
 
    type pixel_Region is
       record
@@ -113,7 +113,7 @@ private
 
    function get_pixel_Region (o : access Impostor'Class;   the_Camera : in GLOBE_3D.p_Camera) return pixel_Region;
    --
-   -- Calculate and return the smallest rectangular screen region which encloses the target, when rendered by the_Camera.
+   --  Calculate and return the smallest rectangular screen region which encloses the target, when rendered by the_Camera.
 
    function general_Update_required      (o : access Impostor;   the_Camera       : in p_Camera; -- tbd: rename general_Update_required !
                                                          the_pixel_Region : in pixel_Region) return Boolean;
@@ -136,13 +136,13 @@ private
          freshen_count_update_trigger_Mod : Counter  := 150;
 
          size_update_trigger_Delta        : GL.Sizei := 2;
-         expand_X, expand_Y               : Real     := 0.01;     -- tbd: trying small expansion to rid 'border flicker'.
+         expand_X, expand_Y               : Real     := 0.01;     --  tbd: trying small expansion to rid 'border flicker'.
 
-         is_Valid                         : Boolean  := True;     -- True when rendered target has both width and height > 0.
-                                                                  -- (nb: Always true for simple impostors)
+         is_Valid                         : Boolean  := True;     --  True when rendered target has both width and height > 0.
+                                                                  --  (nb: Always true for simple impostors)
          never_Updated                    : Boolean  := True;
 
-         -- Current State
+         --  Current State
          --
          current_pixel_Region    : pixel_Region;
 
@@ -157,7 +157,7 @@ private
 
          target_camera_Distance  : Real;
 
-         -- Prior State
+         --  Prior State
          --
          prior_pixel_Region    : pixel_Region := (X => 0, Y => 0,  Width => GL.Sizei'First,  Height => GL.Sizei'First);
          prior_Width_pixels    : GL.Sizei     := 0;

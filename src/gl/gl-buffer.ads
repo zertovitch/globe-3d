@@ -14,7 +14,7 @@ package GL.Buffer is
 
    subtype vbo_Name is GL.Uint;     -- A vertex buffer 'name'.
 
-   -- Buffer Object
+   --  Buffer Object
    --
    type Object is abstract tagged private;
 
@@ -23,23 +23,23 @@ package GL.Buffer is
 
    function VBO_Target (Self : in Object) return VBO_Target_Type is abstract;
 
-   -- 'array' and 'element array' Object subclasses.
+   --  'array' and 'element array' Object subclasses.
    --
    type array_Object         is new Object with private;
    type element_array_Object is new Object with private;
 
-   -- Refer to child packages, for specific buffers:
+   --  Refer to child packages, for specific buffers:
    --
-   -- - gl.Buffer.vertex
-   -- - gl.Buffer.texture_coords
-   -- - gl.Buffer.normals
-   -- - gl.Buffer.indices
+   --  - gl.Buffer.vertex
+   --  - gl.Buffer.texture_coords
+   --  - gl.Buffer.normals
+   --  - gl.Buffer.indices
    --
-   -- (tbd: pixel pack/unpack buffers)
+   --  (tbd: pixel pack/unpack buffers)
 
    no_platform_Support : exception;
    --
-   -- Raised by buffer 'Map' functions when OpenGL platform does not support GL Buffer objects.
+   --  Raised by buffer 'Map' functions when OpenGL platform does not support GL Buffer objects.
 
 private
 
@@ -59,7 +59,7 @@ private
 
    type vertex_buffer_Object is new array_Object with null record;
 
-   -- Support
+   --  Support
 
    procedure verify_Name (Self : in out Object'Class);
 

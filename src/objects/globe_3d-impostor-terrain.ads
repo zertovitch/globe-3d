@@ -16,7 +16,7 @@ with
 
 package GLOBE_3D.Impostor.Terrain is
 
-   -- Handles impostoring of terrain 'visuals', which have greater image precision needs, to help avoid border cracks.
+   --  Handles impostoring of terrain 'visuals', which have greater image precision needs, to help avoid border cracks.
 
    type Impostor   is new GLOBE_3D.Impostor.Impostor with private;
    type p_Impostor is access all Impostor'Class;

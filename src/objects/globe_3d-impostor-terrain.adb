@@ -49,7 +49,7 @@ package body GLOBE_3D.Impostor.Terrain is
 
          viewport_Width  : constant Integer := the_Camera.clipper.main_clipping.X2 - the_Camera.clipper.main_clipping.X1 + 1;
          viewport_Height : constant Integer := the_Camera.clipper.main_clipping.Y2 - the_Camera.clipper.main_clipping.Y1 + 1;
-                                               -- todo: make above calculations attributes of camera class !
+                                               --  todo: make above calculations attributes of camera class !
          Complete_left   : Boolean;
          Complete_right  : Boolean;
          Complete_top    : Boolean;
@@ -70,7 +70,7 @@ package body GLOBE_3D.Impostor.Terrain is
                o.is_Valid := False;
                return False;                                     -- nb: Short circuit return !
             end if;
-            -- tbd: check what causes negative widths and heights !
+            --  tbd: check what causes negative widths and heights !
 
          elsif copy_X + Int (copy_Width) >  Int (viewport_Width) then
             copy_Width := Sizei (viewport_Width) - Sizei (copy_X);
@@ -171,7 +171,7 @@ package body GLOBE_3D.Impostor.Terrain is
       maximum_Expansion : constant      := 0.05;
       Distance          : constant Real := Norm (o.centre - the_Camera.clipper.eye_position);
       Expansion         : constant Real := Real'Max (0.02,
-                                                     0.015  +  maximum_Expansion * Real'Min (Distance, 5_000.0) / 5_000.0 );
+                                                     0.015  +  maximum_Expansion * Real'Min (Distance, 5_000.0) / 5_000.0);
    begin
       o.expand_X := Expansion;   -- todo: expansion formula needs tuning !
       o.expand_Y := Expansion;

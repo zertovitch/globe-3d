@@ -21,15 +21,15 @@ package body GL.Geometry is
 
    package REF is new Ada.Numerics.Generic_Elementary_functions (GL.Double);  -- tbd: make this public ?
 
-   -- Plane
+   --  Plane
    --
 
    procedure normalise (the_Plane : in out Plane)
    is
       use REF;
-      inv_Magnitude : constant GL.Double := 1.0 / Sqrt (  the_Plane (0) * the_Plane (0)
-                                                        + the_Plane (1) * the_Plane (1)
-                                                        + the_Plane (2) * the_Plane (2));
+      inv_Magnitude : constant GL.Double := 1.0 / Sqrt (the_Plane (0) * the_Plane (0)
+                                                      + the_Plane (1) * the_Plane (1)
+                                                      + the_Plane (2) * the_Plane (2));
    begin
       the_Plane (0) := the_Plane (0) * inv_Magnitude;
       the_Plane (1) := the_Plane (1) * inv_Magnitude;
@@ -37,7 +37,7 @@ package body GL.Geometry is
       the_Plane (3) := the_Plane (3) * inv_Magnitude;
    end normalise;
 
-   -- Bounds
+   --  Bounds
    --
 
    function Max (L, R : in Extent) return Extent
@@ -71,7 +71,7 @@ package body GL.Geometry is
       return the_Max;
    end Max;
 
-   -- vertex_Id's
+   --  vertex_Id's
    --
 
    procedure increment (Self : in out vertex_Id_array)
@@ -90,7 +90,7 @@ package body GL.Geometry is
       end loop;
    end decrement;
 
-   -- vertices
+   --  vertices
    --
 
    function Image (Self : in     Vertex) return String
@@ -106,7 +106,7 @@ package body GL.Geometry is
       max_Distance_2 : GL.Double     := 0.0;           -- Current maximum distance squared.
    begin
       for p in Self'Range loop
-         max_Distance_2 := GL.Double'Max (  Self (p)(0) * Self (p)(0)
+         max_Distance_2 := GL.Double'Max   (Self (p)(0) * Self (p)(0)
                                           + Self (p)(1) * Self (p)(1)
                                           + Self (p)(2) * Self (p)(2),
                                           max_Distance_2);
@@ -134,7 +134,7 @@ package body GL.Geometry is
          declare
             the_Point : Vertex renames Vertices (Indices (Each));
          begin
-            max_Distance_2 := GL.Double'Max (  the_Point (0) * the_Point (0)
+            max_Distance_2 := GL.Double'Max   (the_Point (0) * the_Point (0)
                                              + the_Point (1) * the_Point (1)
                                              + the_Point (2) * the_Point (2),   max_Distance_2);
 
@@ -188,7 +188,7 @@ package body GL.Geometry is
       return To_String (the_Image);
    end Image;
 
-   -- Abstract Base Geometry Class
+   --  Abstract Base Geometry Class
    --
 
    procedure free (Self : in out p_Geometry)
@@ -222,21 +222,21 @@ package body GL.Geometry is
                end vertex_Id_for;
 
             begin
-               -- Geometry (Normal of unrotated face)
+               --  Geometry (Normal of unrotated face)
                --
                for each_Face in 1 .. face_Count loop
                   N        :=   (the_Vertices (vertex_Id_for (each_Face, 2)) - the_Vertices (vertex_Id_for (each_Face, 1)))
-                              * (the_Vertices (vertex_Id_for (each_Face, 3)) - the_Vertices (vertex_Id_for (each_Face, 1))) ;
-                  length_N := Norm( N );
+                              * (the_Vertices (vertex_Id_for (each_Face, 3)) - the_Vertices (vertex_Id_for (each_Face, 1)));
+                  length_N := Norm (N);
 
-                  if Almost_zero (length_N) then
+                  if Almost_Zero (length_N) then
                      face_Normals (each_Face) := N; -- 0 vector !
                   else
                      face_Normals (each_Face) := (1.0 / length_N) * N;
                   end if;
                end loop;
 
-               -- Calculate normal at each vertex.
+               --  Calculate normal at each vertex.
                --
                declare
                   vertex_adjacent_faces_Count : array (the_Vertices'Range) of Natural := (others => 0);
@@ -245,7 +245,7 @@ package body GL.Geometry is
                begin
 
                   for p in the_Vertices'Range loop
-                     the_Normals (p):= (0.0, 0.0, 0.0);
+                     the_Normals (p) := (0.0, 0.0, 0.0);
                   end loop;
 
                   for f in 1 .. face_Count loop
@@ -259,12 +259,12 @@ package body GL.Geometry is
 
                   for p in the_Vertices'Range loop
 
-                     length:= Norm (the_Normals (p));
+                     length := Norm (the_Normals (p));
 
-                     if not Almost_zero(length) then
+                     if not Almost_Zero (length) then
                         the_Normals (p) := (1.0 / length) * the_Normals (p);
                      else
-                        null; --raise Constraint_Error;  -- tbd: proper exception as usual.
+                        null; -- raise Constraint_Error;  -- tbd: proper exception as usual.
                      end if;
                   end loop;
                end;

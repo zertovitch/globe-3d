@@ -18,14 +18,14 @@ with
 
 package GLOBE_3D.Sprite is
 
-   -- A 'Visual' which is composed of several 'gl.skinned_Geometry' items.
+   --  A 'Visual' which is composed of several 'gl.skinned_Geometry' items.
 
    type Sprite (max_Geometries : Positive) is new Skinned_Visuals.Skinned_Visual with
       record
          skinned_Geometries     : GL.Skinned_Geometry.Skinned_Geometries (1 .. max_Geometries);
          skinned_geometry_Count : Natural := 0;
 
-         -- private:
+         --  private:
          is_Transparent : Boolean := False;
          face_Count     : Natural := 0;
          Bounds         : GL.Geometry.Bounds_record;

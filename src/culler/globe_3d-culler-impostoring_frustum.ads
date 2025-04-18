@@ -32,12 +32,12 @@ package GLOBE_3D.Culler.Impostoring_frustum is
    function  vanish_point_size_Min    (Self : in     Culler'Class) return Real;
    procedure vanish_point_size_Min_is (Self : in out Culler'Class;   Now : in Real);
    --
-   -- visuals whose projected size falls below this minimum will not be displayed.
+   --  visuals whose projected size falls below this minimum will not be displayed.
 
    function  impostor_size_Min    (Self : in     Culler'Class) return Real;
    procedure impostor_size_Min_is (Self : in out Culler'Class;   Now : in Real);
    --
-   -- visuals whose projected size falls below this minimum will be displayed as impostors.
+   --  visuals whose projected size falls below this minimum will be displayed as impostors.
 
    function  frustum_culling_Enabled    (Self : in     Culler'Class) return Boolean;
    procedure frustum_culling_Enabled_is (Self : in out Culler'Class;   Now : in Boolean);
@@ -85,7 +85,7 @@ private
                                                             2 => (max_Faces => 1000,           max_Updates =>  15,  others => <>),
                                                             3 => (max_Faces => Positive'Last,  max_Updates =>  12,  others => <>));
                                                             --
-                                                            -- tbd: tune default_Slots to reasonable defaults.
+                                                            --  tbd: tune default_Slots to reasonable defaults.
 
    type Culler is new GLOBE_3D.Culler.Culler with
       record

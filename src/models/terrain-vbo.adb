@@ -18,7 +18,7 @@ use
 
 package body Terrain.VBO is
 
-   -- tbd: This package uses a 'Sprite', whereas a 'triMesh.vbo' would probably be more appropriate.
+   --  tbd: This package uses a 'Sprite', whereas a 'triMesh.vbo' would probably be more appropriate.
 
    function new_terrain_Sprite return Sprite.p_Sprite
    is
@@ -42,7 +42,7 @@ package body Terrain.VBO is
    begin
       the_Geometry.primitive_Id := GL.TRIANGLES;
 
-      -- Vertices
+      --  Vertices
       --
       set (the_Vertices.all,   from_height_Map => Now,
                                scale           => Scale,
@@ -55,7 +55,7 @@ package body Terrain.VBO is
 
       free (the_Vertices);      -- nb: Using new/free to avoid storage_Error with large heightmaps.
 
-      -- Indices
+      --  Indices
       --
       declare
          use GL.Buffer.Indices;
@@ -69,8 +69,8 @@ package body Terrain.VBO is
             for Col in 1 .. Now.column_Count - 1 loop
                declare
                   --  use GL.Geometry;
-                  NW : constant vertex_Id := Vertex_Id_for (Now,   Row,     Col    );
-                  SW : constant vertex_Id := Vertex_Id_for (Now,   Row + 1, Col    );
+                  NW : constant vertex_Id := Vertex_Id_for (Now,   Row,     Col);
+                  SW : constant vertex_Id := Vertex_Id_for (Now,   Row + 1, Col);
                   NE : constant vertex_Id := Vertex_Id_for (Now,   Row,     Col + 1);
                   SE : constant vertex_Id := Vertex_Id_for (Now,   Row + 1, Col + 1);
                begin
@@ -105,7 +105,7 @@ package body Terrain.VBO is
 
       the_skinned_Geometry : GL.Skinned_Geometry.Skinned_Geometry renames Self.skinned_Geometries (1);
 
-      the_Skin       : constant unlit_textured_vbo.p_Skin         := new unlit_textured_vbo.Skin' (Texture => Now);
+      the_Skin       : constant unlit_textured_vbo.p_Skin         := new unlit_textured_vbo.Skin'(Texture => Now);
       the_Vertices   :          GL.Geometry.Vertex_array     renames vbo_Geometry (the_skinned_Geometry.Geometry.all).Vertices.get;
       texture_Coords :          GL.Textures.p_Coordinate_2D_array := to_texture_Coordinates_xz (the_Vertices, texture_Transform_s,
                                                                                                               texture_Transform_t);
@@ -198,7 +198,7 @@ package body Terrain.VBO is
          flip_Vertically (the_Matrix);
       end if;
 
-      -- Create each element heightmap for the_heightmap_Grid.
+      --  Create each element heightmap for the_heightmap_Grid.
       --
       declare
          row_First, row_Last,
@@ -212,13 +212,13 @@ package body Terrain.VBO is
                col_First := (tile_Width - 1) * (Col - 1) + 1;
                col_Last  := Integer'Min (col_First + (tile_Width - 1),  the_Matrix'Last (2));
 
-               the_heightmap_Grid (Row, Col) := new height_Map' (to_Height_Map (sub_Matrix (the_Matrix, row_First, row_Last,
-                                                                                                        col_First, col_Last)));
+               the_heightmap_Grid (Row, Col) := new height_Map'(to_Height_Map (sub_Matrix (the_Matrix, row_First, row_Last,
+                                                                                                       col_First, col_Last)));
             end loop;
          end loop;
       end;
 
-      -- Create the Sprite for each grid element.
+      --  Create the Sprite for each grid element.
       --
       declare
          site_X_offset,
@@ -250,7 +250,7 @@ package body Terrain.VBO is
                end;
 
                if Col /= the_sprite_Grid'Last (2) then
-                  site_X_offset := site_X_offset + Width (the_heightmap_Grid (Row, Col    ).all) * Scale (0) / 2.0
+                  site_X_offset := site_X_offset + Width (the_heightmap_Grid (Row, Col).all)     * Scale (0) / 2.0
                                                  + Width (the_heightmap_Grid (Row, Col + 1).all) * Scale (0) / 2.0;
                end if;
             end loop;
@@ -262,7 +262,7 @@ package body Terrain.VBO is
          end loop;
       end;
 
-      -- Clean up.
+      --  Clean up.
       --
       for Row in the_sprite_Grid'Range (1) loop
          for Col in the_sprite_Grid'Range (2) loop

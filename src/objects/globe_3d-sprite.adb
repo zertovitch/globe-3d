@@ -18,13 +18,13 @@ package body GLOBE_3D.Sprite is
    end add;
 
    overriding
-   procedure Pre_calculate (o: in out Sprite)
+   procedure Pre_calculate (o : in out Sprite)
    is
       use GL, GL.Geometry;
    begin
-      --vertex_cache_optimise (o);  -- tbd: doesn't seem to help !! ... :(
-                                  -- at least with terrain ... (terrain dataset may already naturally be in optimal order ?)
-                                  -- so need to test with other dataset
+      --  vertex_cache_optimise (o);  --  tbd: doesn't seem to help !! ... :(
+                                      --  at least with terrain ... (terrain dataset may already naturally be in optimal order ?)
+                                      --  so need to test with other dataset
       o.Bounds     := null_Bounds;
       o.face_Count := 0;
 
@@ -61,8 +61,8 @@ package body GLOBE_3D.Sprite is
                       clip : in     Clipping_Data)
    is
    begin
-      null;   -- Actual display is done by the renderer (ie glut.Windows), which requests all skinned Geometry's
-              -- and then applies 'gl state' sorting for performance, before drawing.
+      null;   --  Actual display is done by the renderer (ie glut.Windows), which requests all skinned Geometry's
+              --  and then applies 'gl state' sorting for performance, before drawing.
    end Display;
 
    overriding

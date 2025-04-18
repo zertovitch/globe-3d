@@ -15,7 +15,7 @@ with GL.Geometry, GL.Skins;
 
 package GLOBE_3D.tri_Mesh is
 
-   -- Triangle mesh Object base class.
+   --  Triangle mesh Object base class.
    --
    type tri_Mesh is abstract new Skinned_Visuals.Skinned_Visual with
       record

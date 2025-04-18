@@ -4,7 +4,7 @@ with
 
 package body Terrain is
 
-   -- todo: This package uses a 'Sprite', whereas a 'triMesh.vbo' would probably be more appropriate.
+   --  todo: This package uses a 'Sprite', whereas a 'triMesh.vbo' would probably be more appropriate.
 
    function to_Matrix (tga_Heights : in String) return Matrix
    is

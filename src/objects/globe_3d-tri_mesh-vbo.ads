@@ -14,7 +14,7 @@ with GL.Skinned_Geometry,
 
 package GLOBE_3D.tri_Mesh.VBO is
 
-   -- A triangle mesh Visual, using an openGL 'vertex buffer object' for geometry.
+   --  A triangle mesh Visual, using an openGL 'vertex buffer object' for geometry.
    --
    type tri_Mesh is new GLOBE_3D.tri_Mesh.tri_Mesh with
       record

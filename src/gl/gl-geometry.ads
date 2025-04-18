@@ -13,14 +13,14 @@ with Interfaces.C.Pointers;
 
 package GL.Geometry is
 
-   -- Planes
+   --  Planes
    --
 
    type Plane is array (0 .. 3) of aliased GL.Double;   -- A general plane in equation form (tbd: use  1 .. 4  ?)
 
    procedure normalise (the_Plane : in out Plane);
 
-   -- Bounds
+   --  Bounds
    --
 
    type Extent is
@@ -54,10 +54,10 @@ package GL.Geometry is
                                                                            Max => GL.Double'First)));
    function Max (L, R : in Bounds_record) return Bounds_record;
 
-   -- Vertices
+   --  Vertices
    --
 
-   -- vertex_Id (an index into a vertex_Array)
+   --  vertex_Id (an index into a vertex_Array)
    --
 
    type   vertex_Id is new GL.Uint;
@@ -75,7 +75,7 @@ package GL.Geometry is
 
    procedure free (vert_Id_array : in out p_vertex_Id_array);
 
-   -- Vertex
+   --  Vertex
    --
 
    subtype Vertex is GL.Double_Vector_3D;                             -- tbd: can gl.Double_vector_3D use '1'-based indexing ?
@@ -100,14 +100,14 @@ package GL.Geometry is
 
    function to_p_Vertex    is new Ada.Unchecked_Conversion (GL.pointer, p_Vertex);
 
-   -- Lighting Normals
+   --  Lighting Normals
    --
 
    subtype Normal       is GL.Double_Vector_3D;
    type    Normals      is array (Positive           range <>) of aliased Normal;
    type    Normal_array is array (positive_Vertex_Id range <>) of aliased Normal;
 
-   -- Base Geometry Class
+   --  Base Geometry Class
    --
 
    type Geometry is abstract tagged
@@ -130,8 +130,8 @@ package GL.Geometry is
    function  vertex_Normals (Self : in     Geometry'Class) return Normal_array;
    function  face_Count     (Self : in     Geometry'Class) return Natural;
    --
-   -- For point primitives, each point is considered a 'face'.
-   -- For line  primitives, each line  is considered a 'face'.
+   --  For point primitives, each point is considered a 'face'.
+   --  For line  primitives, each line  is considered a 'face'.
 
    procedure draw    (Self : in     Geometry)   is abstract;
 

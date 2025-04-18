@@ -25,6 +25,6 @@ package GL.Frustums is
 
    function current_Planes return plane_Array;
    --
-   -- Returns the frustum planes calculated from the current GL projection and modelview matrices.
+   --  Returns the frustum planes calculated from the current GL projection and modelview matrices.
 
 end GL.Frustums;

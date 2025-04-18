@@ -35,10 +35,10 @@ package GL.Primitive is
 
    null_Primitives : constant Primitives (1 .. 0) := (others => null);
 
-   -- nb: - For 'create_*' functions below: if 'Vertices' parameter is null, a new Vertex array of appropriate size is created.
-   --       This allows construction of primitives using shared vertices from a common vertex array.
+   --  nb: - For 'create_*' functions below: if 'Vertices' parameter is null, a new Vertex array of appropriate size is created.
+   --        This allows construction of primitives using shared vertices from a common vertex array.
 
-   -- Points
+   --  Points
 
    type Points is new Primitive with null record;
 
@@ -47,7 +47,7 @@ package GL.Primitive is
    overriding
    function primitive_Id  (Self : in Points) return GL.ObjectTypeEnm;
 
-   -- Lines
+   --  Lines
 
    type Lines is new Primitive with null record;
 
@@ -64,7 +64,7 @@ package GL.Primitive is
                                                    Vertex : in Positive;                     -- 1 or 2.
                                                    To     : in GL.Geometry.vertex_Id);
 
-   -- Line Strip
+   --  Line Strip
 
    type line_Strip is new Primitive with null record;
 
@@ -81,7 +81,7 @@ package GL.Primitive is
                                                         Vertex : in Positive;                 -- 1 or 2.
                                                         To     : in GL.Geometry.vertex_Id);
 
-   -- Line Loop
+   --  Line Loop
 
    type line_Loop is new Primitive with null record;
 
@@ -98,7 +98,7 @@ package GL.Primitive is
                                                        Vertex : in Positive;                  -- 1 or 2.
                                                        To     : in GL.Geometry.vertex_Id);
 
-   -- Triangles
+   --  Triangles
 
    type Triangles is new Primitive with null record;
 
@@ -118,7 +118,7 @@ package GL.Primitive is
                                                        Vertex   : in Positive;                -- 1, 2 or 3.
                                                        To       : in GL.Geometry.vertex_Id);
 
-   -- Triangle Strip
+   --  Triangle Strip
 
    type triangle_Strip is new Primitive with null record;
 
@@ -140,7 +140,7 @@ package GL.Primitive is
                                                             Vertex   : in Positive;                     -- 1, 2 or 3.
                                                             To       : in GL.Geometry.vertex_Id);
 
-   -- Triangle Fan
+   --  Triangle Fan
 
    type triangle_Fan is new Primitive with null record;
 
@@ -157,7 +157,7 @@ package GL.Primitive is
                                                           Vertex   : in Positive;                -- 1, 2 or 3.
                                                           To       : in GL.Geometry.vertex_Id);
 
-   -- Quads
+   --  Quads
 
    type Quads is new Primitive with null record;
    type p_Quads is access all Quads'Class;
@@ -176,7 +176,7 @@ package GL.Primitive is
                                                    Vertex : in Positive;                   -- 1, 2, 3 or 4.
                                                    To     : in GL.Geometry.vertex_Id);
 
-   -- Quad Strip
+   --  Quad Strip
 
    type quad_Strip is new Primitive with null record;
 
@@ -193,7 +193,7 @@ package GL.Primitive is
                                                         Vertex : in Positive;                -- 1, 2, 3 or 4.
                                                         To     : in GL.Geometry.vertex_Id);
 
-   -- Polygon
+   --  Polygon
 
    type Polygon is new Primitive with null record;
 

@@ -14,7 +14,7 @@ with
 
 package Terrain.VBO is
 
-   -- Sprite (uses vertex buffer objects)
+   --  Sprite (uses vertex buffer objects)
    --
 
    procedure Create (Object       : in out Sprite.p_Sprite;

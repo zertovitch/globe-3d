@@ -13,7 +13,7 @@ with GL.Primitive;
 
 package GL.Geometry.VA
 --
--- Provides a Geometry subclass which uses Vertex Array based primitives.
+--  Provides a Geometry subclass which uses Vertex Array based primitives.
 --
 is
 

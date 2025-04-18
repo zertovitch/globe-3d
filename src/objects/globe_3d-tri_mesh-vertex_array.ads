@@ -15,7 +15,7 @@ with GL.Primitive,
 
 package GLOBE_3D.tri_Mesh.vertex_array is
 
-   -- Provides a triangle mesh Visual, using an openGL 'vertex array' for geometry.
+   --  Provides a triangle mesh Visual, using an openGL 'vertex array' for geometry.
    --
 
    type tri_Mesh is new GLOBE_3D.tri_Mesh.tri_Mesh with

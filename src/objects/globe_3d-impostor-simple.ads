@@ -14,7 +14,7 @@ with
 
 package GLOBE_3D.Impostor.Simple is      -- tbd: rename 'GLOBE_3D.Impostor.standard' ?
 
-   -- Can impostor any 'Visual'.
+   --  Can impostor any 'Visual'.
 
    type   Impostor is new GLOBE_3D.Impostor.Impostor with private;
    type p_Impostor is access all Impostor'Class;

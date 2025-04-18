@@ -5,13 +5,13 @@ use
 
 package body GLOBE_3D.tri_Mesh is
 
-   -- 'vertex_cache_optimise' is based on algorithm descibed here ... http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
+   --  'vertex_cache_optimise' is based on algorithm descibed here ... http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
    --
    procedure vertex_cache_optimise (Vertices : in out GL.Geometry.Vertex_array;   Indices : in out GL.Geometry.vertex_Id_array)
    is
       use GL, GL.Geometry;
 
-      --subtype vertex_Id   is Positive;
+      --  subtype vertex_Id   is Positive;
       subtype triangle_Id is positive_uInt;
 
       type triangle_Indices is array (Positive range <>) of triangle_Id;
@@ -33,14 +33,14 @@ package body GLOBE_3D.tri_Mesh is
 
       type vco_Vertex is
          record
-            cache_Position : Integer   := -1;                                    -- Its position in the modelled cache (-1 if it is not in the cache)
-            Score          : GL.Double;                                         -- Its current score
+            cache_Position : Integer   := -1;                                    --  Its position in the modelled cache (-1 if it is not in the cache)
+            Score          : GL.Double;                                          --  Its current score
 
-            Triangles         : triangle_Indices (1 .. Max_triangles_per_vertex); -- The list of triangle indices that use it, ordered so the triangle indices yet to be added are listed first,
-                                                                                  -- followed by the triangle indices that have already been added to the draw list.
+            Triangles         : triangle_Indices (1 .. Max_triangles_per_vertex); --  The list of triangle indices that use it, ordered so the triangle indices yet to be added are listed first,
+                                                                                  --  followed by the triangle indices that have already been added to the draw list.
 
-            tri_Count         : Natural := 0;                                    -- tbd: should only be needed for debugging
-            tri_Count_unadded : Natural;                                         -- The number of triangles not yet added that use it
+            tri_Count         : Natural := 0;                                    --  tbd: should only be needed for debugging
+            tri_Count_unadded : Natural;                                         --  The number of triangles not yet added that use it
          end record;
 
       function Score_of (the_Vertex : in vco_Vertex) return GL.Double
@@ -63,13 +63,13 @@ package body GLOBE_3D.tri_Mesh is
             cache_Position    : Integer   renames the_Vertex.cache_Position;
          begin
 
-            if cache_Position < 0 then   -- Vertex is not in LRU cache
-               null;                     -- so no score.
+            if cache_Position < 0 then   --  Vertex is not in LRU cache
+               null;                     --  so no score.
             else
 
-               if cache_Position < 3 then   -- This vertex was used in the last triangle, so it has a fixed score, whichever of the three
-                  Score := LastTriScore;    -- it's in. Otherwise, you can get very different answers depending on whether you add
-                                            -- the triangle 1,2,3 or 3,1,2 - which is silly.
+               if cache_Position < 3 then   --  This vertex was used in the last triangle, so it has a fixed score, whichever of the three
+                  Score := LastTriScore;    --  it's in. Otherwise, you can get very different answers depending on whether you add
+                                            --  the triangle 1,2,3 or 3,1,2 - which is silly.
                else
                   pragma Assert (cache_Position < MaxSizeVertexCache);
 
@@ -144,7 +144,7 @@ package body GLOBE_3D.tri_Mesh is
 
          for Each in prior_Cache'Range loop
 
-            if not (        prior_Cache (Each) = v1
+            if not         (prior_Cache (Each) = v1
                     or else prior_Cache (Each) = v2
                     or else prior_Cache (Each) = v3)
             then
@@ -182,10 +182,10 @@ package body GLOBE_3D.tri_Mesh is
 --        new_face_Indices      : triangle_vertex_Indices (o.Face_Indices'range);    -- the resulting optimised triangle indices.
 --  --      new_face_Indices_last : Natural := new_face_Indices'first - 1;
    begin
-      --put_Line ("start optimise !");
+      --  put_Line ("start optimise !");
 
-      -- combined pass's: - increments the counter of the number of triangles that use each vertex
-      --                  - adds the triangle to the vertex's triangle list, for each vertex.
+      --  combined pass's: - increments the counter of the number of triangles that use each vertex
+      --                   - adds the triangle to the vertex's triangle list, for each vertex.
       --
       for Each in 1 .. num_Faces loop
          declare
@@ -209,13 +209,13 @@ package body GLOBE_3D.tri_Mesh is
          end;
       end loop;
 
-      -- calculate initial vertex scores
+      --  calculate initial vertex scores
       --
       for Each in vco_Vertices'Range loop
          vco_Vertices (Each).Score := Score_of (vco_Vertices (Each));   -- tbd: 'Score_of' function should probably be 'set_Score' procedure ?
       end loop;
 
-      -- calculate initial triangle scores
+      --  calculate initial triangle scores
       --
       for Each in vco_Triangles'Range loop
          vco_Triangles (Each).Score := tri_Score_of (Each);   -- tbd: 'Score_of' function should probably be 'set_Score' procedure ?
@@ -226,7 +226,7 @@ package body GLOBE_3D.tri_Mesh is
          end if;
       end loop;
 
-      -- re-order all triangle indices.
+      --  re-order all triangle indices.
       --
       for Each in new_face_Indices'Range loop
          declare
@@ -234,7 +234,7 @@ package body GLOBE_3D.tri_Mesh is
             best_Triangle_v2 : constant vertex_Id := face_vertex_Id (best_Triangle, 2);
             best_Triangle_v3 : constant vertex_Id := face_vertex_Id (best_Triangle, 3);
          begin
-            -- add best triangle to new draw list & remove the best triangle from each of its vertices.
+            --  add best triangle to new draw list & remove the best triangle from each of its vertices.
             --
             new_face_Indices (Each)             := Indices (best_Triangle);
             vco_Triangles (best_Triangle).Added := True;
@@ -243,12 +243,12 @@ package body GLOBE_3D.tri_Mesh is
             rid_Triangle (in_Vertex => vco_Vertices (best_Triangle_v2),   the_Triangle => best_Triangle);
             rid_Triangle (in_Vertex => vco_Vertices (best_Triangle_v3),   the_Triangle => best_Triangle);
 
-            -- update LRU cache
+            --  update LRU cache
             --
             add_recent_Vertices_to_LRU_Cache (best_Triangle_v1, best_Triangle_v2, best_Triangle_v3);
 
-            -- update vertex cache position and calculate new score and new scores of the triangles which use the vertex.
-            -- also finds new best triangle.
+            --  update vertex cache position and calculate new score and new scores of the triangles which use the vertex.
+            --  also finds new best triangle.
             --
             best_Triangle       := triangle_Id'Last;
             best_Triangle_score := GL.Double'First;
@@ -300,7 +300,7 @@ package body GLOBE_3D.tri_Mesh is
 
       Indices := new_face_Indices;
 
-      -- re-order vertices & re-map triangle indices to new vertex locations.
+      --  re-order vertices & re-map triangle indices to new vertex locations.
       --
       declare
          new_Vertices      : GL.Geometry.Vertex_array (Vertices'Range);

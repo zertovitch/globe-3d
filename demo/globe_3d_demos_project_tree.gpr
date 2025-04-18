@@ -1,8 +1,10 @@
 --  This is a GNAT, GCC or GNAT Studio project file
 --  for the GLOBE_3D demos.
 --
---        GLOBE_3D Web site:   http://globe3d.sf.net/
---         GLOBE_3D Mirror:    https://github.com/zertovitch/globe-3d
+--      Home page:       https://globe3d.sourceforge.io/
+--      Project page 1:  https://github.com/zertovitch/globe-3d
+--      Project page 2:  https://sourceforge.net/projects/globe3d/
+--      Alire crate:     https://alire.ada.dev/crates/globe_3d
 --
 --
 --  Build me with "gnatmake -P globe_3d_demos", "gprbuild -P globe_3d_demos",

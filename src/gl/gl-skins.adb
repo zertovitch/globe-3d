@@ -16,9 +16,9 @@ package body GL.Skins is
    use GL.Materials;
    use GL.Textures;
 
-   -----------------------------------------------------------------
-   -- tbd: ensure *all* skins disable *all* unneeded GL states !!!!!
-   -----------------------------------------------------------------
+   ------------------------------------------------------------------
+   --  tbd: ensure *all* skins disable *all* unneeded GL states !!!!!
+   ------------------------------------------------------------------
 
    procedure Disable_VBO is  -- Disable 'vertex buffer objects'.
    begin
@@ -31,7 +31,7 @@ package body GL.Skins is
       end if;
    end Disable_VBO;
 
-   -- Veneers
+   --  Veneers
    --
 
    procedure destroy (Self : in out Veneer)
@@ -62,7 +62,7 @@ package body GL.Skins is
       deallocate (Self);
    end free;
 
-   -- Skin_opaque_unlit_mono_color
+   --  Skin_opaque_unlit_mono_color
    --
 
    overriding
@@ -98,7 +98,7 @@ package body GL.Skins is
       return False;
    end is_Transparent;
 
-   -- Skin_opaque_lit_mono_color
+   --  Skin_opaque_lit_mono_color
    --
 
    overriding
@@ -114,8 +114,8 @@ package body GL.Skins is
    function  new_Veneer (Self : in     Skin_opaque_lit_mono_color;   for_Geometry : in GL.Geometry.Geometry'Class) return p_Veneer
    is
    pragma Unreferenced (Self);
-      the_Veneer : constant p_Veneer := new Veneer_opaque_lit_mono_color' (max_Normals => vertex_Count (for_Geometry),
-                                                                           Normals     => vertex_Normals (for_Geometry));
+      the_Veneer : constant p_Veneer := new Veneer_opaque_lit_mono_color'(max_Normals => vertex_Count (for_Geometry),
+                                                                          Normals     => vertex_Normals (for_Geometry));
    begin
       return the_Veneer;
    end new_Veneer;
@@ -140,7 +140,7 @@ package body GL.Skins is
       return Is_transparent (Self.Material);
    end is_Transparent;
 
-   -- Skin: transparent unlit textured
+   --  Skin: transparent unlit textured
    --
 
    overriding
