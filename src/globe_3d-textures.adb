@@ -58,7 +58,7 @@ package body GLOBE_3D.Textures is
     tex_name : constant String := Trim (texture_2d_infos.tex (id).name, Right);
     found : Boolean := False;
 
-    procedure Try_archive (zif : in out Zip.Zip_info; name : String) is
+    procedure Try_archive (zif : in out Zip.Zip_Info; name : String) is
       use UnZip.Streams;
       ftex : Zipped_File_Type;
       procedure Try_image_type (tex_name_ext : String) is
@@ -200,7 +200,7 @@ package body GLOBE_3D.Textures is
   procedure Register_Textures_From_Resources is
     use Ada.Characters.Handling;
 
-    procedure Register (zif : in out Zip.Zip_info; name : String) is
+    procedure Register (zif : in out Zip.Zip_Info; name : String) is
       --
       procedure Action (tex_name : String) is
         dummy : Image_ID;

@@ -186,7 +186,7 @@ project GLOBE_3D is
       --  Here are external projects's sources, copied here for convenience -
       --  this .gpr is a standalone project variant; see GLOBE_3D_Project_Tree for the other variant:
       "src/gid_clone",
-      "src/unzip");
+      "src/zip_ada_clone");
 
    case G3D_OS is
       when "win64"  => for Source_Dirs use Source_Dir_List & ("bindings/win32");

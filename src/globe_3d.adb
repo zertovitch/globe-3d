@@ -907,7 +907,7 @@ package body GLOBE_3D is
   -- Resource I/O --
   ------------------
 
-  procedure Load_if_needed (zif : in out Zip.Zip_info; name : String) is
+  procedure Load_if_needed (zif : in out Zip.Zip_Info; name : String) is
   begin
     if not Zip.Is_loaded (zif) then
       begin

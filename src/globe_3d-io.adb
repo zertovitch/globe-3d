@@ -445,7 +445,7 @@ package body GLOBE_3D.IO is
   procedure Load_Generic (name_in_resource_g : String; a : out Anything) is
     name_ext : constant String := Trim (name_in_resource_g, Both) & extension;
 
-    procedure Try (zif : in out Zip.Zip_info; name : String) is
+    procedure Try (zif : in out Zip.Zip_Info; name : String) is
       use UnZip.Streams;
       fobj : Zipped_File_Type;
     begin

@@ -572,9 +572,9 @@ private
   global_data_name : Unbounded_String := U ("*undefined_global_data*");
 
   --  Corresponding zip file infos for quick search
-  zif_level, zif_global : Zip.Zip_info;
+  zif_level, zif_global : Zip.Zip_Info;
 
-  procedure Load_if_needed (zif : in out Zip.Zip_info; name : String);
+  procedure Load_if_needed (zif : in out Zip.Zip_Info; name : String);
 
   --  NB: Is_to_blend functions were moved to GLOBE_3D.Aux.
 
