@@ -218,7 +218,7 @@ package body GL.IO is
     GID.Load_Image_Header (im_desc, S.all, try_tga => True);
     the_Image.width  :=  GID.Pixel_Width (im_desc);
     the_Image.height := GID.Pixel_Height (im_desc);
-    imageBits   := GID.Bits_per_pixel (im_desc);
+    imageBits   := GID.Bits_per_Pixel (im_desc);
     the_Image.size := the_Image.width * the_Image.height;
     --
     --  Now a little headache.

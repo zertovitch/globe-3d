@@ -184,8 +184,8 @@ project GLOBE_3D is
       "src/models",
       "src/objects",
       --  Here are external projects's sources, copied here for convenience -
-      --  standalone project variant; see GLOBE_3D_Project_Tree for the other variant:
-      "src/gid",
+      --  this .gpr is a standalone project variant; see GLOBE_3D_Project_Tree for the other variant:
+      "src/gid_clone",
       "src/unzip");
 
    case G3D_OS is
