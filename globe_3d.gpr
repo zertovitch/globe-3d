@@ -178,11 +178,9 @@ project GLOBE_3D is
    Source_Dir_List :=
      ("bindings",
       "src",
-      "src/culler",
       "src/gaming",
       "src/gl",
       "src/models",
-      "src/objects",
       --  Here are external projects's sources, copied here for convenience -
       --  this .gpr is a standalone project variant; see GLOBE_3D_Project_Tree for the other variant:
       "src/gid_clone",

@@ -2,46 +2,21 @@
 --  This file contains the body, please refer to specification (.ads file)
 -----------------------------------------------------------------------------
 
-with GLUT.Windows;
-
 with Ada.Characters.Handling,
      Ada.Unchecked_Conversion;
 
 with Interfaces;
 
-with System;
-
 package body GLUT.Devices is
 
    use Ada.Characters.Handling;
-   use GLUT.Windows;
-
-   --  Current_Window : - for accessing the current GLUT window
-   --                   - used by GLUT callbacks to determine the Window
-   --                       to which a callback event relates.
-   --
-
-   function Current_Window return Windows.Window_View
-   is
-      function to_Window is
-        new Ada.Unchecked_Conversion (System.Address, Windows.Window_View);
-   begin
-      return to_Window (GLUT.GetWindowData);
-   end Current_Window;
 
    --  Keyboard
    --
 
    function Current_Keyboard return p_Keyboard
    is
-      the_current_Window : constant Windows.Window_View := Current_Window;
-   begin
-      if the_current_Window = null then
-         return default_keyboard'Access;
-      else
-         return GLUT.Windows.Keyboard (the_current_Window);
-      end if;
-   end Current_Keyboard;
+   (default_keyboard'Access);
 
   procedure Affect_Modifier_Key (modif_code : Integer) is
     use Interfaces;
@@ -99,14 +74,7 @@ package body GLUT.Devices is
 
   function Current_Mouse return p_Mouse
   is
-     the_current_Window : constant Windows.Window_View := Current_Window;
-  begin
-     if the_current_Window = null then
-        return default_mouse'Access;
-     else
-        return GLUT.Windows.Mouse (the_current_Window);
-     end if;
-  end Current_Mouse;
+  (default_mouse'Access);
 
   procedure Mouse_Event (button, state, x, y : Integer) is
   --  When a user presses and releases mouse buttons in the window,

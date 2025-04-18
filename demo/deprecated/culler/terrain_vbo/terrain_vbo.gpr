@@ -2,7 +2,10 @@ with "../../../../globe_3d";
 
 project Terrain_Vbo is
 
-   for Source_Dirs use (".");
+   for Source_Dirs use
+     (".",
+      "../../../../src/models/deprecated",
+      "../../../../src/deprecated/**");
    for Main use ("launch_terrain_vbo.adb");
 
    for Object_Dir use "../../../../obj/gnat_" & external ("G3D_GNAT_Obj_Suffix", "debug");

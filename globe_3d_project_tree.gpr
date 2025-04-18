@@ -178,11 +178,9 @@ project GLOBE_3D_Project_Tree is
    Source_Dir_List :=
      ("bindings",
       "src",
-      "src/culler",
       "src/gaming",
       "src/gl",
-      "src/models",
-      "src/objects");
+      "src/models");
 
 
 
