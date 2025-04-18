@@ -2,10 +2,10 @@ gprbuild -PGLOBE_3D_Demos.gpr GLOBE_3D_Demo.adb Mini_3D.adb -XG3D_OS=win64 -XBui
 
 rem  Also build other demos and tools - from make_all.sh by John Howard, Echosoft.LLC@gmail.com
 
-gprbuild -P culler/armada/armada.gpr           -XG3D_OS=win64 -XBuild_Mode=fast
-gprbuild -P culler/terrain_vbo/terrain_vbo.gpr -XG3D_OS=win64 -XBuild_Mode=fast
-gprbuild -P multi_window/multi_window.gpr      -XG3D_OS=win64 -XBuild_Mode=fast
-gprbuild -P sprite/sprite_demo.gpr             -XG3D_OS=win64 -XBuild_Mode=fast
+gprbuild -P deprecated/culler/armada/armada.gpr           -XG3D_OS=win64 -XBuild_Mode=fast
+gprbuild -P deprecated/culler/terrain_vbo/terrain_vbo.gpr -XG3D_OS=win64 -XBuild_Mode=fast
+gprbuild -P deprecated/multi_window/multi_window.gpr      -XG3D_OS=win64 -XBuild_Mode=fast
+gprbuild -P deprecated/sprite/sprite_demo.gpr             -XG3D_OS=win64 -XBuild_Mode=fast
 
 gprbuild -P ../tools/globe_3d_tools.gpr        -XG3D_OS=win64 -XBuild_Mode=fast
 gprbuild -P ../tools/doom3/to_ada/d3a.gpr      -XG3D_OS=win64 -XBuild_Mode=fast
