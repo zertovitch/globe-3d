@@ -152,7 +152,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
       --  find whether visual or imposter is used, for each object.
       --
       declare
-         the_Sprites                : Visual_Array (1 .. Last);
+         the_Sprites                : GLOBE_3D.Skinned_Visuals.Skinned_Visual_Array (1 .. Last);
          transposed_camera_Attitude : constant Matrix_33               := Transpose (Self.Viewer.Camera.world_rotation);
          new_Last                   : Natural                 := 0;
 
@@ -217,7 +217,7 @@ package body GLOBE_3D.Culler.Impostoring_frustum is
 
                else   -- don't use impostor
                   new_Last               := new_Last + 1;
-                  the_Sprites (new_Last) := p_Visual (the_Object.Visual);
+                  the_Sprites (new_Last) := the_Object.Visual;
                end if;
             end;
          end loop;

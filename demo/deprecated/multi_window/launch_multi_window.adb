@@ -1,5 +1,5 @@
 with
-     GLOBE_3D,
+     GLOBE_3D.Skinned_Visuals,
      GLOBE_3D.Visuals_rendering,
 
      GLUT.Windows,
@@ -19,7 +19,7 @@ is
    Viewer_2   : GLUT.Windows.Window;
    Viewer_3   : GLUT.Windows.Window;
 
-   the_Object : p_Object_3D;
+   the_Object : GLOBE_3D.Skinned_Visuals.p_Skinned_Visual := null;
 
 begin
    Set_global_data_name ("../g3demo_global_resources.zip");
@@ -35,7 +35,7 @@ begin
    Define (Viewer_2);
    Define (Viewer_3);
 
-   Box.Create (the_Object);
+   --  Box.Create (the_Object);  --  tbd: box as "skinned visual"
 
    the_Object.centre := (0.0, 2.0, -5.0);
 

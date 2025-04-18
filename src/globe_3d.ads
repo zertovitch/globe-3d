@@ -220,7 +220,7 @@ package GLOBE_3D is
 
    function Get_Name (o : in Visual'class) return String;
 
-   null_Visuals : constant Visual_Array (1 .. 0) := (others => null);
+   Null_Visuals : constant Visual_Array (1 .. 0) := (others => null);
 
    --  Map_of_Visuals
    --
@@ -447,21 +447,6 @@ package GLOBE_3D is
   procedure Display_One (o : in out Object_3D);
   --  Display only this object and not connected objects
   --  We need the "out" mode for o because object will be pre_calculated if not yet.
-
-  --  Abstract windowing management
-  --
-
-  type Window is abstract tagged
-    record
-         Camera : aliased GLOBE_3D.Camera;
-    end record;
-
-   type p_Window is access all Window'Class;
-
-  procedure Enable  (Self      : in out Window) is abstract;
-  procedure Freshen (Self      : in out Window;
-                     Time_Step : in     GLOBE_3D.Real;
-                     Extras    : in     GLOBE_3D.Visual_Array := GLOBE_3D.null_Visuals) is abstract;
 
   --  Exceptions
   --

@@ -11,6 +11,7 @@
 
 with GLOBE_3D.Skinned_Visuals;
 with GL.Frustums;
+with GLUT.Windows;
 
 package GLOBE_3D.Culler is
 
@@ -26,14 +27,14 @@ package GLOBE_3D.Culler is
 
    procedure evolve       (Self : in out Culler;   By : in     Real) is abstract;    -- tbd: rename 'freshen' ? ... use Duration for 'By' ?
 
-   procedure Viewer_is (Self : in out Culler'Class;   Now : in GLOBE_3D.p_Window);
-   function  Viewer    (Self : in     Culler'Class) return GLOBE_3D.p_Window;
+   procedure Viewer_is (Self : in out Culler'Class;   Now : in GLUT.Windows.p_Window);
+   function  Viewer    (Self : in     Culler'Class) return GLUT.Windows.p_Window;
 
 private
 
    type Culler is abstract tagged limited
       record
-         Viewer         : p_Window;
+         Viewer         : GLUT.Windows.p_Window;
          frustum_planes : GL.Frustums.plane_Array;
       end record;
 

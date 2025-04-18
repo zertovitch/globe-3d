@@ -1,11 +1,11 @@
-with "../../globe_3d";
+with "../../../globe_3d";
 
-project sprite_Demo is
+project multi_Window is
 
    for Source_Dirs use (".");
-   for Main use ("launch_sprite_demo.adb");
+   for Main use ("launch_multi_window.adb");
 
-   for Object_Dir use "../../obj/gnat_" & external ("G3D_GNAT_Obj_Suffix", "debug");
+   for Object_Dir use "../../../obj/gnat_" & external ("G3D_GNAT_Obj_Suffix", "debug");
    for Exec_Dir use ".";
 
    package Ide      renames Globe_3D.Ide;
@@ -13,4 +13,5 @@ project sprite_Demo is
    package Compiler renames Globe_3D.Compiler;
    package Binder   renames Globe_3D.Binder;
 
-end sprite_Demo;
+end multi_Window;
+

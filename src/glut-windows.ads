@@ -1,7 +1,10 @@
 ------------------------------------------------------------------------------
 --  File:            GLUT-Windows.ads
 --  Description:     A Windowed viewer for GLOBE_3D, based on GLUT
---                   TBD: give a more appropriate name...
+--
+--                   TBD: give a more appropriate name (GLUT has
+--                        nothing to do with GLOBE_3D)...
+--
 --  Copyright (c) Gautier de Montmollin / Rod Kay 2006 .. 2021
 ------------------------------------------------------------------------------
 
@@ -14,7 +17,7 @@
 
 with Game_Control;
 with GLUT.Devices;
-with GLOBE_3D;
+with GLOBE_3D.Skinned_Visuals;
 
 with Ada.Strings.Unbounded,
      Ada.Containers.Vectors;
@@ -23,8 +26,13 @@ package GLUT.Windows is
 
    procedure Initialize;   -- called before any other operation
 
-   type Window is new GLOBE_3D.Window with private;
+   type Window_Pre_Type is tagged record
+     Camera : aliased GLOBE_3D.Camera;  --  public
+   end record;
+
+   type Window is new Window_Pre_Type with private;
    type Window_View is access all Window'Class;
+   type p_Window is access all Window'Class;
 
    procedure Define  (Self : in out Window);
    procedure Destroy (Self : in out Window);
@@ -32,27 +40,25 @@ package GLUT.Windows is
    procedure Name_is (Self : in out Window; Now : in String);
    function  Name    (Self : in     Window) return String;
 
-   overriding
    procedure Enable (Self : in out Window);
 
    type Renderer_Access is
       access procedure
-        (the_Visuals : in GLOBE_3D.Visual_Array; the_Camera : in GLOBE_3D.Camera'Class);
+        (the_Visuals : in GLOBE_3D.Skinned_Visuals.Skinned_Visual_Array; the_Camera : in GLOBE_3D.Camera'Class);
 
    procedure Set_Renderer (Self : in out Window; Renderer : Renderer_Access);
 
-   overriding
    procedure Freshen (Self      : in out Window;
                       Time_Step : in     GLOBE_3D.Real;
-                      Extras    : in     GLOBE_3D.Visual_Array := GLOBE_3D.null_Visuals);
+                      Extras    : in     GLOBE_3D.Skinned_Visuals.Skinned_Visual_Array := GLOBE_3D.Skinned_Visuals.null_Visuals);
 
    function Is_Closed (Self : in Window) return Boolean;
 
    --  objects
    --
 
-   procedure Add (Self : in out Window;   the_Object : in GLOBE_3D.p_Visual);
-   procedure Rid (Self : in out Window;   the_Object : in GLOBE_3D.p_Visual);
+   procedure Add (Self : in out Window;   the_Object : in GLOBE_3D.Skinned_Visuals.p_Skinned_Visual);
+   procedure Rid (Self : in out Window;   the_Object : in GLOBE_3D.Skinned_Visuals.p_Skinned_Visual);
 
    function  Object_Count (Self : in Window) return Natural;
 
@@ -105,13 +111,12 @@ private
      new Ada.Containers.Vectors (Index_Type   => Positive,
                                  Element_Type => Status_Line);
 
-   type Window is new GLOBE_3D.Window with
-      record
+   type Window is new Window_Pre_Type with record
          Name         : Ada.Strings.Unbounded.Unbounded_String :=
                           Ada.Strings.Unbounded.To_Unbounded_String ("globe3d glut window");
          glut_Window  : Integer;
 
-         Objects      : GLOBE_3D.Visual_Array (1 .. 5_000);
+         Objects      : GLOBE_3D.Skinned_Visuals.Skinned_Visual_Array (1 .. 5_000);
          object_Count : Natural := 0;
 
          Smoothing    : Smoothing_method := hardware;

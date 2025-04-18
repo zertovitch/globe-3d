@@ -34,7 +34,7 @@ package body GLUT.Windows is
    function Current_Window return Window_View
    is
       function to_Window is
-        new Ada.Unchecked_Conversion (System.Address, GLOBE_3D.p_Window);
+        new Ada.Unchecked_Conversion (System.Address, GLUT.Windows.p_Window);
    begin
       return GLUT.Windows.Window_View (to_Window (GetWindowData));
    end Current_Window;
@@ -304,9 +304,9 @@ package body GLUT.Windows is
    end Frames_Per_Second;
 
    procedure Graphic_display (Self   : in out Window'Class;
-                              Extras : in     GLOBE_3D.Visual_Array := GLOBE_3D.null_Visuals)
+                              Extras : in     GLOBE_3D.Skinned_Visuals.Skinned_Visual_Array := GLOBE_3D.Skinned_Visuals.null_Visuals)
    is
-      use GL, G3D;
+      use GL, G3D.Skinned_Visuals;
    begin
       if Self.rend = null then
          raise Program_Error with
@@ -322,7 +322,7 @@ package body GLUT.Windows is
    end Graphic_display;
 
    procedure Fill_screen (Self   : in out Window'Class;
-                          Extras : in     GLOBE_3D.Visual_Array := GLOBE_3D.null_Visuals)
+                          Extras : in     GLOBE_3D.Skinned_Visuals.Skinned_Visual_Array := GLOBE_3D.Skinned_Visuals.null_Visuals)
    is
       use GL;
 
@@ -375,7 +375,7 @@ package body GLUT.Windows is
 
    procedure Main_Operations (Self      : access Window;
                               time_Step :        G3D.Real;
-                              Extras    : in     GLOBE_3D.Visual_Array := GLOBE_3D.null_Visuals)
+                              Extras    : in     GLOBE_3D.Skinned_Visuals.Skinned_Visual_Array := GLOBE_3D.Skinned_Visuals.null_Visuals)
    is
       use GL, G3D, G3DM, G3D.REF, Game_Control;
 
@@ -481,7 +481,7 @@ package body GLUT.Windows is
          elsif Self.alpha > 1.0 then Self.alpha := 1.0; end if;
 
          for Each in 1 .. Self.object_Count loop
-            Set_Alpha (Self.Objects (Each).all,  Self.alpha);
+            Self.Objects (Each).Set_Alpha (Self.alpha);
          end loop;
       end if;
 
@@ -577,7 +577,7 @@ package body GLUT.Windows is
 
    procedure Start_GLUTs (Self : in out Window)
    is
-      function to_Address is new Ada.Unchecked_Conversion (GLOBE_3D.p_Window, System.Address);
+      function to_Address is new Ada.Unchecked_Conversion (p_Window, System.Address);
 
       GLUT_options : GLUT.Unsigned := GLUT.DOUBLE  or  GLUT.RGBA or GLUT.ALPHA  or  GLUT.DEPTH;
    begin
@@ -602,7 +602,7 @@ package body GLUT.Windows is
       GLUT.ReshapeFunc      (Window_Resize'Access);
       GLUT.DisplayFunc      (Null_Display_Func'Access);
       GLUT.WindowStatusFunc (Update_Visibility'Access);
-      GLUT.SetWindowData    (to_Address (GLOBE_3D.Window'Class (Self)'Unchecked_Access));
+      GLUT.SetWindowData    (to_Address (Window'Class (Self)'Unchecked_Access));
 
       GLUT.Devices.Initialize;
 
@@ -664,7 +664,6 @@ package body GLUT.Windows is
       DestroyWindow (Self.glut_Window);
    end Destroy;
 
-   overriding
    procedure Enable (Self : in out Window)
    is
    begin
@@ -678,10 +677,9 @@ package body GLUT.Windows is
      Self.rend := Renderer;
    end Set_Renderer;
 
-   overriding
    procedure Freshen (Self      : in out Window;
                       Time_Step : in     G3D.Real;
-                      Extras    : in     GLOBE_3D.Visual_Array := GLOBE_3D.null_Visuals)
+                      Extras    : in     GLOBE_3D.Skinned_Visuals.Skinned_Visual_Array := GLOBE_3D.Skinned_Visuals.null_Visuals)
    is
    begin
       Enable (Self);  -- for multi-window operation.
@@ -704,16 +702,16 @@ package body GLUT.Windows is
       Self.Smoothing := Now;
    end Smoothing_is;
 
-   procedure Add (Self : in out Window;   the_Object : in GLOBE_3D.p_Visual)
+   procedure Add (Self : in out Window;   the_Object : in GLOBE_3D.Skinned_Visuals.p_Skinned_Visual)
    is
    begin
       Self.object_Count                := Self.object_Count + 1;
       Self.Objects (Self.object_Count) := the_Object.all'Access;
    end Add;
 
-   procedure Rid (Self : in out Window;   the_Object : in GLOBE_3D.p_Visual)
+   procedure Rid (Self : in out Window;   the_Object : in GLOBE_3D.Skinned_Visuals.p_Skinned_Visual)
    is
-      use G3D;
+      use G3D.Skinned_Visuals;
    begin
       for Each in 1 .. Self.object_Count loop
 

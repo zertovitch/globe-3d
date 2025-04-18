@@ -9,6 +9,7 @@ package GLOBE_3D.Skinned_Visuals is
 
    type p_Skinned_Visual is access all Skinned_Visual'Class;
    type Skinned_Visual_Array is array (Positive range <>) of Skinned_Visuals.p_Skinned_Visual;
+   Null_Visuals : constant Skinned_Visual_Array (1 .. 0) := (others => null);
 
    function Bounds (o : in Skinned_Visual) return GL.Geometry.Bounds_record is abstract;
 
