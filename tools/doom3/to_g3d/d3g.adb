@@ -32,6 +32,9 @@ procedure D3G is
     New_Line( Standard_Error );
     Put_Line( Standard_Error, "See procpack.cmd for a complete script which calls D3G and");
     Put_Line( Standard_Error, "  prepares a level's .zip with .g3d's, .bsp's and textures." );
+    New_Line( Standard_Error );
+    Put_Line( Standard_Error, "Press Return." );
+    Skip_Line;
   end Syntax;
 
   procedure Set_new_centre(ps: String) is

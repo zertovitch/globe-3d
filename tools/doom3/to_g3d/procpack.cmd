@@ -13,7 +13,7 @@ rem We also may need the .map file.
 if not exist %1.map unzip %1.zip %1.map
 if not exist %1.map unzip -j %1.pk4 *.map
 
-call make_d3g
+if not exist d3g.exe call make_d3g -O
 
 echo.
 echo *********************
