@@ -4,7 +4,7 @@
 --  Copyright (c) Gautier de Montmollin 2008
 ------------------------------------------------------------------------------
 
-with GL, GL.Math, GLU, GLUT.Devices, GLUT_2D;
+with GL, GL.Math, GL.Utilities, GLU, GLUT.Devices, GLUT_2D;
 
 with GLOBE_3D,
      GLOBE_3D.Math,
@@ -36,15 +36,6 @@ procedure Mini_3D is
     G3D.Switch_Light (1, True);
     G3D.Switch_Light (2, True);
   end Prepare_demo_lighting;
-
-  procedure Clear_modes is
-  begin
-    GL.Disable (GL.Blend);
-    GL.Disable (GL.Lighting);
-    GL.Disable (GL.Auto_Normal);
-    GL.Disable (GL.Normalize);
-    GL.Disable (GL.Depth_Test);
-  end Clear_modes;
 
   ego : G3D.Camera;
   deg2rad : constant := 3.1415926535897932 / 180.0;
@@ -204,19 +195,18 @@ procedure Mini_3D is
   last_time : Integer;
   new_scene : Boolean := True;
 
-  procedure Fill_screen is
-    use GL;
+  procedure Fill_Screen is
   begin
-    Clear (COLOR_BUFFER_BIT);  --  Clear the off-screen buffer
-    Display_Scene (cube);      --  Display the scene on the buffer
-    GLUT.SwapBuffers;          --  Make the newly drawn buffer visible
-  end Fill_screen;
+    GL.Clear (GL.COLOR_BUFFER_BIT);  --  Clear the off-screen buffer
+    Display_Scene (cube);            --  Display the scene on the buffer
+    GLUT.SwapBuffers;                --  Make the newly drawn buffer visible
+  end Fill_Screen;
 
-  procedure Reset_eye is
+  procedure Reset_Eye is
   begin
     ego.clipper.eye_position := (0.0, 0.0, 4.0);
     ego.world_rotation := G3D.Id_33;
-  end Reset_eye;
+  end Reset_Eye;
 
   Xrot, Yrot, Zrot : Integer := 0;  --  object rotation
   totrot : G3D.Real := 0.0;
@@ -265,7 +255,7 @@ procedure Mini_3D is
     -- Display everything --
     ------------------------
 
-    Fill_screen;
+    Fill_Screen;
 
     if GLUT.Devices.Strike_Once (Character'Val (27)) then
       GLUT.LeaveMainLoop;
@@ -303,7 +293,7 @@ procedure Mini_3D is
 
   procedure Start_GLs is
   begin
-    Clear_modes;
+    GL.Utilities.Clear_Modes;
     Prepare_demo_lighting (0.9);
     Reset_for_3D (Integer (main_size_x), Integer (main_size_y));
   end Start_GLs;
@@ -317,7 +307,7 @@ begin
 
   Start_GLUTs;    -- Initialize the GLUT things
   Start_GLs;      -- Initialize the (Open)GL things
-  Reset_eye;
+  Reset_Eye;
 
   G3D.Textures.Check_All_Textures;  --  Preload the textures
 

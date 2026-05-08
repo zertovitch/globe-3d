@@ -7,7 +7,8 @@
 with GL,
      GL.IO,
      GL.Materials,
-     GL.Math;
+     GL.Math,
+     GL.Utilities;
 
 with GLOBE_3D,
      GLOBE_3D.IO,
@@ -107,15 +108,6 @@ procedure GLOBE_3D_Demo is
     G3D.Switch_Light (7, False);
     G3D.Switch_Light (8, False);
   end Prepare_demo_lighting;
-
-  procedure Clear_modes is
-  begin
-    GL.Disable (GL.Blend);
-    GL.Disable (GL.Lighting);
-    GL.Disable (GL.Auto_Normal);
-    GL.Disable (GL.Normalize);
-    GL.Disable (GL.Depth_Test);
-  end Clear_modes;
 
   deg2rad : constant := Ada.Numerics.Pi / 180.0;
   ego : G3D.Camera;
@@ -1142,7 +1134,7 @@ procedure GLOBE_3D_Demo is
       (0.05, 0.15, 0.15, 1.0);  --  looks like a toxic smoke...
     use type GL.Float;
   begin
-    Clear_modes;
+    GL.Utilities.Clear_Modes;
     Prepare_demo_lighting (0.9);
     if foggy then
       GL.Enable (GL.Fog);
