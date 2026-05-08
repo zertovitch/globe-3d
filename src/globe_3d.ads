@@ -367,7 +367,7 @@ package GLOBE_3D is
     (No_List,             --  Old way: all colors, texture IDs, coordinates are sent at each frame
      No_List_Optimized,   --  Old way, but removing redundant commands across faces (for tests only)
      Generate_List,       --  Generate a list of GL optimized commands upon first call to Display_one
-     Is_List);            --  Call the previously generated list
+     Has_List);           --  Call the previously generated list
 
   subtype List_Ids is Positive;
 

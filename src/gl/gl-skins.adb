@@ -84,8 +84,8 @@ package body GL.Skins is
       GL.DisableClientState (TEXTURE_COORD_ARRAY);
 
       Enable (Blend); -- See 4.1.7 Blending
-      BlendFunc (sfactor => SRC_ALPHA,
-                 dfactor => ONE_MINUS_SRC_ALPHA);
+      Set_Blend_Func (Src_Factor => SRC_ALPHA,
+                      Dst_Factor => ONE_MINUS_SRC_ALPHA);
 
       GL.Color (Self.Color.red,  Self.Color.green,  Self.Color.blue,  1.0);
    end enable;

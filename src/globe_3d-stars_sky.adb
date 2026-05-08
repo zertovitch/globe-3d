@@ -11,7 +11,7 @@ package body GLOBE_3D.Stars_Sky is
   procedure Display (Rotation : Matrix_33) is
     use GL, GLOBE_3D.Math;
   begin
-    PushMatrix;
+    Push_Matrix;
     Set_GL_Matrix (Rotation);
     Disable (Texture_2D);
     for i in 1 .. num_stars loop
@@ -20,7 +20,7 @@ package body GLOBE_3D.Stars_Sky is
       Vertex (star_point (i));
       GL_End;
     end loop;
-    PopMatrix;
+    Pop_Matrix;
   end Display;
 
   procedure Reset is

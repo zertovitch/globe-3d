@@ -356,7 +356,7 @@ package body GL.Math is
 
   procedure Set_GL_Matrix (A : Matrix_33) is
   begin
-    GL.LoadIdentity;
+    GL.Load_Identity;
     Multiply_GL_Matrix (A);
   end Set_GL_Matrix;
 

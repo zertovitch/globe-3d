@@ -25,25 +25,25 @@ package body GLUT_2D is
     use GL;
   begin
     --  Push current matrix mode and viewport attributes.
-    GL.PushAttrib (GL.TRANSFORM_BIT or GL.VIEWPORT_BIT);
-    GL.MatrixMode (GL.PROJECTION);
-    GL.PushMatrix;  --  In GL.PROJECTION mode, the stack depth is at least 2
-    GL.LoadIdentity;
+    GL.Push_Attrib (GL.TRANSFORM_BIT or GL.VIEWPORT_BIT);
+    GL.Set_Matrix_Mode (GL.Projection);
+    GL.Push_Matrix;  --  In GL.PROJECTION mode, the stack depth is at least 2
+    GL.Load_Identity;
     GL.Ortho
       (0.0, GL.Double (main_size_x), GL.Double (main_size_y), 0.0,
        GL.Double'(-1.0), 1.0);
-    GL.MatrixMode (GL.MODELVIEW);
-    GL.PushMatrix;  --  In GL.MODELVIEW mode, the stack depth is at least 32
-    GL.LoadIdentity;
+    GL.Set_Matrix_Mode (GL.Modelview);
+    GL.Push_Matrix;  --  In GL.MODELVIEW mode, the stack depth is at least 32
+    GL.Load_Identity;
   end Push_3D_set_2D;
 
   procedure Pop_3D is
   begin
-    GL.MatrixMode (GL.MODELVIEW);
-    GL.PopMatrix;
-    GL.MatrixMode (GL.PROJECTION);
-    GL.PopMatrix;
-    GL.PopAttrib;
+    GL.Set_Matrix_Mode (GL.Modelview);
+    GL.Pop_Matrix;
+    GL.Set_Matrix_Mode (GL.Projection);
+    GL.Pop_Matrix;
+    GL.Pop_Attrib;
   end Pop_3D;
 
   procedure Text_Output
@@ -67,11 +67,11 @@ package body GLUT_2D is
      font : Font_Type)
   is
   begin
-    GL.PushMatrix;
+    GL.Push_Matrix;
     GL.Translate (p);
     GL.RasterPos (0, 0);
     Text_Output (s, font);
-    GL.PopMatrix;
+    GL.Pop_Matrix;
   end Text_Output;
 
   procedure Put_Image
@@ -89,7 +89,7 @@ package body GLUT_2D is
     Push_3D_set_2D (main_size_x, main_size_y);
     GL.Translate (GL.Double (x), GL.Double (y), 0.0);
     --  GL.Enable( GL.TEXTURE_2D );
-    GL.BindTexture (GL.Texture_2D, GL.Uint (Image_ID));
+    GL.Bind_Texture (GL.Texture_2D, GL.Uint (Image_ID));
     GL.GL_Begin (GL.QUADS);
     GL.TexCoord (0.0, 0.0);
     GL.Vertex (0, size_y);

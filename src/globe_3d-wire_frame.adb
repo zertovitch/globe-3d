@@ -18,7 +18,7 @@ package body GLOBE_3D.Wire_Frame is
     Display_One (Object_3D (o));
     --  Display the wires:
     if o.wire /= null then
-      GL.PushMatrix;
+      GL.Push_Matrix;
       GL.Translate (o.centre);
       Math.Multiply_GL_Matrix (o.rotation);
       for i in o.wire'Range loop
@@ -28,7 +28,7 @@ package body GLOBE_3D.Wire_Frame is
         GL.Vertex (o.point (o.wire (i).P2));
         GL.GL_End;
       end loop;
-      GL.PopMatrix;
+      GL.Pop_Matrix;
     end if;
   end Display_One;
 

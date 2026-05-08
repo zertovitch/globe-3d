@@ -477,7 +477,7 @@ package body GLOBE_3D is
                 )
           )
         then
-          GL.BindTexture (GL.Texture_2D, GL.Uint (Image_ID'Pos (fa.texture) + 1));
+          GL.Bind_Texture (GL.Texture_2D, GL.Uint (Image_ID'Pos (fa.texture) + 1));
         end if;
 
         ------------------------------------------
@@ -490,8 +490,9 @@ package body GLOBE_3D is
         then
           if fi.blending then
             GL.Enable (GL.Blend); -- See 4.1.7 Blending
-            GL.BlendFunc (sfactor => GL.SRC_ALPHA,
-                          dfactor => GL.ONE_MINUS_SRC_ALPHA);
+            GL.Set_Blend_Func
+              (Src_Factor => GL.SRC_ALPHA,
+               Dst_Factor => GL.ONE_MINUS_SRC_ALPHA);
             --  Disable( DEPTH_TEST );
             --  Disable( CULL_FACE );
           else
@@ -523,7 +524,7 @@ package body GLOBE_3D is
         if is_textured (fa.skin) and then fa.specular_map /= null_image then
           G3DT.Check_2D_Texture (fa.specular_map, blending_hint);
           if fa.specular_map /= Previous_specular_face.specular_map then
-            GL.BindTexture (GL.Texture_2D, GL.Uint (Image_ID'Pos (fa.specular_map) + 1));
+            GL.Bind_Texture (GL.Texture_2D, GL.Uint (Image_ID'Pos (fa.specular_map) + 1));
           end if;
           --  NB: display only works when setting GL.DepthFunc(GL.LEQUAL)
           --  Default is GL.LESS, and thus only first texture per face will be drawn.
@@ -561,7 +562,7 @@ package body GLOBE_3D is
       GL.Disable (GL.Color_Material);
       Set_Material (shiny_material);
       GL.Enable (GL.Blend);
-      GL.BlendFunc (sfactor => GL.ONE, dfactor => GL.ONE);
+      GL.Set_Blend_Func (Src_Factor => GL.ONE, Dst_Factor => GL.ONE);
     end Set_for_specular;
 
     use G3DM;
@@ -582,21 +583,25 @@ package body GLOBE_3D is
     --      gl.disable    (ALPHA_TEST);
     GL.Enable (GL.Lighting);
 
-    GL.PushMatrix; -- 26-May-2006: instead of rotating/translating back
+    GL.Push_Matrix;  --  26-May-2006: instead of rotating/translating back
     GL.Translate (o.centre);
     Multiply_GL_Matrix (o.rotation);
 
     --  List preparation phase.
     case o.List_Status is
-      when No_List | No_List_Optimized | Is_List =>
+
+      when No_List | No_List_Optimized | Has_List =>
         null;
+
       when Generate_List =>
-        o.List_Id := Integer (GL.GenLists (1));
-        GL.NewList (GL.Uint (o.List_Id), GL.COMPILE_AND_EXECUTE);
+        o.List_Id := Integer (GL.Gen_Lists (1));
+        GL.New_List (GL.Uint (o.List_Id), GL.COMPILE_AND_EXECUTE);
+
     end case;
 
     --  List generation phase or execution.
     case o.List_Status is
+
       when No_List =>
         for f in o.face'Range loop
           Display_Face_Optimized.Display_Face (True, o.face (f), o.face_internal (f));
@@ -607,6 +612,7 @@ package body GLOBE_3D is
         for f in o.face'Range loop
           Display_Face_Optimized.Display_Specular (o.face (f), o.face_internal (f));
         end loop;
+
       when No_List_Optimized | Generate_List =>
         for f in o.face'Range loop
           Display_Face_Optimized.Display_Face (f = o.face'First, o.face (f), o.face_internal (f));
@@ -615,22 +621,27 @@ package body GLOBE_3D is
         for f in o.face'Range loop
           Display_Face_Optimized.Display_Specular (o.face (f), o.face_internal (f));
         end loop;
-      when Is_List =>
-        GL.CallList (GL.Uint (o.List_Id));
+
+      when Has_List =>
+        GL.Call_List (GL.Uint (o.List_Id));
+
     end case;
 
-    --  Close list - if any.
+    --  Close list - if any generated above.
     case o.List_Status is
-      when No_List | No_List_Optimized | Is_List =>
+
+      when No_List | No_List_Optimized | Has_List =>
         null;
+
       when Generate_List  =>
-        GL.EndList;
+        GL.End_List;
         if GL.GetError = GL.OUT_OF_MEMORY then
           o.List_Status := No_List;
         else
-          o.List_Status := Is_List;
-          GL.CallList (GL.Uint (o.List_Id));  --  First display of the freshly generated list.
+          o.List_Status := Has_List;
+          GL.Call_List (GL.Uint (o.List_Id));  --  First display of the freshly generated list.
         end if;
+
     end case;
 
     if show_normals then
@@ -640,7 +651,7 @@ package body GLOBE_3D is
       GL.Enable (GL.Lighting);  --  mmmh...
     end if;
 
-    GL.PopMatrix; -- 26-May-2006: instead of rotating/translating back
+    GL.Pop_Matrix;  --  26-May-2006: instead of rotating/translating back
     --  GL.Rotate( o.auto_rotation(2),  0.0,  0.0, -1.0 );
     --  GL.Rotate( o.auto_rotation(1),  0.0, -1.0,  0.0 );
     --  GL.Rotate( o.auto_rotation(0), -1.0,  0.0,  0.0 );
@@ -824,6 +835,7 @@ package body GLOBE_3D is
     ol, ol_prev : p_Object_3D_List := o.sub_objects;
     procedure Dispose is new Ada.Unchecked_Deallocation (Object_3D_List, p_Object_3D_List);
   begin
+
     while ol /= null loop
       --  Sub-object will be destroyed first - then, sub-sub-objects etc. :
       Free (p_Visual (ol.objc));
@@ -831,9 +843,11 @@ package body GLOBE_3D is
       ol := ol.next;
       Dispose (ol_prev);
     end loop;
-    if o.List_Status = Is_List then
-      GL.DeleteLists (GL.Uint (o.List_Id), 1);
+
+    if o.List_Status = Has_List then
+      GL.Delete_Lists (GL.Uint (o.List_Id), 1);
     end if;
+
   end Destroy;
 
   overriding procedure Set_Alpha (o : in out Object_3D; Alpha : in GL.Double) is

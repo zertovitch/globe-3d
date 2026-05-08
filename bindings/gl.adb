@@ -25,7 +25,7 @@ package body GL is
     Lightfv (light_id, pname, params_copy (0)'Unchecked_Access);
   end Light;
 
-  procedure Material (face   : FaceEnm;
+  procedure Material (face   : Face_Selector;
                       pname  : MaterialParameterVEnm;
                       params : Material_Float_Vector)
   is

@@ -55,14 +55,14 @@ package body GL.IO is
   is
     ptr : constant GL.pointer := image_p (0)'Access;
   begin
-    BindTexture (Texture_2D, Uint (id));
+    Bind_Texture (Texture_2D, Uint (id));
     PixelStore (UNPACK_ALIGNMENT, 1);
-    TexParameter (Texture_2D, TEXTURE_WRAP_S, REPEAT);
-    TexParameter (Texture_2D, TEXTURE_WRAP_T, REPEAT);
+    Texture_Parameter (Texture_2D, TEXTURE_WRAP_S, REPEAT);
+    Texture_Parameter (Texture_2D, TEXTURE_WRAP_T, REPEAT);
     --  TexParameter (TEXTURE_2D, TEXTURE_MAG_FILTER, NEAREST);
-    TexParameter (Texture_2D, TEXTURE_MAG_FILTER, LINEAR);
+    Texture_Parameter (Texture_2D, TEXTURE_MAG_FILTER, LINEAR);
     --  TexParameter (TEXTURE_2D, TEXTURE_MIN_FILTER, NEAREST);
-    TexParameter (Texture_2D, TEXTURE_MIN_FILTER, LINEAR);
+    Texture_Parameter (Texture_2D, TEXTURE_MIN_FILTER, LINEAR);
     TexEnv (TEXTURE_ENV, TEXTURE_ENV_MODE, MODULATE);
     TexImage2D (TEXTURE_2D, 0, texFormat, Sizei (width),
                  Sizei (height), 0, texPixelFormat, GL_UNSIGNED_BYTE,

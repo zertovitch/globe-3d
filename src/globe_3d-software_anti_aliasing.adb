@@ -143,12 +143,12 @@ package body GLOBE_3D.Software_Anti_Aliasing is
       elsif phase in 2 .. Anti_Alias_Phases - 1 then
           Clear (COLOR_BUFFER_BIT);
           LoadDxDy (phase - 1);
-          MatrixMode (MODELVIEW);
-          PushMatrix;
+          Set_Matrix_Mode (Modelview);
+          Push_Matrix;
           Translate (Dxy (1), Dxy (2), 0.0);
           Display;
-          MatrixMode (MODELVIEW);
-          PopMatrix;
+          Set_Matrix_Mode (Modelview);
+          Pop_Matrix;
           Accum (ACCUM, weight);
       elsif phase = Anti_Alias_Phases then
           Accum (GL_RETURN, 1.0);

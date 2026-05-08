@@ -111,10 +111,10 @@ package body GLOBE_3D.Portals is
     --  Workaround, we make the rectangle 1 pixel smaller
     rect := (clip.X1 + 1, clip.Y1 + 1, clip.X2 - 1, clip.Y2 - 1);
     --  Push current matrix mode and viewport attributes.
-    GL.PushAttrib (GL.TRANSFORM_BIT + GL.VIEWPORT_BIT);
-    GL.MatrixMode (GL.PROJECTION);
-    GL.PushMatrix;
-    GL.LoadIdentity;
+    GL.Push_Attrib (GL.TRANSFORM_BIT + GL.VIEWPORT_BIT);
+    GL.Set_Matrix_Mode (GL.Projection);
+    GL.Push_Matrix;
+    GL.Load_Identity;
     GL.Ortho
       (left_val   => 0.0,
        right_val  => GL.Double (main.X2 - 1),
@@ -123,9 +123,9 @@ package body GLOBE_3D.Portals is
        near_val   => -1.0,
        far_val    =>  1.0);
 
-    GL.MatrixMode (GL.MODELVIEW);
-    GL.PushMatrix;
-    GL.LoadIdentity;
+    GL.Set_Matrix_Mode (GL.Modelview);
+    GL.Push_Matrix;
+    GL.Load_Identity;
 
     --  Portal label:
     GL.Simple_Text.Text_Output
@@ -147,10 +147,10 @@ package body GLOBE_3D.Portals is
     Line (clip.X2, clip.Y1, clip.X1, clip.Y2);
     GL_End;
 
-    GL.PopMatrix;
-    GL.MatrixMode (GL.PROJECTION);
-    GL.PopMatrix;
-    GL.PopAttrib;
+    GL.Pop_Matrix;
+    GL.Set_Matrix_Mode (GL.Projection);
+    GL.Pop_Matrix;
+    GL.Pop_Attrib;
     GL.Enable (GL.Lighting);
     --  GL.Enable( GL.DEPTH_TEST );
 

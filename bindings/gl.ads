@@ -160,8 +160,8 @@ package GL is
   type enum is new C.unsigned;
 
   --  The boolean constants
-  GL_FALSE                       : constant GL_Boolean := GL_Boolean'Val (0);
-  GL_TRUE                        : constant GL_Boolean := GL_Boolean'Val (1);
+  GL_FALSE : constant GL_Boolean := GL_Boolean'Val (0);
+  GL_TRUE  : constant GL_Boolean := GL_Boolean'Val (1);
 
   --  Get pointer values
   type GetPointerEnm is
@@ -330,8 +330,14 @@ package GL is
   );
   for BlendEquationEnm'Size use GL.enum'Size;
 
-  procedure BlendFunc (sfactor : BlendSrcEnm;
-                       dfactor : BlendDstEnm);
+  procedure Set_Blend_Func
+     (Src_Factor : BlendSrcEnm;
+      Dst_Factor : BlendDstEnm);
+
+  procedure BlendFunc
+     (Src_Factor : BlendSrcEnm;
+      Dst_Factor : BlendDstEnm) renames Set_Blend_Func;
+  pragma Obsolescent (BlendFunc, "Prefer the new name, Set_Blend_Func");
 
   procedure BlendEquationEXT (mode : BlendEquationEnm);
 
@@ -383,57 +389,75 @@ package GL is
 
   procedure LogicOp (opcode : LogicOpEnm);
 
-  --  Face culling.
-  --  In OpenGLAda: see type Face_Selector in the package GL.Culling.
-  type FaceEnm is
-  (
-     Front,
-     Back,
-     Front_And_Back
-  );
+  -----------------------------------------------------------
+  --  Face culling (in OpenGLAda, see package GL.Culling)  --
+  -----------------------------------------------------------
 
-  for FaceEnm use
-  (
-     Front                                   => 16#0404#,
-     Back                                    => 16#0405#,
-     Front_And_Back                          => 16#0408#
-  );
-  for FaceEnm'Size use GL.enum'Size;
+  type Face_Selector is (Front, Back, Front_And_Back);
 
-  procedure CullFace (mode : FaceEnm);
+  for Face_Selector use
+    (Front          => 16#0404#,
+     Back           => 16#0405#,
+     Front_And_Back => 16#0408#);
 
-  --  Polygon orientation
-  type OrientationEnm is
-  (
-     CW,
-     CCW
-  );
-  for OrientationEnm use
-  (
-     CW                                      => 16#0900#,
-     CCW                                     => 16#0901#
-  );
-  for OrientationEnm'Size use GL.enum'Size;
+  for Face_Selector'Size use GL.enum'Size;
 
-  procedure FrontFace (mode : OrientationEnm);
+  subtype FaceEnm is Face_Selector;
+  pragma Obsolescent (FaceEnm, "Prefer the new name, Face_Selector");
 
-  --  Polygon mode
-  type PolygonModeEnm is
-  (
-     POINT,
-     LINE,
-     FILL
-  );
-  for PolygonModeEnm use
-  (
-     POINT                                   => 16#1B00#,
-     LINE                                    => 16#1B01#,
-     FILL                                    => 16#1B02#
-  );
-  for PolygonModeEnm'Size use GL.enum'Size;
+  procedure Set_Cull_Face (mode : Face_Selector);
 
-  procedure PolygonMode (face : FaceEnm;
-                         mode : PolygonModeEnm);
+  procedure CullFace (mode : Face_Selector) renames Set_Cull_Face;
+  pragma Obsolescent (CullFace, "Prefer the new name, Set_Cull_Face");
+
+  ------------------------------------------------------------------------------
+  --  Polygon orientation (in OpenGLAda, two identical types                  --
+  --  are defined for the same thing: Orientation and Front_Face_Direction!)  --
+  ------------------------------------------------------------------------------
+
+  type Orientation is (Clockwise, Counter_Clockwise);
+
+  for Orientation use
+    (Clockwise         => 16#0900#,
+     Counter_Clockwise => 16#0901#);
+
+  for Orientation'Size use GL.enum'Size;
+
+  subtype OrientationEnm is Orientation;
+  pragma Obsolescent (OrientationEnm, "Prefer the new name, Orientation");
+
+  CW  : constant Orientation := Clockwise;
+  pragma Obsolescent (CW, "Prefer the new name, Clockwise");
+  CCW : constant Orientation := Counter_Clockwise;
+  pragma Obsolescent (CCW, "Prefer the new name, Counter_Clockwise");
+
+  procedure Set_Front_Face (mode : Orientation);
+
+  procedure FrontFace (mode : Orientation) renames Set_Front_Face;
+  pragma Obsolescent (FrontFace, "Prefer the new name, Set_Front_Face");
+
+  --------------------
+  --  Polygon mode  --
+  --------------------
+
+  type Polygon_Mode_Type is (Point, Line, Fill);
+
+  for Polygon_Mode_Type use
+    (Point => 16#1B00#,
+     Line  => 16#1B01#,
+     Fill  => 16#1B02#);
+
+  for Polygon_Mode_Type'Size use GL.enum'Size;
+
+  subtype PolygonModeEnm is Polygon_Mode_Type;
+  pragma Obsolescent (PolygonModeEnm, "Prefer the new name, Polygon_Mode_Type");
+
+  procedure Set_Polygon_Mode (face : Face_Selector;
+                              mode : Polygon_Mode_Type);
+
+  procedure PolygonMode (face : Face_Selector;
+                         mode : Polygon_Mode_Type) renames Set_Polygon_Mode;
+  pragma Obsolescent (PolygonMode, "Prefer the new name, Set_Polygon_Mode");
 
   --  Clipping plane operations
   type ClipPlaneEnm is
@@ -1306,22 +1330,27 @@ package GL is
   procedure Accum (op    : AccumEnm;
                    value : GL.Float);
 
-  --  Matrix mode
-  type MatrixModeEnm is
-  (
-     MODELVIEW,
-     PROJECTION,
-     TEXTURE
-  );
-  for MatrixModeEnm use
-  (
-     MODELVIEW                               => 16#1700#,
-     PROJECTION                              => 16#1701#,
-     TEXTURE                                 => 16#1702#
-  );
-  for MatrixModeEnm'Size use GL.enum'Size;
+  -------------------
+  --  Matrix mode  --
+  -------------------
 
-  procedure MatrixMode (mode : MatrixModeEnm);
+  type Matrix_Mode_Type is (Modelview, Projection, Texture, Color);
+
+  for Matrix_Mode_Type use
+    (Modelview  => 16#1700#,
+     Projection => 16#1701#,
+     Texture    => 16#1702#,
+     Color      => 16#1800#);
+
+  for Matrix_Mode_Type'Size use GL.enum'Size;
+
+  subtype MatrixModeEnm is Matrix_Mode_Type;
+  pragma Obsolescent (MatrixModeEnm, "Prefer the new name, Matrix_Mode_Type");
+
+  procedure Set_Matrix_Mode (mode : Matrix_Mode_Type);
+
+  procedure MatrixMode (mode : Matrix_Mode_Type) renames Set_Matrix_Mode;
+  pragma Obsolescent (MatrixMode, "Prefer the new name, Set_Matrix_Mode");
 
   --  Display liststype ListModeEnm is
   type ListModeEnm is
@@ -1366,17 +1395,34 @@ package GL is
 
   function IsList (list : GL.Uint) return GL_Boolean;
 
-  procedure DeleteLists (list    : GL.Uint;
-                         c_range : GL.Sizei);
+  procedure Delete_Lists (list    : GL.Uint;
+                          c_range : GL.Sizei);
 
-  function GenLists (c_range : GL.Sizei) return GL.Uint;
+  procedure DeleteLists (list    : GL.Uint;
+                         c_range : GL.Sizei) renames Delete_Lists;
+  pragma Obsolescent (DeleteLists, "Prefer the new name, Delete_Lists");
+
+  function Gen_Lists (c_range : GL.Sizei) return GL.Uint;
+
+  function GenLists (c_range : GL.Sizei) return GL.Uint renames Gen_Lists;
+  pragma Obsolescent (GenLists, "Prefer the new name, Gen_Lists");
+
+  procedure New_List (list : GL.Uint;
+                      mode : ListModeEnm);
 
   procedure NewList (list : GL.Uint;
-                     mode : ListModeEnm);
+                     mode : ListModeEnm) renames New_List;
+  pragma Obsolescent (NewList, "Prefer the new name, New_List");
 
-  procedure EndList;
+  procedure End_List;
 
-  procedure CallList (list : GL.Uint);
+  procedure EndList renames End_List;
+  pragma Obsolescent (EndList, "Prefer the new name, End_List");
+
+  procedure Call_List (list : GL.Uint);
+
+  procedure CallList (list : GL.Uint) renames Call_List;
+  pragma Obsolescent (CallList, "Prefer the new name, Call_List");
 
   procedure CallLists (n      : GL.Sizei;
                        c_type : OffsetTypeEnm;
@@ -1820,31 +1866,31 @@ package GL is
   );
   for ColorMaterialEnm'Size use GL.enum'Size;
 
-  procedure Material (face  : FaceEnm;
+  procedure Material (face  : Face_Selector;
                       pname : MaterialParameterEnm;
                       param : GL.Float);
 
-  procedure Materiali (face  : FaceEnm;
+  procedure Materiali (face  : Face_Selector;
                        pname : MaterialParameterEnm;
                        param : GL.Int);
 
-  procedure Material (face   : FaceEnm;
+  procedure Material (face   : Face_Selector;
                       pname  : MaterialParameterVEnm;
                       params : Material_Float_Vector);
 
-  procedure Materialiv (face   : FaceEnm;
+  procedure Materialiv (face   : Face_Selector;
                         pname  : MaterialParameterVEnm;
                         params : GL.intPointer);
 
-  procedure GetMaterialfv (face   : FaceEnm;
+  procedure GetMaterialfv (face   : Face_Selector;
                            pname  : GetMaterialParameterEnm;
                            params : floatPtr);
 
-  procedure GetMaterialiv (face   : FaceEnm;
+  procedure GetMaterialiv (face   : Face_Selector;
                            pname  : GetMaterialParameterEnm;
                            params : GL.intPointer);
 
-  procedure ColorMaterial (face : FaceEnm;
+  procedure ColorMaterial (face : Face_Selector;
                            mode : ColorMaterialEnm);
 
   --  Pixel stuff
@@ -2549,9 +2595,16 @@ package GL is
                            pname  : TexParamEnm;
                            param  : GL.Float);
 
-  procedure TexParameter (target : TargetTexEnm;
-                          pname  : TexParamEnm;
-                          param  : GL.Int);
+  procedure Texture_Parameter
+    (target : TargetTexEnm;
+     pname  : TexParamEnm;
+     param  : GL.Int);
+
+  procedure TexParameter
+    (target : TargetTexEnm;
+     pname  : TexParamEnm;
+     param  : GL.Int) renames Texture_Parameter;
+  pragma Obsolescent (TexParameter, "Prefer the new name, Texture_Parameter");
 
   procedure TexParameterfv (target : TargetTexEnm;
                             pname  : TexParamVEnm;
@@ -2610,8 +2663,12 @@ package GL is
   procedure DeleteTextures (n        : GL.Sizei;
                             textures : GL.uintPtr);
 
+  procedure Bind_Texture (target     : TargetTexEnm;
+                          texture_id : GL.Uint);
+
   procedure BindTexture (target     : TargetTexEnm;
-                         texture_id : GL.Uint);
+                         texture_id : GL.Uint) renames Bind_Texture;
+  pragma Obsolescent (BindTexture, "Prefer the new name, Bind_Texture");
 
   procedure PrioritizeTextures (n          : GL.Sizei;
                                 textures   : GL.uintPtr;
@@ -3230,9 +3287,15 @@ package GL is
                      height : GL.Sizei);
 
   --  Attribute stacks
-  procedure PushAttrib (mask : Bitfield);
+  procedure Push_Attrib (mask : Bitfield);
 
-  procedure PopAttrib;
+  procedure PushAttrib (mask : Bitfield) renames Push_Attrib;
+  pragma Obsolescent (PushAttrib, "Prefer the new name, Push_Attrib");
+
+  procedure Pop_Attrib;
+
+  procedure PopAttrib renames Pop_Attrib;
+  pragma Obsolescent (PopAttrib, "Prefer the new name, Pop_Attrib");
 
   procedure PushClientAttrib (mask : Bitfield);
 
@@ -3268,12 +3331,24 @@ package GL is
                       width  : GL.Sizei;
                       height : GL.Sizei);
 
-  --  Matrix stacks
-  procedure PushMatrix;
+  ---------------------
+  --  Matrix stacks  --
+  ---------------------
 
-  procedure PopMatrix;
+  procedure Push_Matrix;
 
-  procedure LoadIdentity;
+  procedure PushMatrix renames Push_Matrix;
+  pragma Obsolescent (PushMatrix, "Prefer the new name, Push_Matrix");
+
+  procedure Pop_Matrix;
+
+  procedure PopMatrix renames Pop_Matrix;
+  pragma Obsolescent (PopMatrix, "Prefer the new name, Pop_Matrix");
+
+  procedure Load_Identity;
+
+  procedure LoadIdentity renames Load_Identity;
+  pragma Obsolescent (LoadIdentity, "Prefer the new name, Load_Identity");
 
   procedure LoadMatrixd (m : GL.doublePtr);
 
@@ -3921,14 +3996,14 @@ private
 
   --  Wrappers for Material
 
-  procedure Materialf (face  : FaceEnm;
+  procedure Materialf (face  : Face_Selector;
                        pname : MaterialParameterEnm;
                        param : GL.Float);
-  procedure Material (face  : FaceEnm;
+  procedure Material (face  : Face_Selector;
                       pname : MaterialParameterEnm;
                       param : GL.Float) renames Materialf;
 
-  procedure Materialfv (face   : FaceEnm;
+  procedure Materialfv (face   : Face_Selector;
                         pname  : MaterialParameterVEnm;
                         params : floatPtr);
 
@@ -3979,9 +4054,9 @@ private
   procedure TexParameteri (target : TargetTexEnm;
                            pname  : TexParamEnm;
                            param  : GL.Int);
-  procedure TexParameter (target : TargetTexEnm;
-                          pname  : TexParamEnm;
-                          param  : GL.Int) renames TexParameteri;
+  procedure Texture_Parameter (target : TargetTexEnm;
+                               pname  : TexParamEnm;
+                               param  : GL.Int) renames TexParameteri;
 
   --  Some renames due to possible ambiguity with enumerated
   --  values (Accum, Clear, Viewport) that can be interpreted
@@ -4017,12 +4092,12 @@ private
   pragma Import (Stdcall, AlphaFunc, "glAlphaFunc");
   pragma Import (Stdcall, BlendFunc, "glBlendFunc");
   pragma Import (Stdcall, LogicOp, "glLogicOp");
-  pragma Import (Stdcall, CullFace, "glCullFace");
-  pragma Import (Stdcall, FrontFace, "glFrontFace");
+  pragma Import (Stdcall, Set_Cull_Face, "glCullFace");
+  pragma Import (Stdcall, Set_Front_Face, "glFrontFace");
   pragma Import (Stdcall, PointSize, "glPointSize");
   pragma Import (Stdcall, LineWidth, "glLineWidth");
   pragma Import (Stdcall, LineStipple, "glLineStipple");
-  pragma Import (Stdcall, PolygonMode, "glPolygonMode");
+  pragma Import (Stdcall, Set_Polygon_Mode, "glPolygonMode");
   pragma Import (Stdcall, PolygonOffset, "glPolygonOffset");
   pragma Import (Stdcall, PolygonStipple, "glPolygonStipple");
   pragma Import (Stdcall, GetPolygonStipple, "glGetPolygonStipple");
@@ -4042,8 +4117,8 @@ private
   pragma Import (Stdcall, GetDoublev, "glGetDoublev");
   pragma Import (Stdcall, GetFloatv, "glGetFloatv");
   pragma Import (Stdcall, GetIntegerv, "glGetIntegerv");
-  pragma Import (Stdcall, PushAttrib, "glPushAttrib");
-  pragma Import (Stdcall, PopAttrib, "glPopAttrib");
+  pragma Import (Stdcall, Push_Attrib, "glPushAttrib");
+  pragma Import (Stdcall, Pop_Attrib, "glPopAttrib");
   pragma Import (Stdcall, PushClientAttrib, "glPushClientAttrib");
   pragma Import (Stdcall, PopClientAttrib, "glPopClientAttrib");
   pragma Import (Stdcall, RenderMode, "glRenderMode");
@@ -4058,13 +4133,13 @@ private
   pragma Import (Stdcall, DepthRange, "glDepthRange");
   pragma Import (Stdcall, ClearAccum, "glClearAccum");
   pragma Import (Stdcall, glAccum, "glAccum");
-  pragma Import (Stdcall, MatrixMode, "glMatrixMode");
+  pragma Import (Stdcall, Set_Matrix_Mode, "glMatrixMode");
   pragma Import (Stdcall, Ortho, "glOrtho");
   pragma Import (Stdcall, Frustum, "glFrustum");
   pragma Import (Stdcall, glViewport, "glViewport");
-  pragma Import (Stdcall, PushMatrix, "glPushMatrix");
-  pragma Import (Stdcall, PopMatrix, "glPopMatrix");
-  pragma Import (Stdcall, LoadIdentity, "glLoadIdentity");
+  pragma Import (Stdcall, Push_Matrix, "glPushMatrix");
+  pragma Import (Stdcall, Pop_Matrix, "glPopMatrix");
+  pragma Import (Stdcall, Load_Identity, "glLoadIdentity");
   pragma Import (Stdcall, LoadMatrixd, "glLoadMatrixd");
   pragma Import (Stdcall, LoadMatrixf, "glLoadMatrixf");
   pragma Import (Stdcall, MultMatrixd, "glMultMatrixd");
@@ -4076,11 +4151,11 @@ private
   pragma Import (Stdcall, Translate3d, "glTranslated");
   pragma Import (Stdcall, Translate3f, "glTranslatef");
   pragma Import (Stdcall, IsList, "glIsList");
-  pragma Import (Stdcall, DeleteLists, "glDeleteLists");
-  pragma Import (Stdcall, GenLists, "glGenLists");
-  pragma Import (Stdcall, NewList, "glNewList");
-  pragma Import (Stdcall, EndList, "glEndList");
-  pragma Import (Stdcall, CallList, "glCallList");
+  pragma Import (Stdcall, Delete_Lists, "glDeleteLists");
+  pragma Import (Stdcall, Gen_Lists, "glGenLists");
+  pragma Import (Stdcall, New_List, "glNewList");
+  pragma Import (Stdcall, End_List, "glEndList");
+  pragma Import (Stdcall, Call_List, "glCallList");
   pragma Import (Stdcall, CallLists, "glCallLists");
   pragma Import (Stdcall, ListBase, "glListBase");
   pragma Import (Stdcall, GL_Begin, "glBegin");
@@ -4301,7 +4376,7 @@ private
   pragma Import (Stdcall, GetTexImage, "glGetTexImage");
   pragma Import (Stdcall, GenTextures, "glGenTextures");
   pragma Import (Stdcall, DeleteTextures, "glDeleteTextures");
-  pragma Import (Stdcall, BindTexture, "glBindTexture");
+  pragma Import (Stdcall, Bind_Texture, "glBindTexture");
   pragma Import (Stdcall, PrioritizeTextures, "glPrioritizeTextures");
   pragma Import (Stdcall, AreTexturesResident, "glAreTexturesResident");
   pragma Import (Stdcall, IsTexture, "glIsTexture");
