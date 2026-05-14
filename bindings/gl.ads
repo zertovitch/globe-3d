@@ -1,5 +1,8 @@
 --#-#-#-#-----------------
 --  Change log:
+
+--  After 2011: see logs on SourceForge (https://sourceforge.net/projects/globe3d/)
+--  or GitHub (https://github.com/zertovitch/globe-3d)
 --
 --  GdM: 2011: using System.Address_To_Access_Conversions instead of Ada.Unchecked_Conversion
 --  GdM: 2008: GL 1.5 items moved to GL.Extended ('cause of Windows :-( )
@@ -395,13 +398,6 @@ package GL is
 
   type Face_Selector is (Front, Back, Front_And_Back);
 
-  for Face_Selector use
-    (Front          => 16#0404#,
-     Back           => 16#0405#,
-     Front_And_Back => 16#0408#);
-
-  for Face_Selector'Size use GL.enum'Size;
-
   subtype FaceEnm is Face_Selector;
   pragma Obsolescent (FaceEnm, "Prefer the new name, Face_Selector");
 
@@ -417,18 +413,12 @@ package GL is
 
   type Orientation is (Clockwise, Counter_Clockwise);
 
-  for Orientation use
-    (Clockwise         => 16#0900#,
-     Counter_Clockwise => 16#0901#);
-
-  for Orientation'Size use GL.enum'Size;
-
   subtype OrientationEnm is Orientation;
   pragma Obsolescent (OrientationEnm, "Prefer the new name, Orientation");
 
-  CW  : constant Orientation := Clockwise;
+  function CW return Orientation;
   pragma Obsolescent (CW, "Prefer the new name, Clockwise");
-  CCW : constant Orientation := Counter_Clockwise;
+  function CCW return Orientation;
   pragma Obsolescent (CCW, "Prefer the new name, Counter_Clockwise");
 
   procedure Set_Front_Face (mode : Orientation);
@@ -441,13 +431,6 @@ package GL is
   --------------------
 
   type Polygon_Mode_Type is (Point, Line, Fill);
-
-  for Polygon_Mode_Type use
-    (Point => 16#1B00#,
-     Line  => 16#1B01#,
-     Fill  => 16#1B02#);
-
-  for Polygon_Mode_Type'Size use GL.enum'Size;
 
   subtype PolygonModeEnm is Polygon_Mode_Type;
   pragma Obsolescent (PolygonModeEnm, "Prefer the new name, Polygon_Mode_Type");
@@ -471,12 +454,12 @@ package GL is
   );
   for ClipPlaneEnm use
   (
-     CLIP_PLANE0                             => 16#3000#,
-     CLIP_PLANE1                             => 16#3001#,
-     CLIP_PLANE2                             => 16#3002#,
-     CLIP_PLANE3                             => 16#3003#,
-     CLIP_PLANE4                             => 16#3004#,
-     CLIP_PLANE5                             => 16#3005#
+     CLIP_PLANE0 => 16#3000#,
+     CLIP_PLANE1 => 16#3001#,
+     CLIP_PLANE2 => 16#3002#,
+     CLIP_PLANE3 => 16#3003#,
+     CLIP_PLANE4 => 16#3004#,
+     CLIP_PLANE5 => 16#3005#
   );
   for ClipPlaneEnm'Size use GL.enum'Size;
 
@@ -1648,19 +1631,16 @@ package GL is
                                ptr     : GL.pointer);
 
   --  Shading model
-  type ShadeModeEnm is
-  (
-     FLAT,
-     SMOOTH
-  );
-  for ShadeModeEnm use
-  (
-     FLAT                                    => 16#1D00#,
-     SMOOTH                                  => 16#1D01#
-  );
-  for ShadeModeEnm'Size use GL.enum'Size;
 
-  procedure ShadeModel (mode : ShadeModeEnm);
+  type Shade_Model_Type is (Flat, Smooth);
+
+  subtype ShadeModeEnm is Shade_Model_Type;
+  pragma Obsolescent (ShadeModeEnm, "Prefer the new name, Shade_Model_Type");
+
+  procedure Set_Shade_Model (mode : Shade_Model_Type);
+
+  procedure ShadeModel (mode : Shade_Model_Type) renames Set_Shade_Model;
+  pragma Obsolescent (ShadeModel, "Prefer the new name, Set_Shade_Model");
 
   --  Lighting
   type LightIDEnm is
@@ -3240,19 +3220,32 @@ package GL is
   --  Clears
   procedure ClearIndex (c : GL.Float);
 
+  procedure Clear_Color (red_value   : GL.Clampf;
+                         green_value : GL.Clampf;
+                         blue_value  : GL.Clampf;
+                         alpha_value : GL.Clampf);
+
   procedure ClearColor (red_value   : GL.Clampf;
                         green_value : GL.Clampf;
                         blue_value  : GL.Clampf;
-                        alpha_value : GL.Clampf);
+                        alpha_value : GL.Clampf) renames Clear_Color;
+  pragma Obsolescent (ClearColor, "Prefer the new name, Clear_Color");
 
   procedure Clear (mask : Bitfield);
 
   procedure ClearDepth (depth_value : GL.Clampd);
 
+  procedure Clear_Accumulation_Buffer
+     (red_value   : GL.Float;
+      green_value : GL.Float;
+      blue_value  : GL.Float;
+      alpha_value : GL.Float);
+
   procedure ClearAccum (red_value   : GL.Float;
                         green_value : GL.Float;
                         blue_value  : GL.Float;
-                        alpha_value : GL.Float);
+                        alpha_value : GL.Float) renames Clear_Accumulation_Buffer;
+  pragma Obsolescent (ClearAccum, "Prefer the new name, Clear_Accumulation_Buffer");
 
   --  Masks
   procedure IndexMask (mask : GL.Uint);
@@ -3842,6 +3835,32 @@ package GL is
 
 private
 
+  for Face_Selector use
+    (Front          => 16#0404#,
+     Back           => 16#0405#,
+     Front_And_Back => 16#0408#);
+
+  for Face_Selector'Size use GL.enum'Size;
+
+  for Orientation use
+    (Clockwise         => 16#0900#,
+     Counter_Clockwise => 16#0901#);
+
+  for Orientation'Size use GL.enum'Size;
+
+  for Polygon_Mode_Type use
+    (Point => 16#1B00#,
+     Line  => 16#1B01#,
+     Fill  => 16#1B02#);
+
+  for Polygon_Mode_Type'Size use GL.enum'Size;
+
+  for Shade_Model_Type use
+    (Flat   => 16#1D00#,
+     Smooth => 16#1D01#);
+
+  for Shade_Model_Type'Size use GL.enum'Size;
+
   --  Workaround for GNAT 3.15p (OA 7.2.2 OK), when applying pragma Import to all
   --  functions named GetString:
   --  -> convention for "GetString" does not permit returning unconstrained array type
@@ -4085,7 +4104,7 @@ private
   -----------------
 
   pragma Import (Stdcall, ClearIndex, "glClearIndex");
-  pragma Import (Stdcall, ClearColor, "glClearColor");
+  pragma Import (Stdcall, Clear_Color, "glClearColor");
   pragma Import (Stdcall, glClear, "glClear");
   pragma Import (Stdcall, IndexMask, "glIndexMask");
   pragma Import (Stdcall, ColorMask, "glColorMask");
@@ -4131,7 +4150,7 @@ private
   pragma Import (Stdcall, DepthFunc, "glDepthFunc");
   pragma Import (Stdcall, DepthMask, "glDepthMask");
   pragma Import (Stdcall, DepthRange, "glDepthRange");
-  pragma Import (Stdcall, ClearAccum, "glClearAccum");
+  pragma Import (Stdcall, Clear_Accumulation_Buffer, "glClearAccum");
   pragma Import (Stdcall, glAccum, "glAccum");
   pragma Import (Stdcall, Set_Matrix_Mode, "glMatrixMode");
   pragma Import (Stdcall, Ortho, "glOrtho");

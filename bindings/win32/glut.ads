@@ -3,6 +3,7 @@
 --                     preprocessing glut.prs.
 --                     You should modify glut.prs and preprocess
 --                     it with: tools/glut_prep.cmd
+----------------------------------------------------------------------
 --
 --  Bindings to FreeGLUT (2.4.0 or later).
 --  Maintained by Gautier de Montmollin and Rod Kay
@@ -308,27 +309,42 @@ package GLUT is
    procedure SetOption (option_flag : Integer;   value : Integer);
    pragma Import (StdCall, SetOption, "glutSetOption");
 
-   procedure InitDisplayMode (Mode : Unsigned);
-   pragma Import (StdCall, InitDisplayMode, "glutInitDisplayMode");
+   procedure Initialize_Display_Mode (Mode : Unsigned);
+   pragma Import (StdCall, Initialize_Display_Mode, "glutInitDisplayMode");
+
+   procedure InitDisplayMode (Mode : Unsigned) renames Initialize_Display_Mode;
+   pragma Obsolescent (InitDisplayMode, "Prefer the new name, Initialize_Display_Mode");
 
    procedure InitDisplayString (String : Interfaces.C.Strings.chars_ptr);
    pragma Import (StdCall, InitDisplayString, "glutInitDisplayString");
 
    procedure InitDisplayString (Name : String);
 
-   procedure InitWindowPosition (X : Integer; Y : Integer);
-   pragma Import (StdCall, InitWindowPosition, "glutInitWindowPosition");
+   procedure Initialize_Window_Position (X : Integer; Y : Integer);
+   pragma Import (StdCall, Initialize_Window_Position, "glutInitWindowPosition");
 
-   procedure InitWindowSize (Width : Integer; Height : Integer);
-   pragma Import (StdCall, InitWindowSize, "glutInitWindowSize");
+   procedure InitWindowPosition (X : Integer; Y : Integer) renames Initialize_Window_Position;
+   pragma Obsolescent (InitWindowPosition, "Prefer the new name, Initialize_Window_Position");
 
-   procedure MainLoop;
-   pragma Import (StdCall, MainLoop, "glutMainLoop");
+   procedure Initialize_Window_Size (Width : Integer; Height : Integer);
+   pragma Import (StdCall, Initialize_Window_Size, "glutInitWindowSize");
 
-   procedure LeaveMainLoop; -- FreeGLUT
-   pragma Import (StdCall, LeaveMainLoop, "glutLeaveMainLoop");
+   procedure InitWindowSize (Width : Integer; Height : Integer) renames Initialize_Window_Size;
+   pragma Obsolescent (InitWindowSize, "Prefer the new name, Initialize_Window_Size");
 
-   procedure MainLoopEvent; -- FreeGLUT
+   procedure Main_Loop;
+   pragma Import (StdCall, Main_Loop, "glutMainLoop");
+
+   procedure MainLoop renames Main_Loop;
+   pragma Obsolescent (MainLoop, "Prefer the new name, Main_Loop");
+
+   procedure Leave_Main_Loop;  --  FreeGLUT
+   pragma Import (StdCall, Leave_Main_Loop, "glutLeaveMainLoop");
+
+   procedure LeaveMainLoop renames Leave_Main_Loop;
+   pragma Obsolescent (LeaveMainLoop, "Prefer the new name, Leave_Main_Loop");
+
+   procedure MainLoopEvent;  --  FreeGLUT
    pragma Import (StdCall, MainLoopEvent, "glutMainLoopEvent");
 
    --  GLUT window sub-API.
@@ -404,8 +420,11 @@ package GLUT is
    procedure HideWindow;
    pragma Import (StdCall, HideWindow, "glutHideWindow");
 
-   procedure FullScreen;
-   pragma Import (StdCall, FullScreen, "glutFullScreen");
+   procedure Full_Screen;
+   pragma Import (StdCall, Full_Screen, "glutFullScreen");
+
+   procedure FullScreen renames Full_Screen;
+   pragma Obsolescent (FullScreen, "Prefer the new name, Full_Screen");
 
    procedure SetCursor (Cursor : Integer);
    pragma Import (StdCall, SetCursor, "glutSetCursor");

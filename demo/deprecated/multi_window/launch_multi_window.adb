@@ -1,11 +1,9 @@
 with
      GLOBE_3D.Skinned_Visuals,
-     GLOBE_3D.Visuals_rendering,
+     GLOBE_3D.Visuals_Rendering,
 
      GLUT.Windows,
-     GL,
-
-     Box;
+     GL;
 
 use
     GLOBE_3D,
@@ -19,17 +17,17 @@ is
    Viewer_2   : GLUT.Windows.Window;
    Viewer_3   : GLUT.Windows.Window;
 
-   the_Object : GLOBE_3D.Skinned_Visuals.p_Skinned_Visual := null;
+   the_Object : constant GLOBE_3D.Skinned_Visuals.p_Skinned_Visual := null;
 
 begin
-   Set_global_data_name ("../g3demo_global_resources.zip");
-   Set_level_data_name  ("../g3demo_level_resources.zip");
+   Set_Global_Data_Name ("../g3demo_global_resources.zip");
+   Set_Level_Data_Name  ("../g3demo_level_resources.zip");
 
    GLUT.Windows.Initialize;
 
-   Viewer_1.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
-   Viewer_2.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
-   Viewer_3.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
+   Viewer_1.Set_Renderer (GLOBE_3D.Visuals_Rendering.Render'Access);
+   Viewer_2.Set_Renderer (GLOBE_3D.Visuals_Rendering.Render'Access);
+   Viewer_3.Set_Renderer (GLOBE_3D.Visuals_Rendering.Render'Access);
 
    Define (Viewer_1);
    Define (Viewer_2);

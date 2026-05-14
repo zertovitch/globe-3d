@@ -18,7 +18,7 @@ procedure Get_GL_Info is
   end Put_Split;
 begin
   GLUT.Init;
-  GLUT.InitDisplayMode (GLUT_options);
+  GLUT.Initialize_Display_Mode (GLUT_options);
   if GLUT.CreateWindow ("Test") = 0 then return; end if;
   Create (f, Out_File, "gl_info.txt");
   Put_Line (f, "GL.GetString:");

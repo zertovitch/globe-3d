@@ -50,7 +50,7 @@ package GLUT.Windows is
 
    procedure Freshen (Self      : in out Window;
                       Time_Step : in     GLOBE_3D.Real;
-                      Extras    : in     GLOBE_3D.Skinned_Visuals.Skinned_Visual_Array := GLOBE_3D.Skinned_Visuals.null_Visuals);
+                      Extras    : in     GLOBE_3D.Skinned_Visuals.Skinned_Visual_Array := GLOBE_3D.Skinned_Visuals.Null_Visuals);
 
    function Is_Closed (Self : in Window) return Boolean;
 

@@ -56,16 +56,16 @@ package body GLOBE_3D.Visuals_Rendering is
 
       Enable   (Lighting);  -- enable lighting for G3D.Display in 'separate Visuals' (obsolete).
       Enable   (Cull_Face);
-      CullFace (Back);
+      Set_Cull_Face (Back);
 
-      MatrixMode    (MODELVIEW);
+      Set_Matrix_Mode   (Modelview);
       Set_GL_Matrix (the_Camera.world_rotation);
       Translate
         (-the_Camera.clipper.eye_position (0),
          -the_Camera.clipper.eye_position (1),
          -the_Camera.clipper.eye_position (2));
 
-      PushMatrix;
+      Push_Matrix;
 
       --  separate Visuals
       --
@@ -121,7 +121,7 @@ package body GLOBE_3D.Visuals_Rendering is
             Sort (all_Geometries (1 .. geometry_Count));
          end if;
 
-         GL.PushMatrix;
+         GL.Push_Matrix;
 
          for Each in 1 .. geometry_Count loop
 
@@ -140,8 +140,8 @@ package body GLOBE_3D.Visuals_Rendering is
                draw (all_Geometries (Each).Geometry.Geometry.all);
                GL.Errors.Log;
             else
-               GL.PopMatrix;
-               GL.PushMatrix;
+               GL.Pop_Matrix;
+               GL.Push_Matrix;
                GL.Translate       (all_Geometries (Each).Visual.centre);
                Multiply_GL_Matrix (all_Geometries (Each).Visual.rotation);
 
@@ -153,7 +153,7 @@ package body GLOBE_3D.Visuals_Rendering is
 
          end loop;
 
-         GL.PopMatrix;
+         GL.Pop_Matrix;
       end;
 
       GL.Errors.Log;
@@ -188,8 +188,8 @@ package body GLOBE_3D.Visuals_Rendering is
 
          Enable    (Lighting);   -- ensure lighting is enabled for G3D.Display of transparents (obsolete).
          Enable    (Blend);
-         BlendFunc (sfactor => ONE,
-                    dfactor => ONE_MINUS_SRC_ALPHA);
+         Set_Blend_Func (Src_Factor => ONE,
+                         Dst_Factor => ONE_MINUS_SRC_ALPHA);
 
          for Each in 1 .. transparent_Count loop
             declare
@@ -217,7 +217,7 @@ package body GLOBE_3D.Visuals_Rendering is
                         GL.Errors.Log;
                      end if;
 
-                     GL.PushMatrix;
+                     GL.Push_Matrix;
 
                      GL.Translate       (the_Visual.centre);
                      Multiply_GL_Matrix (the_Visual.rotation);
@@ -225,7 +225,7 @@ package body GLOBE_3D.Visuals_Rendering is
                      draw (the_Geometry.Geometry.all);
                      GL.Errors.Log;
 
-                     GL.PopMatrix;
+                     GL.Pop_Matrix;
                   end;
                end loop;
 
@@ -235,7 +235,7 @@ package body GLOBE_3D.Visuals_Rendering is
          GL.DepthMask (GL_TRUE);
       end;
 
-      PopMatrix;
+      Pop_Matrix;
 
       GL.Errors.Log;      -- tbd: for debug only
    end Render;

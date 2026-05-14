@@ -3,7 +3,7 @@ with
 
      GLOBE_3D.Sprite,
      GLOBE_3D.Textures,
-     GLOBE_3D.Visuals_rendering,
+     GLOBE_3D.Visuals_Rendering,
 
      GL.Geometry.VBO,
 --       gl.Primitive,
@@ -44,21 +44,21 @@ is
 begin
    GL.Skins.Disable_VBO_callback := VBO_Callback'Unrestricted_Access;
 
-   g3d.Set_global_data_name ("../g3demo_global_resources.zip");
-   g3d.Set_level_data_name  ("../g3demo_level_resources.zip");
+   g3d.Set_Global_Data_Name ("../g3demo_global_resources.zip");
+   g3d.Set_Level_Data_Name  ("../g3demo_level_resources.zip");
 
-   g3d.Textures.Register_textures_from_resources;
+   g3d.Textures.Register_Textures_From_Resources;
 
    GLUT.Windows.Initialize;
 
-   the_Viewer.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
+   the_Viewer.Set_Renderer(GLOBE_3D.Visuals_Rendering.Render'Access);
    Define (the_Viewer);
 
-   g3d.Textures.Check_all_textures; -- Preload the textures
+   g3d.Textures.Check_All_Textures; -- Preload the textures
 
    the_Sprite := new g3d.Sprite.Sprite (max_Geometries => 1);
 
-   -- Using VBO geometry.
+   --  Using VBO geometry.
    --
    declare
       the_Geometry : constant GL.Geometry.VBO.p_vbo_Geometry    := new GL.Geometry.VBO.vbo_Geometry;
@@ -101,10 +101,10 @@ begin
 
    Add (the_Viewer, the_Sprite.all'Access);
 
-   -- Using primitive_Geometry.  -- tbd: update this
+   --  Using primitive_Geometry.  -- tbd: update this
    --
 
-   -- the_Sprite := new g3d.sprite.Sprite (max_Geometrys => 1);
+   --  the_Sprite := new g3d.sprite.Sprite (max_Geometrys => 1);
 
 --     declare
 --        the_Quads    : p_Quads                           := gl.geometry.new_Quads (1, lit => False);

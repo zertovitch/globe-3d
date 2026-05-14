@@ -75,4 +75,7 @@ package body GL is
     end if;
   end GetString;
 
+  function CW return Orientation is (Clockwise);
+  function CCW return Orientation is (Counter_Clockwise);
+
 end GL;

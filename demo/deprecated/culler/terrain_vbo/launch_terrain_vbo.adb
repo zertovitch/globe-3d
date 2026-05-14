@@ -1,7 +1,7 @@
 with
      GLOBE_3D.Culler.Impostoring_frustum,
      GLOBE_3D.Sprite,
-     GLOBE_3D.Visuals_rendering,
+     GLOBE_3D.Visuals_Rendering,
      Terrain.VBO,
      GL.Buffer,
      GL.Extended,
@@ -30,19 +30,19 @@ is
 begin
    GL.Skins.Disable_VBO_callback := VBO_Callback'Unrestricted_Access;
 
-   g3d.Set_global_data_name ("../../g3demo_global_resources.zip");
-   g3d.Set_level_data_name  ("../../g3demo_level_resources.zip");
+   g3d.Set_Global_Data_Name ("../../g3demo_global_resources.zip");
+   g3d.Set_Level_Data_Name  ("../../g3demo_level_resources.zip");
 
    GLUT.Windows.Initialize;
-   Viewer.Set_renderer(GLOBE_3D.Visuals_rendering.Render'Access);
+   Viewer.Set_Renderer (GLOBE_3D.Visuals_Rendering.Render'Access);
 
-   -- Setup the viewing window and inform the culler.
+   --  Setup the viewing window and inform the culler.
    --
    Define (Viewer);
    Viewer.Camera.clipper.eye_position := (0.0, 200.0, 0.0);
    Culler.Viewer_is (Viewer'Unchecked_Access);                   -- Tell culler where to send culled visuals.
 
-   -- Add the terrain.
+   --  Add the terrain.
    --
    declare
       terrain_Grid : constant GLOBE_3D.Sprite.p_sprite_Grid
@@ -61,7 +61,7 @@ begin
       end loop;
    end;
 
-   -- Main loop.
+   --  Main loop.
    --
    while not Viewer.Is_Closed loop
       GLUT.MainLoopEvent;
