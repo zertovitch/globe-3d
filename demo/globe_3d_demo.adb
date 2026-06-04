@@ -43,12 +43,12 @@ with Vehic001, Vehic002,
      Extruded_Surface,
      Sierpinski;
 
-with Ada.Numerics;
-with Ada.Command_Line;
-with Ada.Directories;
-with Ada.Strings.Fixed;
-with Ada.Strings.Unbounded;
-with Ada.Characters.Handling;
+with Ada.Numerics,
+     Ada.Command_Line,
+     Ada.Directories,
+     Ada.Strings.Fixed,
+     Ada.Strings.Unbounded,
+     Ada.Characters.Handling;
 
 procedure GLOBE_3D_Demo is
 
@@ -1152,7 +1152,7 @@ procedure GLOBE_3D_Demo is
     end case;
   end Start_GLs;
 
-  --  Get eventual command line arguments.
+  --  Get possible command line arguments.
 
   type Switch_Type is
     (load,   --  load some scenes from .g3d files stored in the GLOBE_3D

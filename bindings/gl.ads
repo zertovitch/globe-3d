@@ -4330,7 +4330,7 @@ private
   pragma Import (Stdcall, DrawArrays, "glDrawArrays");
   pragma Import (Stdcall, DrawElements, "glDrawElements");
   pragma Import (Stdcall, InterleavedArrays, "glInterleavedArrays");
-  pragma Import (Stdcall, ShadeModel, "glShadeModel");
+  pragma Import (Stdcall, Set_Shade_Model, "glShadeModel");
   pragma Import (Stdcall, Lightf, "glLightf");
   pragma Import (Stdcall, Lighti, "glLighti");
   pragma Import (Stdcall, Lightfv, "glLightfv");
